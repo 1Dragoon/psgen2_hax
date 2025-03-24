@@ -236,6 +236,4 @@ Notice I don't call it resurrection. This is mainly because the game's behavior 
 
 It's worth noting that the Nei points may have more use in the game. Although the first 19 points are entirely optional and can be missed, there is a 20th point issued after the anime cutscene while AMeDAS is blowing up. It doesn't appear to be used for anything by this point, and having only 18 points before Neifirst does not allow you to keep Nei either.
 
-The game has some items in it with an unknown purpose and no obvious means of obtaining them. Take for example the Land Master, Ice Digger, Heal Ring, and Atlas. They could just be remnants from PSGEN1, which the developers likely used as a starting point to develop this game, and perhaps they simply forgot to remove these items? Some items, like the Animal Claw, are issued after the battle with Neifirst, so maybe these items see something similar? Anybody's guess at this point.
-
-I'll be revising this guide if I find further references to these points or anything else that comes up.
+The game has some items in it with an unknown purpose and no obvious means of obtaining them. Take for example the Land Master, Ice Digger, and Atlas. They could just be remnants from PSGEN1, which the developers likely used as a starting point to develop this game, and perhaps they simply forgot to remove these items? Some items, like the Animal Claw, are issued after the battle with Neifirst, so maybe these items see something similar? Anybody's guess at this point.
