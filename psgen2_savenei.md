@@ -74,7 +74,7 @@ However, following this guide in the order I've laid it out has always worked in
 
 #### Nido Tower
 
-> This dungeon has one of two trimates available early in the game. It's a bit out of the way to obtain though, the one in the biosystems lab is quicker to get. Either way, you'll need at least one later on before you're able to buy one.
+> This dungeon has one of two trimates available early in the game. It's a bit out of the way to obtain though, the one in the biosystems lab is quicker to get. Either way, you'll need at least one later on before you're able to buy any.
 1. After giving Teim the ransom letter, go to the North Bridge.
 >> Side note: Other guides have you go to the North Bridge before Teim. That method has some small Nei back story in it, but it's mutually exclusive with some other dialogue involving Teim that can only be had by skipping that step and consulting AFTER you get Teim. Neither method grants you points, so either method or not doing either at all is totally fine. There are actually a few mutually exclusive plot points like this in the game, which further confirmed to me at the time that the idea of seeing as much dialogue as possible coulnd't be how Nei is saved.
 
@@ -125,7 +125,7 @@ However, following this guide in the order I've laid it out has always worked in
   - Look a for black haired kid in orange named Zachariah on the far east side. Talk to him twice. Slightly north of Zachariah is a woman in pink named Deborah. Talk to her.
   - Slightly north of Deborah is a woman with black hair and a green shirt named Carmel. Talk to her twice.
 2. Just over the bridge west of them near the weapon shop is a man with light-brown hair wearing a blue shirt named Luke. Talk to him. He'll tell you to talk to Enos.
-3. Enos is an old man in green on the west side. Talk him and Agree to his request.
+3. Enos is an old man in green on the west side. Talk to him and Agree to his request.
 4. Go to Kueris.
 
 #### Kueris
@@ -232,8 +232,8 @@ After reaching 5F:
 
 #### Keeping Nei
 
-Notice I don't call it resurrection. This is mainly because the game's behavior doesn't really change after this point. You can simply clone her like usual, that's really it. No additional story elements or cutscenes happen that I've (yet) seen. The end result is the game simply doesn't flip her "usable character" bit to remove her, and the clone labs don't talk about cells being degraded.
+Notice I don't call it resurrection. This is mainly because the game's behavior doesn't really change after this point. You can simply clone her like usual, that's really it. No additional story elements or cutscenes happen that I've (yet) seen. The end result is the game simply doesn't flip her "usable character" bit to remove her, and the clone labs don't talk about cells being degraded. I've seen comments that Nei has some kind of special ending, but that doesn't appear to be so. The only real difference is that in the ending sequence, Nei has a graphic along with the rest, just before Eusis, but this appears regardless of whether you save her the legitimate way or you "cheat" by simply turning on her presence bit -- it's all the same.
 
-It's worth noting that the Nei points may have more use in the game. Although the first 19 points are entirely optional and can be missed, there is a 20th point issued after the anime cutscene while AMeDAS is blowing up. It doesn't appear to be used for anything by this point, and having only 18 points before Neifirst does not allow you to keep Nei either.
+It's worth noting that, although unlikely, the Nei points may have more use in the game. Although the first 19 points are entirely optional and can be missed, there is a 20th point issued after the anime cutscene while AMeDAS is blowing up. It doesn't appear to be used for anything by this point, and having only 18 points before Neifirst does not allow you to keep Nei either.
 
-The game has some items in it with an unknown purpose and no obvious means of obtaining them. Take for example the Land Master, Ice Digger, and Atlas. They could just be remnants from PSGEN1, which the developers likely used as a starting point to develop this game, and perhaps they simply forgot to remove these items? Some items, like the Animal Claw, are issued after the battle with Neifirst, so maybe these items see something similar? Anybody's guess at this point.
+The game has some items in it with an unknown purpose and no obvious means of obtaining them. Take for example the Land Master, Ice Digger, and Atlas. They could just be remnants from PSGEN1, which the developers likely used as a starting point to develop this game, and perhaps they simply forgot to remove these items? Some items, like the Animal Claw, are issued after the battle with Neifirst, so maybe these items see something similar? Anybody's guess at this point. Although I can't see any string mention for them (aside from one Dezorian in Ryuon mentioning the ice digger when you wear the magic hat) ultimately I'm working from a translation that has some known broken and/or missing text.

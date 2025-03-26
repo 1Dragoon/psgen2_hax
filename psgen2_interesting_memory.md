@@ -250,9 +250,3 @@ Current battle enemy HP values:
 3. 0x25ED48
 4. 0x25E724
 5. 0x25EF54
-
-As you might notice, the game doesn't display hitpoints above 1,000. These are the actual max hitpoint values for those enemies:
-- Neifirst HP: 1,500
-- Army Eye HP: 9,999
-- DarkForce HP: 11,000
-- Mother Brain HP: 7,450
