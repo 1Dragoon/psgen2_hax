@@ -1,0 +1,16 @@
+[package]
+name = "aeroprism"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+byteorder = "1.5.0"
+encoding = "0.2.33"
+encoding_rs = "0.8.35"
+file_type = { version = "0.8.9", features = ["all"] }
+hex_lit = "0.1.1"
+meowhash = "0.3.0"
+phf = { version = "0.13.1", features = ["macros"] }
+picori = "0.1.0"
+png = "0.18.0"
+tokio = "1.47.1"
