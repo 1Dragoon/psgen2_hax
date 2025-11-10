@@ -1,6 +1,9 @@
 // Contains raw data ripped from the game memory representing the enemy data structures and the text strings they point to
 use hex_lit::hex;
 
+// In SLPM_625.53 the first enemy pointer begins at 1A422C with a pointer to 0x002A8288. ELF VMA offset is 0x100000, file offset is 0x1000. Adjust pointers accordingly.
+
+
 pub fn enemy_struct_bytes() -> &'static [u8] {
     // Because I'm lazy right now
     &hex!(

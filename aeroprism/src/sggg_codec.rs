@@ -1,9 +1,12 @@
-use byteorder::ReadBytesExt;
-use png::{BitDepth, ColorType, Compression, InterlaceInfo};
-use std::collections::HashSet;
-
+#![expect(clippy::single_call_fn, reason = "readability")]
 use crate::helpers::{decode_hex, encode_hex};
-use std::io::{BufRead, Seek, Write};
+use byteorder::ReadBytesExt;
+use log::{info, warn};
+use png::{BitDepth, ColorType, Compression, InterlaceInfo};
+use std::{
+    collections::HashSet,
+    io::{self, BufRead, Cursor, Seek, Write},
+};
 
 const CHANNELS_PER_COLOR: usize = 4; // Each palette color is 32-bits AGBR little endian, which translates to RGBA in big endian. Rust, at a high level, operates as big endian, even though it compiles to native endian.
 // Each palette color is represented by one byte, and it's in this order
@@ -17,7 +20,7 @@ const SGGG_HEADER_SIZE: usize = 16;
 pub fn sggg_to_png<R: BufRead + Seek, W: Write>(
     reader: &mut R,
     writer: &mut W,
-) -> Result<(), std::io::Error> {
+) -> Result<(), io::Error> {
     // Scratchpad for the reader
     let current_u16 = &mut [0u8; 2];
     let current_u32 = &mut [0u8; 4];
@@ -51,9 +54,9 @@ pub fn sggg_to_png<R: BufRead + Seek, W: Write>(
         // Grayscale image
         ColorType::Grayscale
     } else {
-        let palette = sggg_palette_to_png(palette);
+        let png_palette = sggg_palette_to_png(palette);
         // Generate an alpha palette that has a first element as zero, followed by fully opaque 0xFF for everything else.
-        png_encoder.set_palette(palette);
+        png_encoder.set_palette(png_palette);
         png_encoder.set_trns(&alpha_bits);
         // This is a 32-bit paletted color image. Each 1 byte pixel just points to a palette offset. Thus in PNG speak, this is called indexed color
         ColorType::Indexed
@@ -62,41 +65,35 @@ pub fn sggg_to_png<R: BufRead + Seek, W: Write>(
     png_encoder.set_color(color_type);
     png_encoder.set_depth(BitDepth::Eight);
     png_encoder.set_compression(Compression::Fast);
-    let pngpixels = sggg_pixels_to_png(reader, width, height).unwrap();
+    let pngpixels = sggg_pixels_to_png(reader, width, height)?;
 
     // If the 4th field in the header is nonzero, let's store it in the PNG for later reconstitution
     if u32::from_le_bytes(unknown_data) > 0 {
-        png_encoder
-            .add_text_chunk("Header4".into(), encode_hex(&unknown_data))
-            .unwrap();
+        png_encoder.add_text_chunk("Header4".into(), encode_hex(&unknown_data))?;
     }
-    png_encoder
-        .add_text_chunk("PaletteMeowhash".into(), encode_hex(&palette_hash))
-        .unwrap();
+    png_encoder.add_text_chunk("PaletteMeowhash".into(), encode_hex(&palette_hash))?;
 
     // SGGG appears to occasionally store additional palettes, likely for a palette swap.
     // PNG has a similar feature that we can use to store these, namely sPLT chunks.
     // However the library I'm using doesn't support those. So let's just drop them into compressed text fields for now.
     let mut num = 0;
-    while let Ok(palette) = read_sggg_palette(reader, current_u32) {
-        let palette = sggg_palette_to_png(palette);
-        png_encoder
-            .add_ztxt_chunk(format!("AltPalette{num}"), encode_hex(&palette))
-            .unwrap();
+    while let Ok(sggg_palette) = read_sggg_palette(reader, current_u32) {
+        let png_palette = sggg_palette_to_png(sggg_palette);
+        png_encoder.add_ztxt_chunk(format!("AltPalette{num}"), encode_hex(&png_palette))?;
         num += 1;
     }
 
-    let mut pixel_writer = png_encoder.write_header().unwrap();
-    pixel_writer.write_image_data(&pngpixels).unwrap();
-    pixel_writer.finish().unwrap();
+    let mut pixel_writer = png_encoder.write_header()?;
+    pixel_writer.write_image_data(&pngpixels)?;
+    pixel_writer.finish()?;
     Ok(())
 }
 
-pub fn png_to_sggg<R: BufRead + Seek>(reader: &mut R) -> Result<Box<[u8]>, String> {
-    let mut reader = png::Decoder::new(reader)
+pub fn png_to_sggg<R: BufRead + Seek>(reader: &mut R) -> Result<Vec<u8>, String> {
+    let mut png_reader = png::Decoder::new(reader)
         .read_info()
         .map_err(|e| format!("Error reading PNG info: {e}"))?;
-    let info = reader.info();
+    let info = png_reader.info();
     match info.bit_depth {
         BitDepth::Eight => {
             // esta bien
@@ -114,7 +111,7 @@ pub fn png_to_sggg<R: BufRead + Seek>(reader: &mut R) -> Result<Box<[u8]>, Strin
                 .for_each(|alpha_byte| palette.push([0xFF, 0xFF, 0xFF, *alpha_byte]));
         }
         ColorType::Indexed => {
-            let plte_data = info.palette.as_deref().ok_or_else(|| "Indexed PNG is missing its PLTE (palette) chunk. That breaks the spec and we can't rebuild the SGGG palette without it.".to_string())?;
+            let plte_data = info.palette.as_deref().ok_or_else(|| "Indexed PNG is missing its PLTE (palette) chunk. That breaks the spec and we can't rebuild the SGGG palette without it.".to_owned())?;
             png_palette_to_sggg(plte_data, &mut palette);
         }
         other => {
@@ -177,21 +174,21 @@ pub fn png_to_sggg<R: BufRead + Seek>(reader: &mut R) -> Result<Box<[u8]>, Strin
 
     // Check if the palette hash is set
     if from_png_palette_hash.iter().all(|b| *b == 0) {
-        println!("Info: Palette hash wasn't stored; can't verify whether the palette is untouched.")
+        info!("Palette hash wasn't stored; can't verify whether the palette is untouched.");
     } else {
         let palette_hash = meowhash::MeowHasher::hash(palette.as_flattened());
         let stored_hash = meowhash::MeowHash::from_bytes(from_png_palette_hash);
         if palette_hash != stored_hash {
-            println!(
-                "Warning! Palette hash mismatch from the original SGGG. This may cause anomalous behavior. Please ensure your image editor preserves the original palette."
-            )
+            warn!(
+                "Palette hash mismatch from the original SGGG. This may cause anomalous behavior. Please ensure your image editor preserves the original palette."
+            );
         }
     }
 
     let width = info.width;
     if width > 1024 {
-        println!(
-            "Warning! Pixel widths greater than 1024 are not supported. It's unknown how SGGG stores widths greater than this. Anything we do is just a guess."
+        warn!(
+            "Pixel widths greater than 1024 are not supported. It's unknown how SGGG stores widths greater than this. Anything we do is just a guess."
         );
     }
     let height = info.height;
@@ -200,7 +197,7 @@ pub fn png_to_sggg<R: BufRead + Seek>(reader: &mut R) -> Result<Box<[u8]>, Strin
     let pixel_row = &mut vec![0; width.try_into().unwrap()];
     let mut sggg_pixels: Vec<u8> = Vec::with_capacity((width * height) as usize);
     let mut sggg_pixels_extended: Vec<u8> = Vec::with_capacity((width * height) as usize);
-    while let Some(interlace_info) = reader
+    while let Some(interlace_info) = png_reader
         .read_row(pixel_row)
         .map_err(|e| format!("Error reading PNG row {row_num}: {e}"))?
     {
@@ -209,9 +206,9 @@ pub fn png_to_sggg<R: BufRead + Seek>(reader: &mut R) -> Result<Box<[u8]>, Strin
                 // esta bien
             }
             _ => {
-                println!(
-                    "Warning! Interlacing detected on PNG row {row_num}. This isn't supported and may cause anomalous behavior."
-                )
+                warn!(
+                    "Interlacing detected on PNG row {row_num}. This isn't supported and may cause anomalous behavior."
+                );
             }
         }
         sggg_pixels.extend(pixel_row.iter().take(512));
@@ -236,30 +233,30 @@ pub fn png_to_sggg<R: BufRead + Seek>(reader: &mut R) -> Result<Box<[u8]>, Strin
     sggg.extend(unknown_field);
 
     // Now for the palette and pixel data
-    sggg.extend(palette.into_iter().flatten().collect::<Vec<u8>>());
+    sggg.extend(palette.into_iter().flatten());
     sggg.extend(sggg_pixels);
     sggg.extend(sggg_pixels_extended);
     for alt_palette in alternative_palettes {
-        sggg.extend(alt_palette.as_flattened())
+        sggg.extend(alt_palette.as_flattened());
     }
 
-    Ok(sggg.into_boxed_slice())
+    Ok(sggg)
 }
 
 fn parse_sggg_header<R: BufRead + Seek>(
     reader: &mut R,
     current_u16: &mut [u8; 2],
     current_u32: &mut [u8; 4],
-) -> Result<(u32, u32, [u8; 4]), std::io::Error> {
+) -> Result<(u32, u32, [u8; 4]), io::Error> {
     // Toss the magic bytes
     reader.read_exact(current_u32)?;
     // And toss the "version"
     reader.read_exact(current_u32)?;
 
     reader.read_exact(current_u16)?;
-    let width = u16::from_le_bytes(*current_u16) as u32;
+    let width = u32::from(u16::from_le_bytes(*current_u16));
     reader.read_exact(current_u16)?;
-    let height = u16::from_le_bytes(*current_u16) as u32;
+    let height = u32::from(u16::from_le_bytes(*current_u16));
 
     // No idea what this field is for, but we'll do something with it anyways below
     reader.read_exact(current_u32)?;
@@ -270,7 +267,7 @@ fn parse_sggg_header<R: BufRead + Seek>(
 fn read_sggg_palette<R: BufRead + Seek>(
     reader: &mut R,
     current_u32: &mut [u8; 4],
-) -> Result<Vec<[u8; 4]>, std::io::Error> {
+) -> Result<Vec<[u8; 4]>, io::Error> {
     let mut palette: Vec<[u8; CHANNELS_PER_COLOR]> =
         Vec::with_capacity(PALETTE_COLOR_COUNT * CHANNELS_PER_COLOR);
     for _ in 0..PALETTE_COLOR_COUNT {
@@ -291,7 +288,7 @@ fn sggg_pixels_to_png<R: BufRead + Seek>(
     reader: &mut R,
     width: u32,
     height: u32,
-) -> Result<Vec<u8>, std::io::Error> {
+) -> Result<Vec<u8>, io::Error> {
     // So...technically the maximum width of the sggg format is 512 pixels.
     // To work around that, anything to the right of the 512th pixel on each row gets stored after the 512*height pixel
     // So we have to noodle with the pixels a bit.
@@ -300,7 +297,7 @@ fn sggg_pixels_to_png<R: BufRead + Seek>(
     for _ in 0..height {
         let mut pixel_row = Vec::with_capacity(width as usize);
         for _ in 0..virtual_width {
-            pixel_row.push(reader.read_u8()?)
+            pixel_row.push(reader.read_u8()?);
         }
         pixel_rows.push(pixel_row);
     }
@@ -308,7 +305,7 @@ fn sggg_pixels_to_png<R: BufRead + Seek>(
     if width > 512 {
         for i in 0..height {
             for _ in 0..(width - virtual_width) {
-                pixel_rows[i as usize].push(reader.read_u8()?)
+                pixel_rows[i as usize].push(reader.read_u8()?);
             }
         }
     }
@@ -330,6 +327,7 @@ fn sggg_palette_to_png(mut palette: Vec<[u8; 4]>) -> Vec<u8> {
         .collect::<Vec<_>>()
 }
 
+#[expect(clippy::indexing_slicing, reason = "Readability")]
 fn png_palette_to_sggg(plte_data: &[u8], palette: &mut Vec<[u8; 4]>) {
     plte_data.chunks_exact(3).for_each(|chunk| {
         palette.push([
@@ -345,12 +343,14 @@ fn png_palette_to_sggg(plte_data: &[u8], palette: &mut Vec<[u8; 4]>) {
     twiddle_palette(palette);
 }
 
+#[expect(clippy::indexing_slicing, reason = "far more concise")]
 fn twiddle_palette(palette: &mut Vec<[u8; 4]>) {
     // What is probably due to the way the PS2 GPU renders graphics, for every 32 colors (128 bytes) in the color palette, we have to flip the middle 16 color sets
     palette
         .as_mut_slice()
         .chunks_exact_mut(32)
         .for_each(|chunks| {
+            assert!(chunks.len() > 23, "Not enough bytes to twiddle");
             let b0 = chunks[8];
             let b1 = chunks[9];
             let b2 = chunks[10];
@@ -377,3 +377,34 @@ fn twiddle_palette(palette: &mut Vec<[u8; 4]>) {
             chunks[23] = b7;
         });
 }
+
+#[expect(clippy::single_call_fn, reason = "Readability")]
+pub fn convert_to_png(data: Vec<u8>) -> Result<Vec<u8>, io::Error> {
+    // Reference? https://en.wikipedia.org/wiki/Segagaga
+    // This file format seems most appropriate as a png rather than bmp.
+    // Harder to screw up, readily translates, has an alpha channel, can store extra data that we need
+    let mut pngwriter = Cursor::new(vec![0; data.len()]);
+    let sggg_reader = &mut Cursor::new(data);
+    sggg_to_png(sggg_reader, &mut pngwriter)?;
+    Ok(pngwriter.into_inner())
+}
+
+// Use for unit tests
+// let reconstituted_data = png_to_sggg(&mut Cursor::new(&*pngdata))?;
+// for i in 0..reconstituted_data.len() {
+//     let j = i.saturating_sub(8);
+//     if reconstituted_data[i] != data[i] {
+//         panic!(
+//             "SGGG {stem_name} Beginning at {j}\nGot: \n{}\nExpected:\n{}",
+//             encode_hex(&reconstituted_data[j..i + 8]),
+//             encode_hex(&data[j..i + 8])
+//         )
+//     }
+// }
+// if reconstituted_data.len() != data.len() {
+//     println!(
+//         "Warning: SGGG {stem_name} Reconstituted data is {} bytes, original is {} bytes",
+//         reconstituted_data.len(),
+//         data.len()
+//     )
+// }
