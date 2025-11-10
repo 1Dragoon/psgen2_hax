@@ -1,3 +1,7 @@
+#![warn(clippy::pedantic)]
+#![warn(clippy::nursery)]
+#![allow(clippy::verbose_bit_mask)]
+
 use enemydata::{enemy_name_bytes, enemy_struct_bytes};
 use std::{
     borrow::Cow,
@@ -8,7 +12,7 @@ mod enemydata;
 use clap::Parser;
 use std::path::PathBuf;
 
-const STRING_PTR_OFFSET: u32 = 0x2A79E0;
+const STRING_PTR_OFFSET: u32 = 0x002A_79E0;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -72,7 +76,7 @@ fn process_item(
             if strengths & 0x8 == 0x8 {
                 buffer.push('⚡'); // Lightning
             }
-            if strengths & 0xf == 0x0 {
+            if strengths.trailing_zeros() >= 4 {
                 buffer.push('❌');
             }
             // Weakness
@@ -109,7 +113,7 @@ fn process_item(
                 buffer.push('💀'); // Boss
             }
             if enemy_types & 0x8 == 0x8 {
-                buffer.push('👹') // Super boss (?)
+                buffer.push('👹'); // Super boss (?)
             }
             // data[3] appears to control graphical effects, e.g. whether the enemy graphic floats around, sits still, flashes, etc
             file.write_all(format!("- {buffer}\n").as_bytes())?;
@@ -127,7 +131,7 @@ fn process_item(
             file.write_all(format!("- 🤸  {le_value}\n").as_bytes())?; // Agility
         }
         _ => {
-            // 12 through 17 appear to control the art assets used for this enemy. E.g. dropping the data in these fields from mother brain into neifirst will make neifirst look liek mother brain
+            // 12 through 17 appear to control the art assets used for this enemy. E.g. dropping the data in these fields from mother brain into neifirst will make neifirst look like mother brain
             // As for the rest, I don't know what they do. Uncomment the below lines to serialize all of them anyways.
             // if le_value > 0xffff {
             //     println!("- ❓ {word_number} {}",hex::encode(data));
@@ -135,7 +139,7 @@ fn process_item(
             //     println!("- ❓ {word_number} {le_value}")
             // }
         }
-    };
+    }
     Ok(())
 }
 
@@ -151,11 +155,11 @@ fn engrish(offset: u32) -> String {
         let char = *byte & 0x7F; // Strip off the high order bit to get the ascii equivalent
         if (0x20..=0x7E).contains(&char) {
             // Keep it intact if it looks like a printable character
-            buffer.push(char)
+            buffer.push(char);
         } else {
             // Render it as escaped hex if it doesn't
-            let stringy = format!("\\x{:02x}", byte).into_bytes();
-            buffer.extend(stringy)
+            let stringy = format!("\\x{byte:02x}").into_bytes();
+            buffer.extend(stringy);
         }
     }
     String::from_utf8_lossy(&buffer).into()

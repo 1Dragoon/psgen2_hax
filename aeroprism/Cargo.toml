@@ -1,0 +1,24 @@
+[package]
+name = "aeroprism"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+byteorder = "1.5.0"
+clap = { version = "4.5.51", features = ["derive"] }
+colog = "1.4.0"
+env_logger = "0.11.8"
+hadris-iso = "0.0.2"
+hex_lit = "0.1.1"
+indexmap = { version = "2.12.0", features = ["serde"] }
+log = "0.4.28"
+meowhash = "0.3.0"
+picori = "0.1.0"
+png = "0.18.0"
+serde = { version = "1.0.228", features = ["derive", "rc"] }
+serde_json = { version = "1.0.145", features = ["preserve_order"] }
+shellexpand = { version = "3.1.1", features = ["os_str_bytes", "path"] }
+soft-canonicalize = { version = "0.4.5", features = ["dunce"] }
+tokio = { version = "1.48.0", features = ["macros", "rt", "rt-multi-thread", "fs", "io-util", "time"] }
+toml = { version = "0.9.8", features = ["preserve_order"] }
+unicode-segmentation = "1.12.0"

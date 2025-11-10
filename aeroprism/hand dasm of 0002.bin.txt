@@ -1,0 +1,170 @@
+
+0x0000: Main table of contents
+TOC marker + padding   |data type? |offset
+0c 00 01 00 00 00 00 00 00 00 00 00 54 00 00 00
+0c 00 01 00 00 00 00 00 01 00 00 00 d8 00 00 00
+0c 00 01 00 00 00 00 00 46 00 00 00 94 00 00 00
+0c 00 01 00 00 00 00 00 1e 00 00 00 84 04 00 00
+0c 00 01 00 00 00 00 00 5f 00 00 00 78 00 00 00
+
+0x0050:
+0a 00 00 00 ; return
+
+0x0054:
+0e 00 b0 04 10 00 01 00 74 00 00 00 ce 00 00 00
+23 00 2c 01 53 00 00 00 28 00 54 00 01 00 01 00
+
+0x0074:
+0a 00 00 00 ; return
+
+0x0078:
+10 00 01 00 90 00 00 00 ce 00 00 00 53 00 00 00
+28 00 54 00 01 00 01 00
+
+0x0090:
+0a 00 00 00 ; return
+
+0x0094:
+01 00 30 00 00 00 00 00 ff ff ff ff ; alignment marker for next TOC?
+
+0x00a0: ToC/data descriptor referenced by 3rd toc entry
+TOC marker + padding   |data type? |offset
+0c 00 02 00 00 00 00 00 a5 00 00 00 b4 00 00 00
+0a 00 00 00 ; return
+
+0x00b4:
+01 00 30 00 00 00 00 00 00 00 00 00 00 00 01 00
+00 00 00 00
+text       |at 0x0568  |window data?
+12 00 00 00 68 05 00 00 3d 00 03 00
+
+0a 00 00 00 ; return
+
+0x00d8: another ToC/descriptor?
+marker + padding       |data type? |offset
+0c 00 02 00 00 00 00 00 64 00 00 00 fc 00 00 00
+0c 00 02 00 00 00 00 00 2c 01 00 00 18 05 00 00
+0a 00 00 00 ; return
+
+0x00fc:
+SYNC?      |offset     |???
+0f 00 01 00 d8 05 00 00 33 00 00 00
+goto 0x0110?
+0b 00 00 00 10 01 00 00
+
+0x0110:
+Descriptor?|desc end?  | action text seq number?
+10 00 01 00 2c 01 00 00 51 00 00 00
+text       |at 0x01e4  | window data?
+12 00 00 00 e4 01 00 00 0d 00 da 00
+0a 00 00 00 ; return
+
+0x012c:
+Descriptor?|desc end?  | action text seq number?
+10 00 01 00 48 01 00 00 52 00 00 00
+text       |at 0x0236  | window data?
+12 00 00 00 36 02 00 00 0d 00 da 00
+0a 00 00 00 ; return
+
+0x0148:
+Descriptor?|desc end?  | action text seq number?
+10 00 01 00 64 01 00 00 53 00 00 00
+text       |at 0x0280  | window data?
+12 00 00 00 80 02 00 00 0d 00 da 00
+0a 00 00 00 ; return
+
+0x0164:
+Descriptor?|desc end?  | action text seq number?
+10 00 01 00 80 01 00 00 54 00 00 00
+text       |at 0x02e2  | window data?
+12 00 00 00 e2 02 00 00 0d 00 da 00
+0a 00 00 00 ; return
+
+0x0180:
+Descriptor?|desc end?  | action text seq number?
+10 00 01 00 9c 01 00 00 55 00 00 00
+text       |at 0x0324  | window data?
+12 00 00 00 24 03 00 00 0d 00 da 00
+0a 00 00 00 ; return
+
+0x019c:
+Descriptor?|desc end?  | action text seq number?
+10 00 01 00 b8 01 00 00 56 00 00 00
+text       |at 0x037c  | window data?
+12 00 00 00 7c 03 00 00 0d 00 da 00
+0a 00 00 00 ; return
+
+0x01b8:
+Descriptor?|desc end?  | action text seq number?
+10 00 01 00 d4 01 00 00 57 00 00 00
+text       |at 0x037c  | window data?
+12 00 00 00 cc 03 00 00 0d 00 da 00
+0a 00 00 00 ; return
+
+0x01d4:
+text       |at 0x0424  | window data?
+12 00 00 00 24 04 00 00 0d 00 da 00
+0a 00 00 00 ; return
+
+0x01e4:
+text:#04c1ユーシスc7@…！？@この辺りだけ水の色が違うな…@地下洞窟でもあるんだろうか？%\
+
+0x0236:
+text:#11c1ネイc7@あれ？@この辺りだけ水の色が違う…@地下洞窟でもあるのかしら？%\
+
+0x0280:
+text:#24c1ルドガーc7@…！？@この辺りだけ水の色が違うな…@もしかしたら地下洞窟があるのかも知れないな。%\
+
+0x02e2:
+text:#34c1アンヌc7@え？@この辺りだけ水の色が違うわ…@どうしてかしら？%\
+
+0x0324:
+text:#42c1ヒューイc7@…！？@この辺りだけ水の色が違う…@この海底に何かあるのかも知れないな？%\
+
+0x037c:
+text:#54c1アーミアc7@え…！？@この辺りだけ水の色が違うようね…@なんか、怪しいわね？%\
+
+0x03cc:
+text:#64c1カインズc7@…！？@この辺りだけ水の色が違う！@海底を調べてみる必要がありそうだな。%\
+
+0x0424:
+text:#74c1シルカc7@あれ…！？@この辺りだけ水の色が違うような…@ま、そんなこと、どうでもいっかぁ。%\
+
+0x0484:
+SYNC?      |at 0x05d8  |???
+0f 00 01 00 d8 05 00 00 1e 00 00 00
+
+0x0490:
+SYNC?      |at 0x04a4  |???
+0f 00 01 00 a4 04 00 00 1d 00 00 00
+0b 00 00 00 d8 05 00 00
+
+0x04a4:
+goto 0x04ac?
+0b 00 00 00 ac 04 00 00
+
+0x04ac:
+text       |at 0x04bc  | window data?
+12 00 00 00 bc 04 00 00 0d 00 1e 00
+0a 00 00 00 ; return
+
+0x04bc:
+text:c6ジェットスクーターc7@モタビアンたちが作ってくれた乗り物です。@既に完成しているようです。%\
+
+0x0518:
+MOVN ; goto 0x0520?
+0b 00 00 00 20 05 00 00
+
+0x0520:
+text       |at 0x0052c | return?
+12 00 00 00 2c 05 00 00 0a 00 00 00
+
+0x052c:
+text:c6壊れた橋c7@現在、修復中です。@今しばらくお待ち下さい…。%\
+
+0x0568:
+text:c3マルエラガムc7を食べた。%?かむたびに、口の中に空気が満ち溢れる…@これなら深い海の底まで潜って行けそうだ。%\
+
+0x05d8:
+0a 00 00 00 ; return
+EOF

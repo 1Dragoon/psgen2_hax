@@ -1,9 +1,13 @@
+#![warn(clippy::pedantic)]
+#![warn(clippy::nursery)]
+// #![warn(clippy::restriction)]
+
 use clap::Parser;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
-    /// Input hex values and print out their ascii somehwat equivalents
+    /// Input hex values and print out their ascii somewhat equivalents
     input: String,
     /// Or input plain text above and we'll spit out the engrished version in hex
     #[arg(short, long)]
@@ -14,7 +18,7 @@ fn main() {
     let cli = Cli::parse();
 
     if cli.re_engrish {
-        println!("{}", re_engrish(cli.input));
+        println!("{}", re_engrish(&cli.input));
     } else {
         let bytes = hex::decode(cli.input.replace(' ', ""))
             .unwrap_or_else(|err| panic!("Error decoding hex: {err}"));
@@ -22,7 +26,7 @@ fn main() {
     }
 }
 
-fn re_engrish(string: String) -> String {
+fn re_engrish(string: &str) -> String {
     let bytes = string.as_bytes();
     let mut stringy = Vec::with_capacity(string.len());
     for byte in bytes {
@@ -37,14 +41,14 @@ fn engrish(bytes: &[u8]) -> String {
         let char = *byte & 0x7F; // Strip off the high order bit to get the ascii equivalent
         if (0x20..=0x7E).contains(&char) {
             // Keep it intact if it looks like a printable character
-            buffer.push(char)
+            buffer.push(char);
         } else if char == 0 {
             // Treat null characters as newlines for delimiting purposes
             buffer.push(b'\n');
         } else {
             // Render it as escaped hex if it doesn't look printable
-            let stringy = format!("\\x{:02x}", byte).into_bytes();
-            buffer.extend(stringy)
+            let stringy = format!("\\x{byte:02x}").into_bytes();
+            buffer.extend(stringy);
         }
     }
     String::from_utf8_lossy(&buffer).into()
