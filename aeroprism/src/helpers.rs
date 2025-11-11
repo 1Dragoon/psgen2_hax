@@ -1,4 +1,4 @@
-use core::{convert, fmt, num::ParseIntError};
+use core::{convert, error, fmt, num::ParseIntError};
 use std::path::Path;
 use tokio::{fs, io};
 
@@ -10,45 +10,6 @@ const HEX_BYTES: &str = "000102030405060708090a0b0c0d0e0f101112131415161718191a1
                          a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf\
                          c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf\
                          e0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff";
-
-pub fn decode_hex(s: &str) -> Result<Vec<u8>, DecodeHexError> {
-    if s.len().is_multiple_of(2) {
-        (0..s.len())
-            .step_by(2)
-            .map(|i| u8::from_str_radix(&s[i..i + 2], 16).map_err(convert::Into::into))
-            .collect()
-    } else {
-        Err(DecodeHexError::OddLength)
-    }
-}
-
-pub fn encode_hex(bytes: &[u8]) -> String {
-    bytes
-        .iter()
-        .map(|&b| unsafe {
-            let i = 2 * b as usize;
-            HEX_BYTES.get_unchecked(i..i + 2)
-        })
-        .collect()
-}
-
-// Output hex in a format similar to a hex editor
-pub fn hex_edit_encode(bytes: &[u8]) -> String {
-    bytes
-        .iter()
-        .enumerate()
-        .map(|(pos, &b)| unsafe {
-            let i = 2 * b as usize;
-            if (pos + 1) % 32 == 0 {
-                format!("{}\n", HEX_BYTES.get_unchecked(i..i + 2))
-            } else if (pos + 1) % 4 == 0 {
-                format!("{} ", HEX_BYTES.get_unchecked(i..i + 2))
-            } else {
-                HEX_BYTES.get_unchecked(i..i + 2).into()
-            }
-        })
-        .collect()
-}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DecodeHexError {
@@ -71,7 +32,56 @@ impl fmt::Display for DecodeHexError {
     }
 }
 
-impl core::error::Error for DecodeHexError {}
+impl error::Error for DecodeHexError {}
+
+#[expect(clippy::string_slice, reason = "Hex strings are all ascii")]
+pub fn decode_hex(s: &str) -> Result<Vec<u8>, DecodeHexError> {
+    if s.len().is_multiple_of(2) {
+        (0..s.len())
+            .step_by(2)
+            .map(|i| u8::from_str_radix(&s[i..i + 2], 16).map_err(convert::Into::into))
+            .collect()
+    } else {
+        Err(DecodeHexError::OddLength)
+    }
+}
+
+pub fn encode_hex(bytes: &[u8]) -> String {
+    bytes
+        .iter()
+        .map(|&b|
+            // SAFETY:
+            // Every hex value covered
+            unsafe {
+                let i = 2 * b as usize;
+                HEX_BYTES.get_unchecked(i..i + 2)
+            })
+        .collect()
+}
+
+// Output hex in a format similar to a hex editor
+pub fn hex_edit_encode(bytes: &[u8]) -> String {
+    bytes
+        .iter()
+        .enumerate()
+        .map(|(pos, &b)| {
+            let i = 2 * b as usize;
+            if (pos + 1) % 32 == 0 {
+                // SAFETY:
+                // Every hex value covered
+                format!("{}\n", unsafe { HEX_BYTES.get_unchecked(i..i + 2) })
+            } else if (pos + 1) % 4 == 0 {
+                // SAFETY:
+                // Every hex value covered
+                format!("{} ", unsafe { HEX_BYTES.get_unchecked(i..i + 2) })
+            } else {
+                // SAFETY:
+                // Every hex value covered
+                unsafe { HEX_BYTES.get_unchecked(i..i + 2) }.into()
+            }
+        })
+        .collect()
+}
 
 pub async fn copy_dir_all<P: AsRef<Path> + Sync + Send>(src: P, dst: P) -> io::Result<()> {
     fs::create_dir_all(&dst).await?;

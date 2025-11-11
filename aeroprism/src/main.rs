@@ -20,13 +20,13 @@
 #![allow(clippy::missing_trait_methods, reason = "not needed")]
 #![allow(clippy::big_endian_bytes, reason = "not needed")]
 #![allow(clippy::pattern_type_mismatch, reason = "not needed")]
-#![allow(clippy::float_arithmetic, reason = "not needed, only used for display")]
+#![allow(clippy::unreachable, reason = "not needed")]
+#![allow(clippy::panic, reason = "will look it over later")]
 #![allow(clippy::arithmetic_side_effects, reason = "will look it over later")]
 #![allow(
     clippy::integer_division_remainder_used,
     reason = "will look it over later"
 )]
-#![allow(clippy::cast_possible_truncation, reason = "will fix these later")]
 #![allow(clippy::unwrap_used, reason = "will fix these later")]
 #![allow(clippy::expect_used, reason = "will fix these later")]
 #![allow(clippy::unwrap_in_result, reason = "will fix these later")]
@@ -65,6 +65,7 @@ use std::{
 use tokio::{
     fs::{self, OpenOptions, create_dir_all},
     io::{self, AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader, BufWriter},
+    runtime,
     task::JoinHandle,
     time::sleep,
 };
@@ -75,6 +76,10 @@ static ENGRISH: OnceLock<bool> = OnceLock::new();
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
+    /// When unpacking data, copy over the images rather than decompressing/converting them. This saves time when rebuilding if you aren't going to modify any images.
+    #[arg(short, long)]
+    copy_images: bool,
+
     /// Whether the source files are from an English translation or a Japanese translation
     #[arg(short, long)]
     engrish: bool,
@@ -96,13 +101,26 @@ struct Cli {
     /// Whether you're repacking to an ISO or extracting. Defaults to extracting.
     #[arg(short, long)]
     repack: bool,
+
+    /// The number of threads to work with. If you're using an HDD, lowering this might help. Minimum value is 1, defaults to the number of CPU cores on your system.
+    #[arg(short, long)]
+    threads: Option<usize>,
 }
 
-#[tokio::main]
-async fn main() -> Result<(), io::Error> {
+fn main() {
+    let cli = Cli::parse();
+    let mut builder = runtime::Builder::new_multi_thread();
+    if let Some(t) = cli.threads {
+        builder.worker_threads(t);
+    }
+    builder.enable_all().build().unwrap().block_on(async {
+        main_thread(cli).await.unwrap();
+    });
+}
+
+async fn main_thread(cli: Cli) -> Result<(), io::Error> {
     // build_iso();
     // return Ok(());
-    let cli = Cli::parse();
     ENGRISH.set(cli.engrish).unwrap();
     let mut log_builder = basic_builder();
     log_builder.target(Target::Stdout);
@@ -111,10 +129,11 @@ async fn main() -> Result<(), io::Error> {
     trace!("Trace logging enabled!");
     let in_path = soft_canonicalize(path::full(&cli.in_path).unwrap()).unwrap();
     let out_path = soft_canonicalize(path::full(&cli.out_path).unwrap()).unwrap();
+
     if cli.repack {
         walk_build(in_path, out_path).await?;
     } else {
-        walk_iso(&in_path, &out_path).await?;
+        walk_iso(&in_path, &out_path, cli.copy_images).await?;
     }
     Ok(())
 }
@@ -160,10 +179,9 @@ async fn walk_build<P: AsRef<Path> + Sync + Send + Clone>(
         }
         sleep(Duration::from_millis(100)).await;
     }
-    info!(
-        "Total time: {} sec",
-        (f64::from(now.elapsed().as_millis() as u32) / 1_000f64)
-    );
+    #[expect(clippy::float_arithmetic, reason = "it's only for display")]
+    let time = f64::from(u32::try_from(now.elapsed().as_millis()).unwrap()) / 1_000f64;
+    info!("Total time: {time} sec",);
     Ok(())
 }
 
@@ -204,7 +222,7 @@ async fn process_dir_entry(
             }
             let mut dat_contents = Vec::with_capacity(dat_size);
             // Construct the header. First, total blocks ondicator:
-            dat_contents.extend((dat_components.len() as u32).to_le_bytes());
+            dat_contents.extend((u32::try_from(dat_components.len()).unwrap()).to_le_bytes());
             // Now each block offset:
             let mut current_block = 0;
             // Enumerate all of the component sizes, noting that the first will start at DAT_BLOCK_SIZE to account for the header itself
@@ -219,7 +237,7 @@ async fn process_dir_entry(
                     current_block += 1;
                 }
                 current_block += size / DAT_BLOCK_SIZE;
-                dat_contents.extend((current_block as u32).to_le_bytes());
+                dat_contents.extend(u32::try_from(current_block).unwrap().to_le_bytes());
             }
             // Pad the header data to the next block boundary
             dat_contents.extend(vec![0u8; DAT_BLOCK_SIZE - dat_contents.len()]);
@@ -285,7 +303,8 @@ async fn process_dir_entry(
 
 #[expect(clippy::single_call_fn, reason = "Readability")]
 async fn reconstitute(mut component_file: PathBuf) -> Result<(PathBuf, Vec<u8>), io::Error> {
-    let mut data = Vec::with_capacity(component_file.metadata().unwrap().len() as usize);
+    let mut data =
+        Vec::with_capacity(usize::try_from(component_file.metadata().unwrap().len()).unwrap());
     let file = fs::File::open(&*component_file).await.unwrap();
     let mut br = io::BufReader::new(file);
     br.read_to_end(&mut data).await.unwrap();
@@ -340,7 +359,11 @@ async fn reconstitute(mut component_file: PathBuf) -> Result<(PathBuf, Vec<u8>),
 }
 
 #[expect(clippy::single_call_fn, reason = "Readability")]
-async fn walk_iso<P: AsRef<Path> + Send + Sync>(in_dir: P, out_dir: P) -> Result<(), io::Error> {
+async fn walk_iso<P: AsRef<Path> + Send + Sync>(
+    in_dir: P,
+    out_dir: P,
+    copy_images: bool,
+) -> Result<(), io::Error> {
     fs::create_dir_all(&out_dir).await?;
     let mut read_dir = fs::read_dir(&in_dir).await.unwrap();
     while let Some(dir_entry) = read_dir.next_entry().await.unwrap() {
@@ -384,6 +407,7 @@ async fn walk_iso<P: AsRef<Path> + Send + Sync>(in_dir: P, out_dir: P) -> Result
             dir_entry.file_name().as_os_str(),
             dat_file_size,
             &out_dir,
+            copy_images,
         )
         .await?;
     }
@@ -396,6 +420,7 @@ async fn unpack_dat<T: AsyncBufReadExt + Unpin, P: AsRef<Path>>(
     dat_name: &OsStr,
     dat_size: usize,
     out_dir: P,
+    copy_images: bool,
 ) -> Result<(), io::Error> {
     // DAT consists of a collection of 2048-byte blocks, akin to a filesystem but not quite. Block zero is the header.
     let total_blocks = dat_size / DAT_BLOCK_SIZE;
@@ -469,39 +494,44 @@ async fn unpack_dat<T: AsyncBufReadExt + Unpin, P: AsRef<Path>>(
 
         let mut extensions = Vec::with_capacity(3);
 
-        #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
-        if data[0..2] == *b"CM" {
-            data = decompress(dat_name, file_number, data)?;
-            extensions.push("lz77");
-        }
-        #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
-        if data[0..4] == *b"SGGG" {
-            extensions.push("png");
-            data = convert_to_png(data)?;
-        } else if dat_name.to_string_lossy().contains("EVENT") {
-            if log_enabled!(Level::Debug) {
-                debug!(
-                    "\nEvent file: {file_number}, Size: {} ({:04x})",
-                    data.len(),
-                    data.len()
-                );
+        if copy_images && data.iter().skip(10).take(4).copied().collect::<Vec<_>>() == b"SGGG" {
+            // Just store the data file. No need to do anything else.
+        } else {
+            #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
+            if data[0..2] == *b"CM" {
+                data = decompress(dat_name, file_number, data)?;
+                extensions.push("lz77");
             }
-            let mut event_reader = Cursor::new(&data);
-            let (ordered_data, dialog_items) = parse_events(&mut event_reader, data.len() as u32)?;
+            #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
+            if data[0..4] == *b"SGGG" {
+                extensions.push("png");
+                data = convert_to_png(data)?;
+            } else if dat_name.to_string_lossy().contains("EVENT") {
+                if log_enabled!(Level::Debug) {
+                    debug!(
+                        "\nEvent file: {file_number}, Size: {} ({:04x})",
+                        data.len(),
+                        data.len()
+                    );
+                }
+                let mut event_reader = Cursor::new(&data);
+                let (ordered_data, dialog_items) =
+                    parse_events(&mut event_reader, u32::try_from(data.len()).unwrap())?;
 
-            let dialog_file = save_path.clone().join(format!(
-                "{stem_name}.{}.eventdialog.toml",
-                extensions.join(".")
-            ));
-            // Save the event dialog separately, and only if it has any data
-            if !dialog_items.is_empty() {
-                save_dialog_strings(&dialog_file, &IndexMapWrapper(dialog_items))?;
+                let dialog_file = save_path.clone().join(format!(
+                    "{stem_name}.{}.eventdialog.toml",
+                    extensions.join(".")
+                ));
+                // Save the event dialog separately, and only if it has any data
+                if !dialog_items.is_empty() {
+                    save_dialog_strings(&dialog_file, &IndexMapWrapper(dialog_items))?;
+                }
+
+                let events = IndexMapWrapper(ordered_data);
+                extensions.push("eventdata");
+                extensions.push("json");
+                data = serde_json::to_string(&events).unwrap().into_bytes();
             }
-
-            let events = IndexMapWrapper(ordered_data);
-            extensions.push("eventdata");
-            extensions.push("json");
-            data = serde_json::to_string(&events).unwrap().into_bytes();
         }
 
         let leaf_name = format!("{stem_name}.{}", extensions.join("."));

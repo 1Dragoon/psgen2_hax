@@ -134,6 +134,7 @@ pub fn png_to_sggg<R: BufRead + Seek>(reader: &mut R) -> Result<Vec<u8>, String>
                         ttxt_chunk.text
                     ));
                 }
+                #[expect(clippy::indexing_slicing, reason = "the range is checked already")]
                 for (i, byte) in bytes.into_iter().enumerate() {
                     unknown_field[i] = byte;
                 }
@@ -147,6 +148,7 @@ pub fn png_to_sggg<R: BufRead + Seek>(reader: &mut R) -> Result<Vec<u8>, String>
                         ttxt_chunk.text
                     ));
                 }
+                #[expect(clippy::indexing_slicing, reason = "the range is checked already")]
                 for (i, byte) in bytes.into_iter().enumerate() {
                     from_png_palette_hash[i] = byte;
                 }
@@ -201,6 +203,10 @@ pub fn png_to_sggg<R: BufRead + Seek>(reader: &mut R) -> Result<Vec<u8>, String>
         .read_row(pixel_row)
         .map_err(|e| format!("Error reading PNG row {row_num}: {e}"))?
     {
+        #[expect(
+            clippy::match_wildcard_for_single_variants,
+            reason = "blanket check for interlacing, no intention of ever adding support for it"
+        )]
         match interlace_info {
             InterlaceInfo::Null(_) => {
                 // esta bien
@@ -304,6 +310,7 @@ fn sggg_pixels_to_png<R: BufRead + Seek>(
     // And for the remainder, let's get each one and append it to the column it belongs to
     if width > 512 {
         for i in 0..height {
+            #[expect(clippy::indexing_slicing, reason = "the range is checked already")]
             for _ in 0..(width - virtual_width) {
                 pixel_rows[i as usize].push(reader.read_u8()?);
             }

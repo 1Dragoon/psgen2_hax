@@ -1,8 +1,8 @@
 extern crate alloc;
 use crate::{
     events::{
-        BorP, Color, ControlCode, Data, DataItems, DialogItem, DialogString, Offset, Pointer,
-        Portrait, UmanagedData,
+        BytesOrPointer, Color, ControlCode, Data, DataItems, DialogItem, DialogString,
+        GUESTIMATED_LENGTH, Offset, Pointer, Portrait, UmanagedData,
         sjis_map::{
             PS2_ENGRISH, SJIS_DOUBLES, SJIS_SINGLES, byte_to_ps2_engrish, byte_to_sjis,
             bytes_to_sjis,
@@ -45,7 +45,7 @@ pub fn parse_events<R: Seek + BufRead>(
     let mut current_u32 = [0u8; 4];
     let mut current_unmanaged = UmanagedData::new();
     loop {
-        let current_offset = reader.stream_position()? as Offset;
+        let current_offset = Offset::try_from(reader.stream_position()?).unwrap();
         if data_items.pointer_tracker.contains(&current_offset) {
             current_unmanaged.finish(eof, &mut data_items);
         }
@@ -73,7 +73,7 @@ pub fn parse_events<R: Seek + BufRead>(
                     .copied();
                 let jump_to = maybe_next_offset
                     .unwrap_or(eof)
-                    .min(string_bytes.borrow().len() as Offset);
+                    .min(Offset::try_from(string_bytes.borrow().len()).unwrap());
                 reader.seek_relative(i64::from(jump_to))?;
                 continue;
             }
@@ -84,17 +84,17 @@ pub fn parse_events<R: Seek + BufRead>(
         }
         let bytes_remaining = eof.saturating_sub(current_offset);
         // println!("Bytes remaining: {}", bytes_remaining);
-        if bytes_remaining >= current_u32.len() as u32 {
+        if bytes_remaining >= u32::try_from(current_u32.len()).unwrap() {
             reader.read_exact(&mut current_u32)?;
             match current_u32 {
                 [op, 0x00, _, 0x00]
                     if !misaligned
                         && [0x26, 0x2a, 0x2b, 0x2e, 0x40, 0x42, 0x44, 0x4d, 0x54].contains(&op) =>
                 {
-                    current_unmanaged.update(current_offset as u32, current_u32);
+                    current_unmanaged.update(current_offset, current_u32);
                     if [0x2a, 0x2e, 0x40, 0x42, 0x44, 0x4d, 0x54].contains(&op) {
                         reader.read_exact(&mut current_u32)?;
-                        current_unmanaged.update(current_offset as u32, current_u32);
+                        current_unmanaged.update(current_offset, current_u32);
                     }
                 }
                 [0x0a, 0x00, 0x00, 0x00] if !misaligned => {
@@ -167,7 +167,8 @@ pub fn parse_events<R: Seek + BufRead>(
 
                         let pos_before_text_jump =
                             scan_to_terminator(reader, eof, &string_offsets, pointer)?;
-                        let string_end_offset = reader.stream_position()? as Offset;
+                        let string_end_offset =
+                            Offset::try_from(reader.stream_position()?).unwrap();
                         let string_length = string_end_offset - pointer;
 
                         let mut string_bytes = vec![0; string_length as usize];
@@ -194,7 +195,7 @@ pub fn parse_events<R: Seek + BufRead>(
                     data_items.insert(current_offset, eof, Data::Cop2(op, c, field, pointer));
                 }
                 other => {
-                    current_unmanaged.update(current_offset as u32, other);
+                    current_unmanaged.update(current_offset, other);
                 }
             }
         } else {
@@ -211,16 +212,17 @@ pub fn parse_events<R: Seek + BufRead>(
         }
     }
     if log_enabled!(Level::Debug) {
-        println!("Pointer tracker has: ");
+        let mut debug_string = String::with_capacity(GUESTIMATED_LENGTH);
+        debug_string.push_str("Pointer tracker has: \n");
         for pointer in &data_items.pointer_tracker {
-            print!("0x{pointer:04x} ");
+            debug_string.push_str(format!("0x{pointer:04x} ").as_str());
         }
-        println!("\n");
+        debug!("{debug_string}");
     }
 
     let mut dialog_items = BTreeMap::new();
     for (pointer, string) in string_offsets {
-        let string_end_offset = string.borrow().len() as Offset + pointer;
+        let string_end_offset = Offset::try_from(string.borrow().len()).unwrap() + pointer;
         if log_enabled!(Level::Trace) {
             trace!("{}", hex_edit_encode(&string.borrow()));
         }
@@ -228,15 +230,18 @@ pub fn parse_events<R: Seek + BufRead>(
         let string_repr = decode_psg2_string(string.borrow().clone());
 
         if log_enabled!(Level::Debug) {
-            println!("-----begin string---- {:04x}", &pointer);
+            let mut debug_string = String::with_capacity(GUESTIMATED_LENGTH);
+            debug_string.push_str(format!("-----begin string---- {:04x}\n", &pointer).as_str());
             for item in &string_repr.text {
-                print!("{item}");
+                debug_string.push_str(format!("{item}").as_str());
             }
-            print!("\n-----end string----- {string_end_offset:04x}");
+            debug_string
+                .push_str(format!("\n-----end string----- {string_end_offset:04x}").as_str());
             if string_repr.padded {
-                print!(" (padded)");
+                debug_string.push_str(" (padded)");
             }
-            println!("\n");
+            debug_string.push('\n');
+            debug!("{debug_string}");
         }
         dialog_items.insert(pointer, string_repr);
     }
@@ -257,7 +262,7 @@ pub fn marshal_events(
         for datum in data {
             offset_tracker
                 .entry(*pointer)
-                .or_insert(est_offset as Offset);
+                .or_insert_with(|| Offset::try_from(est_offset).unwrap());
             let offset = offset_tracker
                 .get(pointer)
                 .unwrap_or_else(|| panic!("Error: Missing pointer object {pointer:04x}"));
@@ -284,7 +289,7 @@ pub fn marshal_events(
                 string.replace_with(|_| string_bytes);
             }
             if log_enabled!(Level::Trace) {
-                println!("^{file_name}: [{est_offset:04x}] ({offset:04x}) {datum}");
+                trace!("^{file_name}: [{est_offset:04x}] ({offset:04x}) {datum}");
             }
             est_offset += datum.len();
         }
@@ -301,15 +306,15 @@ pub fn marshal_events(
     for (section_pointer, pointer_data) in coalesced_data {
         for pointer_section in pointer_data {
             match pointer_section {
-                BorP::Pad => {
+                BytesOrPointer::PadBytes => {
                     while (data_out.len() % 4) != 0 {
                         data_out.push(0);
                     }
                 }
-                BorP::Bytes(bytes) => {
+                BytesOrPointer::Bytes(bytes) => {
                     data_out.extend(bytes);
                 }
-                BorP::Pointer(pointer) => {
+                BytesOrPointer::Pointer(pointer) => {
                     if let Some(offset) = offset_tracker.get(&pointer) {
                         let bytes = (*offset).to_le_bytes();
                         data_out.extend(bytes);
@@ -344,15 +349,17 @@ pub fn marshal_events(
 
 fn debug_raw_string(raw_ps2_sjis_string: &[u8]) {
     let string_repr = decode_psg2_string(raw_ps2_sjis_string.to_vec());
-    println!("-----begin string----");
-    for item in string_repr.text {
-        print!("{item}");
+    let mut debug_string = String::with_capacity(GUESTIMATED_LENGTH);
+    debug_string.push_str("-----begin string---- \n");
+    for item in &string_repr.text {
+        debug_string.push_str(format!("{item}").as_str());
     }
-    print!("\n-----end string-----");
+    debug_string.push_str("\n-----end string-----");
     if string_repr.padded {
-        print!(" (padded)");
+        debug_string.push_str(" (padded)");
     }
-    println!("\n");
+    debug_string.push('\n');
+    trace!("{debug_string}");
 }
 
 fn decode_psg2_string(mut raw_ps2_sjis_string: Vec<u8>) -> DialogString {
@@ -448,7 +455,7 @@ fn fast_forward(string_offsets: &mut BTreeMap<u32, Rc<RefCell<Vec<u8>>>>, pointe
     // This is either a new string or is a substring of another string. Let's find out!
     if let Some((prev_offset, existing_string)) = string_offsets.range(..&pointer).next_back() {
         // If we're within the bounds of an existing string, then let's split it at the pointer
-        if (pointer - prev_offset) < existing_string.borrow().len() as Offset {
+        if (pointer - prev_offset) < Offset::try_from(existing_string.borrow().len()).unwrap() {
             if log_enabled!(Level::Trace) {
                 trace!("Before:");
                 debug_raw_string(&existing_string.borrow());
@@ -540,7 +547,7 @@ fn pinpoint_terminator_offset<R: Seek + BufRead>(
             "Byte before string terminator at [{end_offset:04x}] is {previous_byte:02x} for string beginning at offset [{pointer:04x}]"
         );
     }
-    let terminator_offset = reader.stream_position()? as Offset;
+    let terminator_offset = Offset::try_from(reader.stream_position()?).unwrap();
     let mut text_ending_alignment = 4 - (terminator_offset % 4);
     if text_ending_alignment < 4 && text_ending_alignment > 0 {
         // Advance to the end of any zero padding
@@ -550,7 +557,7 @@ fn pinpoint_terminator_offset<R: Seek + BufRead>(
         {
             text_ending_alignment -= 1;
         }
-        if reader.stream_position()? as Offset != eof {
+        if Offset::try_from(reader.stream_position()?).unwrap() != eof {
             // We found where the padding ended, which isn't at EOF, so go back to the previous offset.
             reader.seek_relative(-1)?;
         }
@@ -582,8 +589,10 @@ fn parse_next_sjis(
     }
 }
 
-fn coalesce_bytes(ordered_data: IndexMap<Pointer, Vec<Data>>) -> IndexMap<Pointer, Vec<BorP>> {
-    let mut chunked_data: IndexMap<Pointer, Vec<BorP>> =
+fn coalesce_bytes(
+    ordered_data: IndexMap<Pointer, Vec<Data>>,
+) -> IndexMap<Pointer, Vec<BytesOrPointer>> {
+    let mut chunked_data: IndexMap<Pointer, Vec<BytesOrPointer>> =
         IndexMap::with_capacity(ordered_data.len() * 2);
     for (pointer, pre_chunked_data) in ordered_data {
         for datum in pre_chunked_data {
@@ -592,14 +601,14 @@ fn coalesce_bytes(ordered_data: IndexMap<Pointer, Vec<Data>>) -> IndexMap<Pointe
                     let data = chunked_data
                         .entry(pointer)
                         .or_insert(Vec::with_capacity(40));
-                    data.push(BorP::Bytes(vec![0x0a, 0x00, 0x00, 0x00]));
+                    data.push(BytesOrPointer::Bytes(vec![0x0a, 0x00, 0x00, 0x00]));
                 }
                 Data::J(op, ref_pointer) => {
                     let data = chunked_data
                         .entry(pointer)
                         .or_insert(Vec::with_capacity(40));
-                    data.push(BorP::Bytes(vec![op, 0x00, 0x00, 0x00]));
-                    data.push(BorP::Pointer(ref_pointer));
+                    data.push(BytesOrPointer::Bytes(vec![op, 0x00, 0x00, 0x00]));
+                    data.push(BytesOrPointer::Pointer(ref_pointer));
                 }
                 Data::Jal(op, c, d, f1, f2, ref_pointer) => {
                     let data = chunked_data
@@ -612,43 +621,43 @@ fn coalesce_bytes(ordered_data: IndexMap<Pointer, Vec<Data>>) -> IndexMap<Pointe
                     bytes.extend(f1.to_le_bytes());
                     bytes.extend(f2.to_le_bytes());
 
-                    data.push(BorP::Bytes(bytes));
-                    data.push(BorP::Pointer(ref_pointer));
+                    data.push(BytesOrPointer::Bytes(bytes));
+                    data.push(BytesOrPointer::Pointer(ref_pointer));
                 }
                 Data::Multi(op, ref_pointer, items) => {
                     let data = chunked_data
                         .entry(pointer)
                         .or_insert(Vec::with_capacity(40));
-                    let op_bytes = vec![op, 0x00, items.len() as u8, 0x00];
-                    data.push(BorP::Bytes(op_bytes));
-                    data.push(BorP::Pointer(ref_pointer));
+                    let op_bytes = vec![op, 0x00, u8::try_from(items.len()).unwrap(), 0x00];
+                    data.push(BytesOrPointer::Bytes(op_bytes));
+                    data.push(BytesOrPointer::Pointer(ref_pointer));
                     let mut bytes = Vec::with_capacity(size_of::<u32>() * items.len());
                     for item in items {
                         bytes.extend(item.to_le_bytes());
                     }
-                    data.push(BorP::Bytes(bytes));
+                    data.push(BytesOrPointer::Bytes(bytes));
                 }
                 Data::TxtPtr(ref_pointer) => {
                     let data = chunked_data
                         .entry(pointer)
                         .or_insert(Vec::with_capacity(40));
                     let op_bytes = vec![0x12, 0x00, 0x00, 0x00];
-                    data.push(BorP::Bytes(op_bytes));
-                    data.push(BorP::Pointer(ref_pointer));
+                    data.push(BytesOrPointer::Bytes(op_bytes));
+                    data.push(BytesOrPointer::Pointer(ref_pointer));
                 }
                 Data::String(string) => {
                     let data = chunked_data
                         .entry(pointer)
                         .or_insert(Vec::with_capacity(40));
-                    data.push(BorP::Bytes(string.take()));
+                    data.push(BytesOrPointer::Bytes(string.take()));
                 }
                 Data::Cop(op, c, d, ref_pointer) => {
                     let data = chunked_data
                         .entry(pointer)
                         .or_insert(Vec::with_capacity(40));
                     let op_bytes = vec![op, 0x00, c, d];
-                    data.push(BorP::Bytes(op_bytes));
-                    data.push(BorP::Pointer(ref_pointer));
+                    data.push(BytesOrPointer::Bytes(op_bytes));
+                    data.push(BytesOrPointer::Pointer(ref_pointer));
                 }
                 Data::Cop2(op, c, field, ref_pointer) => {
                     let data = chunked_data
@@ -660,20 +669,20 @@ fn coalesce_bytes(ordered_data: IndexMap<Pointer, Vec<Data>>) -> IndexMap<Pointe
                     );
                     bytes.extend(op_bytes);
                     bytes.extend(field.to_le_bytes());
-                    data.push(BorP::Bytes(bytes));
-                    data.push(BorP::Pointer(ref_pointer));
+                    data.push(BytesOrPointer::Bytes(bytes));
+                    data.push(BytesOrPointer::Pointer(ref_pointer));
                 }
                 Data::Ptr(ref_pointer) => {
                     let data = chunked_data
                         .entry(pointer)
                         .or_insert(Vec::with_capacity(40));
-                    data.push(BorP::Pointer(ref_pointer));
+                    data.push(BytesOrPointer::Pointer(ref_pointer));
                 }
                 Data::Unmanaged(bytes) => {
                     let data = chunked_data
                         .entry(pointer)
                         .or_insert(Vec::with_capacity(40));
-                    data.push(BorP::Bytes(bytes));
+                    data.push(BytesOrPointer::Bytes(bytes));
                 }
             }
         }

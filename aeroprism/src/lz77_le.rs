@@ -48,7 +48,10 @@ pub fn deco_lz77_le<T: BufRead>(reader: &mut T) -> Result<(Vec<u8>, usize), io::
                 .expect("Unexpected EOF while decompressing data.");
             // Combine the current and the next compressed bits into a u16, little endian, keeping only the 12 left bits.
             let mut lookback_bytes = [byte, next_byte];
-            mask_bytes_in_place(&mut lookback_bytes, &LZ77_LE_MASK);
+            // Apply the mask to the lookback bytes
+            for (a, b) in lookback_bytes.iter_mut().zip(LZ77_LE_MASK.iter().copied()) {
+                *a &= b;
+            }
             // Convert it to a u16 and add one.
             let lookback = u16::from_le_bytes(lookback_bytes) + 1;
             // Take the low order 4 bits of next_byte (little endian -- shift right), add the unit size, and 1 additional (we need to repeat at least SOMETHING, even if we only do it three times)
@@ -126,12 +129,17 @@ pub fn compress_lz77_le(decompressed_data: &[u8]) -> Vec<u8> {
     let mut mask = 1;
     let mut flag = 0u8;
     // Seed the first byte
+    #[expect(
+        clippy::indexing_slicing,
+        reason = "the file isn't going to be zero length"
+    )]
     compressed_data.push(decompressed_data[0]);
     mask <<= 1;
 
     let mut deco_pos = 1;
     while deco_pos < decompressed_data.len() {
         // Determine the maximum allowable length so we don't overflow near the end
+        #[expect(clippy::cast_possible_truncation, reason = "the lookback won't exceed 18 bytes, and this is a tight loop so a check would be expensive")]
         let max_length = (LZ77_MAX_LENGTH as usize).min(decompressed_data.len() - deco_pos) as u8;
         // trace!("max length {max_length}");
         // The longest continuous data match we find gets stored here
@@ -147,9 +155,13 @@ pub fn compress_lz77_le(decompressed_data: &[u8]) -> Vec<u8> {
             let mut length = 0;
             while length < max_length {
                 // Check that each byte along both the search region and the current position to the length match
+                // SAFETY:
+                // The bound is checked in the loop condition
                 let offset_byte = *unsafe {
                     decompressed_data.get_unchecked(deco_pos - lookback + length as usize)
                 };
+                // SAFETY:
+                // The bound is checked in the loop condition
                 let reference_byte =
                     *unsafe { decompressed_data.get_unchecked(deco_pos + length as usize) };
                 // As soon as there is a mismatch, stop here
@@ -173,6 +185,8 @@ pub fn compress_lz77_le(decompressed_data: &[u8]) -> Vec<u8> {
 
         if best_length <= LZ77_UNIT_SIZE {
             // trace!("Pushed {:04x?}", decompressed_data[deco_pos]);
+            // SAFETY:
+            // The bound is checked in the loop condition
             compressed_data.push(*unsafe { decompressed_data.get_unchecked(deco_pos) });
             deco_pos += 1;
         } else {
@@ -180,11 +194,16 @@ pub fn compress_lz77_le(decompressed_data: &[u8]) -> Vec<u8> {
             // Flag the current offset as compressed data
             flag |= mask;
             // Convert the lookback we found to a little endian u16
+            #[expect(clippy::cast_possible_truncation, reason = "the lookback won't exceed 18 bytes, and this is a tight loop so a check would be expensive")]
             let compressed_bytes = u16::to_le_bytes(best_lookback as u16 - 1);
             // Store the first byte verbatim
+            // SAFETY:
+            // The bound is checked in the loop condition
             compressed_data.push(*unsafe { compressed_bytes.get_unchecked(0) });
             // Merge the length indicator into the first nibble and store the whole byte.
             let length_bits = (best_length - LZ77_UNIT_SIZE - 1) << LZ77_LENGTH_BITS;
+            // SAFETY:
+            // The bound is checked in the loop condition
             compressed_data.push(*unsafe { compressed_bytes.get_unchecked(1) } | length_bits);
             // if log_enabled!(Level::Trace) {
             //     trace!("Length bits {:02x}", length_bits);
@@ -210,7 +229,9 @@ pub fn compress_lz77_le(decompressed_data: &[u8]) -> Vec<u8> {
 
     let mut lz77_le_container = Vec::with_capacity(10 + compressed_data.len() + flags.len());
     lz77_le_container.extend(b"CM");
+    #[expect(clippy::cast_possible_truncation, reason = "ps2 is a 32-bit platform, this value won't exceed that")]
     lz77_le_container.extend(u32::to_le_bytes(decompressed_data.len() as u32));
+    #[expect(clippy::cast_possible_truncation, reason = "ps2 is a 32-bit platform, this value won't exceed that")]
     lz77_le_container.extend(u32::to_le_bytes(compressed_data.len() as u32));
     lz77_le_container.extend(compressed_data);
     lz77_le_container.extend(flags);
@@ -228,15 +249,11 @@ pub fn decompress(dat_name: &OsStr, file_number: i32, data: Vec<u8>) -> Result<V
             decompressed_data.len()
         );
     }
+    #[expect(
+        clippy::indexing_slicing,
+        reason = "range is valid, this eliminates unnecessary padding"
+    )]
     Ok(decompressed_data[0..decompressed_data.len()].to_vec())
-}
-
-#[expect(clippy::single_call_fn, reason = "readability")]
-#[inline]
-pub fn mask_bytes_in_place(slice: &mut [u8], mask: &[u8]) {
-    for (a, b) in slice.iter_mut().zip(mask.iter()) {
-        *a &= *b;
-    }
 }
 
 // Use for unit testing
