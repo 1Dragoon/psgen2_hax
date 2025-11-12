@@ -21,16 +21,13 @@
 #![allow(clippy::big_endian_bytes, reason = "not needed")]
 #![allow(clippy::pattern_type_mismatch, reason = "not needed")]
 #![allow(clippy::unreachable, reason = "not needed")]
-#![allow(clippy::panic, reason = "will look it over later")]
-#![allow(clippy::arithmetic_side_effects, reason = "will look it over later")]
-#![allow(
-    clippy::integer_division_remainder_used,
-    reason = "will look it over later"
-)]
+#![allow(clippy::integer_division_remainder_used, reason = "not needed")]
+#![allow(clippy::question_mark_used, reason = "not needed")]
+// Still in the prototyping stage of development
+#![allow(clippy::arithmetic_side_effects, reason = "will revisit later")]
 #![allow(clippy::unwrap_used, reason = "will fix these later")]
 #![allow(clippy::expect_used, reason = "will fix these later")]
 #![allow(clippy::unwrap_in_result, reason = "will fix these later")]
-#![allow(clippy::question_mark_used, reason = "will fix these later")]
 #![allow(clippy::too_many_lines, reason = "will fix these later")]
 #![allow(clippy::cognitive_complexity, reason = "will fix these later")]
 #![allow(clippy::as_conversions, reason = "will fix these later")]

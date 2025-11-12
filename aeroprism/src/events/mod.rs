@@ -247,7 +247,7 @@ impl DialogItem {
             Self::String(string) => {
                 let mut bytes = Vec::with_capacity(string.len() * 2);
                 for g in string.graphemes(true) {
-                    bytes.extend(utf8_to_ps2(g));
+                    bytes.extend(utf8_to_ps2(g).unwrap());
                 }
                 bytes
             }

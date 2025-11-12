@@ -139,7 +139,10 @@ pub fn compress_lz77_le(decompressed_data: &[u8]) -> Vec<u8> {
     let mut deco_pos = 1;
     while deco_pos < decompressed_data.len() {
         // Determine the maximum allowable length so we don't overflow near the end
-        #[expect(clippy::cast_possible_truncation, reason = "the lookback won't exceed 18 bytes, and this is a tight loop so a check would be expensive")]
+        #[expect(
+            clippy::cast_possible_truncation,
+            reason = "the lookback won't exceed 18 bytes, and this is a tight loop so a check would be expensive"
+        )]
         let max_length = (LZ77_MAX_LENGTH as usize).min(decompressed_data.len() - deco_pos) as u8;
         // trace!("max length {max_length}");
         // The longest continuous data match we find gets stored here
@@ -194,7 +197,10 @@ pub fn compress_lz77_le(decompressed_data: &[u8]) -> Vec<u8> {
             // Flag the current offset as compressed data
             flag |= mask;
             // Convert the lookback we found to a little endian u16
-            #[expect(clippy::cast_possible_truncation, reason = "the lookback won't exceed 18 bytes, and this is a tight loop so a check would be expensive")]
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "the lookback won't exceed 18 bytes, and this is a tight loop so a check would be expensive"
+            )]
             let compressed_bytes = u16::to_le_bytes(best_lookback as u16 - 1);
             // Store the first byte verbatim
             // SAFETY:
@@ -229,9 +235,15 @@ pub fn compress_lz77_le(decompressed_data: &[u8]) -> Vec<u8> {
 
     let mut lz77_le_container = Vec::with_capacity(10 + compressed_data.len() + flags.len());
     lz77_le_container.extend(b"CM");
-    #[expect(clippy::cast_possible_truncation, reason = "ps2 is a 32-bit platform, this value won't exceed that")]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "ps2 is a 32-bit platform, this value won't exceed that"
+    )]
     lz77_le_container.extend(u32::to_le_bytes(decompressed_data.len() as u32));
-    #[expect(clippy::cast_possible_truncation, reason = "ps2 is a 32-bit platform, this value won't exceed that")]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "ps2 is a 32-bit platform, this value won't exceed that"
+    )]
     lz77_le_container.extend(u32::to_le_bytes(compressed_data.len() as u32));
     lz77_le_container.extend(compressed_data);
     lz77_le_container.extend(flags);

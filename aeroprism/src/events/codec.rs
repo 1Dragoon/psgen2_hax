@@ -3,10 +3,7 @@ use crate::{
     events::{
         BytesOrPointer, Color, ControlCode, Data, DataItems, DialogItem, DialogString,
         GUESTIMATED_LENGTH, Offset, Pointer, Portrait, UmanagedData,
-        sjis_map::{
-            PS2_ENGRISH, SJIS_DOUBLES, SJIS_SINGLES, byte_to_ps2_engrish, byte_to_sjis,
-            bytes_to_sjis,
-        },
+        sjis_map::{SJIS_STARTER_BYTES, byte_to_engrish, byte_to_sjis, word_to_sjis},
     },
     helpers::{encode_hex, hex_edit_encode},
 };
@@ -259,21 +256,27 @@ pub fn marshal_events(
     let mut offset_tracker: HashMap<Pointer, Offset> = HashMap::new();
     let mut est_offset: usize = 0;
     for (pointer, data) in &ordered_data {
+        #[expect(
+            clippy::panic,
+            reason = "these are totally irrecoverable failures -- guaranteed corrupt outputs"
+        )]
         for datum in data {
             offset_tracker
                 .entry(*pointer)
                 .or_insert_with(|| Offset::try_from(est_offset).unwrap());
             let offset = offset_tracker
                 .get(pointer)
-                .unwrap_or_else(|| panic!("Error: Missing pointer object {pointer:04x}"));
+                .unwrap_or_else(|| panic!("Fatal error: Missing pointer object {pointer:04x}"));
 
             if let Data::String(string) = &datum {
                 let dialog_string = dialog_items
                     .as_mut()
-                    .unwrap_or_else(|| panic!("Error: No dialog strings provided for this file!"))
+                    .unwrap_or_else(|| {
+                        panic!("Fatal error: No dialog strings provided for this file!")
+                    })
                     .swap_remove(pointer)
                     .unwrap_or_else(|| {
-                        panic!("Error: Missing dialog pointer object {pointer:04x}")
+                        panic!("Fatal error: Missing dialog pointer object {pointer:04x}")
                     });
                 let mut string_bytes = Vec::with_capacity(256);
                 let DialogString { text, padded } = dialog_string;
@@ -422,7 +425,7 @@ fn decode_psg2_string(mut raw_ps2_sjis_string: Vec<u8>) -> DialogString {
                 let mut sjis_strings = Vec::with_capacity(40);
                 parse_next_sjis(&mut string_iter, &mut sjis_strings, byte);
                 while let Some(next_string_byte) = string_iter.next_if(|b| {
-                    *b == b'@' || *b == b' ' || SJIS_DOUBLES.contains(b) || SJIS_SINGLES.contains(b)
+                    *b == b'@' || *b == b' ' || SJIS_STARTER_BYTES.binary_search(b).is_ok()
                 }) {
                     parse_next_sjis(&mut string_iter, &mut sjis_strings, next_string_byte);
                 }
@@ -574,18 +577,22 @@ fn parse_next_sjis(
         sjis_string.push(" ");
     } else if byte == b'@' {
         sjis_string.push("\n");
-    } else if *crate::ENGRISH.get().unwrap() && PS2_ENGRISH.contains(&byte) {
-        sjis_string.push(byte_to_ps2_engrish(byte));
-    } else if SJIS_SINGLES.contains(&byte) {
-        sjis_string.push(byte_to_sjis(byte));
-    } else if SJIS_DOUBLES.contains(&byte) {
+    } else if *crate::ENGRISH.get().unwrap()
+        && let Some(string) = byte_to_engrish(byte)
+    {
+        sjis_string.push(string);
+    } else if let Some(string) = byte_to_sjis(byte) {
+        sjis_string.push(string);
+    } else {
         let next_byte = string_iter.next().unwrap_or_else(||
             {error!("Expected another character to follow a SHIFTJIS double character, but the data is truncated.");
             0x00}
         );
-        sjis_string.push(bytes_to_sjis([byte, next_byte]));
-    } else {
-        error!("Unexpected character code: 0x{byte:02x}");
+        let character = word_to_sjis([byte, next_byte]).unwrap_or_else(|| {
+            error!("Unexpected character code: 0x{byte:02x}");
+            "INVALIDCHARACTER"
+        });
+        sjis_string.push(character);
     }
 }
 
