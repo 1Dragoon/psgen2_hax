@@ -1,0 +1,54 @@
+Character information seems to begin here: 1651d0
+at 1651d0, pointer 2A8DC0 -> 1A9DC0
+8386815b83568358
+
+8386 ユ
+815b ー
+8356 シ
+8358 ス
+
+ユーシス -> Eusis
+
+Item information around here somewhere?
+at 1655b0, pointer 2AB2B8 -> 1AC2B8
+8357838b8352836a834583808d878be090bb82cc8bb98d6281428140814081408fda8dd7957396be8163
+
+8357 ジ
+838b ル
+8352 コ
+836a ニ
+8345 ウ
+8380 ム
+8d87 メ
+8be0 金
+90bb 製
+82cc の
+8bb9 胸
+8d62 甲
+8142 。
+8140 　
+8140 　
+8140 　
+8fda 詳
+8dd7 細
+9573 不
+96be 明
+8163 …
+
+ジルコニウムメ金製の胸甲。　　　詳細不明…
+A breastplate made of zirconium-gold. Details unknown...
+
+
+
+enemy 98: 2DA609 -> 1DB609
+
+53 S
+61 a
+6B k
+6F o
+66 f
+66 f
+
+
+001a4070 looks like a jump table
+14b564
