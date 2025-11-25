@@ -423,11 +423,12 @@ fn decode_psg2_string(mut raw_ps2_sjis_string: Vec<u8>) -> DialogString {
             }
             ControlCode::None => {
                 let mut sjis_strings = Vec::with_capacity(40);
-                parse_next_sjis(&mut string_iter, &mut sjis_strings, byte);
+                parse_next_event_char(&mut string_iter, &mut sjis_strings, byte).unwrap();
                 while let Some(next_string_byte) = string_iter.next_if(|b| {
                     *b == b'@' || *b == b' ' || SJIS_STARTER_BYTES.binary_search(b).is_ok()
                 }) {
-                    parse_next_sjis(&mut string_iter, &mut sjis_strings, next_string_byte);
+                    parse_next_event_char(&mut string_iter, &mut sjis_strings, next_string_byte)
+                        .unwrap();
                 }
 
                 // let decoded_sjis_string = decode_string(&sjis_string).to_string();
@@ -568,32 +569,42 @@ fn pinpoint_terminator_offset<R: Seek + BufRead>(
     Ok(())
 }
 
-fn parse_next_sjis(
+pub fn parse_next_event_char(
     string_iter: &mut Peekable<IntoIter<u8>>,
     sjis_string: &mut Vec<&str>,
     byte: u8,
-) {
+) -> Result<(), String> {
     if byte == b' ' {
         sjis_string.push(" ");
     } else if byte == b'@' {
         sjis_string.push("\n");
-    } else if *crate::ENGRISH.get().unwrap()
+    } else {
+        parse_next_sjis(string_iter, sjis_string, byte)?;
+    }
+    Ok(())
+}
+
+pub fn parse_next_sjis(
+    string_iter: &mut Peekable<IntoIter<u8>>,
+    sjis_string: &mut Vec<&str>,
+    byte: u8,
+) -> Result<u8, String> {
+    if *crate::ENGRISH.get().unwrap()
         && let Some(string) = byte_to_engrish(byte)
     {
         sjis_string.push(string);
+        return Ok(1);
     } else if let Some(string) = byte_to_sjis(byte) {
         sjis_string.push(string);
-    } else {
-        let next_byte = string_iter.next().unwrap_or_else(||
-            {error!("Expected another character to follow a SHIFTJIS double character, but the data is truncated.");
-            0x00}
-        );
-        let character = word_to_sjis([byte, next_byte]).unwrap_or_else(|| {
-            error!("Unexpected character code: 0x{byte:02x}");
-            "INVALIDCHARACTER"
-        });
-        sjis_string.push(character);
+        return Ok(1);
     }
+
+    let next_byte = string_iter.peek().copied().ok_or_else(|| "Expected another character to follow a SHIFTJIS double character, but the data is truncated.".to_owned())?;
+    let character = word_to_sjis([byte, next_byte])
+        .ok_or_else(|| format!("Unexpected character code: 0x{byte:02x}"))?;
+    sjis_string.push(character);
+    string_iter.next().unwrap();
+    Ok(2)
 }
 
 fn coalesce_bytes(

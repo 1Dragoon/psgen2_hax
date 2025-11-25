@@ -39,7 +39,11 @@ mod lz77_le;
 mod sggg_codec;
 extern crate alloc;
 use crate::{
-    events::{IndexMapWrapper, codec::parse_events, rebuild_event, save_dialog_strings},
+    events::{
+        IndexMapWrapper,
+        codec::{parse_events, parse_next_sjis},
+        rebuild_event, save_dialog_strings,
+    },
     helpers::copy_dir_all,
     lz77_le::{compress_lz77_le, decompress},
     sggg_codec::{convert_to_png, png_to_sggg},
@@ -366,6 +370,37 @@ async fn walk_iso<P: AsRef<Path> + Send + Sync>(
     while let Some(dir_entry) = read_dir.next_entry().await.unwrap() {
         let path = dir_entry.path();
         let dest = out_dir.as_ref().join(path.file_name().unwrap());
+        if path.to_string_lossy().ends_with("SLPM_625.53") {
+            let elf_file = fs::File::open(path).await?;
+            let elf_file_size = elf_file.metadata().await?.len().try_into().unwrap();
+            let mut elf_reader = BufReader::new(elf_file);
+            let mut elf_data = Vec::with_capacity(elf_file_size);
+            elf_reader.read_to_end(&mut elf_data).await.unwrap();
+            let mut elf_data_iter = elf_data.into_iter().peekable();
+            let mut strings = Vec::with_capacity(40);
+            let mut i = 0usize;
+            let mut addr = 0;
+            let mut has_double = false;
+            while let Some(byte) = elf_data_iter.next() {
+                if strings.is_empty() {
+                    addr = i;
+                }
+                if byte != 0 && let Ok(count) = parse_next_sjis(&mut elf_data_iter, &mut strings, byte) {
+                    i += count as usize;
+                    if count == 2 {
+                        has_double = true;
+                    }
+                } else {
+                    i += 1;
+                    if strings.len() > 1 || has_double {
+                        println!("0x{:08x}: {}", addr, strings.concat());
+                    }
+                    strings.clear();
+                    has_double = false;
+                }
+            }
+        }
+        continue;
         // Simply copy non-directories that aren't dat files.
         if path.is_dir() {
             copy_dir_all(&path, &dest).await?;

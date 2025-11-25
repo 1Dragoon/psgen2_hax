@@ -68,7 +68,7 @@ struct EnemyData {
     attack: u32, // Fourth field
     defense: u32, // Fifth field
     agility: u32, // Sixth field. Controls chance to dodge your hits, possibly others.
-    field_7: u32, // These fields serve an unknown purpose
+    field_7: u32, // These fields serve an unknown purpose. Possible values include: Spell power, technique points
     field_8: u32,
     field_9: u32,
     field_10: u32,

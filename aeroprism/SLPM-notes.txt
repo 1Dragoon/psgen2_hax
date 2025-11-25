@@ -52,3 +52,132 @@ enemy 98: 2DA609 -> 1DB609
 
 001a4070 looks like a jump table
 14b564
+
+// These have C style %s string formatters
+First dialog a:
+0x187880
+Last dialog a:
+0x1878B8
+
+First map text:
+0x188770
+Last map text:
+0x1890A0
+Jump table: 0x14F798-0x14F940 
+
+// These have C style %s string formatters
+First dialog b:
+0x189210
+Last dialog b:
+0x1892E0
+
+First music name:
+0x1894E8
+Last music name:
+0x189670
+Jump table: 0x189454-0x1894DC
+
+One-off text: 0x1896E8 // c style %s formatter
+
+// These have C style %s string formatters
+First dialog c:
+0x18A330
+Last dialog c:
+0x18A790
+
+0x18B060 HP current/max? (%3d, i.e. 3 digits)
+0x18B070 TP current/max? (%3d, i.e. 3 digits)
+0x18B090 colon separated number triplet (%2d:%2d:%2d, i.e. two digits)
+
+First dialog d:
+0x18B0A0
+Last dialog d:
+0x18B0B0
+
+0x18B160 sjis text: 0123456789
+
+First item name:
+0x18C8F0
+Last item name:
+0x18D578
+
+First dialog e:
+0x18D590
+Last dialog e:
+0x18D9C0
+
+First dialog f:
+0x18DA10
+Last dialog f:
+0x18DD66
+
+First dialog g:
+0x18DF18
+Last dialog g:
+0x18E068
+
+First credit string:
+0x1A0EDC
+Last credit string:
+0x1A1C40
+
+First endgame prompt:
+0x1A1C80
+Last endgame prompt:
+0x1A1CA0
+
+First save dialog:
+0x1A1D80
+Last save dialog:
+0x1A1DA8
+
+First dialog h:
+0x1A1E78
+Last dialog h:
+0x1A22B8
+
+First effect name:
+0x1A3AC8
+Last effect name:
+0x1A3F08
+
+First enemy name:
+0x1A89E0
+Last enemy name:
+0x1A9288 or maybe 0x1A9678
+
+First battle text:
+0x1A9AF0
+Last battle text:
+0x1AD7C8
+
+First misc string a:
+0x1DB218
+Some indicator texts?:
+0x1DB248 %5d, i.e. 5 digit numeral string
+0x1DB250 %7d, i.e. 7 digit numeral string
+0x1DB258 %03d/, i.e. zero padded 3 digit numeral string, followed by / (likely current value of something)
+0x1DB260 %03d, same as above, but likely the max value
+0x1DB268 ---, likely when the value is not applicable
+0x1DB270 b,
+0x1DB278 c,
+0x1DB280 h,
+0x1DB288 f,
+0x1DB290 g,
+0x1DB298 %3d, i.e. 3 digit numeral string
+0x1DB2A0 P%2d i.e. P followed by 2 digit numeral
+0x1DB2A8 L%2d i.e. L followed by 2 digit numeral
+0x1DB2B0 "   %3d" i.e. 3 spaces followed by 3 digit numeral
+0x1DB2B8 %8d, i.e. 8 digit numeral string
+Last misc string a:
+0x1DB480
+
+First misc string b:
+0x1DB598
+Last misc string b:
+0x1DB640
+
+First misc string c:
+0x1DB680
+Last misc string c:
+0x1DB7A0
