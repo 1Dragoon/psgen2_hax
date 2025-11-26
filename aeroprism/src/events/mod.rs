@@ -6,7 +6,10 @@ use crate::{
         codec::{DialogMap, OrderedData, OrderedDialog, marshal_events},
         sjis_map::utf8_to_ps2,
     },
-    helpers::{decode_hex, encode_hex},
+    helpers::{
+        decode_hex, deserialize_hex, deserialize_indexmap, encode_hex, serialize_hex,
+        serialize_indexmap, serialize_rc_empty,
+    },
 };
 use alloc::{
     collections::{BTreeMap, BTreeSet},
@@ -708,105 +711,6 @@ fn parse_dialog(input: &str) -> Result<Vec<DialogItem>, String> {
     }
 
     Ok(out)
-}
-
-fn serialize_hex<S>(x: &[u8], s: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    s.serialize_str(&encode_hex(x))
-}
-
-fn deserialize_hex<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    struct HexVisitor;
-
-    impl Visitor<'_> for HexVisitor {
-        type Value = Vec<u8>;
-
-        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-            formatter.write_str("hexadecimal string to bytes")
-        }
-
-        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-        where
-            E: Error,
-        {
-            decode_hex(v).map_err(de::Error::custom)
-        }
-    }
-
-    deserializer.deserialize_str(HexVisitor)
-}
-
-fn serialize_rc_empty<S>(_: &Rc<RefCell<Vec<u8>>>, s: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    s.serialize_seq(Some(0))?.end()
-}
-
-#[expect(clippy::trivially_copy_pass_by_ref, reason = "required for trait impl")]
-fn serialize_u32_hex<S>(x: &u32, s: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    s.serialize_str(format!("{x:04x}").as_str())
-}
-
-fn deserialize_u32_hex<'de, D>(deserializer: D) -> Result<u32, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    struct U32visitor;
-
-    impl Visitor<'_> for U32visitor {
-        type Value = u32;
-
-        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-            formatter.write_str("a two byte hex string")
-        }
-
-        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-        where
-            E: Error,
-        {
-            let mut bytes = decode_hex(v).map_err(de::Error::custom)?;
-            let fourth = bytes.pop().unwrap_or_default();
-            let third = bytes.pop().unwrap_or_default();
-            let second = bytes.pop().unwrap_or_default();
-            let first = bytes.pop().unwrap_or_default();
-            Ok(u32::from_be_bytes([first, second, third, fourth]))
-        }
-    }
-
-    deserializer.deserialize_str(U32visitor)
-}
-
-pub fn deserialize_indexmap<'de, D, T>(d: D) -> Result<IndexMap<u32, T>, D::Error>
-where
-    D: Deserializer<'de>,
-    T: Deserialize<'de>,
-{
-    #[derive(Deserialize, Hash, Eq, PartialEq, Ord, PartialOrd)]
-    struct Wrapper(#[serde(deserialize_with = "deserialize_u32_hex")] u32);
-
-    let dict: IndexMap<Wrapper, T> = Deserialize::deserialize(d)?;
-    Ok(dict.into_iter().map(|(Wrapper(k), v)| (k, v)).collect())
-}
-
-pub fn serialize_indexmap<S, T>(s: &IndexMap<u32, T>, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-    T: Serialize,
-{
-    #[derive(Serialize)]
-    struct Wrapper<'a>(#[serde(serialize_with = "serialize_u32_hex")] &'a u32);
-
-    let map = s.iter().map(|(k, v)| (Wrapper(k), v));
-    serializer.collect_map(map)
 }
 
 pub fn save_dialog_strings(

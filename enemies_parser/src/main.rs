@@ -41,62 +41,6 @@ fn main() {
     }
 }
 
-enum Elemental {
-    Fire, // 0x01
-    Ice, // 0x02
-    Wind, // 0x04
-    Lightning // 0x08
-}
-
-enum EnemyType {
-    Biologic, // 0x01
-    Robotic, // 0x02
-    Demonic, // First and second bits turned off. Effectively, the above two bits count as a weakness to certain techniques. This simply indicates no weakness.
-    Boss, // 0x04
-    SuperBoss // 0x08. The name is just a guess. Only Dark Falz and Motherbrain appear to have the bit for this set. No idea what it does.
-}
-
-struct EnemyData {
-    name_pointer: u32, // Pointer (alias?) to the enemy name string. First field.
-    attribute_field: u32, // All bytes of the second field. The below values will overwrite the data in this field if it is changed.
-    resistances: Vec<Elemental>, // First four bits of first byte of second field
-    weaknesses: Vec<Elemental>, // Second four bits of first byte of second field
-    // No idea what the second byte does -- most likely nothing
-    r#type: Vec<EnemyType>, // First four bits of third byte of second field
-    // Fourth byte controls graphical effects such as whether the enemy floats, sits still, flashes, and others.
-    health: u32, // Third field
-    attack: u32, // Fourth field
-    defense: u32, // Fifth field
-    agility: u32, // Sixth field. Controls chance to dodge your hits, possibly others.
-    field_7: u32, // These fields serve an unknown purpose. Possible values include: Spell power, technique points
-    field_8: u32,
-    field_9: u32,
-    field_10: u32,
-    field_11: u32,
-    // 12 through 17 appear to control the art assets used for this enemy. E.g. dropping the data in these fields from mother brain into neifirst will make neifirst look like mother brain
-    art_1: u32, // Field 12
-    art_2: u32,
-    art_3: u32,
-    art_4: u32,
-    art_5: u32,
-    art_6: u32, // Field 17
-    field_18: u32,
-    field_19: u32,
-    field_20: u32,
-    field_21: u32,
-    field_22: u32,
-    field_23: u32,
-    field_24: u32,
-    field_25: u32,
-    field_26: u32,
-    field_27: u32,
-    field_28: u32,
-    field_29: u32,
-    field_30: u32,
-    field_31: u32,
-    field_32: u32,
-}
-
 fn process_item(
     enemy_no: usize,
     item_no: usize,

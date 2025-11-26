@@ -37,6 +37,7 @@ mod events;
 mod helpers;
 mod lz77_le;
 mod sggg_codec;
+mod slpm_patcher;
 extern crate alloc;
 use crate::{
     events::{
@@ -47,6 +48,7 @@ use crate::{
     helpers::copy_dir_all,
     lz77_le::{compress_lz77_le, decompress},
     sggg_codec::{convert_to_png, png_to_sggg},
+    slpm_patcher::{parse_enemies, parse_items, parse_map_strings},
 };
 use alloc::collections::BTreeMap;
 use clap::Parser;
@@ -374,6 +376,10 @@ async fn walk_iso<P: AsRef<Path> + Send + Sync>(
             let elf_file = fs::File::open(path).await?;
             let elf_file_size = elf_file.metadata().await?.len().try_into().unwrap();
             let mut elf_reader = BufReader::new(elf_file);
+            parse_enemies(&mut elf_reader).await;
+            parse_items(&mut elf_reader).await;
+            parse_map_strings(&mut elf_reader).await;
+            continue;
             let mut elf_data = Vec::with_capacity(elf_file_size);
             elf_reader.read_to_end(&mut elf_data).await.unwrap();
             let mut elf_data_iter = elf_data.into_iter().peekable();
@@ -385,7 +391,9 @@ async fn walk_iso<P: AsRef<Path> + Send + Sync>(
                 if strings.is_empty() {
                     addr = i;
                 }
-                if byte != 0 && let Ok(count) = parse_next_sjis(&mut elf_data_iter, &mut strings, byte) {
+                if byte != 0
+                    && let Ok(count) = parse_next_sjis(&mut elf_data_iter, &mut strings, byte)
+                {
                     i += count as usize;
                     if count == 2 {
                         has_double = true;

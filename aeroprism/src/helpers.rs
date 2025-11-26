@@ -1,5 +1,11 @@
 use core::{convert, error, fmt, num::ParseIntError};
-use std::path::Path;
+use indexmap::IndexMap;
+use serde::{
+    Deserialize, Deserializer, Serialize, Serializer,
+    de::{self, Error, Visitor},
+    ser::SerializeSeq,
+};
+use std::{cell::RefCell, path::Path, rc::Rc};
 use tokio::{fs, io};
 
 const HEX_BYTES: &str = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f\
@@ -113,4 +119,106 @@ pub async fn copy_dir_all<P: AsRef<Path> + Sync + Send>(src: P, dst: P) -> io::R
         }
     }
     Ok(())
+}
+
+pub(crate) fn serialize_hex<S>(x: &[u8], s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    s.serialize_str(&encode_hex(x))
+}
+
+pub(crate) fn deserialize_hex<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    struct HexVisitor;
+
+    impl Visitor<'_> for HexVisitor {
+        type Value = Vec<u8>;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("hexadecimal string to bytes")
+        }
+
+        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+        where
+            E: Error,
+        {
+            decode_hex(v).map_err(de::Error::custom)
+        }
+    }
+
+    deserializer.deserialize_str(HexVisitor)
+}
+
+pub(crate) fn serialize_rc_empty<S>(_: &Rc<RefCell<Vec<u8>>>, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    s.serialize_seq(Some(0))?.end()
+}
+
+#[expect(clippy::trivially_copy_pass_by_ref, reason = "required for trait impl")]
+pub(crate) fn serialize_u32_hex<S>(x: &u32, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    s.serialize_str(format!("{x:04x}").as_str())
+}
+
+pub(crate) fn deserialize_u32_hex<'de, D>(deserializer: D) -> Result<u32, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    struct U32visitor;
+
+    impl Visitor<'_> for U32visitor {
+        type Value = u32;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("a two byte hex string")
+        }
+
+        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+        where
+            E: Error,
+        {
+            let mut bytes = decode_hex(v).map_err(de::Error::custom)?;
+            let fourth = bytes.pop().unwrap_or_default();
+            let third = bytes.pop().unwrap_or_default();
+            let second = bytes.pop().unwrap_or_default();
+            let first = bytes.pop().unwrap_or_default();
+            Ok(u32::from_be_bytes([first, second, third, fourth]))
+        }
+    }
+
+    deserializer.deserialize_str(U32visitor)
+}
+
+pub(crate) fn deserialize_indexmap<'de, D, T>(d: D) -> Result<IndexMap<u32, T>, D::Error>
+where
+    D: Deserializer<'de>,
+    T: Deserialize<'de>,
+{
+    #[derive(Deserialize, Hash, Eq, PartialEq, Ord, PartialOrd)]
+    struct Wrapper(#[serde(deserialize_with = "deserialize_u32_hex")] u32);
+
+    let dict: IndexMap<Wrapper, T> = Deserialize::deserialize(d)?;
+    Ok(dict.into_iter().map(|(Wrapper(k), v)| (k, v)).collect())
+}
+
+pub(crate) fn serialize_indexmap<S, T>(
+    s: &IndexMap<u32, T>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+    T: Serialize,
+{
+    #[derive(Serialize)]
+    struct Wrapper<'a>(#[serde(serialize_with = "serialize_u32_hex")] &'a u32);
+
+    let map = s.iter().map(|(k, v)| (Wrapper(k), v));
+    serializer.collect_map(map)
 }

@@ -16,6 +16,7 @@ use byteorder::ReadBytesExt;
 use core::{cell::RefCell, iter::Peekable, ops::Bound};
 use indexmap::IndexMap;
 use log::{Level, debug, error, log_enabled, trace, warn};
+use snafu::prelude::*;
 use std::{
     collections::HashMap,
     io::{BufRead, Seek, SeekFrom},
@@ -434,7 +435,7 @@ fn decode_psg2_string(mut raw_ps2_sjis_string: Vec<u8>) -> DialogString {
                 // let decoded_sjis_string = decode_string(&sjis_string).to_string();
                 if let Some(DialogItem::String(eis)) = dialog_string.last_mut() {
                     for string in sjis_strings {
-                        eis.push_str(string);
+                        eis.push_str(string.as_str());
                     }
                 } else {
                     dialog_string.push(DialogItem::String(sjis_strings.concat()));
@@ -571,38 +572,59 @@ fn pinpoint_terminator_offset<R: Seek + BufRead>(
 
 pub fn parse_next_event_char(
     string_iter: &mut Peekable<IntoIter<u8>>,
-    sjis_string: &mut Vec<&str>,
+    sjis_string: &mut Vec<String>,
     byte: u8,
-) -> Result<(), String> {
+) -> Result<(), SjisError> {
     if byte == b' ' {
-        sjis_string.push(" ");
+        sjis_string.push(" ".to_owned());
     } else if byte == b'@' {
-        sjis_string.push("\n");
+        sjis_string.push("\n".to_owned());
     } else {
         parse_next_sjis(string_iter, sjis_string, byte)?;
     }
     Ok(())
 }
 
+#[derive(Debug, Snafu)]
+pub enum SjisError {
+    #[snafu(display(
+        "Expected another character to follow a SHIFTJIS double character, but the data is truncated."
+    ))]
+    UnexpectedEof,
+
+    #[snafu(display("Unexpected character code: 0x{byte:02x}"))]
+    UnexpectedCharacter { byte: u8 },
+}
+
 pub fn parse_next_sjis(
     string_iter: &mut Peekable<IntoIter<u8>>,
-    sjis_string: &mut Vec<&str>,
+    sjis_string: &mut Vec<String>,
     byte: u8,
-) -> Result<u8, String> {
-    if *crate::ENGRISH.get().unwrap()
-        && let Some(string) = byte_to_engrish(byte)
-    {
-        sjis_string.push(string);
-        return Ok(1);
-    } else if let Some(string) = byte_to_sjis(byte) {
-        sjis_string.push(string);
+) -> Result<u8, SjisError> {
+    if *crate::ENGRISH.get().unwrap() {
+        if let Some(string) = byte_to_engrish(byte) {
+            sjis_string.push(string.into());
+            return Ok(1);
+        } else if (0x11..=0x12).contains(&byte) {
+            sjis_string.push(format!("MTE{byte:02x}"));
+            let next_byte = string_iter.peek().copied().context(UnexpectedEofSnafu)?;
+            if let Some(string) = byte_to_engrish(next_byte) {
+                sjis_string.push(string.into());
+            } else {
+                sjis_string.push(format!("x{next_byte:02x}"));
+            }
+            string_iter.next().unwrap();
+            return Ok(2)
+        }
+    }
+    if let Some(string) = byte_to_sjis(byte) {
+        sjis_string.push(string.into());
         return Ok(1);
     }
 
-    let next_byte = string_iter.peek().copied().ok_or_else(|| "Expected another character to follow a SHIFTJIS double character, but the data is truncated.".to_owned())?;
-    let character = word_to_sjis([byte, next_byte])
-        .ok_or_else(|| format!("Unexpected character code: 0x{byte:02x}"))?;
-    sjis_string.push(character);
+    let next_byte = string_iter.peek().copied().context(UnexpectedEofSnafu)?;
+    let character = word_to_sjis([byte, next_byte]).context(UnexpectedCharacterSnafu { byte })?;
+    sjis_string.push(character.into());
     string_iter.next().unwrap();
     Ok(2)
 }

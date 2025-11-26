@@ -11,33 +11,6 @@ at 1651d0, pointer 2A8DC0 -> 1A9DC0
 
 Item information around here somewhere?
 at 1655b0, pointer 2AB2B8 -> 1AC2B8
-8357838b8352836a834583808d878be090bb82cc8bb98d6281428140814081408fda8dd7957396be8163
-
-8357 ジ
-838b ル
-8352 コ
-836a ニ
-8345 ウ
-8380 ム
-8d87 メ
-8be0 金
-90bb 製
-82cc の
-8bb9 胸
-8d62 甲
-8142 。
-8140 　
-8140 　
-8140 　
-8fda 詳
-8dd7 細
-9573 不
-96be 明
-8163 …
-
-ジルコニウムメ金製の胸甲。　　　詳細不明…
-A breastplate made of zirconium-gold. Details unknown...
-
 
 
 enemy 98: 2DA609 -> 1DB609
@@ -63,7 +36,7 @@ First map text:
 0x188770
 Last map text:
 0x1890A0
-Jump table: 0x14F798-0x14F940 
+Jump table: 0x14F798-0x14F940
 
 // These have C style %s string formatters
 First dialog b:
@@ -100,11 +73,13 @@ First item name:
 0x18C8F0
 Last item name:
 0x18D578
+Jump table: 0x18B1D0-0x18C8D0
 
 First dialog e:
 0x18D590
 Last dialog e:
 0x18D9C0
+Jump table: 0x155778-0x1558F8
 
 First dialog f:
 0x18DA10
@@ -130,6 +105,7 @@ First save dialog:
 0x1A1D80
 Last save dialog:
 0x1A1DA8
+Jump table: 0x1565B0-0x1565B8
 
 First dialog h:
 0x1A1E78
@@ -145,6 +121,7 @@ First enemy name:
 0x1A89E0
 Last enemy name:
 0x1A9288 or maybe 0x1A9678
+Jump table: 0x1651D0-0x165730
 
 First battle text:
 0x1A9AF0
@@ -181,3 +158,22 @@ First misc string c:
 0x1DB680
 Last misc string c:
 0x1DB7A0
+
+MTE12z -- Naula Style Cake
+MTE12x7a -- Hat
+MTE12x68 -- Nei
+MTE12Z -- Sol
+MTE114 -- Ice
+MTE12c -- Cake
+MTE12p -- Chiffon
+MTE12s -- Fruit
+MTE12u -- Mont Blanc
+MTE12x8a -- Guard
+MTE12h -- Atomizer
+MTE11l -- Claw
+MTE12l -- Ring
+MTE12a -- Card
+MTE12n -- Key
+MTE12x62 -- Plasma
+MTE12F -- Maruera
+MTE11Q -- Sword
