@@ -27,7 +27,14 @@ static MAPNAMES_JUMPLIST_START: usize = 0x14_F798;
 static MAPNAMES_POINTER_COUNT: usize = 106;
 
 #[derive(Serialize, Deserialize)]
-pub struct ItemData {
+pub struct ExecData {
+    pub items: Vec<ItemInfo>,
+    pub enemies: Vec<EnemyInfo>,
+    pub strings: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ItemInfo {
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
@@ -39,10 +46,22 @@ pub struct ItemData {
         deserialize_with = "deserialize_u32_hex"
     )]
     name_pointer: u32,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
     field_1: u32,
     field_2: u32,
     field_3: u32,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
     field_4: u32,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
     field_5: u32,
     field_6: u32,
     field_7: u32,
@@ -66,7 +85,7 @@ enum EnemyType {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct EnemyData {
+pub struct EnemyInfo {
     enemy_number: usize,
     enemy_name: String,
     #[serde(
@@ -106,23 +125,51 @@ pub struct EnemyData {
     field_21: u32,
     field_22: u32,
     field_23: u32,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
     field_24: u32,
     field_25: u32,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
     field_26: u32,
     field_27: u32,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
     field_28: u32,
     field_29: u32,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
     field_30: u32,
     field_31: u32,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
     field_32: u32,
     field_33: u32,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
     field_34: u32,
     field_35: u32,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
     field_36: u32,
     field_37: u32,
 }
 
-pub async fn parse_enemies<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) -> Vec<EnemyData> {
+pub async fn parse_enemies<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) -> Vec<EnemyInfo> {
     reader
         .seek(SeekFrom::Start(ENEMY_STRUCTS_START as u64))
         .await
@@ -136,7 +183,7 @@ pub async fn parse_enemies<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) 
             field_vec.push(field_bytes);
         }
         field_vec.reverse();
-        let mut enemy = EnemyData {
+        let mut enemy = EnemyInfo {
             enemy_number: enemy_no + 1usize,
             enemy_name: String::new(),
             name_pointer: u32::from_le_bytes(field_vec.pop().unwrap()),
@@ -252,7 +299,7 @@ pub async fn parse_enemies<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) 
     enemies
 }
 
-pub async fn parse_items<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) -> Vec<ItemData> {
+pub async fn parse_items<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) -> Vec<ItemInfo> {
     reader
         .seek(SeekFrom::Start(ITEM_STRUCTS_START as u64))
         .await
@@ -266,7 +313,7 @@ pub async fn parse_items<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) ->
             field_vec.push(field_bytes);
         }
         field_vec.reverse();
-        let item = ItemData {
+        let item = ItemInfo {
             item_number: u32::try_from(item_no + 1).unwrap(),
             item_name: String::new(),
             name_pointer: u32::from_le_bytes(field_vec.pop().unwrap()),

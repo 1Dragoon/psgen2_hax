@@ -48,7 +48,7 @@ use crate::{
     helpers::copy_dir_all,
     lz77_le::{compress_lz77_le, decompress},
     sggg_codec::{convert_to_png, png_to_sggg},
-    slpm_patcher::{parse_enemies, parse_items, parse_map_strings},
+    slpm_patcher::{ExecData, parse_enemies, parse_items, parse_map_strings},
 };
 use alloc::collections::BTreeMap;
 use clap::Parser;
@@ -377,10 +377,24 @@ async fn walk_iso<P: AsRef<Path> + Send + Sync>(
             let elf_file = fs::File::open(&path).await?;
             let elf_file_size = elf_file.metadata().await?.len().try_into().unwrap();
             let mut elf_reader = BufReader::new(elf_file);
-            let ed = parse_enemies(&mut elf_reader).await;
-            let id = parse_items(&mut elf_reader).await;
-            let gah = parse_map_strings(&mut elf_reader).await;
-            continue;
+            let exec_data = ExecData {
+                items: parse_items(&mut elf_reader).await,
+                enemies: parse_enemies(&mut elf_reader).await,
+                strings: parse_map_strings(&mut elf_reader).await
+            };
+            let exec_json = serde_json::to_string_pretty(&exec_data).unwrap().into_bytes();
+            let save_path = PathBuf::with_capacity(128).join(&out_dir).join("exec_data.json");
+            let component_file = OpenOptions::new()
+                .create(true)
+                .truncate(true)
+                .write(true)
+                .open(save_path)
+                .await
+                .unwrap();
+            let mut bw = BufWriter::new(component_file);
+            bw.write_all(&exec_json).await.unwrap();
+            bw.flush().await.unwrap();
+
             elf_bin_engrish_strings(elf_file_size, elf_reader).await;
         }
         // Simply copy non-directories that aren't dat files.
