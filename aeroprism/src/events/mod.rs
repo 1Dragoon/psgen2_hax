@@ -7,8 +7,8 @@ use crate::{
         sjis_map::utf8_to_ps2,
     },
     helpers::{
-        decode_hex, deserialize_hex, deserialize_indexmap, encode_hex, serialize_hex,
-        serialize_indexmap, serialize_rc_empty,
+        deserialize_hex, deserialize_indexmap, encode_hex, serialize_hex, serialize_indexmap,
+        serialize_rc_empty,
     },
 };
 use alloc::{
@@ -21,7 +21,6 @@ use log::{debug, error, trace};
 use serde::{
     Deserialize, Deserializer, Serialize, Serializer,
     de::{self, DeserializeOwned, Error, Visitor},
-    ser::SerializeSeq,
 };
 use std::{
     fs::OpenOptions,
@@ -759,10 +758,6 @@ pub fn rebuild_event<P: AsRef<Path>>(
     dialog_file_path: P,
 ) -> Result<Vec<u8>, io::Error> {
     let ordered_data = serde_json::from_slice::<IndexMapWrapper<Vec<Data>>>(data)?.0;
-    #[expect(
-        clippy::if_then_some_else_none,
-        reason = "Closure would require unwrapping"
-    )]
     let dialog_items = if dialog_file_path.as_ref().exists() {
         Some(load_dialog_strings(dialog_file_path.as_ref())?)
     } else {

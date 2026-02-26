@@ -90,6 +90,7 @@ First dialog g:
 0x18DF18
 Last dialog g:
 0x18E068
+Jump table: 0x18E0A4-18E0E4
 
 First credit string:
 0x1A0EDC
@@ -152,7 +153,7 @@ Last misc string a:
 First misc string b:
 0x1DB598
 Last misc string b:
-0x1DB640
+0x1DB640 (ref from 0x161868)
 
 First misc string c:
 0x1DB680

@@ -60,7 +60,7 @@ use shellexpand::path;
 use soft_canonicalize::soft_canonicalize;
 use std::{
     ffi::OsStr,
-    io::Cursor,
+    io::{Cursor, ErrorKind},
     path::{Path, PathBuf},
     sync::OnceLock,
     time::Instant,
@@ -83,7 +83,7 @@ struct Cli {
     #[arg(short, long)]
     copy_images: bool,
 
-    /// Whether the source files are from an English translation or a Japanese translation
+    /// Whether the source files are from an English translation or a Japanese translation.
     #[arg(short, long)]
     engrish: bool,
 
@@ -367,48 +367,22 @@ async fn walk_iso<P: AsRef<Path> + Send + Sync>(
     out_dir: P,
     copy_images: bool,
 ) -> Result<(), io::Error> {
-    fs::create_dir_all(&out_dir).await?;
+    fs::create_dir_all(&out_dir).await.unwrap();
     let mut read_dir = fs::read_dir(&in_dir).await.unwrap();
     while let Some(dir_entry) = read_dir.next_entry().await.unwrap() {
         let path = dir_entry.path();
         let dest = out_dir.as_ref().join(path.file_name().unwrap());
+        // Handle ELF executable binary
         if path.to_string_lossy().ends_with("SLPM_625.53") {
-            let elf_file = fs::File::open(path).await?;
+            let elf_file = fs::File::open(&path).await?;
             let elf_file_size = elf_file.metadata().await?.len().try_into().unwrap();
             let mut elf_reader = BufReader::new(elf_file);
-            parse_enemies(&mut elf_reader).await;
-            parse_items(&mut elf_reader).await;
-            parse_map_strings(&mut elf_reader).await;
+            let ed = parse_enemies(&mut elf_reader).await;
+            let id = parse_items(&mut elf_reader).await;
+            let gah = parse_map_strings(&mut elf_reader).await;
             continue;
-            let mut elf_data = Vec::with_capacity(elf_file_size);
-            elf_reader.read_to_end(&mut elf_data).await.unwrap();
-            let mut elf_data_iter = elf_data.into_iter().peekable();
-            let mut strings = Vec::with_capacity(40);
-            let mut i = 0usize;
-            let mut addr = 0;
-            let mut has_double = false;
-            while let Some(byte) = elf_data_iter.next() {
-                if strings.is_empty() {
-                    addr = i;
-                }
-                if byte != 0
-                    && let Ok(count) = parse_next_sjis(&mut elf_data_iter, &mut strings, byte)
-                {
-                    i += count as usize;
-                    if count == 2 {
-                        has_double = true;
-                    }
-                } else {
-                    i += 1;
-                    if strings.len() > 1 || has_double {
-                        println!("0x{:08x}: {}", addr, strings.concat());
-                    }
-                    strings.clear();
-                    has_double = false;
-                }
-            }
+            elf_bin_engrish_strings(elf_file_size, elf_reader).await;
         }
-        continue;
         // Simply copy non-directories that aren't dat files.
         if path.is_dir() {
             copy_dir_all(&path, &dest).await?;
@@ -449,9 +423,39 @@ async fn walk_iso<P: AsRef<Path> + Send + Sync>(
             &out_dir,
             copy_images,
         )
-        .await?;
+        .await.unwrap();
     }
     Ok(())
+}
+
+async fn elf_bin_engrish_strings(elf_file_size: usize, mut elf_reader: BufReader<fs::File>) {
+    let mut elf_data = Vec::with_capacity(elf_file_size);
+    elf_reader.read_to_end(&mut elf_data).await.unwrap();
+    let mut elf_data_iter = elf_data.into_iter().peekable();
+    let mut strings = Vec::with_capacity(40);
+    let mut i = 0usize;
+    let mut addr = 0;
+    let mut has_double = false;
+    while let Some(byte) = elf_data_iter.next() {
+        if strings.is_empty() {
+            addr = i;
+        }
+        if byte != 0
+            && let Ok(count) = parse_next_sjis(&mut elf_data_iter, &mut strings, byte)
+        {
+            i += count as usize;
+            if count == 2 {
+                has_double = true;
+            }
+        } else {
+            i += 1;
+            if strings.len() > 1 || has_double {
+                println!("0x{:08x}: {}", addr, strings.concat());
+            }
+            strings.clear();
+            has_double = false;
+        }
+    }
 }
 
 #[expect(clippy::single_call_fn, reason = "Readability")]
@@ -509,7 +513,13 @@ async fn unpack_dat<T: AsyncBufReadExt + Unpin, P: AsRef<Path>>(
 
     // Create the directory if we haven't already
     let save_path = PathBuf::with_capacity(128).join(out_dir).join(dat_name);
-    create_dir_all(&save_path).await?;
+    match create_dir_all(&save_path).await {
+        Ok(()) => (),
+        Err(err) => match err.kind() {
+            ErrorKind::AlreadyExists => (),
+            _ => return Err(err)
+        },
+    }
 
     // Create a peakable iterator so that we can calculate each blob size as we read each offset
     let mut offsets_iter = block_offsets.into_iter().peekable();
@@ -539,13 +549,13 @@ async fn unpack_dat<T: AsyncBufReadExt + Unpin, P: AsRef<Path>>(
         } else {
             #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
             if data[0..2] == *b"CM" {
-                data = decompress(dat_name, file_number, data)?;
+                data = decompress(dat_name, file_number, data).unwrap();
                 extensions.push("lz77");
             }
             #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
             if data[0..4] == *b"SGGG" {
                 extensions.push("png");
-                data = convert_to_png(data)?;
+                data = convert_to_png(data).unwrap();
             } else if dat_name.to_string_lossy().contains("EVENT") {
                 if log_enabled!(Level::Debug) {
                     debug!(

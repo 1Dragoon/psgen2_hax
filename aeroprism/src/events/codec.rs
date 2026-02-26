@@ -27,6 +27,17 @@ pub type OrderedData = IndexMap<Pointer, Vec<Data>>;
 pub type DialogMap = BTreeMap<Pointer, DialogString>;
 pub type OrderedDialog = IndexMap<Pointer, DialogString>;
 
+#[derive(Debug, Snafu)]
+pub enum SjisError {
+    #[snafu(display("Unexpected character code: 0x{byte:02x}"))]
+    UnexpectedCharacter { byte: u8 },
+
+    #[snafu(display(
+        "Expected another character to follow a SHIFTJIS double character, but the data is truncated."
+    ))]
+    UnexpectedEof,
+}
+
 #[expect(clippy::single_call_fn, reason = "readability")]
 pub fn parse_events<R: Seek + BufRead>(
     reader: &mut R,
@@ -583,17 +594,6 @@ pub fn parse_next_event_char(
         parse_next_sjis(string_iter, sjis_string, byte)?;
     }
     Ok(())
-}
-
-#[derive(Debug, Snafu)]
-pub enum SjisError {
-    #[snafu(display(
-        "Expected another character to follow a SHIFTJIS double character, but the data is truncated."
-    ))]
-    UnexpectedEof,
-
-    #[snafu(display("Unexpected character code: 0x{byte:02x}"))]
-    UnexpectedCharacter { byte: u8 },
 }
 
 pub fn parse_next_sjis(

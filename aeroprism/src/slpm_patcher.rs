@@ -1,17 +1,11 @@
+#![allow(clippy::arbitrary_source_item_ordering, reason = "not needed")]
 use crate::{
     events::codec::{SjisError, parse_next_sjis},
     helpers::{deserialize_u32_hex, serialize_u32_hex},
 };
 use core::mem::size_of;
 use serde::{Deserialize, Serialize};
-use std::io::{BufRead, Seek};
-use tokio::{
-    fs::File,
-    io::{
-        AsyncBufRead, AsyncBufReadExt, AsyncReadExt, AsyncSeek, AsyncSeekExt, AsyncWriteExt,
-        BufWriter, SeekFrom,
-    },
-};
+use tokio::io::{AsyncBufRead, AsyncBufReadExt, AsyncReadExt, AsyncSeek, AsyncSeekExt, SeekFrom};
 
 // Via `readelf d:\SLPM_625.53 -l`
 // Program segment 1 and 2 both end up as 0xFF000
@@ -33,10 +27,7 @@ static MAPNAMES_JUMPLIST_START: usize = 0x14_F798;
 static MAPNAMES_POINTER_COUNT: usize = 106;
 
 #[derive(Serialize, Deserialize)]
-struct MapNameVec(Vec<String>);
-
-#[derive(Serialize, Deserialize)]
-struct ItemData {
+pub struct ItemData {
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
@@ -58,9 +49,6 @@ struct ItemData {
 }
 
 #[derive(Serialize, Deserialize)]
-struct ItemDataVec(Vec<ItemData>);
-
-#[derive(Serialize, Deserialize)]
 enum Elemental {
     Fire,      // 0x01
     Ice,       // 0x02
@@ -78,7 +66,7 @@ enum EnemyType {
 }
 
 #[derive(Serialize, Deserialize)]
-struct EnemyData {
+pub struct EnemyData {
     enemy_number: usize,
     enemy_name: String,
     #[serde(
@@ -134,10 +122,7 @@ struct EnemyData {
     field_37: u32,
 }
 
-#[derive(Serialize, Deserialize)]
-struct EnemyDataVec(Vec<EnemyData>);
-
-pub async fn parse_enemies<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) {
+pub async fn parse_enemies<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) -> Vec<EnemyData> {
     reader
         .seek(SeekFrom::Start(ENEMY_STRUCTS_START as u64))
         .await
@@ -256,19 +241,18 @@ pub async fn parse_enemies<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) 
         while let Some(byte) = string_bytes_iter.next()
             && byte != 0
         {
-            if let Err(SjisError::UnexpectedCharacter { byte }) =
+            if let Err(SjisError::UnexpectedCharacter { byte: unexpected }) =
                 parse_next_sjis(&mut string_bytes_iter, &mut engrish_str, byte)
             {
-                engrish_str.push(format!("x{byte:02x}"));
+                engrish_str.push(format!("x{unexpected:02x}"));
             }
         }
         enemy.enemy_name = engrish_str.concat();
     }
-    let enemy_data_string = serde_json::to_string_pretty(&EnemyDataVec(enemies)).unwrap();
-    println!("{enemy_data_string}");
+    enemies
 }
 
-pub async fn parse_items<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) {
+pub async fn parse_items<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) -> Vec<ItemData> {
     reader
         .seek(SeekFrom::Start(ITEM_STRUCTS_START as u64))
         .await
@@ -283,7 +267,7 @@ pub async fn parse_items<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) {
         }
         field_vec.reverse();
         let item = ItemData {
-            item_number: (item_no + 1) as u32,
+            item_number: u32::try_from(item_no + 1).unwrap(),
             item_name: String::new(),
             name_pointer: u32::from_le_bytes(field_vec.pop().unwrap()),
             field_1: u32::from_le_bytes(field_vec.pop().unwrap()),
@@ -310,19 +294,18 @@ pub async fn parse_items<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) {
         while let Some(byte) = string_bytes_iter.next()
             && byte != 0
         {
-            if let Err(SjisError::UnexpectedCharacter { byte }) =
+            if let Err(SjisError::UnexpectedCharacter { byte: unexpected }) =
                 parse_next_sjis(&mut string_bytes_iter, &mut engrish_str, byte)
             {
-                engrish_str.push(format!("x{byte:02x}"));
+                engrish_str.push(format!("x{unexpected:02x}"));
             }
         }
         item.item_name = engrish_str.concat();
     }
-    let item_data_string = serde_json::to_string_pretty(&ItemDataVec(items)).unwrap();
-    println!("{item_data_string}");
+    items
 }
 
-pub async fn parse_map_strings<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) {
+pub async fn parse_map_strings<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) -> Vec<String> {
     reader
         .seek(SeekFrom::Start(MAPNAMES_JUMPLIST_START as u64))
         .await
@@ -332,13 +315,11 @@ pub async fn parse_map_strings<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut
     let mut mapnames = Vec::with_capacity(MAPNAMES_POINTER_COUNT);
     for _ in 0..MAPNAMES_POINTER_COUNT {
         reader.read_exact(&mut pointer_bytes).await.unwrap();
-        pointer_vec.push(u32::from_le_bytes(pointer_bytes))
+        pointer_vec.push(u32::from_le_bytes(pointer_bytes));
     }
     for pointer in pointer_vec {
         reader
-            .seek(SeekFrom::Start(
-                u64::from(pointer) - POINTER_OFFSET as u64,
-            ))
+            .seek(SeekFrom::Start(u64::from(pointer) - POINTER_OFFSET as u64))
             .await
             .unwrap();
         let mut string_bytes = Vec::with_capacity(20);
@@ -348,15 +329,15 @@ pub async fn parse_map_strings<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut
         while let Some(byte) = string_bytes_iter.next()
             && byte != 0
         {
-            if let Err(SjisError::UnexpectedCharacter { byte }) =
-                parse_next_sjis(&mut string_bytes_iter, &mut engrish_str, byte)
+            if let Err(SjisError::UnexpectedCharacter {
+                byte: unexpected_byte,
+            }) = parse_next_sjis(&mut string_bytes_iter, &mut engrish_str, byte)
             {
-                engrish_str.push(format!("x{byte:02x}"));
+                engrish_str.push(format!("x{unexpected_byte:02x}"));
             }
         }
         let mapname = engrish_str.concat();
         mapnames.push(mapname);
     }
-    let map_names_string = serde_json::to_string_pretty(&MapNameVec(mapnames)).unwrap();
-    println!("{map_names_string}");
+    mapnames
 }
