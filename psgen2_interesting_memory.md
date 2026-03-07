@@ -91,7 +91,7 @@ Plot counter B byte sequence: 0x2475E4
     - 0x04 == entered uzo island
     - 0x08 == entered amedas b1f
     - End: 0xFF
-12. - 0x10 == talk to people/enter buildings with anne in the party. Unsets if she isn't in the party or dead when you do these things.
+11. - 0x10 == talk to people/enter buildings with anne in the party. Unsets if she isn't in the party or dead when you do these things.
     - 0x20 == talk to people/enter buildings with huey in the party. Unsets if she isn't in the party or dead when you do these things.
     - 0x40 == talk to people/enter buildings with amia in the party. Unsets if she isn't in the party or dead when you do these things.
     - 0x80 == talk to people/enter buildings with keinz in the party. Unsets if he isn't in the party or dead when you do these things.
@@ -100,13 +100,13 @@ Plot counter B byte sequence: 0x2475E4
     - 0x04 == talk to people/enter buildings with nei in the party. Unsets if she isn't in the party or dead when you do these things.
     - 0x08 == talk to people/enter buildings with rudger in the party. Unsets if he isn't in the party when you do these things.
     - End: 0x4F (if rudger, nei, eusis, amia)
-13. - 0x10 == talk to people/enter buildings with silka in the party. Unsets if she isn't in the party when you do these things.
+12. - 0x10 == talk to people/enter buildings with silka in the party. Unsets if she isn't in the party when you do these things.
     - 0x20 == entered Piata (does not allow Silka join/teleport, just triggers NPC/consult progress)
     - 0x40 == entered Kueris (does not allow Keinz join/teleport, just triggers NPC/consult progress)
     - 0x80 == entered Zema (does not allow Amia join/teleport, just triggers NPC/consult progress)
     - 0x04 == Begin Eusis dream after gaira satellite
     - End: 0xE4 (without Silka, 0xF4 with silka)
-14. - 0x10 == Consult 3 times in a row after Darum/Teim scene, Nei backstory stuff
+13. - 0x10 == Consult 2 times in a row after Darum/Teim scene where Nei asks Eusis about parents
     - 0x20 == Consult after getting maruera leaves
     - 0x40 == Set after receiving silver bullet necklace and dialogue completes, some neigh backstory stuff in here
     - 0x80 == Set after defeating neifirst
@@ -115,7 +115,7 @@ Plot counter B byte sequence: 0x2475E4
     - 0x04 == entered Arimaya (does not allow Rudger join/teleport, just triggers NPC/consult progress)
     - 0x08 == initial value (entered Paseo?)
     - End: 0xFF
-15. - 0x01 == Consult after picking up all Nei armaments
+14. - 0x01 == Consult after picking up all Nei armaments
 
 
 Plot counter C byte sequence: 0x2475FD

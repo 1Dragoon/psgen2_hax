@@ -23,6 +23,7 @@
 #![allow(clippy::unreachable, reason = "not needed")]
 #![allow(clippy::integer_division_remainder_used, reason = "not needed")]
 #![allow(clippy::question_mark_used, reason = "not needed")]
+#![allow(clippy::enum_variant_names, reason = "not needed")]
 // Still in the prototyping stage of development
 #![allow(clippy::arithmetic_side_effects, reason = "will revisit later")]
 #![allow(clippy::unwrap_used, reason = "will fix these later")]
@@ -42,13 +43,13 @@ extern crate alloc;
 use crate::{
     events::{
         IndexMapWrapper,
-        codec::{parse_events, parse_next_sjis},
-        rebuild_event, save_dialog_strings,
+        codec::{parse_events},
+        load_exec_patch, rebuild_event, save_dialog_strings,
     },
     helpers::copy_dir_all,
     lz77_le::{compress_lz77_le, decompress},
     sggg_codec::{convert_to_png, png_to_sggg},
-    slpm_patcher::{ExecData, parse_enemies, parse_items, parse_map_strings},
+    slpm_patcher::{ExecData, parse_end_credits, parse_enemies, parse_items, patch_end_credits},
 };
 use alloc::collections::BTreeMap;
 use clap::Parser;
@@ -67,7 +68,9 @@ use std::{
 };
 use tokio::{
     fs::{self, OpenOptions, create_dir_all},
-    io::{self, AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader, BufWriter},
+    io::{
+        self, AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader, BufWriter,
+    },
     runtime,
     task::JoinHandle,
     time::sleep,
@@ -123,6 +126,7 @@ fn main() {
 
 async fn main_thread(cli: Cli) -> Result<(), io::Error> {
     // build_iso();
+    // events::sjis_map::sjis_gen();
     // return Ok(());
     ENGRISH.set(cli.engrish).unwrap();
     let mut log_builder = basic_builder();
@@ -286,22 +290,45 @@ async fn process_dir_entry(
         );
         if path != dest {
             #[cfg(target_os = "windows")]
-            if dest.exists() {
-                use fs::set_permissions;
-                let mut perms = fs::metadata(&dest).await?.permissions();
-                if perms.readonly() {
-                    #[expect(
-                        clippy::permissions_set_readonly_false,
-                        reason = "lint is only relevant to non-windows systems"
-                    )]
-                    perms.set_readonly(false);
-                    set_permissions(&dest, perms).await?;
-                }
-            }
+            unset_readonly(&dest).await?;
             fs::copy(path, &dest).await.unwrap();
+        }
+        if dest
+            .file_name()
+            .is_some_and(|file_name| file_name.to_string_lossy().to_uppercase() == "SLPM_625.53")
+        {
+            let exec_data_path = out_dir.join("exec_data.json");
+            let ExecData {
+                items: _items,
+                enemies: _enemies,
+                end_credits,
+            } = load_exec_patch(exec_data_path).unwrap();
+            #[cfg(target_os = "windows")]
+            unset_readonly(&dest).await?;
+            let elf_binary = OpenOptions::new().write(true).open(&dest).await.unwrap();
+            let mut bw = BufWriter::new(elf_binary);
+            patch_end_credits(&mut bw, end_credits).await.unwrap();
+            bw.flush().await.unwrap();
         }
     }
     Ok(dest)
+}
+
+async fn unset_readonly(path: &PathBuf) -> Result<(), io::Error> {
+    #[cfg(target_os = "windows")]
+    if path.exists() {
+        use fs::set_permissions;
+        let mut perms = fs::metadata(path).await?.permissions();
+        if perms.readonly() {
+            #[expect(
+                clippy::permissions_set_readonly_false,
+                reason = "lint is only relevant to non-windows systems"
+            )]
+            perms.set_readonly(false);
+            set_permissions(path, perms).await?;
+        }
+    }
+    Ok(())
 }
 
 #[expect(clippy::single_call_fn, reason = "Readability")]
@@ -372,18 +399,23 @@ async fn walk_iso<P: AsRef<Path> + Send + Sync>(
     while let Some(dir_entry) = read_dir.next_entry().await.unwrap() {
         let path = dir_entry.path();
         let dest = out_dir.as_ref().join(path.file_name().unwrap());
-        // Handle ELF executable binary
+        // Handle ELF binary
         if path.to_string_lossy().ends_with("SLPM_625.53") {
             let elf_file = fs::File::open(&path).await?;
-            let elf_file_size = elf_file.metadata().await?.len().try_into().unwrap();
+            // let elf_file_size = elf_file.metadata().await?.len().try_into().unwrap();
             let mut elf_reader = BufReader::new(elf_file);
             let exec_data = ExecData {
                 items: parse_items(&mut elf_reader).await,
                 enemies: parse_enemies(&mut elf_reader).await,
-                strings: parse_map_strings(&mut elf_reader).await
+                // strings: parse_map_strings(&mut elf_reader).await,
+                end_credits: parse_end_credits(&mut elf_reader).await,
             };
-            let exec_json = serde_json::to_string_pretty(&exec_data).unwrap().into_bytes();
-            let save_path = PathBuf::with_capacity(128).join(&out_dir).join("exec_data.json");
+            let exec_json = serde_json::to_string_pretty(&exec_data)
+                .unwrap()
+                .into_bytes();
+            let save_path = PathBuf::with_capacity(128)
+                .join(&out_dir)
+                .join("exec_data.json");
             let component_file = OpenOptions::new()
                 .create(true)
                 .truncate(true)
@@ -395,7 +427,8 @@ async fn walk_iso<P: AsRef<Path> + Send + Sync>(
             bw.write_all(&exec_json).await.unwrap();
             bw.flush().await.unwrap();
 
-            elf_bin_engrish_strings(elf_file_size, elf_reader).await;
+            // elf_bin_engrish_strings(elf_file_size, elf_reader).await;
+            continue;
         }
         // Simply copy non-directories that aren't dat files.
         if path.is_dir() {
@@ -437,40 +470,40 @@ async fn walk_iso<P: AsRef<Path> + Send + Sync>(
             &out_dir,
             copy_images,
         )
-        .await.unwrap();
+        .await
+        .unwrap();
     }
     Ok(())
 }
 
-async fn elf_bin_engrish_strings(elf_file_size: usize, mut elf_reader: BufReader<fs::File>) {
-    let mut elf_data = Vec::with_capacity(elf_file_size);
-    elf_reader.read_to_end(&mut elf_data).await.unwrap();
-    let mut elf_data_iter = elf_data.into_iter().peekable();
-    let mut strings = Vec::with_capacity(40);
-    let mut i = 0usize;
-    let mut addr = 0;
-    let mut has_double = false;
-    while let Some(byte) = elf_data_iter.next() {
-        if strings.is_empty() {
-            addr = i;
-        }
-        if byte != 0
-            && let Ok(count) = parse_next_sjis(&mut elf_data_iter, &mut strings, byte)
-        {
-            i += count as usize;
-            if count == 2 {
-                has_double = true;
-            }
-        } else {
-            i += 1;
-            if strings.len() > 1 || has_double {
-                println!("0x{:08x}: {}", addr, strings.concat());
-            }
-            strings.clear();
-            has_double = false;
-        }
-    }
-}
+// More or less a unix-like "strings" function that is "PSG2 aware"
+// async fn elf_bin_engrish_strings(elf_file_size: usize, mut elf_reader: BufReader<fs::File>) {
+//     elf_reader.seek(SeekFrom::Start(0)).await.unwrap();
+//     let mut elf_data = Vec::with_capacity(elf_file_size);
+//     let mut i = elf_reader.stream_position().await.unwrap();
+//     elf_reader.read_to_end(&mut elf_data).await.unwrap();
+//     let mut elf_data_iter = elf_data.into_iter().peekable();
+//     let mut strings = Vec::with_capacity(40);
+//     let mut addr = 0;
+//     while let Some(byte) = elf_data_iter.next() {
+//         if strings.is_empty() {
+//             addr = i; // + POINTER_OFFSET as u64;
+//         }
+//         i += 1;
+//         if byte != 0
+//             && let Ok(count) = parse_next_sjis(&mut elf_data_iter, &mut strings, byte)
+//         {
+//             i += u64::from(count - 1);
+//         } else {
+//             if strings.len() > 1 {
+//                 // if log_enabled!(Level::Debug) {
+//                 println!("0x{:02x}: {}", addr, strings.concat());
+//                 // }
+//             }
+//             strings.clear();
+//         }
+//     }
+// }
 
 #[expect(clippy::single_call_fn, reason = "Readability")]
 async fn unpack_dat<T: AsyncBufReadExt + Unpin, P: AsRef<Path>>(
@@ -531,7 +564,7 @@ async fn unpack_dat<T: AsyncBufReadExt + Unpin, P: AsRef<Path>>(
         Ok(()) => (),
         Err(err) => match err.kind() {
             ErrorKind::AlreadyExists => (),
-            _ => return Err(err)
+            _ => return Err(err),
         },
     }
 

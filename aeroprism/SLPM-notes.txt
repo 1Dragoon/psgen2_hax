@@ -160,21 +160,21 @@ First misc string c:
 Last misc string c:
 0x1DB7A0
 
-MTE12z -- Naula Style Cake
-MTE12x7a -- Hat
-MTE12x68 -- Nei
-MTE12Z -- Sol
-MTE114 -- Ice
-MTE12c -- Cake
-MTE12p -- Chiffon
-MTE12s -- Fruit
-MTE12u -- Mont Blanc
-MTE12x8a -- Guard
-MTE12h -- Atomizer
-MTE11l -- Claw
-MTE12l -- Ring
-MTE12a -- Card
-MTE12n -- Key
-MTE12x62 -- Plasma
-MTE12F -- Maruera
-MTE11Q -- Sword
+\x12z -- Naula Style Cake
+\x12\x7a -- Hat
+\x12\x68 -- Nei
+\x12Z -- Sol
+\x114 -- Ice
+\x12c -- Cake
+\x12p -- Chiffon
+\x12s -- Fruit
+\x12u -- Mont Blanc
+\x12\x8a -- Guard
+\x12h -- Atomizer
+\x11l -- Claw
+\x12l -- Ring
+\x12a -- Card
+\x12n -- Key
+\x12\x62 -- Plasma
+\x12F -- Maruera
+\x11Q -- Sword

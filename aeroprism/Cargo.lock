@@ -10,7 +10,7 @@ checksum = "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
 
 [[package]]
 name = "aeroprism"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "byteorder",
  "clap",
@@ -413,9 +413,9 @@ dependencies = [
 
 [[package]]
 name = "hadris-common"
-version = "1.0.1"
+version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "16faa9f708c5ad3aafafc0761cf98c461582949991b5c901e39c7b65a7b4560b"
+checksum = "bed73ce80e98d9dad5779d30437d9953204b7e55f5f94d85de6b8c0c9284dccf"
 dependencies = [
  "bytemuck",
  "chrono",
@@ -427,9 +427,9 @@ dependencies = [
 
 [[package]]
 name = "hadris-io"
-version = "1.0.1"
+version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1168755badc3b0c63b3c02f5db27f4b34c06828a208e1a30866cdd8217019af"
+checksum = "dbd7cc2b119308c5aaaa4fc8892e8dcca1fb705df62cacd18e81e006c250d950"
 dependencies = [
  "bytemuck",
  "cfg-if",
@@ -437,9 +437,9 @@ dependencies = [
 
 [[package]]
 name = "hadris-iso"
-version = "1.0.1"
+version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "041c3e6e88fe8853782b09b582e3822b8f519191bfef66bd8b00be6b7e36c75e"
+checksum = "f5a69568b9f04528ec2b06390e8c149bab39676a56e874a0cc4da7fb58ec5604"
 dependencies = [
  "bitflags",
  "bytemuck",
@@ -455,18 +455,18 @@ dependencies = [
 
 [[package]]
 name = "hadris-macros"
-version = "1.0.1"
+version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af87dad5059eb288d6c8a3e539146136f55464ad16ecc5b72b8334e9f33019a6"
+checksum = "831f1d7cb6a6090f2203b90c7e4afb094b288ac831b082f959971495ac3b9175"
 dependencies = [
  "proc-macro2",
 ]
 
 [[package]]
 name = "hadris-part"
-version = "1.0.1"
+version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1955de1ac95fb0b4db1a1758e08d1f6347a7c4404cd3dcf96990ab628d483148"
+checksum = "f00ae350fb8788d1b5a3f1eeef478f24390241a167d031153735d6d375cd103d"
 dependencies = [
  "bytemuck",
  "hadris-io",
@@ -915,18 +915,18 @@ checksum = "d66dc143e6b11c1eddc06d5c423cfc97062865baf299914ab64caa38182078fe"
 
 [[package]]
 name = "snafu"
-version = "0.8.9"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e84b3f4eacbf3a1ce05eac6763b4d629d60cbc94d632e4092c54ade71f1e1a2"
+checksum = "d1d4bced6a69f90b2056c03dcff2c4737f98d6fb9e0853493996e1d253ca29c6"
 dependencies = [
  "snafu-derive",
 ]
 
 [[package]]
 name = "snafu-derive"
-version = "0.8.9"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1c97747dbf44bb1ca44a561ece23508e99cb592e862f22222dcf42f51d1e451"
+checksum = "54254b8531cafa275c5e096f62d48c81435d1015405a91198ddb11e967301d40"
 dependencies = [
  "heck",
  "proc-macro2",

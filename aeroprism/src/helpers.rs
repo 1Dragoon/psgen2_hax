@@ -1,11 +1,11 @@
-use core::{convert, error, fmt, num::ParseIntError, cell::RefCell};
+use alloc::rc::Rc;
+use core::{cell::RefCell, convert, error, fmt, num::ParseIntError};
 use indexmap::IndexMap;
 use serde::{
     Deserialize, Deserializer, Serialize, Serializer,
     de::{self, Error, Visitor},
     ser::SerializeSeq,
 };
-use alloc::rc::Rc;
 use std::path::Path;
 use tokio::{fs, io};
 
@@ -165,7 +165,7 @@ pub fn serialize_u32_hex<S>(x: &u32, s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
-    s.serialize_str(format!("{x:04x}").as_str())
+    s.serialize_str(format!("{x:08x}").as_str())
 }
 
 pub fn deserialize_u32_hex<'de, D>(deserializer: D) -> Result<u32, D::Error>
@@ -197,6 +197,75 @@ where
     deserializer.deserialize_str(U32visitor)
 }
 
+#[expect(clippy::trivially_copy_pass_by_ref, reason = "required for trait impl")]
+pub fn serialize_u16_hex<S>(x: &u16, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    s.serialize_str(format!("{x:04x}").as_str())
+}
+
+pub fn deserialize_u16_hex<'de, D>(deserializer: D) -> Result<u16, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    struct U16visitor;
+
+    impl Visitor<'_> for U16visitor {
+        type Value = u16;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("a two byte hex string")
+        }
+
+        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+        where
+            E: Error,
+        {
+            let mut bytes = decode_hex(v).map_err(de::Error::custom)?;
+            let second = bytes.pop().unwrap_or_default();
+            let first = bytes.pop().unwrap_or_default();
+            Ok(u16::from_be_bytes([first, second]))
+        }
+    }
+
+    deserializer.deserialize_str(U16visitor)
+}
+
+#[expect(clippy::trivially_copy_pass_by_ref, reason = "required for trait impl")]
+pub fn serialize_u8_hex<S>(x: &u8, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    s.serialize_str(format!("{x:02x}").as_str())
+}
+
+pub fn deserialize_u8_hex<'de, D>(deserializer: D) -> Result<u8, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    struct U8visitor;
+
+    impl Visitor<'_> for U8visitor {
+        type Value = u8;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("a two byte hex string")
+        }
+
+        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+        where
+            E: Error,
+        {
+            let mut bytes = decode_hex(v).map_err(de::Error::custom)?;
+            let byte = bytes.pop().unwrap_or_default();
+            Ok(byte)
+        }
+    }
+
+    deserializer.deserialize_str(U8visitor)
+}
+
 pub fn deserialize_indexmap<'de, D, T>(d: D) -> Result<IndexMap<u32, T>, D::Error>
 where
     D: Deserializer<'de>,
@@ -209,10 +278,7 @@ where
     Ok(dict.into_iter().map(|(Wrapper(k), v)| (k, v)).collect())
 }
 
-pub fn serialize_indexmap<S, T>(
-    s: &IndexMap<u32, T>,
-    serializer: S,
-) -> Result<S::Ok, S::Error>
+pub fn serialize_indexmap<S, T>(s: &IndexMap<u32, T>, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
     T: Serialize,

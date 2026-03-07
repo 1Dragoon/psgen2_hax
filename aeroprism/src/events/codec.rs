@@ -2,7 +2,7 @@ extern crate alloc;
 use crate::{
     events::{
         BytesOrPointer, Color, ControlCode, Data, DataItems, DialogItem, DialogString,
-        GUESTIMATED_LENGTH, Offset, Pointer, Portrait, UmanagedData,
+        GUESTIMATED_LENGTH, MTECode, Offset, Pointer, Portrait, UmanagedData,
         sjis_map::{SJIS_STARTER_BYTES, byte_to_engrish, byte_to_sjis, word_to_sjis},
     },
     helpers::{encode_hex, hex_edit_encode},
@@ -13,7 +13,7 @@ use alloc::{
     vec::{IntoIter, Vec},
 };
 use byteorder::ReadBytesExt;
-use core::{cell::RefCell, iter::Peekable, ops::Bound};
+use core::{cell::RefCell, iter::Peekable, ops::Bound, panic::Location};
 use indexmap::IndexMap;
 use log::{Level, debug, error, log_enabled, trace, warn};
 use snafu::prelude::*;
@@ -32,10 +32,13 @@ pub enum SjisError {
     #[snafu(display("Unexpected character code: 0x{byte:02x}"))]
     UnexpectedCharacter { byte: u8 },
 
+    #[snafu(display("Unexpected double character code: 0x{byte:02x}{next_byte:02x}"))]
+    UnexpectedDoubleCharacter { byte: u8, next_byte: u8 },
+
     #[snafu(display(
-        "Expected another character to follow a SHIFTJIS double character, but the data is truncated."
+        "Expected another character to follow a SHIFTJIS double character, but the data is truncated. Last byte 0x{byte:02x}"
     ))]
-    UnexpectedEof,
+    UnexpectedEof { byte: u8 },
 }
 
 #[expect(clippy::single_call_fn, reason = "readability")]
@@ -290,17 +293,7 @@ pub fn marshal_events(
                     .unwrap_or_else(|| {
                         panic!("Fatal error: Missing dialog pointer object {pointer:04x}")
                     });
-                let mut string_bytes = Vec::with_capacity(256);
-                let DialogString { text, padded } = dialog_string;
-                for item in text {
-                    string_bytes.extend(item.into_bytes());
-                }
-                if padded {
-                    while !(est_offset + string_bytes.len()).is_multiple_of(4) {
-                        string_bytes.push(0);
-                    }
-                }
-                string_bytes.shrink_to_fit();
+                let string_bytes = dialog_string.into_bytes(Some(est_offset));
                 string.replace_with(|_| string_bytes);
             }
             if log_enabled!(Level::Trace) {
@@ -377,7 +370,7 @@ fn debug_raw_string(raw_ps2_sjis_string: &[u8]) {
     trace!("{debug_string}");
 }
 
-fn decode_psg2_string(mut raw_ps2_sjis_string: Vec<u8>) -> DialogString {
+pub fn decode_psg2_string(mut raw_ps2_sjis_string: Vec<u8>) -> DialogString {
     // Remove any null bytes at the end
     let mut i = 0;
     let pad = raw_ps2_sjis_string.last().is_some_and(|v| *v == 0);
@@ -390,36 +383,77 @@ fn decode_psg2_string(mut raw_ps2_sjis_string: Vec<u8>) -> DialogString {
     let mut string_iter = raw_ps2_sjis_string.into_iter().peekable();
     let mut dialog_string = Vec::<DialogItem>::with_capacity(16);
     while let Some(byte) = string_iter.next() {
+        // Try for MTE codes first
+        if [0x09, 0x10, 0x11, 0x12, 0x13].contains(&byte)
+            && let Some(next_byte) = string_iter.peek()
+        {
+            let word = u16::from_be_bytes([byte, *next_byte]);
+            let mc = MTECode::from(word);
+            // If this is a valid MTE code, store it and continue to the next byte
+            if !matches!(mc, MTECode::None) {
+                dialog_string.push(DialogItem::MTECode(mc));
+                string_iter.next().unwrap();
+                continue;
+            }
+        }
+        // Then try for control codes
         let cc = ControlCode::from(byte);
         match cc {
-            ControlCode::Push
+            ControlCode::Armel
+            | ControlCode::Armor
+            | ControlCode::Bandana
+            | ControlCode::Boots
+            | ControlCode::Cake
+            | ControlCode::Cane
+            | ControlCode::Cannon
+            | ControlCode::Chestplate
+            | ControlCode::Circle
+            | ControlCode::Claw
+            | ControlCode::Coat
+            | ControlCode::Cross
+            | ControlCode::Crown
+            | ControlCode::Dagger
+            | ControlCode::Espadrilles
+            | ControlCode::Fibrillae // Careful with this
+            | ControlCode::Fluid
+            | ControlCode::Gun
+            | ControlCode::Hat
+            | ControlCode::Headgear
+            | ControlCode::Helmet
+            | ControlCode::Important
+            | ControlCode::Knife
+            | ControlCode::Mantle
+            | ControlCode::Mantle2
+            | ControlCode::Monomate
+            | ControlCode::Moon
+            | ControlCode::Musik
+            | ControlCode::Ocarina
+            | ControlCode::Ribbon
+            | ControlCode::Scale
+            | ControlCode::Scalpel
+            | ControlCode::Shield
+            | ControlCode::Shoes
+            | ControlCode::Shot
+            | ControlCode::Slicer
+            | ControlCode::Sol
+            | ControlCode::Square
+            | ControlCode::Star
+            | ControlCode::Suit
+            | ControlCode::Sword
+            | ControlCode::Triangle
+            | ControlCode::Vest
+            | ControlCode::Vulcan
+            | ControlCode::Whip
+            | ControlCode::Push
             | ControlCode::End
             | ControlCode::More
             | ControlCode::Select
-            | ControlCode::Important
-            | ControlCode::Musik
-            | ControlCode::Sword
-            | ControlCode::Cross
-            | ControlCode::Triangle
-            | ControlCode::Square
-            | ControlCode::Circle
-            | ControlCode::Claw
-            | ControlCode::Star
-            | ControlCode::Sol
-            | ControlCode::Crown
-            | ControlCode::Helmet
-            | ControlCode::Fluid
-            | ControlCode::Moon
-            | ControlCode::Hat
             | ControlCode::Value => dialog_string.push(DialogItem::ControlCode(cc)),
             ControlCode::Color => {
                 if let Some(number) = string_iter.next_if(u8::is_ascii_digit) {
-                    let val = DialogItem::Color(Color::from(number));
-                    dialog_string.push(val);
+                    dialog_string.push(DialogItem::Color(Color::from(number)));
                 } else {
-                    error!(
-                        "Expected utf8 numeral after color code. Output data corruption is likely."
-                    );
+                    dialog_string.push(DialogItem::ControlCode(ControlCode::Fibrillae));
                 }
             }
             ControlCode::Portrait => {
@@ -434,13 +468,13 @@ fn decode_psg2_string(mut raw_ps2_sjis_string: Vec<u8>) -> DialogString {
                 dialog_string.push(val);
             }
             ControlCode::None => {
+                // Just try normal strings from here
                 let mut sjis_strings = Vec::with_capacity(40);
-                parse_next_event_char(&mut string_iter, &mut sjis_strings, byte).unwrap();
+                parse_next_event_char(&mut string_iter, &mut sjis_strings, byte);
                 while let Some(next_string_byte) = string_iter.next_if(|b| {
                     *b == b'@' || *b == b' ' || SJIS_STARTER_BYTES.binary_search(b).is_ok()
                 }) {
-                    parse_next_event_char(&mut string_iter, &mut sjis_strings, next_string_byte)
-                        .unwrap();
+                    parse_next_event_char(&mut string_iter, &mut sjis_strings, next_string_byte);
                 }
 
                 // let decoded_sjis_string = decode_string(&sjis_string).to_string();
@@ -537,14 +571,14 @@ fn scan_to_terminator<R: Seek + BufRead>(
         // Or, alternatively, the lesser of the next string offset or EOF.
     }
     if max_string_length > 0 {
-        pinpoint_terminator_offset(reader, eof, pointer, previous_byte)?;
+        find_terminator_offset(reader, eof, pointer, previous_byte)?;
     } else {
         trace!("Saved by the max string length! [{pointer:04x}]");
     }
     Ok(pos_before_text_jump)
 }
 
-fn pinpoint_terminator_offset<R: Seek + BufRead>(
+fn find_terminator_offset<R: Seek + BufRead>(
     reader: &mut R,
     eof: u32,
     pointer: u32,
@@ -581,49 +615,77 @@ fn pinpoint_terminator_offset<R: Seek + BufRead>(
     Ok(())
 }
 
+#[track_caller]
 pub fn parse_next_event_char(
     string_iter: &mut Peekable<IntoIter<u8>>,
     sjis_string: &mut Vec<String>,
     byte: u8,
-) -> Result<(), SjisError> {
+) {
     if byte == b' ' {
         sjis_string.push(" ".to_owned());
     } else if byte == b'@' {
         sjis_string.push("\n".to_owned());
     } else {
-        parse_next_sjis(string_iter, sjis_string, byte)?;
+        match parse_next_sjis(string_iter, sjis_string, byte) {
+            Ok(_) => (),
+            Err(err) => {
+                error!("{err} - called from {}", Location::caller());
+                match err {
+                    SjisError::UnexpectedDoubleCharacter {
+                        byte: unexpected,
+                        next_byte,
+                    } => {
+                        sjis_string.push(format!("x{unexpected:02x}x{next_byte:02x}"));
+                        string_iter.next().unwrap();
+                    }
+                    SjisError::UnexpectedCharacter { byte: unexpected }
+                    | SjisError::UnexpectedEof { byte: unexpected } => {
+                        sjis_string.push(format!("x{unexpected:02x}"));
+                    }
+                }
+            }
+        }
     }
-    Ok(())
 }
 
+#[track_caller]
 pub fn parse_next_sjis(
     string_iter: &mut Peekable<IntoIter<u8>>,
     sjis_string: &mut Vec<String>,
     byte: u8,
 ) -> Result<u8, SjisError> {
-    if *crate::ENGRISH.get().unwrap() {
-        if let Some(string) = byte_to_engrish(byte) {
-            sjis_string.push(string.into());
-            return Ok(1);
-        } else if (0x11..=0x12).contains(&byte) {
-            sjis_string.push(format!("MTE{byte:02x}"));
-            let next_byte = string_iter.peek().copied().context(UnexpectedEofSnafu)?;
-            if let Some(string) = byte_to_engrish(next_byte) {
-                sjis_string.push(string.into());
-            } else {
-                sjis_string.push(format!("x{next_byte:02x}"));
+    if byte == b'%' {
+        let next_byte = string_iter
+            .peek()
+            .copied()
+            .context(UnexpectedEofSnafu { byte })?;
+        match next_byte {
+            b'c'..=b'f' | b'u' | b'o' | b'x' | b'X' | b'E' | b's' | b'*' | b'0'..=b'9' => {
+                let char = String::from_utf8_lossy(&[next_byte]).into_owned();
+                sjis_string.push(format!("%{char}"));
+                string_iter.next().unwrap();
+                return Ok(2);
             }
-            string_iter.next().unwrap();
-            return Ok(2)
+            _ => (),
         }
+    }
+    if *crate::ENGRISH.get().unwrap()
+        && let Some(string) = byte_to_engrish(byte)
+    {
+        sjis_string.push(string.into());
+        return Ok(1);
     }
     if let Some(string) = byte_to_sjis(byte) {
         sjis_string.push(string.into());
         return Ok(1);
     }
 
-    let next_byte = string_iter.peek().copied().context(UnexpectedEofSnafu)?;
-    let character = word_to_sjis([byte, next_byte]).context(UnexpectedCharacterSnafu { byte })?;
+    let next_byte = string_iter
+        .peek()
+        .copied()
+        .context(UnexpectedEofSnafu { byte })?;
+    let character = word_to_sjis([byte, next_byte])
+        .context(UnexpectedDoubleCharacterSnafu { byte, next_byte })?;
     sjis_string.push(character.into());
     string_iter.next().unwrap();
     Ok(2)

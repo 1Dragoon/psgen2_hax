@@ -63,7 +63,7 @@ However, following this guide in the order I've laid it out has always worked in
 
 1. Go home to start the Rudger cutscene.
 2. Talk to the governor without Rudger in your party to hear his back story. (**5**)
-3. Just north of Eusis's home is a redhead named Cain. Talk to him about the orphanage. (**6**)
+3. Just north of Eusis's home is a redhead named Cain. With Eusis alive, talk to him about the orphanage. (**6**)
 > Add Rudger to the party if he isn't already.
 4. Titus is a brown haired dude in a blue shirt in the far northwest corner. Talk to him and he'll talk with Rudger about firearms. (**7**)
 > Rudger won't be needed again until you have at least 11 points, but keeping him in your party doesn't hurt.
@@ -74,14 +74,16 @@ However, following this guide in the order I've laid it out has always worked in
 
 #### Nido Tower
 
-> This dungeon has one of two trimates available early in the game. It's a bit out of the way to obtain though, the one in the biosystems lab is quicker to get. Either way, you'll need at least one later on before you're able to buy any.
+> This dungeon has one of two `Trimate`s available early in the game. It's a bit out of the way to obtain though, the one in the biosystems lab is quicker to get. Either way, you'll need at least one later on before you're able to buy any.
 1. After giving Teim the ransom letter, go to the North Bridge.
->> Side note: Other guides have you go to the North Bridge before Teim. That method has some small Nei back story in it, but it's mutually exclusive with some other dialogue involving Teim that can only be had by skipping that step and consulting AFTER you get Teim. Neither method grants you points, so either method or not doing either at all is totally fine. There are actually a few mutually exclusive plot points like this in the game, which further confirmed to me at the time that the idea of seeing as much dialogue as possible coulnd't be how Nei is saved.
+>> Side note: Other guides have you go to the North Bridge before Teim. That method has some small Nei back story in it, but it's mutually exclusive with some other dialogue involving Teim that can only be had by skipping that step and consulting AFTER you get Teim. Neither method grants you points, so either method or not doing either at all is totally fine. There are actually a few mutually exclusive plot points like this in the game, which further confirmed to me at the time that the idea of seeing as much dialogue as possible couldn't be how Nei is saved.
+>> NB: If you haven't started the Rudger cutscene yet, you can't advance the plot further than this.
 
 #### North Bridge
 
+> Note: You must have **all 7** Nei points listed above, or else Nei and Eusis don't talk about parents while consulting for the second time below, and you can't get the next point. This is a useful checkpoint if you think you may have missed something earlier.
 1. After the cutscene with Teim and Darum, consult twice. (**8**)
-> No more consulting is necessary from this point onward.
+> No more consulting is necessary from this point onward, but it doesn't hurt to consult more after this if you want to.
 2. Go to Optano, enter it, then return to Paseo.
 
 #### Paseo
@@ -92,7 +94,7 @@ However, following this guide in the order I've laid it out has always worked in
 
 #### Biosystems Lab
 
-1. When you reach B1F after falling through the vent, on your way to the System Recorder you'll see a chest in the northwest side. There's a trimate in it. Pick it up but DO NOT USE IT! You'll need it later.
+1. When you reach B1F after falling through the vent, on your way to the System Recorder you'll see a chest in the northwest side. There's a `Trimate` in it. Pick it up if you didn't get the previous `Trimate` in Shuren Factory. Either way, you MUST have at least one `Trimate` by this point, which is required for another Nei point later on.
 2. Get the System Recorder and return to Paseo.
 
 #### Paseo
@@ -102,14 +104,14 @@ However, following this guide in the order I've laid it out has always worked in
 3. Talk to the governor without Huey in your party to hear his back story. (**10**)
 > You may need to speak with the governor a few times before hearing about Huey.
 > Huey isn't needed yet, but you may add him to the party.
-4. Go to Zema with Anne in the party and at least one trimate.
+4. Go to Zema with Anne in the party and at least one `Trimate`.
 
 #### Zema
 
-> Note: Do not advance the plot too far or else you won't be able to do this!
-1. Look for Uriel, a kid with light green hair in brown just west of the teleport station. Anne will talk to him and you'll give him a trimate. (**11**)
+> Note: Do not advance the plot too far or else you won't be able to do this! This is where you MUST have at least one of the previously obtained `Trimate`s in your inventory.
+1. Look for Uriel, a kid with light green hair in brown just west of the teleport station. Anne will talk to him and you'll give him a `Trimate`. (**11**)
 > Anne is no longer needed for points.
-2. Go back to Paseo
+2. Go back to Paseo.
 
 #### Paseo
 
@@ -120,12 +122,11 @@ However, following this guide in the order I've laid it out has always worked in
 
 #### Zema
 
-> Everything we do in this section is only for the purpose of getting to Kueris. I.e. simply doing the mandatory steps to advance the plot.
 1. You need to do both of these things, but you may do them in any order
   - Look a for black haired kid in orange named Zachariah on the far east side. Talk to him twice. Slightly north of Zachariah is a woman in pink named Deborah. Talk to her.
   - Slightly north of Deborah is a woman with black hair and a green shirt named Carmel. Talk to her twice.
 2. Just over the bridge west of them near the weapon shop is a man with light-brown hair wearing a blue shirt named Luke. Talk to him. He'll tell you to talk to Enos.
-3. Enos is an old man in green on the west side. Talk to him and Agree to his request.
+3. Enos is an old man in green on the west side. Talk to him and agree to his request.
 4. Go to Kueris.
 
 #### Kueris
@@ -158,7 +159,7 @@ However, following this guide in the order I've laid it out has always worked in
 #### Optano
 
 1. Look for a black haired man with an orange and yellow shirt named Phillip. Talk to him to get the Silver Bullet Necklace. (**14**)
-> You can actually do this immediately after dropping the trimate in the Urinal, but like most things in this guide, there's no rush. The only requirement to start this dialogue is having Rudger with you and at least 11 points.
+> You can actually do this immediately after dropping the `Trimate` in the Urinal, but like most things in this guide, there's no rush. The only requirement to start this dialogue is having Rudger with you and at least 11 points, making this a helpful checkpoint in case you missed anything.
 2. Go to the far southeast and talk to the Motavian with Amia in your party about an incident the governer referred to earlier. (**15**)
 > Amia and Rudger are no longer needed for points.
 3. Go to Roron Dump and enter from the north side of the building.
@@ -237,3 +238,9 @@ Notice I don't call it resurrection. This is mainly because the game's behavior 
 It's worth noting that, although unlikely, the Nei points may have more use in the game. Although the first 19 points are entirely optional and can be missed, there is a 20th point issued after the anime cutscene while AMeDAS is blowing up. It doesn't appear to be used for anything by this point, and having only 18 points before Neifirst does not allow you to keep Nei either.
 
 The game has some items in it with an unknown purpose and no obvious means of obtaining them. Take for example the Land Master, Ice Digger, and Atlas. They could just be remnants from PSGEN1, which the developers likely used as a starting point to develop this game, and perhaps they simply forgot to remove these items? Some items, like the Animal Claw, are issued after the battle with Neifirst, so maybe these items see something similar? Anybody's guess at this point. Although I can't see any string mention for them (aside from one Dezorian in Ryuon mentioning the ice digger when you wear the magic hat) ultimately I'm working from a translation that has some known broken and/or missing text.
+
+#### Correcting Some Myths
+
+Not related to Nei, but there appear to be some old myths that stick around:
+1. It's been said that you can never talk to a Dezorian other than one in particular in Aukbar who talks about his age, or else you can never get the `Heal Ring`. This is not accurate, in fact at any point in the game, you may simply talk to any one of the two acolytes at the entrance to Esper Mansion, then simply talk to this Dezorian afterwards. Do it with two `Trimate`s in your inventory to get the `Heal Ring`
+2. It's been said that the `Visiphone` can't be obtained again after selling it, but this doesn't appear to be the case. If it's not in your inventory, you may obtain it again the same way you got it the first time.
