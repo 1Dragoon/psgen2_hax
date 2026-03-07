@@ -2,6 +2,7 @@
 use crate::helpers::encode_hex;
 use byteorder::ReadBytesExt;
 use log::{Level, error, log_enabled, trace, warn};
+// use snafu::{Snafu};
 use std::{
     ffi::OsStr,
     io::{self, BufRead, Cursor},
@@ -14,6 +15,17 @@ const LZ77_WINDOW_SIZE: u16 = (1 << LZ77_LOOKBACK_BITS) - 1; // 4095 -- 12-bit l
 const LZ77_LE_MASK: [u8; LZ77_UNIT_SIZE as usize] = LZ77_WINDOW_SIZE.to_le_bytes(); // [0xFF, 0x0F]
 const LZ77_MAX_LENGTH: u8 = (1 << LZ77_LENGTH_BITS) + LZ77_UNIT_SIZE; // 18 -- maximum allowed repeat length
 
+// #[derive(Debug, Snafu)]
+// pub enum LZ77Error {
+//     #[snafu(display(
+//         "LZ77_LE header indicated an expected header size of {expected} bytes, but file ended at {found} bytes."
+//     ))]
+//     UnexpectedEof { expected: usize, found: usize },
+
+//     #[snafu(display("LZ77_LE blob appears to be truncated"))]
+//     Truncated,
+// }
+
 pub fn deco_lz77_le<T: BufRead>(reader: &mut T) -> Result<(Vec<u8>, usize), io::Error> {
     trace!("Decompressing LZ77-LE data...");
     // Throw out the magic numer
@@ -21,9 +33,9 @@ pub fn deco_lz77_le<T: BufRead>(reader: &mut T) -> Result<(Vec<u8>, usize), io::
     // Now parse the length fields
     let mut current_field = [0; 4];
     reader.read_exact(&mut current_field)?;
-    let expected_decompressed_size = u32::from_le_bytes(current_field).try_into().unwrap();
+    let expected_decompressed_size = usize::try_from(u32::from_le_bytes(current_field)).unwrap();
     reader.read_exact(&mut current_field)?;
-    let compressed_size = u32::from_le_bytes(current_field).try_into().unwrap();
+    let compressed_size = usize::try_from(u32::from_le_bytes(current_field)).unwrap();
     let mut compressed_data = vec![0; compressed_size];
     trace!(
         "Compressed data size: {compressed_size}, expected decompressed size: {expected_decompressed_size}"
@@ -237,14 +249,12 @@ pub fn compress_lz77_le(decompressed_data: &[u8]) -> Vec<u8> {
     lz77_le_container.extend(b"CM");
     #[expect(
         clippy::cast_possible_truncation,
-        reason = "ps2 is a 32-bit platform, this value won't exceed that"
+        reason = "ps2 is a 32-bit platform, these values already can't exceed that"
     )]
-    lz77_le_container.extend(u32::to_le_bytes(decompressed_data.len() as u32));
-    #[expect(
-        clippy::cast_possible_truncation,
-        reason = "ps2 is a 32-bit platform, this value won't exceed that"
-    )]
-    lz77_le_container.extend(u32::to_le_bytes(compressed_data.len() as u32));
+    {
+        lz77_le_container.extend(u32::to_le_bytes(decompressed_data.len() as u32));
+        lz77_le_container.extend(u32::to_le_bytes(compressed_data.len() as u32));
+    };
     lz77_le_container.extend(compressed_data);
     lz77_le_container.extend(flags);
     trace!("Compression finished.");
@@ -253,7 +263,7 @@ pub fn compress_lz77_le(decompressed_data: &[u8]) -> Vec<u8> {
 
 pub fn decompress(dat_name: &OsStr, file_number: i32, data: Vec<u8>) -> Result<Vec<u8>, io::Error> {
     let mut blob_reader = Cursor::new(data);
-    let (decompressed_data, expected_size) = deco_lz77_le(&mut blob_reader)?;
+    let (mut decompressed_data, expected_size) = deco_lz77_le(&mut blob_reader)?;
     if decompressed_data.len() != expected_size {
         warn!(
             "Decompressed {}/{file_number:04} to {} bytes, but should be exactly: {expected_size} bytes. Data may be corrupted.",
@@ -261,11 +271,11 @@ pub fn decompress(dat_name: &OsStr, file_number: i32, data: Vec<u8>) -> Result<V
             decompressed_data.len()
         );
     }
-    #[expect(
-        clippy::indexing_slicing,
-        reason = "range is valid, this eliminates unnecessary padding"
-    )]
-    Ok(decompressed_data[0..decompressed_data.len()].to_vec())
+
+    // Remove anything beyond the expected size, should just be padding
+    let _padding = decompressed_data.split_off(expected_size);
+    decompressed_data.shrink_to_fit();
+    Ok(decompressed_data)
 }
 
 // Use for unit testing

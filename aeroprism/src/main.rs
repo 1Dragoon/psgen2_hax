@@ -34,58 +34,47 @@
 #![allow(clippy::as_conversions, reason = "will fix these later")]
 #![allow(clippy::integer_division, reason = "will fix these later")]
 #![allow(clippy::single_call_fn, reason = "will fix these later")]
+mod dat_codec;
 mod events;
 mod helpers;
 mod lz77_le;
 mod sggg_codec;
 mod slpm_patcher;
 extern crate alloc;
+#[cfg(target_os = "windows")]
+use crate::helpers::unset_readonly;
 use crate::{
-    events::{
-        IndexMapWrapper,
-        codec::{parse_events},
-        load_exec_patch, rebuild_event, save_dialog_strings,
-    },
-    helpers::copy_dir_all,
-    lz77_le::{compress_lz77_le, decompress},
-    sggg_codec::{convert_to_png, png_to_sggg},
+    dat_codec::{pack_dat, unpack_dat},
+    events::load_exec_patch,
+    helpers::{copy_dir_all, save_binary_file},
     slpm_patcher::{ExecData, parse_end_credits, parse_enemies, parse_items, patch_end_credits},
 };
-use alloc::collections::BTreeMap;
+use alloc::sync::Arc;
 use clap::Parser;
 use colog::basic_builder;
-use core::time::Duration;
+use core::{ops::Deref, time::Duration};
 use env_logger::Target;
-use log::{Level, LevelFilter, debug, info, log_enabled, trace, warn};
+use log::{LevelFilter, debug, info, trace, warn};
 use shellexpand::path;
 use soft_canonicalize::soft_canonicalize;
 use std::{
-    ffi::OsStr,
-    io::{Cursor, ErrorKind},
     path::{Path, PathBuf},
     sync::OnceLock,
     time::Instant,
 };
 use tokio::{
-    fs::{self, OpenOptions, create_dir_all},
-    io::{
-        self, AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader, BufWriter,
-    },
+    fs::{self, OpenOptions},
+    io::{self, AsyncWriteExt, BufReader, BufWriter},
     runtime,
     task::JoinHandle,
     time::sleep,
 };
 
-const DAT_BLOCK_SIZE: usize = 2048;
 static ENGRISH: OnceLock<bool> = OnceLock::new();
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
-    /// When unpacking data, copy over the images rather than decompressing/converting them. This saves time when rebuilding if you aren't going to modify any images.
-    #[arg(short, long)]
-    copy_images: bool,
-
     /// Whether the source files are from an English translation or a Japanese translation.
     #[arg(short, long)]
     engrish: bool,
@@ -98,6 +87,10 @@ struct Cli {
     /// The log level to use. The higher the level, the noisier the output.
     #[arg(short, long, default_value = "info")]
     log_level: LevelFilter,
+
+    /// When unpacking data, copy over the images rather than decompressing/converting them. This saves time when rebuilding if you aren't going to modify any images.
+    #[arg(short, long)]
+    no_image_processing: bool,
 
     /// When extracting, this is where to put the extracted files
     /// When repacking to an ISO, this is where the repacked files go.
@@ -113,21 +106,21 @@ struct Cli {
     threads: Option<usize>,
 }
 
-fn main() {
+fn main() -> Result<(), io::Error> {
     let cli = Cli::parse();
     let mut builder = runtime::Builder::new_multi_thread();
     if let Some(t) = cli.threads {
         builder.worker_threads(t);
     }
-    builder.enable_all().build().unwrap().block_on(async {
-        main_thread(cli).await.unwrap();
-    });
+    builder
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(async { main_thread(cli).await })
 }
 
 async fn main_thread(cli: Cli) -> Result<(), io::Error> {
-    // build_iso();
     // events::sjis_map::sjis_gen();
-    // return Ok(());
     ENGRISH.set(cli.engrish).unwrap();
     let mut log_builder = basic_builder();
     log_builder.target(Target::Stdout);
@@ -140,22 +133,20 @@ async fn main_thread(cli: Cli) -> Result<(), io::Error> {
     if cli.repack {
         walk_build(in_path, out_path).await?;
     } else {
-        walk_iso(&in_path, &out_path, cli.copy_images).await?;
+        walk_iso(&in_path, &out_path, cli.no_image_processing).await?;
     }
     Ok(())
 }
 
 #[expect(clippy::single_call_fn, reason = "Readability")]
-async fn walk_build<P: AsRef<Path> + Sync + Send + Clone>(
-    in_dir: P,
-    out_dir: PathBuf,
-) -> Result<(), io::Error> {
+async fn walk_build(in_dir: PathBuf, out_dir: PathBuf) -> Result<(), io::Error> {
     fs::create_dir_all(&out_dir).await?;
     let now = Instant::now();
-    let mut read_dir = fs::read_dir(in_dir).await.unwrap();
+    let mut read_dir = fs::read_dir(&in_dir).await.unwrap();
     let mut tasks = Vec::with_capacity(16);
+    let oda = Arc::new(out_dir);
     while let Some(dir_entry) = read_dir.next_entry().await.unwrap() {
-        let od = out_dir.clone();
+        let od = Arc::clone(&oda);
         tasks.push(tokio::spawn(async move {
             process_dir_entry(od, dir_entry).await
         }));
@@ -192,92 +183,32 @@ async fn walk_build<P: AsRef<Path> + Sync + Send + Clone>(
     Ok(())
 }
 
+#[inline]
 #[expect(clippy::single_call_fn, reason = "Readability")]
-async fn process_dir_entry(
-    out_dir: PathBuf,
+async fn process_dir_entry<P: AsRef<Path> + Send + Sync>(
+    out_dir: Arc<P>,
     dir_entry: fs::DirEntry,
 ) -> Result<PathBuf, io::Error> {
     let path = dir_entry.path();
-    let dest = out_dir.join(path.file_name().unwrap());
+    let dest = out_dir.deref().as_ref().join(path.file_name().unwrap());
     if path.is_dir() {
-        info!("Processing '{}'", path.to_string_lossy());
+        let name_str = path.file_name().unwrap_or_default().to_string_lossy();
         // Reconstruct DAT files
-        if path.to_string_lossy().ends_with("DAT") {
-            let mut dat_size = 0;
-            let mut dat_components = BTreeMap::new();
-            let mut tasks = Vec::with_capacity(384);
-            let mut read_dir = fs::read_dir(&path).await.unwrap();
-            while let Some(subdir_entry) = read_dir.next_entry().await.unwrap() {
-                let component_file = subdir_entry.path();
-                let component_file_str = component_file.to_string_lossy();
-                if component_file_str.contains("eventdialog") || component_file_str.ends_with("bin")
-                {
-                    continue;
-                }
-                debug!(
-                    "Reconstructing block from {}",
-                    component_file.to_string_lossy()
-                );
-                tasks.push(tokio::spawn(
-                    async move { reconstitute(component_file).await },
-                ));
-            }
-            for task in tasks {
-                let (component_file, data) = task.await.unwrap().unwrap();
-                dat_components.insert(component_file, data.len());
-                dat_size += data.len();
-            }
-            let mut dat_contents = Vec::with_capacity(dat_size);
-            // Construct the header. First, total blocks ondicator:
-            dat_contents.extend((u32::try_from(dat_components.len()).unwrap()).to_le_bytes());
-            // Now each block offset:
-            let mut current_block = 0;
-            // Enumerate all of the component sizes, noting that the first will start at DAT_BLOCK_SIZE to account for the header itself
-            let mut sizes = Vec::with_capacity(dat_components.len());
-            sizes.push(DAT_BLOCK_SIZE);
-            for size in dat_components.values() {
-                sizes.push(*size);
-            }
-            for size in sizes {
-                // Calculate each block number when padding is considered
-                if size % DAT_BLOCK_SIZE != 0 {
-                    current_block += 1;
-                }
-                current_block += size / DAT_BLOCK_SIZE;
-                dat_contents.extend(u32::try_from(current_block).unwrap().to_le_bytes());
-            }
-            // Pad the header data to the next block boundary
-            dat_contents.extend(vec![0u8; DAT_BLOCK_SIZE - dat_contents.len()]);
-            // Header is finished, now put all of the files in
-            for (component_file, _size) in dat_components {
-                let handle = fs::File::open(component_file).await.unwrap();
-                let mut br = BufReader::new(handle);
-                br.read_to_end(&mut dat_contents).await.unwrap();
-                br.flush().await.unwrap();
-                // Pad to the next block boundary
-                let next_boundary = DAT_BLOCK_SIZE - (dat_contents.len() % DAT_BLOCK_SIZE);
-                if next_boundary != DAT_BLOCK_SIZE {
-                    trace!(
-                        "Current size: {} Next boundary: {next_boundary}",
-                        dat_contents.len()
-                    );
-                    dat_contents.extend(vec![0u8; next_boundary]);
-                }
-            }
-            // let dat_path = out_dir.as_ref().join(path.file_name().unwrap());
-            info!("Saving DAT to {}", dest.to_string_lossy());
-            let dat_component = OpenOptions::new()
-                .create(true)
-                .truncate(true)
-                .write(true)
-                .open(&dest)
-                .await
-                .unwrap();
-            let mut bw = BufWriter::new(dat_component);
-            bw.write_all(&dat_contents).await.unwrap();
-            bw.flush().await.unwrap();
+        if name_str.ends_with("DAT") {
+            info!("Processing '{}'", path.to_string_lossy());
+            pack_dat(&path, &dest).await;
         } else {
-            copy_dir_all(&path, &dest).await?;
+            // Ignore maths we don't need, e.g. git
+            if name_str.starts_with('.') {
+                info!("Ignoring directory {}", path.to_string_lossy());
+            } else {
+                info!(
+                    "Copying directory tree '{}' to '{}'",
+                    path.to_string_lossy(),
+                    dest.to_string_lossy()
+                );
+                copy_dir_all(&path, &dest).await?;
+            }
         }
     } else if path
         .extension()
@@ -297,10 +228,10 @@ async fn process_dir_entry(
             .file_name()
             .is_some_and(|file_name| file_name.to_string_lossy().to_uppercase() == "SLPM_625.53")
         {
-            let exec_data_path = out_dir.join("exec_data.json");
+            let exec_data_path = out_dir.deref().as_ref().join("exec_data.json");
             let ExecData {
-                items: _items,
-                enemies: _enemies,
+                items: _,
+                enemies: _,
                 end_credits,
             } = load_exec_patch(exec_data_path).unwrap();
             #[cfg(target_os = "windows")]
@@ -314,88 +245,14 @@ async fn process_dir_entry(
     Ok(dest)
 }
 
-async fn unset_readonly(path: &PathBuf) -> Result<(), io::Error> {
-    #[cfg(target_os = "windows")]
-    if path.exists() {
-        use fs::set_permissions;
-        let mut perms = fs::metadata(path).await?.permissions();
-        if perms.readonly() {
-            #[expect(
-                clippy::permissions_set_readonly_false,
-                reason = "lint is only relevant to non-windows systems"
-            )]
-            perms.set_readonly(false);
-            set_permissions(path, perms).await?;
-        }
-    }
-    Ok(())
-}
-
-#[expect(clippy::single_call_fn, reason = "Readability")]
-async fn reconstitute(mut component_file: PathBuf) -> Result<(PathBuf, Vec<u8>), io::Error> {
-    let mut data =
-        Vec::with_capacity(usize::try_from(component_file.metadata().unwrap().len()).unwrap());
-    let file = fs::File::open(&*component_file).await.unwrap();
-    let mut br = io::BufReader::new(file);
-    br.read_to_end(&mut data).await.unwrap();
-    br.flush().await.unwrap();
-    while component_file.as_path().extension().is_some() {
-        let extension = component_file.extension().unwrap().to_string_lossy();
-        // println!("{}", component_file.to_string_lossy());
-        match extension.as_ref() {
-            "png" => {
-                #[expect(
-                    clippy::absolute_paths,
-                    reason = "Would conflict with other function calls otherwise."
-                )]
-                let mut reader = std::io::Cursor::new(&data);
-                data = png_to_sggg(&mut reader).unwrap();
-            }
-            "lz77" => {
-                data = compress_lz77_le(&data);
-                // println!("Recompressed data {}", encode_hex(&data));
-            }
-            "toml" | "json" | "eventdialog" | "bin" => (),
-            "eventdata" => {
-                let dialog_file_stem = component_file.file_stem().unwrap();
-                let mut dialog_file_path = component_file.parent().unwrap().join(dialog_file_stem);
-                dialog_file_path.add_extension("eventdialog");
-                dialog_file_path.add_extension("toml");
-                data = rebuild_event(
-                    &data,
-                    component_file.to_string_lossy().as_ref(),
-                    dialog_file_path,
-                )
-                .unwrap();
-                // println!("Rebuilt event: {}", encode_hex(&data));
-            }
-            _ => {
-                return Err(io::Error::new(
-                    io::ErrorKind::Unsupported,
-                    format!(
-                        "For file {}: Unsupported file extension: {extension}",
-                        component_file.canonicalize().unwrap().to_string_lossy()
-                    ),
-                ));
-            }
-        }
-        component_file.set_extension("");
-    }
-    component_file.add_extension("bin");
-    let mut out_file = fs::File::create(&component_file).await.unwrap();
-    out_file.write_all(&data).await.unwrap();
-    out_file.flush().await.unwrap();
-    Ok((component_file, data))
-}
-
 #[expect(clippy::single_call_fn, reason = "Readability")]
 async fn walk_iso<P: AsRef<Path> + Send + Sync>(
-    in_dir: P,
+    in_path: P,
     out_dir: P,
     copy_images: bool,
 ) -> Result<(), io::Error> {
     fs::create_dir_all(&out_dir).await.unwrap();
-    let mut read_dir = fs::read_dir(&in_dir).await.unwrap();
+    let mut read_dir = fs::read_dir(&in_path).await.unwrap();
     while let Some(dir_entry) = read_dir.next_entry().await.unwrap() {
         let path = dir_entry.path();
         let dest = out_dir.as_ref().join(path.file_name().unwrap());
@@ -416,16 +273,7 @@ async fn walk_iso<P: AsRef<Path> + Send + Sync>(
             let save_path = PathBuf::with_capacity(128)
                 .join(&out_dir)
                 .join("exec_data.json");
-            let component_file = OpenOptions::new()
-                .create(true)
-                .truncate(true)
-                .write(true)
-                .open(save_path)
-                .await
-                .unwrap();
-            let mut bw = BufWriter::new(component_file);
-            bw.write_all(&exec_json).await.unwrap();
-            bw.flush().await.unwrap();
+            save_binary_file(&save_path, exec_json).await;
 
             // elf_bin_engrish_strings(elf_file_size, elf_reader).await;
             continue;
@@ -504,150 +352,6 @@ async fn walk_iso<P: AsRef<Path> + Send + Sync>(
 //         }
 //     }
 // }
-
-#[expect(clippy::single_call_fn, reason = "Readability")]
-async fn unpack_dat<T: AsyncBufReadExt + Unpin, P: AsRef<Path>>(
-    dat_reader: &mut T,
-    dat_name: &OsStr,
-    dat_size: usize,
-    out_dir: P,
-    copy_images: bool,
-) -> Result<(), io::Error> {
-    // DAT consists of a collection of 2048-byte blocks, akin to a filesystem but not quite. Block zero is the header.
-    let total_blocks = dat_size / DAT_BLOCK_SIZE;
-    let overflow_size = dat_size % DAT_BLOCK_SIZE; // Number of bytes that extend beyond the final block boundary
-    if overflow_size > 0 {
-        warn!(
-            "DAT file {} doesn't end evenly on a 2048-byte block boundary. {overflow_size} bytes after the final block will be truncated.",
-            dat_name.to_string_lossy()
-        );
-    }
-    let mut header = [0u8; DAT_BLOCK_SIZE];
-
-    // Load the header into memory
-    dat_reader.read_exact(&mut header).await.unwrap();
-    // Create a cursor for parsing the header
-    #[expect(
-        clippy::absolute_paths,
-        reason = "Would conflict with other function calls otherwise."
-    )]
-    let mut header_reader = std::io::Cursor::new(header);
-
-    // Header:
-    //  - First 32-bit field is the total number of data blobs, each blob consisting of multiple blocks
-    //  - Next is an array of 32-bit numbers, each pointing to block number offsets from the start of the file
-    //  - The final offset points to EOF. Useful to indicate the final blob's end boundary.
-
-    // A place in memory to put each 32-bit value we read
-    let mut buf_u32 = [0u8; 4];
-
-    // Determine the total number of blobs
-    header_reader.read_exact(&mut buf_u32).await.unwrap();
-    let blob_count: usize = u32::from_le_bytes(buf_u32).try_into().unwrap();
-
-    // Create a place in memory where each block offset can be stored
-    let mut block_offsets = Vec::with_capacity(blob_count + 1);
-
-    // Store each block offset into memory
-    for _ in 0..=blob_count {
-        header_reader.read_exact(&mut buf_u32).await.unwrap();
-        block_offsets.push(u32::from_le_bytes(buf_u32).try_into().unwrap());
-    }
-
-    if log_enabled!(Level::Info) {
-        info!("Extracting {} objects...", blob_count - 1);
-    }
-
-    // Create the directory if we haven't already
-    let save_path = PathBuf::with_capacity(128).join(out_dir).join(dat_name);
-    match create_dir_all(&save_path).await {
-        Ok(()) => (),
-        Err(err) => match err.kind() {
-            ErrorKind::AlreadyExists => (),
-            _ => return Err(err),
-        },
-    }
-
-    // Create a peakable iterator so that we can calculate each blob size as we read each offset
-    let mut offsets_iter = block_offsets.into_iter().peekable();
-    let mut file_number = 0;
-    while let Some(offset) = offsets_iter.next() {
-        // File stem name
-        let stem_name = format!("{file_number:04}");
-
-        // Determine the exact number of blocks to read for each blob
-        let next_offset = offsets_iter.peek().unwrap_or(&total_blocks);
-        let block_count = next_offset - offset;
-
-        // Now read those blocks into a buffer
-        let mut data = if block_count > 0 {
-            vec![0; block_count * DAT_BLOCK_SIZE]
-        } else if overflow_size > 0 {
-            vec![0; overflow_size]
-        } else {
-            break;
-        };
-        dat_reader.read_exact(&mut data).await?;
-
-        let mut extensions = Vec::with_capacity(3);
-
-        if copy_images && data.iter().skip(10).take(4).copied().collect::<Vec<_>>() == b"SGGG" {
-            // Just store the data file. No need to do anything else.
-        } else {
-            #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
-            if data[0..2] == *b"CM" {
-                data = decompress(dat_name, file_number, data).unwrap();
-                extensions.push("lz77");
-            }
-            #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
-            if data[0..4] == *b"SGGG" {
-                extensions.push("png");
-                data = convert_to_png(data).unwrap();
-            } else if dat_name.to_string_lossy().contains("EVENT") {
-                if log_enabled!(Level::Debug) {
-                    debug!(
-                        "\nEvent file: {file_number}, Size: {} ({:04x})",
-                        data.len(),
-                        data.len()
-                    );
-                }
-                let mut event_reader = Cursor::new(&data);
-                let (ordered_data, dialog_items) =
-                    parse_events(&mut event_reader, u32::try_from(data.len()).unwrap())?;
-
-                let dialog_file = save_path.clone().join(format!(
-                    "{stem_name}.{}.eventdialog.toml",
-                    extensions.join(".")
-                ));
-                // Save the event dialog separately, and only if it has any data
-                if !dialog_items.is_empty() {
-                    save_dialog_strings(&dialog_file, &IndexMapWrapper(dialog_items))?;
-                }
-
-                let events = IndexMapWrapper(ordered_data);
-                extensions.push("eventdata");
-                extensions.push("json");
-                data = serde_json::to_string(&events).unwrap().into_bytes();
-            }
-        }
-
-        let leaf_name = format!("{stem_name}.{}", extensions.join("."));
-        let main_save_path = save_path.clone().join(leaf_name);
-
-        let component_file = OpenOptions::new()
-            .create(true)
-            .truncate(true)
-            .write(true)
-            .open(main_save_path)
-            .await
-            .unwrap();
-        let mut bw = BufWriter::new(component_file);
-        bw.write_all(&data).await.unwrap();
-        bw.flush().await.unwrap();
-        file_number += 1;
-    }
-    Ok(())
-}
 
 // CD-ROM is in ISO 9660 format
 // System id: PLAYSTATION

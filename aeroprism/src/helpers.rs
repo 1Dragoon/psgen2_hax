@@ -6,8 +6,11 @@ use serde::{
     de::{self, Error, Visitor},
     ser::SerializeSeq,
 };
-use std::path::Path;
-use tokio::{fs, io};
+use std::path::{Path, PathBuf};
+use tokio::{
+    fs::{self, OpenOptions},
+    io::{self, AsyncWriteExt, BufWriter},
+};
 
 const HEX_BYTES: &str = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f\
                          202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f\
@@ -288,4 +291,36 @@ where
 
     let map = s.iter().map(|(k, v)| (Wrapper(k), v));
     serializer.collect_map(map)
+}
+
+#[inline]
+pub async fn unset_readonly(path: &PathBuf) -> Result<(), io::Error> {
+    #[cfg(target_os = "windows")]
+    if path.exists() {
+        use fs::set_permissions;
+        let mut perms = fs::metadata(path).await?.permissions();
+        if perms.readonly() {
+            #[expect(
+                clippy::permissions_set_readonly_false,
+                reason = "lint is only relevant to non-windows systems"
+            )]
+            perms.set_readonly(false);
+            set_permissions(path, perms).await?;
+        }
+    }
+    Ok(())
+}
+
+#[inline]
+pub async fn save_binary_file(dest: &PathBuf, data: Vec<u8>) {
+    let binary_file = OpenOptions::new()
+        .create(true)
+        .truncate(true)
+        .write(true)
+        .open(dest)
+        .await
+        .unwrap();
+    let mut bw = BufWriter::new(binary_file);
+    bw.write_all(&data).await.unwrap();
+    bw.flush().await.unwrap();
 }

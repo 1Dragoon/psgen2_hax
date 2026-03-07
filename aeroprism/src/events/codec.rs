@@ -629,7 +629,7 @@ pub fn parse_next_event_char(
         match parse_next_sjis(string_iter, sjis_string, byte) {
             Ok(_) => (),
             Err(err) => {
-                error!("{err} - called from {}", Location::caller());
+                warn!("{err} - called from {}", Location::caller());
                 match err {
                     SjisError::UnexpectedDoubleCharacter {
                         byte: unexpected,

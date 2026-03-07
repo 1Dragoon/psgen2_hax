@@ -18,7 +18,7 @@ use alloc::{
 };
 use core::{cell::RefCell, fmt, fmt::Display, mem, str::FromStr};
 use indexmap::IndexMap;
-use log::{debug, error, trace};
+use log::{Level, debug, error, log_enabled, trace};
 use serde::{
     Deserialize, Deserializer, Serialize, Serializer,
     de::{self, DeserializeOwned, Error, Visitor},
@@ -1090,8 +1090,9 @@ impl DialogString {
         for item in text {
             string_bytes.extend(item.into_bytes());
         }
-        if let Some(eo) = est_offset && padded {
-            string_bytes.push(0);
+        if let Some(eo) = est_offset
+            && padded
+        {
             while !(eo + string_bytes.len()).is_multiple_of(4) {
                 string_bytes.push(0);
             }
@@ -1397,9 +1398,11 @@ impl DataItems {
             data_set.push(data);
         }
 
-        for (symbol, data_items) in &ordered_data {
-            for item in data_items {
-                debug!("Symbol: {symbol:04x}, Data: {item}");
+        if log_enabled!(Level::Debug) {
+            for (symbol, data_items) in &ordered_data {
+                for item in data_items {
+                    debug!("Symbol: {symbol:04x}, Data: {item}");
+                }
             }
         }
 
@@ -1666,7 +1669,9 @@ where
         type Value = Vec<DialogItem>;
 
         fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-            formatter.write_str("a string mixed with any or all of [Tags], <Tags>, Japanese and English UTF8 text")
+            formatter.write_str(
+                "a string mixed with any or all of [Tags], <Tags>, Japanese and English UTF8 text",
+            )
         }
 
         fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>

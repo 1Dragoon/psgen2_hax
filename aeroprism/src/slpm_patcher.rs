@@ -5,12 +5,12 @@ use crate::{
         codec::{decode_psg2_string, parse_next_event_char},
     },
     helpers::{
-        deserialize_u8_hex, deserialize_u16_hex, deserialize_u32_hex,
-        hex_edit_encode, serialize_u8_hex, serialize_u16_hex, serialize_u32_hex,
+        deserialize_u8_hex, deserialize_u16_hex, deserialize_u32_hex, hex_edit_encode,
+        serialize_u8_hex, serialize_u16_hex, serialize_u32_hex,
     },
 };
 use core::{mem::size_of, panic};
-use log::{Level, debug, info, log_enabled, warn};
+use log::{Level, debug, log_enabled, warn};
 use serde::{Deserialize, Serialize};
 use std::io;
 use tokio::{
@@ -44,7 +44,8 @@ static END_CREDITS_START: usize = 0x1A_0ED4;
 static END_CREDITS_END: usize = 0x1A_1C6C;
 static END_CREDITS_BLOB_SIZE: usize = END_CREDITS_END - END_CREDITS_START;
 static CREDIT_ITEM_HEADER_SIZE: usize = size_of::<u32>() * 2;
-static CREDIT_FOOTER: [u8; CREDIT_ITEM_HEADER_SIZE] = [0x01, 0x00, 0x2c, 0x01, 0x00, 0x00, 0x00, 0x00];
+static CREDIT_FOOTER: [u8; CREDIT_ITEM_HEADER_SIZE] =
+    [0x01, 0x00, 0x2c, 0x01, 0x00, 0x00, 0x00, 0x00];
 
 #[derive(Serialize, Deserialize)]
 pub struct ExecData {
@@ -765,12 +766,12 @@ pub async fn parse_end_credits<R: AsyncBufRead + AsyncSeek + Unpin>(
             debug!("Raw credit string: {}", hex_edit_encode(&string_bytes));
         }
         let engrish_str = decode_psg2_string(string_bytes);
-        if log_enabled!(Level::Info) {
-            info!(
+        if log_enabled!(Level::Debug) {
+            debug!(
                 "Rendered credit string: {}",
                 hex_edit_encode(&engrish_str.clone().into_bytes(None))
             );
-            info!("Debugged credit string: {engrish_str:#?}",);
+            debug!("Debugged credit string: {engrish_str:#?}",);
         }
         // Read the next two fields
         credit_items.push(EndCreditItem {
@@ -788,7 +789,8 @@ pub async fn patch_end_credits(
     exec_writer: &mut BufWriter<fs::File>,
     end_credits: Vec<EndCreditItem>,
 ) -> Result<(), io::Error> {
-    exec_writer.seek(SeekFrom::Start(END_CREDITS_START.try_into().unwrap()))
+    exec_writer
+        .seek(SeekFrom::Start(END_CREDITS_START.try_into().unwrap()))
         .await
         .unwrap();
     let mut total_bytes = 0;
@@ -834,7 +836,8 @@ pub async fn patch_end_credits(
             break;
         }
         total_bytes += expand_by;
-        exec_writer.write_all(&[credit_header, string_bytes].concat())
+        exec_writer
+            .write_all(&[credit_header, string_bytes].concat())
             .await?;
     }
     // Finalize credits
