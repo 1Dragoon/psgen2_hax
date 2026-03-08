@@ -5,7 +5,7 @@ use crate::{
     save_binary_file,
     sggg_codec::{convert_to_png, png_to_sggg},
 };
-use alloc::collections::BTreeMap;
+use alloc::{collections::BTreeMap, sync::Arc};
 use core::time::Duration;
 use log::{Level, debug, info, log_enabled, trace, warn};
 use std::{
@@ -65,7 +65,7 @@ pub async fn unpack_dat<T: AsyncBufReadExt + Unpin + Sync + Send, P: AsRef<Path>
     dat_reader: &mut T,
     dat_name: &OsStr,
     dat_size: usize,
-    out_dir: P,
+    out_dir: Arc<P>,
     copy_images: bool,
 ) -> Result<(), io::Error> {
     // DAT consists of a collection of 2048-byte blocks, akin to a filesystem, but not quite. Block zero is the header.
@@ -86,7 +86,7 @@ pub async fn unpack_dat<T: AsyncBufReadExt + Unpin + Sync + Send, P: AsRef<Path>
     }
 
     // Create the directory if we haven't already
-    let save_path = PathBuf::with_capacity(128).join(out_dir).join(dat_name);
+    let save_path = PathBuf::with_capacity(128).join(&*out_dir).join(dat_name);
     match create_dir_all(&save_path).await {
         Ok(()) => (),
         Err(err) => match err.kind() {

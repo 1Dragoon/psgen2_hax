@@ -1,7 +1,7 @@
 extern crate alloc;
 use crate::{
     events::{
-        BytesOrPointer, Color, ControlCode, Data, DataItems, DialogItem, DialogString,
+        Archy, BytesOrPointer, Color, ControlCode, Data, DataItems, DialogItem, DialogString,
         GUESTIMATED_LENGTH, MTECode, Offset, Pointer, Portrait, UmanagedData,
         sjis_map::{SJIS_STARTER_BYTES, byte_to_engrish, byte_to_sjis, word_to_sjis},
     },
@@ -9,17 +9,18 @@ use crate::{
 };
 use alloc::{
     collections::BTreeMap,
-    rc::Rc,
+    sync::Arc,
     vec::{IntoIter, Vec},
 };
 use byteorder::ReadBytesExt;
-use core::{cell::RefCell, iter::Peekable, ops::Bound, panic::Location};
+use core::{iter::Peekable, mem, ops::Bound, panic::Location};
 use indexmap::IndexMap;
 use log::{Level, debug, error, log_enabled, trace, warn};
 use snafu::prelude::*;
 use std::{
     collections::HashMap,
     io::{BufRead, Seek, SeekFrom},
+    sync::RwLock,
 };
 use tokio::io;
 
@@ -51,7 +52,7 @@ pub fn parse_events<R: Seek + BufRead>(
         reason = "it does get used, only can be written to before then, but this is fine."
     )]
     let mut current_section = 0;
-    let mut string_offsets: BTreeMap<Offset, Rc<RefCell<Vec<u8>>>> = BTreeMap::new();
+    let mut string_offsets: BTreeMap<Offset, Archy> = BTreeMap::new();
     // Initialize with offset zero
     let mut data_items = DataItems::new();
     let mut current_u32 = [0u8; 4];
@@ -76,7 +77,7 @@ pub fn parse_events<R: Seek + BufRead>(
             // If we've hit an offset that a text pointer indicates
             if let Some(string_bytes) = string_offsets.get(&current_section) {
                 current_unmanaged.finish(eof, &mut data_items);
-                data_items.insert(current_offset, eof, Data::String(Rc::clone(string_bytes)));
+                data_items.insert(current_offset, eof, Data::String(Arc::clone(string_bytes)));
                 // Let's jump to the lesser of the end of the string, or the next offset that any pointer references
                 let maybe_next_offset = data_items
                     .pointer_tracker
@@ -85,7 +86,7 @@ pub fn parse_events<R: Seek + BufRead>(
                     .copied();
                 let jump_to = maybe_next_offset
                     .unwrap_or(eof)
-                    .min(Offset::try_from(string_bytes.borrow().len()).unwrap());
+                    .min(Offset::try_from(string_bytes.read().unwrap().len()).unwrap());
                 reader.seek_relative(i64::from(jump_to))?;
                 continue;
             }
@@ -186,7 +187,7 @@ pub fn parse_events<R: Seek + BufRead>(
                         let mut string_bytes = vec![0; string_length as usize];
                         reader.seek(SeekFrom::Start(u64::from(pointer)))?;
                         reader.read_exact(&mut string_bytes)?;
-                        let rc_string_bytes = Rc::new(RefCell::new(string_bytes));
+                        let rc_string_bytes = Arc::new(RwLock::new(string_bytes));
                         string_offsets.insert(pointer, rc_string_bytes);
                         trace!("Jumping back to {pos_before_text_jump:04x}");
                         reader.seek(SeekFrom::Start(pos_before_text_jump))?;
@@ -234,12 +235,13 @@ pub fn parse_events<R: Seek + BufRead>(
 
     let mut dialog_items = BTreeMap::new();
     for (pointer, string) in string_offsets {
-        let string_end_offset = Offset::try_from(string.borrow().len()).unwrap() + pointer;
+        let string_end_offset = Offset::try_from(string.read().unwrap().len()).unwrap() + pointer;
         if log_enabled!(Level::Trace) {
-            trace!("{}", hex_edit_encode(&string.borrow()));
+            trace!("{}", hex_edit_encode(&string.read().unwrap()));
         }
 
-        let string_repr = decode_psg2_string(string.borrow().clone());
+        let string_repr = decode_psg2_string(mem::take(&mut *string.write().unwrap()));
+        drop(string);
 
         if log_enabled!(Level::Debug) {
             let mut debug_string = String::with_capacity(GUESTIMATED_LENGTH);
@@ -261,6 +263,7 @@ pub fn parse_events<R: Seek + BufRead>(
     Ok(data_items.into_ordered_data(dialog_items))
 }
 
+#[inline]
 #[expect(clippy::single_call_fn, reason = "readability")]
 pub fn marshal_events(
     // original_data: &[u8],
@@ -294,7 +297,7 @@ pub fn marshal_events(
                         panic!("Fatal error: Missing dialog pointer object {pointer:04x}")
                     });
                 let string_bytes = dialog_string.into_bytes(Some(est_offset));
-                string.replace_with(|_| string_bytes);
+                *string.write().unwrap() = string_bytes;
             }
             if log_enabled!(Level::Trace) {
                 trace!("^{file_name}: [{est_offset:04x}] ({offset:04x}) {datum}");
@@ -496,7 +499,7 @@ pub fn decode_psg2_string(mut raw_ps2_sjis_string: Vec<u8>) -> DialogString {
 }
 
 // Identify where any string boundaries may lie, splitting where necessary.
-fn fast_forward(string_offsets: &mut BTreeMap<u32, Rc<RefCell<Vec<u8>>>>, pointer: u32) -> bool {
+fn fast_forward(string_offsets: &mut BTreeMap<u32, Archy>, pointer: u32) -> bool {
     if string_offsets.contains_key(&pointer) {
         // Just a reference to an existing string. There's no need to do anything that we haven't already done.
         return true;
@@ -505,24 +508,27 @@ fn fast_forward(string_offsets: &mut BTreeMap<u32, Rc<RefCell<Vec<u8>>>>, pointe
     // This is either a new string or is a substring of another string. Let's find out!
     if let Some((prev_offset, existing_string)) = string_offsets.range(..&pointer).next_back() {
         // If we're within the bounds of an existing string, then let's split it at the pointer
-        if (pointer - prev_offset) < Offset::try_from(existing_string.borrow().len()).unwrap() {
+        if (pointer - prev_offset)
+            < Offset::try_from(existing_string.read().unwrap().len()).unwrap()
+        {
             if log_enabled!(Level::Trace) {
                 trace!("Before:");
-                debug_raw_string(&existing_string.borrow());
+                debug_raw_string(&existing_string.read().unwrap());
                 trace!(
                     "\nRaw bytes:\n{}",
-                    hex_edit_encode(&existing_string.borrow()).to_uppercase()
+                    hex_edit_encode(&existing_string.read().unwrap()).to_uppercase()
                 );
             }
             let new_string = existing_string
-                .borrow_mut()
+                .write()
+                .unwrap()
                 .split_off((pointer - prev_offset) as usize);
             if log_enabled!(Level::Trace) {
                 trace!("After:");
-                debug_raw_string(&existing_string.borrow());
+                debug_raw_string(&existing_string.read().unwrap());
                 trace!(
                     "\nRaw bytes:\n{}",
-                    hex_edit_encode(&existing_string.borrow()).to_uppercase()
+                    hex_edit_encode(&existing_string.read().unwrap()).to_uppercase()
                 );
                 debug_raw_string(&new_string);
                 trace!(
@@ -534,7 +540,7 @@ fn fast_forward(string_offsets: &mut BTreeMap<u32, Rc<RefCell<Vec<u8>>>>, pointe
                     new_string.len() + (pointer as usize)
                 );
             }
-            string_offsets.insert(pointer, Rc::new(RefCell::new(new_string)));
+            string_offsets.insert(pointer, Arc::new(RwLock::new(new_string)));
 
             // The string is now split off and has its own pointer. There's no need to do anything else.
             return true;
@@ -546,7 +552,7 @@ fn fast_forward(string_offsets: &mut BTreeMap<u32, Rc<RefCell<Vec<u8>>>>, pointe
 fn scan_to_terminator<R: Seek + BufRead>(
     reader: &mut R,
     eof: u32,
-    string_offsets: &BTreeMap<u32, Rc<RefCell<Vec<u8>>>>,
+    string_offsets: &BTreeMap<u32, Archy>,
     pointer: u32,
 ) -> Result<u64, io::Error> {
     let pos_before_text_jump = reader.stream_position()?;
@@ -751,7 +757,9 @@ fn coalesce_bytes(
                     let data = chunked_data
                         .entry(pointer)
                         .or_insert(Vec::with_capacity(40));
-                    data.push(BytesOrPointer::Bytes(string.take()));
+                    data.push(BytesOrPointer::Bytes(mem::take(
+                        &mut string.write().unwrap(),
+                    )));
                 }
                 Data::Cop(op, c, d, ref_pointer) => {
                     let data = chunked_data

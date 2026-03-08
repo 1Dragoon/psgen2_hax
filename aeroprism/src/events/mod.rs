@@ -14,9 +14,9 @@ use crate::{
 };
 use alloc::{
     collections::{BTreeMap, BTreeSet},
-    rc::Rc,
+    sync::Arc,
 };
-use core::{cell::RefCell, fmt, fmt::Display, mem, str::FromStr};
+use core::{fmt, fmt::Display, mem, str::FromStr};
 use indexmap::IndexMap;
 use log::{Level, debug, error, log_enabled, trace};
 use serde::{
@@ -27,6 +27,7 @@ use std::{
     fs::OpenOptions,
     io::{self, BufReader, Read},
     path::Path,
+    sync::RwLock,
 };
 use unicode_segmentation::UnicodeSegmentation;
 
@@ -1026,17 +1027,33 @@ enum DialogItem {
 }
 
 impl DialogItem {
+    fn byte_len(&self) -> usize {
+        match self {
+            Self::Color(_color) => mem::size_of::<Color>() + mem::size_of::<u8>(),
+            Self::ControlCode(_control_code) => mem::size_of::<ControlCode>(),
+            Self::MTECode(_mtecode) => mem::size_of::<MTECode>(),
+            Self::Portrait(portrait) => mem::size_of::<u8>() + portrait.0.len(),
+            Self::String(string) => {
+                let mut size = 0;
+                for g in string.graphemes(true) {
+                    size += utf8_to_ps2(g).unwrap().len();
+                }
+                size
+            }
+        }
+    }
+
     fn into_bytes(self) -> Vec<u8> {
         match self {
+            Self::Color(color) => vec![ControlCode::Color as u8, color as u8],
             Self::ControlCode(ControlCode::Fibrillae) => vec![b'c'],
             Self::ControlCode(cc) => vec![cc as u8],
-            Self::Color(color) => vec![ControlCode::Color as u8, color as u8],
-            Self::Portrait(portrait) => {
-                [vec![ControlCode::Portrait as u8], portrait.0.into_bytes()].concat()
-            }
             Self::MTECode(mc) => {
                 let mte = (mc as u16).to_be_bytes();
                 vec![mte[0], mte[1]]
+            }
+            Self::Portrait(portrait) => {
+                [vec![ControlCode::Portrait as u8], portrait.0.into_bytes()].concat()
             }
             Self::String(string) => {
                 let mut bytes = Vec::with_capacity(string.len() * 2);
@@ -1082,6 +1099,17 @@ impl Display for DialogString {
 }
 
 impl DialogString {
+    pub fn byte_len(&self) -> usize {
+        let mut size = self.text.iter().fold(0, |acc, s| acc + s.byte_len());
+        if self.padded {
+            size += 1;
+            while !size.is_multiple_of(4) {
+                size += 1;
+            }
+        }
+        size
+    }
+
     pub fn into_bytes(self, est_offset: Option<usize>) -> Vec<u8> {
         // Pass a value into offset to calculate padding where needed
         // Or pass None to ignore padding, even if specified
@@ -1090,9 +1118,9 @@ impl DialogString {
         for item in text {
             string_bytes.extend(item.into_bytes());
         }
-        if let Some(eo) = est_offset
-            && padded
-        {
+        if padded {
+            let eo = est_offset.unwrap_or_default();
+            string_bytes.push(0);
             while !(eo + string_bytes.len()).is_multiple_of(4) {
                 string_bytes.push(0);
             }
@@ -1100,7 +1128,13 @@ impl DialogString {
         string_bytes.shrink_to_fit();
         string_bytes
     }
+
+    pub const fn set_padded(&mut self) {
+        self.padded = true;
+    }
 }
+
+pub type Archy = Arc<RwLock<Vec<u8>>>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum Data {
@@ -1113,7 +1147,7 @@ pub enum Data {
     Ptr(Pointer),
     Ret,
     #[serde(serialize_with = "serialize_rc_empty")]
-    String(Rc<RefCell<Vec<u8>>>),
+    String(Archy),
     TxtPtr(Pointer),
     #[serde(serialize_with = "serialize_hex", deserialize_with = "deserialize_hex")]
     Unmanaged(Vec<u8>),
@@ -1163,7 +1197,7 @@ impl Data {
                 bytes.extend(pointer.to_le_bytes());
                 bytes
             }
-            Self::String(string) => string.borrow().clone(),
+            Self::String(string) => mem::take(&mut *string.write().unwrap()),
             Self::Cop(op, c, d, pointer) => [[op, 0x00, c, d], pointer.to_le_bytes()].concat(),
             Self::Cop2(op, c, field, pointer) => [
                 [op, 0x00, c, 0x00],
@@ -1185,7 +1219,7 @@ impl Data {
             }
             Self::Multi(_op, pointer, values) => 4 + (values.len() * 4) + size_of_val(pointer),
             Self::TxtPtr(pointer) => 4 + size_of_val(pointer),
-            Self::String(string) => string.borrow().len(),
+            Self::String(string) => string.read().unwrap().len(),
             Self::Cop(_op, _c, _d, pointer) => 4 + size_of_val(pointer),
             Self::Cop2(_op, _c, field, pointer) => 4 + size_of_val(field) + size_of_val(pointer),
             Self::Ptr(pointer) => size_of_val(pointer),
@@ -1237,7 +1271,7 @@ impl Display for Data {
                 write!(f, "Text: -> ({pointer:04x})")?;
             }
             Self::String(string) => {
-                write!(f, "String data: (size: {:4})", string.borrow().len())?;
+                write!(f, "String data: (size: {:4})", string.read().unwrap().len())?;
             }
             Self::Cop(op, c, d, pointer) => {
                 write!(f, "{} {c:02x}{d:02x} -> ({pointer:04x})", op_to_str(*op))?;

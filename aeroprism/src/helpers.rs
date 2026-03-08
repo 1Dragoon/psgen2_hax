@@ -1,5 +1,4 @@
-use alloc::rc::Rc;
-use core::{cell::RefCell, convert, error, fmt, num::ParseIntError};
+use core::{convert, error, fmt, num::ParseIntError};
 use indexmap::IndexMap;
 use serde::{
     Deserialize, Deserializer, Serialize, Serializer,
@@ -11,6 +10,8 @@ use tokio::{
     fs::{self, OpenOptions},
     io::{self, AsyncWriteExt, BufWriter},
 };
+
+use crate::events::Archy;
 
 const HEX_BYTES: &str = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f\
                          202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f\
@@ -94,6 +95,7 @@ pub fn hex_edit_encode(bytes: &[u8]) -> String {
 }
 
 pub async fn copy_dir_all<P: AsRef<Path> + Sync + Send>(src: P, dst: P) -> io::Result<()> {
+    unset_readonly(dst.as_ref()).await?;
     fs::create_dir_all(&dst).await?;
     let mut read_dir = fs::read_dir(&src).await.unwrap();
     while let Some(dir_entry) = read_dir.next_entry().await.unwrap() {
@@ -106,10 +108,15 @@ pub async fn copy_dir_all<P: AsRef<Path> + Sync + Send>(src: P, dst: P) -> io::R
             .await?;
         } else {
             let dest = dst.as_ref().join(dir_entry.file_name());
-            unset_readonly(&dest).await?;
-            fs::copy(dir_entry.path(), dest).await?;
+            copy_file(&dir_entry.path(), &dest).await?;
         }
     }
+    Ok(())
+}
+
+pub async fn copy_file(source: &Path, dest: &Path) -> Result<(), io::Error> {
+    unset_readonly(dest).await?;
+    fs::copy(source, dest).await?;
     Ok(())
 }
 
@@ -144,7 +151,7 @@ where
     deserializer.deserialize_str(HexVisitor)
 }
 
-pub fn serialize_rc_empty<S>(_: &Rc<RefCell<Vec<u8>>>, s: S) -> Result<S::Ok, S::Error>
+pub fn serialize_rc_empty<S>(_: &Archy, s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
@@ -282,7 +289,7 @@ where
 }
 
 #[inline]
-pub async fn unset_readonly(path: &PathBuf) -> Result<(), io::Error> {
+pub async fn unset_readonly(path: &Path) -> Result<(), io::Error> {
     #[cfg(target_os = "windows")]
     if path.exists() {
         use fs::set_permissions;

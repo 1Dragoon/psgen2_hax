@@ -536,10 +536,6 @@ pub async fn parse_enemies<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) 
                 panic!("Enemy flagged as both biologic AND robitic! This is invalid.")
             }
         }
-        // #[expect(clippy::verbose_bit_mask, reason = "Readability.")]
-        // if enemy_types & 0x3 == 0x0 {
-        //     enemy.r#type.push(EnemyType::Demonic);
-        // }
         if enemy_types & 0x4 == 0x4 {
             enemy.boss = true;
         }
@@ -668,19 +664,6 @@ pub async fn parse_items<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) ->
         reader.read_until(0, &mut string_bytes).await.unwrap();
         let engrish_str = decode_psg2_string(string_bytes);
         item.item_name = engrish_str;
-        // let mut string_bytes_iter = string_bytes.into_iter().peekable();
-        // let mut engrish_str = Vec::with_capacity(20);
-        // while let Some(byte) = string_bytes_iter.next()
-        //     && byte != 0
-        // {
-        //     if let Err(SjisError::UnexpectedCharacter { byte: unexpected }) =
-        //         parse_next_event_char(&mut string_bytes_iter, &mut engrish_str, byte)
-        //     {
-        //         engrish_str.push(format!("\\x{unexpected:02x}"));
-        //     }
-        // }
-        // item.item_name = engrish_str.concat();
-        // item.item_name.shrink_to_fit();
     }
     items.shrink_to_fit();
     items
@@ -823,44 +806,44 @@ pub async fn patch_end_credits(
     for item in end_credits {
         let EndCreditItem {
             vertical_space,
-            credit_string,
+            mut credit_string,
         } = item;
 
         if log_enabled!(Level::Debug) {
             debug!("Debugged credit string: {credit_string:#?}");
         }
 
+        // The header wants the string byte length plus the null terminator
+        let credit_string_size = u16::try_from(credit_string.byte_len() + 1).unwrap();
+        let credit_header = [
+            1u16.to_le_bytes(),
+            vertical_space.to_le_bytes(),
+            2u16.to_le_bytes(),
+            credit_string_size.to_le_bytes(),
+        ]
+        .concat();
+        // Mark as padded so we don't have to calculate that manually here
+        credit_string.set_padded();
+
         // Convert the string into bytes and calculate the length field, storing as a u16 for later
-        let mut string_bytes = credit_string.into_bytes(None);
-        string_bytes.push(0);
-        let string_length = u16::try_from(string_bytes.len()).unwrap();
-        // Add padding
-        while !(string_bytes.len()).is_multiple_of(4) {
-            string_bytes.push(0);
+        let expand_by = credit_string.byte_len() + credit_header.len();
+        if expand_by + total_bytes + CREDIT_ITEM_HEADER_SIZE > END_CREDITS_BLOB_SIZE {
+            if log_enabled!(Level::Warn) {
+                warn!(
+                    "End credit overflow! Data corruption likely! Overflowed by {} bytes. Stopping at text '{}'",
+                    (expand_by + total_bytes + CREDIT_ITEM_HEADER_SIZE)
+                        .saturating_sub(END_CREDITS_BLOB_SIZE),
+                    credit_string
+                );
+            }
+            break;
         }
+        let string_bytes = credit_string.into_bytes(None);
 
         if log_enabled!(Level::Debug) {
             debug!("Rendered credit string: {}", hex_edit_encode(&string_bytes));
         }
 
-        let credit_header = [
-            1u16.to_le_bytes(),
-            vertical_space.to_le_bytes(),
-            2u16.to_le_bytes(),
-            string_length.to_le_bytes(),
-        ]
-        .concat();
-
-        let expand_by = string_bytes.len() + credit_header.len();
-        if expand_by + total_bytes + CREDIT_ITEM_HEADER_SIZE >= END_CREDITS_BLOB_SIZE {
-            if log_enabled!(Level::Warn) {
-                warn!(
-                    "End credit overflow! Data corruption likely! Overflowed by {} bytes",
-                    END_CREDITS_BLOB_SIZE.saturating_sub(expand_by + total_bytes)
-                );
-            }
-            break;
-        }
         total_bytes += expand_by;
         exec_writer
             .write_all(&[credit_header, string_bytes].concat())

@@ -46,7 +46,7 @@ use crate::helpers::unset_readonly;
 use crate::{
     dat_codec::{pack_dat, unpack_dat},
     events::load_exec_patch,
-    helpers::{copy_dir_all, save_binary_file},
+    helpers::{copy_dir_all, copy_file, save_binary_file},
     slpm_patcher::{ExecData, generate_exec_data, patch_end_credits},
 };
 use alloc::sync::Arc;
@@ -54,7 +54,7 @@ use clap::Parser;
 use colog::basic_builder;
 use core::time::Duration;
 use env_logger::Target;
-use log::{LevelFilter, debug, info, trace, warn};
+use log::{Level, LevelFilter, debug, info, log_enabled, trace, warn};
 use shellexpand::path;
 use soft_canonicalize::soft_canonicalize;
 use std::{
@@ -133,7 +133,7 @@ async fn main_thread(cli: Cli) -> Result<(), io::Error> {
     if cli.repack {
         walk_build(in_path, out_path).await?;
     } else {
-        walk_iso(&in_path, &out_path, cli.no_image_processing).await?;
+        walk_iso(in_path, out_path, cli.no_image_processing).await?;
     }
     Ok(())
 }
@@ -145,28 +145,14 @@ async fn walk_build(in_dir: PathBuf, out_dir: PathBuf) -> Result<(), io::Error> 
     let mut read_dir = fs::read_dir(&in_dir).await?;
     let mut tasks = Vec::with_capacity(16);
     let sd = Arc::new((in_dir, out_dir));
+    // Spawn file creation tasks
     while let Some(dir_entry) = read_dir.next_entry().await? {
         let dirs = Arc::clone(&sd);
         tasks.push(tokio::spawn(async move {
-            process_dir_entry(dirs, dir_entry).await
+            write_dir_entry(dirs, dir_entry).await
         }));
     }
-    // let files = vec![
-    //     "SYSTEM.CNF",
-    //     "SLPM_625.53",
-    //     "MAPDATA.DAT",
-    //     "EVENT.DAT",
-    //     "BTLDAT.DAT",
-    //     "BTLSYS.DAT",
-    //     "MODULE",
-    //     "SOUND.DAT",
-    //     "MONDAT.DAT",
-    // ];
-    // let mut builder = FileInput::empty();
-    // for file in files {
-    //     builder.append(hadris_iso::File { path: file, data: hadris_iso::FileData::Data(()) });
-    // }
-    // builder.append(file);
+    // Now await their completion
     while !tasks.is_empty() {
         for i in 0..tasks.len() {
             if tasks.get(i).is_some_and(JoinHandle::is_finished) {
@@ -186,7 +172,7 @@ async fn walk_build(in_dir: PathBuf, out_dir: PathBuf) -> Result<(), io::Error> 
 
 #[inline]
 #[expect(clippy::single_call_fn, reason = "Readability")]
-async fn process_dir_entry<P: AsRef<Path> + Send + Sync>(
+async fn write_dir_entry<P: AsRef<Path> + Send + Sync>(
     dirs: Arc<(P, P)>,
     dir_entry: fs::DirEntry,
 ) -> Result<Option<PathBuf>, io::Error> {
@@ -197,7 +183,7 @@ async fn process_dir_entry<P: AsRef<Path> + Send + Sync>(
         let name_str = path.file_name().unwrap_or_default().to_string_lossy();
         // Reconstruct DAT files
         if name_str.ends_with("DAT") {
-            info!("Processing '{}'", path.to_string_lossy());
+            info!("Packing '{}'", path.to_string_lossy());
             pack_dat(&path, &dest).await?;
         } else {
             // Ignore maths we don't need, e.g. git
@@ -222,13 +208,14 @@ async fn process_dir_entry<P: AsRef<Path> + Send + Sync>(
             return Ok(None);
         }
         if path != dest {
-            info!(
-                "Copying '{}' to '{}'",
-                path.to_string_lossy(),
-                dest.to_string_lossy()
-            );
-            unset_readonly(&dest).await?;
-            fs::copy(path, &dest).await?;
+            if log_enabled!(Level::Info) {
+                info!(
+                    "Copying '{}' to '{}'",
+                    path.to_string_lossy(),
+                    dest.to_string_lossy()
+                );
+            }
+            copy_file(&dir_entry.path(), &dest).await?;
         }
         if dest
             .file_name()
@@ -242,6 +229,9 @@ async fn process_dir_entry<P: AsRef<Path> + Send + Sync>(
 }
 
 async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), io::Error> {
+    if log_enabled!(Level::Info) {
+        info!("Patching '{}'", dest.to_string_lossy());
+    }
     let ExecData {
         items: _a,
         enemies: _b,
@@ -274,51 +264,66 @@ fn find_json<P: AsRef<Path> + Send + Sync>(
 }
 
 #[expect(clippy::single_call_fn, reason = "Readability")]
-async fn walk_iso<P: AsRef<Path> + Send + Sync>(
-    in_path: P,
-    out_dir: P,
-    copy_images: bool,
-) -> Result<(), io::Error> {
+async fn walk_iso(in_path: PathBuf, out_dir: PathBuf, copy_images: bool) -> Result<(), io::Error> {
     fs::create_dir_all(&out_dir).await?;
+    let mut tasks = Vec::with_capacity(16);
+    let oda = Arc::new(out_dir);
     let mut read_dir = fs::read_dir(&in_path).await?;
     while let Some(dir_entry) = read_dir.next_entry().await? {
-        let path = dir_entry.path();
-        let dest = out_dir.as_ref().join(path.file_name().unwrap());
-        // Handle ELF binary
-        if path.to_string_lossy().ends_with("SLPM_625.53") {
-            generate_exec_data(&out_dir, &path).await?;
-        }
-        // Simply copy non-directories that aren't dat files.
-        if path.is_dir() {
-            copy_dir_all(&path, &dest).await?;
-            continue;
-        } else if path
-            .extension()
-            .is_some_and(|stem| !stem.to_string_lossy().ends_with("DAT"))
-        {
-            info!(
-                "Copying '{}' to '{}'",
-                path.to_string_lossy(),
-                dest.to_string_lossy()
-            );
-            unset_readonly(&path).await?;
-            fs::copy(path, &dest).await?;
-            continue;
-        }
-        info!("Processing '{}'", path.to_string_lossy());
-        let dat_file = fs::File::open(path).await?;
-        let dat_file_size = dat_file.metadata().await?.len().try_into().unwrap();
-        let mut dat_reader = BufReader::new(dat_file);
-
-        unpack_dat(
-            &mut dat_reader,
-            dir_entry.file_name().as_os_str(),
-            dat_file_size,
-            &out_dir,
-            copy_images,
-        )
-        .await?;
+        let od = Arc::clone(&oda);
+        tasks.push(tokio::spawn(async move {
+            read_dir_entry(od, copy_images, dir_entry).await
+        }));
     }
+    while !tasks.is_empty() {
+        for i in 0..tasks.len() {
+            if tasks.get(i).is_some_and(JoinHandle::is_finished) {
+                let task = tasks.remove(i);
+                task.await??;
+            }
+        }
+        sleep(Duration::from_millis(100)).await;
+    }
+    Ok(())
+}
+
+async fn read_dir_entry<P: AsRef<Path> + Send + Sync>(
+    out_dir: Arc<P>,
+    copy_images: bool,
+    dir_entry: fs::DirEntry,
+) -> Result<(), io::Error> {
+    let path = dir_entry.path();
+    let dest = (*out_dir).as_ref().join(path.file_name().unwrap());
+    if path.to_string_lossy().ends_with("SLPM_625.53") {
+        generate_exec_data(&*out_dir, &path).await?;
+    }
+    if path.is_dir() {
+        copy_dir_all(&path, &dest).await?;
+        return Ok(());
+    } else if path
+        .extension()
+        .is_some_and(|stem| !stem.to_string_lossy().ends_with("DAT"))
+    {
+        info!(
+            "Copying '{}' to '{}'",
+            path.to_string_lossy(),
+            dest.to_string_lossy()
+        );
+        copy_file(&dir_entry.path(), &dest).await?;
+        return Ok(());
+    }
+    info!("Processing '{}'", path.to_string_lossy());
+    let dat_file = fs::File::open(path).await?;
+    let dat_file_size = dat_file.metadata().await?.len().try_into().unwrap();
+    let mut dat_reader = BufReader::new(dat_file);
+    unpack_dat(
+        &mut dat_reader,
+        dir_entry.file_name().as_os_str(),
+        dat_file_size,
+        out_dir,
+        copy_images,
+    )
+    .await?;
     Ok(())
 }
 
