@@ -47,7 +47,7 @@ use crate::{
     dat_codec::{pack_dat, unpack_dat},
     events::load_exec_patch,
     helpers::{copy_dir_all, save_binary_file},
-    slpm_patcher::{ExecData, parse_end_credits, parse_enemies, parse_items, patch_end_credits},
+    slpm_patcher::{ExecData, generate_exec_data, patch_end_credits},
 };
 use alloc::sync::Arc;
 use clap::Parser;
@@ -142,10 +142,10 @@ async fn main_thread(cli: Cli) -> Result<(), io::Error> {
 async fn walk_build(in_dir: PathBuf, out_dir: PathBuf) -> Result<(), io::Error> {
     fs::create_dir_all(&out_dir).await?;
     let now = Instant::now();
-    let mut read_dir = fs::read_dir(&in_dir).await.unwrap();
+    let mut read_dir = fs::read_dir(&in_dir).await?;
     let mut tasks = Vec::with_capacity(16);
     let sd = Arc::new((in_dir, out_dir));
-    while let Some(dir_entry) = read_dir.next_entry().await.unwrap() {
+    while let Some(dir_entry) = read_dir.next_entry().await? {
         let dirs = Arc::clone(&sd);
         tasks.push(tokio::spawn(async move {
             process_dir_entry(dirs, dir_entry).await
@@ -221,13 +221,12 @@ async fn process_dir_entry<P: AsRef<Path> + Send + Sync>(
         {
             return Ok(None);
         }
-        info!(
-            "Copying '{}' to '{}'",
-            path.to_string_lossy(),
-            dest.to_string_lossy()
-        );
         if path != dest {
-            #[cfg(target_os = "windows")]
+            info!(
+                "Copying '{}' to '{}'",
+                path.to_string_lossy(),
+                dest.to_string_lossy()
+            );
             unset_readonly(&dest).await?;
             fs::copy(path, &dest).await?;
         }
@@ -236,20 +235,25 @@ async fn process_dir_entry<P: AsRef<Path> + Send + Sync>(
             .is_some_and(|file_name| file_name.to_string_lossy().to_uppercase() == "SLPM_625.53")
             && let Some(exec_data_path) = find_json(in_dir)?
         {
-            let ExecData {
-                items: _a,
-                enemies: _b,
-                end_credits,
-            } = load_exec_patch(exec_data_path)?;
-            #[cfg(target_os = "windows")]
-            unset_readonly(&dest).await?;
-            let elf_binary = OpenOptions::new().write(true).open(&dest).await?;
-            let mut bw = BufWriter::new(elf_binary);
-            patch_end_credits(&mut bw, end_credits).await?;
-            bw.flush().await?;
+            patch_exec(&dest, exec_data_path).await?;
         }
     }
     Ok(Some(dest))
+}
+
+async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), io::Error> {
+    let ExecData {
+        items: _a,
+        enemies: _b,
+        end_credits,
+    } = load_exec_patch(exec_data_path)?;
+    #[cfg(target_os = "windows")]
+    unset_readonly(dest).await?;
+    let elf_binary = OpenOptions::new().write(true).open(dest).await?;
+    let mut bw = BufWriter::new(elf_binary);
+    patch_end_credits(&mut bw, end_credits).await?;
+    bw.flush().await?;
+    Ok(())
 }
 
 fn find_json<P: AsRef<Path> + Send + Sync>(
@@ -297,7 +301,8 @@ async fn walk_iso<P: AsRef<Path> + Send + Sync>(
                 path.to_string_lossy(),
                 dest.to_string_lossy()
             );
-            copy_file(&path, dest).await?;
+            unset_readonly(&path).await?;
+            fs::copy(path, &dest).await?;
             continue;
         }
         info!("Processing '{}'", path.to_string_lossy());
@@ -314,45 +319,6 @@ async fn walk_iso<P: AsRef<Path> + Send + Sync>(
         )
         .await?;
     }
-    Ok(())
-}
-
-async fn copy_file(path: &PathBuf, dest: PathBuf) -> Result<(), io::Error> {
-    #[cfg(target_os = "windows")]
-    if dest.exists() {
-        let mut perms = fs::metadata(&dest).await?.permissions();
-        if perms.readonly() {
-            #[expect(
-                clippy::permissions_set_readonly_false,
-                reason = "lint is only relevant to non-windows systems"
-            )]
-            perms.set_readonly(false);
-            fs::set_permissions(&dest, perms).await?;
-        }
-    }
-    fs::copy(path, dest).await?;
-    Ok(())
-}
-
-async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
-    out_dir: &P,
-    path: &PathBuf,
-) -> Result<(), io::Error> {
-    let elf_file = fs::File::open(path).await?;
-    let mut elf_reader = BufReader::new(elf_file);
-    let exec_data = ExecData {
-        items: parse_items(&mut elf_reader).await,
-        enemies: parse_enemies(&mut elf_reader).await,
-        // strings: parse_map_strings(&mut elf_reader).await,
-        end_credits: parse_end_credits(&mut elf_reader).await,
-    };
-    let exec_json = serde_json::to_string_pretty(&exec_data)
-        .unwrap()
-        .into_bytes();
-    let save_path = PathBuf::with_capacity(128)
-        .join(out_dir)
-        .join("exec_data.json");
-    save_binary_file(&save_path, exec_json).await;
     Ok(())
 }
 
@@ -383,61 +349,4 @@ async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
 //             strings.clear();
 //         }
 //     }
-// }
-
-// CD-ROM is in ISO 9660 format
-// System id: PLAYSTATION
-// Volume id:
-// Volume set id:
-// Publisher id:
-// Data preparer id:
-// Application id: PLAYSTATION
-// Copyright File id: 3DAGES
-// Abstract File id:
-// Bibliographic File id:
-// Volume set size is: 1
-// Volume set sequence number is: 1
-// Logical block size is: 2048
-// Volume size is: 45918
-// NO Joliet present
-// NO Rock Ridge present
-
-// 0, \x00
-// 48, \x01
-// 96,  SYSTEM.CNF;1
-// 156, SLPM_625.53;1
-// 216, MAPDATA.DAT;1
-// 276, EVENT.DAT;1
-// 334, BTLDAT.DAT;1
-// 394, BTLSYS.DAT;1
-// 454, MODULE
-// 508, SOUND.DAT;1
-// 566, MONDAT.DAT;1
-
-// fn build_iso() {
-//     use hadris_iso::{FileInput, FormatOptions, IsoImage, PartitionOptions, VolumeInternals};
-//     use std::path::PathBuf;
-//     // C:/Users/jjd/Documents/PCSX2/games/psg2english01.iso
-//     let mut file = File::open("C:/Users/jjd/Documents/PCSX2/games/psgen2test.iso").unwrap();
-//     // let mut br = BufReader::new(file);
-//     // let mut iso = IsoImage::parse(&mut file).unwrap();
-//     // let vd = iso.get_volume_descriptors().primary();
-//     // println!("{vd:#?}");
-//     // for (num, dir) in &iso.root_directory().entries().unwrap() {
-//     //     println!("{num}, {}", dir.name.to_str());
-//     // }
-//     // let fila = FormatOptions::new();
-//     // let foo = PartitionOptions::all();
-//     let files = ["SYSTEM.CNF", "SLPM_625.53", "MAPDATA.DAT", "EVENT.DAT", "BTLDAT.DAT", "BTLSYS.DAT", "MODULE", "SOUND.DAT", "MONDAT.DAT"];
-//     let mut builder = FileInput::empty();
-//     for file in files {
-//         builder.append(hadris_iso::File { path: file, data: hadris_iso::FileData::Data(()) });
-//     }
-//     builder.append(file);
-
-//     for entry in fs::read_dir("C:/Users/jjd/code/psgen2_repack").unwrap() {}
-
-//     let options = FormatOptions::new()
-//         .with_files(FileInput::from_fs(PathBuf::from("path/to/files")).unwrap());
-//     let file = IsoImage::format_file(PathBuf::from("path/to/image"), options).unwrap();
 // }

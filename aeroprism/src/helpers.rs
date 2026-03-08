@@ -106,19 +106,7 @@ pub async fn copy_dir_all<P: AsRef<Path> + Sync + Send>(src: P, dst: P) -> io::R
             .await?;
         } else {
             let dest = dst.as_ref().join(dir_entry.file_name());
-            #[cfg(target_os = "windows")]
-            if dest.exists() {
-                use std::fs::set_permissions;
-                let mut perms = fs::metadata(&dest).await?.permissions();
-                if perms.readonly() {
-                    #[expect(
-                        clippy::permissions_set_readonly_false,
-                        reason = "lint is only relevant to non-windows systems"
-                    )]
-                    perms.set_readonly(false);
-                    set_permissions(&dest, perms)?;
-                }
-            }
+            unset_readonly(&dest).await?;
             fs::copy(dir_entry.path(), dest).await?;
         }
     }
@@ -312,15 +300,15 @@ pub async fn unset_readonly(path: &PathBuf) -> Result<(), io::Error> {
 }
 
 #[inline]
-pub async fn save_binary_file(dest: &PathBuf, data: Vec<u8>) {
+pub async fn save_binary_file(dest: &PathBuf, data: &[u8]) -> Result<(), io::Error> {
     let binary_file = OpenOptions::new()
         .create(true)
         .truncate(true)
         .write(true)
         .open(dest)
-        .await
-        .unwrap();
+        .await?;
     let mut bw = BufWriter::new(binary_file);
-    bw.write_all(&data).await.unwrap();
-    bw.flush().await.unwrap();
+    bw.write_all(data).await?;
+    bw.flush().await?;
+    Ok(())
 }

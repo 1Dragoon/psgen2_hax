@@ -25,8 +25,8 @@ use serde::{
 };
 use std::{
     fs::OpenOptions,
-    io::{self, BufReader, BufWriter, Read, Write},
-    path::{Path, PathBuf},
+    io::{self, BufReader, Read},
+    path::Path,
 };
 use unicode_segmentation::UnicodeSegmentation;
 
@@ -1556,22 +1556,6 @@ fn parse_dialog(input: &str) -> Result<Vec<DialogItem>, String> {
     }
 
     Ok(out)
-}
-
-pub fn save_dialog_strings(
-    path: &PathBuf,
-    dialog: &IndexMapWrapper<DialogString>,
-) -> Result<(), io::Error> {
-    let strings = toml::to_string(&dialog).unwrap();
-
-    let file = OpenOptions::new()
-        .create(true)
-        .truncate(true)
-        .write(true)
-        .open(path)?;
-    let mut bw = BufWriter::new(file);
-    bw.write_all(strings.as_bytes())?;
-    Ok(())
 }
 
 // pub(crate) fn save_event_data(

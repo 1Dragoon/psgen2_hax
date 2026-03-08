@@ -1,5 +1,5 @@
 use crate::{
-    events::{IndexMapWrapper, codec::parse_events, rebuild_event, save_dialog_strings},
+    events::{IndexMapWrapper, codec::parse_events, rebuild_event},
     helpers::hex_edit_encode,
     lz77_le::{compress_lz77_le, decompress},
     save_binary_file,
@@ -61,7 +61,7 @@ pub async fn parse_dat_header<T: AsyncBufReadExt + Unpin>(
 }
 
 #[inline]
-pub async fn unpack_dat<T: AsyncBufReadExt + Unpin, P: AsRef<Path>>(
+pub async fn unpack_dat<T: AsyncBufReadExt + Unpin + Sync + Send, P: AsRef<Path> + Sync + Send>(
     dat_reader: &mut T,
     dat_name: &OsStr,
     dat_size: usize,
@@ -152,7 +152,13 @@ pub async fn unpack_dat<T: AsyncBufReadExt + Unpin, P: AsRef<Path>>(
                 ));
                 // Save the event dialog separately, and only if it has any data
                 if !dialog_items.is_empty() {
-                    save_dialog_strings(&dialog_file, &IndexMapWrapper(dialog_items))?;
+                    save_binary_file(
+                        &dialog_file,
+                        toml::to_string(&IndexMapWrapper(dialog_items))
+                            .unwrap()
+                            .as_bytes(),
+                    )
+                    .await?;
                 }
 
                 let events = IndexMapWrapper(ordered_data);
@@ -165,7 +171,7 @@ pub async fn unpack_dat<T: AsyncBufReadExt + Unpin, P: AsRef<Path>>(
         let leaf_name = format!("{stem_name}.{}", extensions.join("."));
         let main_save_path = save_path.clone().join(leaf_name);
 
-        save_binary_file(&main_save_path, data).await;
+        save_binary_file(&main_save_path, &data).await?;
         file_number += 1;
     }
     Ok(())
@@ -333,6 +339,6 @@ pub async fn pack_dat(path: &PathBuf, dest: &PathBuf) -> Result<(), io::Error> {
         }
     }
     info!("Saving DAT to {}", dest.to_string_lossy());
-    save_binary_file(dest, dat_volume).await;
+    save_binary_file(dest, &dat_volume).await?;
     Ok(())
 }

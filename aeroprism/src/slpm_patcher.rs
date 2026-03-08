@@ -6,18 +6,21 @@ use crate::{
     },
     helpers::{
         deserialize_u8_hex, deserialize_u16_hex, deserialize_u32_hex, hex_edit_encode,
-        serialize_u8_hex, serialize_u16_hex, serialize_u32_hex,
+        save_binary_file, serialize_u8_hex, serialize_u16_hex, serialize_u32_hex,
     },
 };
 use core::{mem::size_of, panic};
 use log::{Level, debug, log_enabled, warn};
 use serde::{Deserialize, Serialize};
-use std::io;
+use std::{
+    io,
+    path::{Path, PathBuf},
+};
 use tokio::{
     fs,
     io::{
         AsyncBufRead, AsyncBufReadExt, AsyncReadExt, AsyncSeek, AsyncSeekExt, AsyncWriteExt,
-        BufWriter, SeekFrom,
+        BufReader, BufWriter, SeekFrom,
     },
 };
 
@@ -407,6 +410,29 @@ pub struct EnemyInfo {
         skip_serializing_if = "is_default"
     )]
     field_37: u32,
+}
+
+pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
+    out_dir: &P,
+    path: &PathBuf,
+) -> Result<(), io::Error> {
+    let elf_file = fs::File::open(path).await?;
+    let mut elf_reader = BufReader::new(elf_file);
+    let exec_data = ExecData {
+        items: parse_items(&mut elf_reader).await,
+        enemies: parse_enemies(&mut elf_reader).await,
+        // strings: parse_map_strings(&mut elf_reader).await,
+        end_credits: parse_end_credits(&mut elf_reader).await,
+    };
+    let save_path = PathBuf::with_capacity(128)
+        .join(out_dir)
+        .join("exec_data.json");
+    save_binary_file(
+        &save_path,
+        serde_json::to_string_pretty(&exec_data).unwrap().as_bytes(),
+    )
+    .await?;
+    Ok(())
 }
 
 pub async fn parse_enemies<R: AsyncBufRead + AsyncSeek + Unpin>(reader: &mut R) -> Vec<EnemyInfo> {
