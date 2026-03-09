@@ -41,13 +41,10 @@ mod lz77_le;
 mod sggg_codec;
 mod slpm_patcher;
 extern crate alloc;
-#[cfg(target_os = "windows")]
-use crate::helpers::unset_readonly;
 use crate::{
     dat_codec::{pack_dat, unpack_dat},
-    events::load_exec_patch,
     helpers::{copy_dir_all, copy_file, save_binary_file},
-    slpm_patcher::{ExecData, generate_exec_data, patch_end_credits},
+    slpm_patcher::{generate_exec_data, patch_exec},
 };
 use alloc::sync::Arc;
 use clap::Parser;
@@ -63,8 +60,8 @@ use std::{
     time::Instant,
 };
 use tokio::{
-    fs::{self, OpenOptions},
-    io::{self, AsyncWriteExt, BufReader, BufWriter},
+    fs,
+    io::{self, BufReader},
     runtime,
     task::JoinHandle,
     time::sleep,
@@ -131,17 +128,17 @@ async fn main_thread(cli: Cli) -> Result<(), io::Error> {
     let out_path = soft_canonicalize(path::full(&cli.out_path).unwrap()).unwrap();
 
     if cli.repack {
-        walk_build(in_path, out_path).await?;
+        repack(in_path, out_path).await?;
     } else {
-        walk_iso(in_path, out_path, cli.no_image_processing).await?;
+        unpack(in_path, out_path, cli.no_image_processing).await?;
     }
     Ok(())
 }
 
 #[expect(clippy::single_call_fn, reason = "Readability")]
-async fn walk_build(in_dir: PathBuf, out_dir: PathBuf) -> Result<(), io::Error> {
-    fs::create_dir_all(&out_dir).await?;
+async fn repack(in_dir: PathBuf, out_dir: PathBuf) -> Result<(), io::Error> {
     let now = Instant::now();
+    fs::create_dir_all(&out_dir).await?;
     let mut read_dir = fs::read_dir(&in_dir).await?;
     let mut tasks = Vec::with_capacity(16);
     let sd = Arc::new((in_dir, out_dir));
@@ -166,7 +163,7 @@ async fn walk_build(in_dir: PathBuf, out_dir: PathBuf) -> Result<(), io::Error> 
     }
     #[expect(clippy::float_arithmetic, reason = "it's only for display")]
     let time = f64::from(u32::try_from(now.elapsed().as_millis()).unwrap()) / 1_000f64;
-    info!("Total time: {time} sec",);
+    info!("Completed in {time} sec",);
     Ok(())
 }
 
@@ -228,24 +225,6 @@ async fn write_dir_entry<P: AsRef<Path> + Send + Sync>(
     Ok(Some(dest))
 }
 
-async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), io::Error> {
-    if log_enabled!(Level::Info) {
-        info!("Patching '{}'", dest.to_string_lossy());
-    }
-    let ExecData {
-        items: _a,
-        enemies: _b,
-        end_credits,
-    } = load_exec_patch(exec_data_path)?;
-    #[cfg(target_os = "windows")]
-    unset_readonly(dest).await?;
-    let elf_binary = OpenOptions::new().write(true).open(dest).await?;
-    let mut bw = BufWriter::new(elf_binary);
-    patch_end_credits(&mut bw, end_credits).await?;
-    bw.flush().await?;
-    Ok(())
-}
-
 fn find_json<P: AsRef<Path> + Send + Sync>(
     path: P,
     // search_name: P,
@@ -264,7 +243,8 @@ fn find_json<P: AsRef<Path> + Send + Sync>(
 }
 
 #[expect(clippy::single_call_fn, reason = "Readability")]
-async fn walk_iso(in_path: PathBuf, out_dir: PathBuf, copy_images: bool) -> Result<(), io::Error> {
+async fn unpack(in_path: PathBuf, out_dir: PathBuf, copy_images: bool) -> Result<(), io::Error> {
+    let now = Instant::now();
     fs::create_dir_all(&out_dir).await?;
     let mut tasks = Vec::with_capacity(16);
     let oda = Arc::new(out_dir);
@@ -284,6 +264,9 @@ async fn walk_iso(in_path: PathBuf, out_dir: PathBuf, copy_images: bool) -> Resu
         }
         sleep(Duration::from_millis(100)).await;
     }
+    #[expect(clippy::float_arithmetic, reason = "it's only for display")]
+    let time = f64::from(u32::try_from(now.elapsed().as_millis()).unwrap()) / 1_000f64;
+    info!("Completed in {time} sec",);
     Ok(())
 }
 
@@ -302,28 +285,33 @@ async fn read_dir_entry<P: AsRef<Path> + Send + Sync>(
         return Ok(());
     } else if path
         .extension()
-        .is_some_and(|stem| !stem.to_string_lossy().ends_with("DAT"))
+        .is_some_and(|stem| stem.to_string_lossy().ends_with("DAT"))
     {
         info!(
-            "Copying '{}' to '{}'",
+            "Unpacking '{}' to {}",
             path.to_string_lossy(),
             dest.to_string_lossy()
         );
-        copy_file(&dir_entry.path(), &dest).await?;
+        let dat_file = fs::File::open(path).await?;
+        let dat_file_size = dat_file.metadata().await?.len().try_into().unwrap();
+        let mut dat_reader = BufReader::new(dat_file);
+        unpack_dat(
+            &mut dat_reader,
+            dir_entry.file_name().as_os_str(),
+            dat_file_size,
+            out_dir,
+            copy_images,
+        )
+        .await?;
         return Ok(());
     }
-    info!("Processing '{}'", path.to_string_lossy());
-    let dat_file = fs::File::open(path).await?;
-    let dat_file_size = dat_file.metadata().await?.len().try_into().unwrap();
-    let mut dat_reader = BufReader::new(dat_file);
-    unpack_dat(
-        &mut dat_reader,
-        dir_entry.file_name().as_os_str(),
-        dat_file_size,
-        out_dir,
-        copy_images,
-    )
-    .await?;
+    info!(
+        "Copying '{}' to '{}'",
+        path.to_string_lossy(),
+        dest.to_string_lossy()
+    );
+    copy_file(&dir_entry.path(), &dest).await?;
+
     Ok(())
 }
 

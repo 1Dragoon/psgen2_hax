@@ -163,7 +163,11 @@ pub fn serialize_u32_hex<S>(x: &u32, s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
-    s.serialize_str(format!("{x:08x}").as_str())
+    let mut hex = format!("{x:04x}");
+    if hex.len() % 2 != 0 {
+        hex = format!("0{hex}");
+    }
+    s.serialize_str(hex.as_str())
 }
 
 pub fn deserialize_u32_hex<'de, D>(deserializer: D) -> Result<u32, D::Error>
@@ -200,7 +204,11 @@ pub fn serialize_u16_hex<S>(x: &u16, s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
-    s.serialize_str(format!("{x:04x}").as_str())
+    let mut hex = format!("{x:04x}");
+    if hex.len() % 2 != 0 {
+        hex = format!("0{hex}");
+    }
+    s.serialize_str(hex.as_str())
 }
 
 pub fn deserialize_u16_hex<'de, D>(deserializer: D) -> Result<u16, D::Error>

@@ -13,7 +13,7 @@ use alloc::{
     vec::{IntoIter, Vec},
 };
 use byteorder::ReadBytesExt;
-use core::{iter::Peekable, mem, ops::Bound, panic::Location};
+use core::{iter::Peekable, mem, ops::Bound};
 use indexmap::IndexMap;
 use log::{Level, debug, error, log_enabled, trace, warn};
 use snafu::prelude::*;
@@ -635,7 +635,7 @@ pub fn parse_next_event_char(
         match parse_next_sjis(string_iter, sjis_string, byte) {
             Ok(_) => (),
             Err(err) => {
-                warn!("{err} - called from {}", Location::caller());
+                warn!("{err}");
                 match err {
                     SjisError::UnexpectedDoubleCharacter {
                         byte: unexpected,
@@ -660,6 +660,7 @@ pub fn parse_next_sjis(
     sjis_string: &mut Vec<String>,
     byte: u8,
 ) -> Result<u8, SjisError> {
+    // C string formatter codes
     if byte == b'%' {
         let next_byte = string_iter
             .peek()
