@@ -278,7 +278,8 @@ async fn read_dir_entry<P: AsRef<Path> + Send + Sync>(
     let path = dir_entry.path();
     let dest = (*out_dir).as_ref().join(path.file_name().unwrap());
     if path.to_string_lossy().ends_with("SLPM_625.53") {
-        generate_exec_data(&*out_dir, &path).await?;
+        generate_exec_data(&path, &*out_dir).await?;
+        // elf_bin_engrish_strings(&path).await;
     }
     if path.is_dir() {
         copy_dir_all(&path, &dest).await?;
@@ -316,9 +317,14 @@ async fn read_dir_entry<P: AsRef<Path> + Send + Sync>(
 }
 
 // More or less a unix-like "strings" function that is "PSG2 aware"
-// async fn elf_bin_engrish_strings(elf_file_size: usize, mut elf_reader: BufReader<fs::File>) {
+// async fn elf_bin_engrish_strings(path: &PathBuf) {
+//     use std::os::windows::fs::MetadataExt;
+//     use tokio::io::{AsyncReadExt, AsyncSeekExt, SeekFrom};
+//     let elf_file = fs::File::open(path).await.unwrap();
+//     let elf_file_size = elf_file.metadata().await.unwrap().file_size();
+//     let mut elf_reader = BufReader::new(elf_file);
 //     elf_reader.seek(SeekFrom::Start(0)).await.unwrap();
-//     let mut elf_data = Vec::with_capacity(elf_file_size);
+//     let mut elf_data = Vec::with_capacity(usize::try_from(elf_file_size).unwrap());
 //     let mut i = elf_reader.stream_position().await.unwrap();
 //     elf_reader.read_to_end(&mut elf_data).await.unwrap();
 //     let mut elf_data_iter = elf_data.into_iter().peekable();
@@ -330,7 +336,8 @@ async fn read_dir_entry<P: AsRef<Path> + Send + Sync>(
 //         }
 //         i += 1;
 //         if byte != 0
-//             && let Ok(count) = parse_next_sjis(&mut elf_data_iter, &mut strings, byte)
+//             && let Ok(count) =
+//                 events::codec::parse_next_sjis(&mut elf_data_iter, &mut strings, byte)
 //         {
 //             i += u64::from(count - 1);
 //         } else {

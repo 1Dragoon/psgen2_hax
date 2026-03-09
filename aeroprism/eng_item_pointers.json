@@ -1,0 +1,742 @@
+{
+  "18c8f0": [
+    "f0b82800",
+    "[Important]Nanette's Letter"
+  ],
+  "18c902": [
+    "02b92800",
+    "[Important]<Silver> Bullet Necklace"
+  ],
+  "18c916": [
+    "16b92800",
+    "[Important]Polymetryl"
+  ],
+  "18c922": [
+    "22b92800",
+    "[Important]Tube <Key>"
+  ],
+  "18c92b": [
+    "2bb92800",
+    "[Important]Container <Key>"
+  ],
+  "18c939": [
+    "39b92800",
+    "[Important]Green <Card>"
+  ],
+  "18c943": [
+    "43b92800",
+    "[Important]Blue <Card>"
+  ],
+  "18c94c": [
+    "4cb92800",
+    "[Important]Yellow <Card>"
+  ],
+  "18c957": [
+    "57b92800",
+    "[Important]Red <Card>"
+  ],
+  "18c95f": [
+    "5fb92800",
+    "[Important]Visiphone"
+  ],
+  "18c96a": [
+    "6ab92800",
+    "[Important]Happiness <Ring>"
+  ],
+  "18c978": [
+    "78b92800",
+    "[Important]<Maruera> Berries"
+  ],
+  "18c984": [
+    "84b92800",
+    "[Important]Motavian <Ring>"
+  ],
+  "18c991": [
+    "91b92800",
+    "[Important]Digital Music Score"
+  ],
+  "18c9a6": [
+    "a6b92800",
+    "[Important]Main <Key>"
+  ],
+  "18c9af": [
+    "afb92800",
+    "[Important]Enhancer"
+  ],
+  "18c9b9": [
+    "b9b92800",
+    "[Important]Golden Stone"
+  ],
+  "18c9c7": [
+    "c7b92800",
+    "[Important]Heal <Ring>"
+  ],
+  "18c9d0": [
+    "d0b92800",
+    "[Important]<Plasma> <Ring>"
+  ],
+  "18c9d7": [
+    "d7b92800",
+    "[Important]Aeroprism"
+  ],
+  "18c9e2": [
+    "e2b92800",
+    "[Important]<Maruera> Gum"
+  ],
+  "18c9ea": [
+    "eab92800",
+    "[Important]<Maruera> Leaves"
+  ],
+  "18c9f5": [
+    "f5b92800",
+    "[Important]System Recorder"
+  ],
+  "18ca06": [
+    "06ba2800",
+    "[Important]Atlas"
+  ],
+  "18ca0d": [
+    "0dba2800",
+    "[Important]Dynamite"
+  ],
+  "18ca17": [
+    "17ba2800",
+    "[Important]<Ice> Digger"
+  ],
+  "18ca22": [
+    "22ba2800",
+    "[Important]Jet Scooter"
+  ],
+  "18ca2f": [
+    "2fba2800",
+    "[Important]Land Master"
+  ],
+  "18ca3c": [
+    "3cba2800",
+    "[Cake]<NaulaStyle> <Shortcake>"
+  ],
+  "18ca43": [
+    "43ba2800",
+    "[Cake]<Chiffon> <Cake>"
+  ],
+  "18ca4a": [
+    "4aba2800",
+    "[Cake]<Fruit> <Cake>"
+  ],
+  "18ca51": [
+    "51ba2800",
+    "[Cake]<MontBlanc> <Cake>"
+  ],
+  "18ca58": [
+    "58ba2800",
+    "[Cake]<Shortcake>"
+  ],
+  "18ca5c": [
+    "5cba2800",
+    "[Ocarina]<Beguiling> <Ocarina>"
+  ],
+  "18ca63": [
+    "63ba2800",
+    "[Ocarina]<Covert> <Ocarina>"
+  ],
+  "18ca6a": [
+    "6aba2800",
+    "[Ocarina]<Hesitant> <Ocarina>"
+  ],
+  "18ca71": [
+    "71ba2800",
+    "[Ocarina]<Traveling> <Ocarina>"
+  ],
+  "18ca78": [
+    "78ba2800",
+    "[Sol]<Sol> <Atomizer>"
+  ],
+  "18ca7f": [
+    "7fba2800",
+    "[Star]<Star> <Atomizer>"
+  ],
+  "18ca86": [
+    "86ba2800",
+    "[Moon]<Moon> <Atomizer>"
+  ],
+  "18ca8d": [
+    "8dba2800",
+    "[Monomate]<Antidote>"
+  ],
+  "18ca91": [
+    "91ba2800",
+    "[Fluid]Trifluid"
+  ],
+  "18ca9b": [
+    "9bba2800",
+    "[Fluid]<Difluid>"
+  ],
+  "18ca9f": [
+    "9fba2800",
+    "[Fluid]<Monofluid>"
+  ],
+  "18caa3": [
+    "a3ba2800",
+    "[Monomate]<Trimate>"
+  ],
+  "18caa7": [
+    "a7ba2800",
+    "[Monomate]<Dimate>"
+  ],
+  "18caab": [
+    "abba2800",
+    "[Monomate]<Monomate>"
+  ],
+  "18caaf": [
+    "afba2800",
+    "[Boots]<Guard> <Boots>"
+  ],
+  "18cab6": [
+    "b6ba2800",
+    "[Boots]<White> <Boots>"
+  ],
+  "18cabd": [
+    "bdba2800",
+    "[Boots]<Black> <Boots>"
+  ],
+  "18cac4": [
+    "c4ba2800",
+    "[Boots]<Schneller> <Boots>"
+  ],
+  "18cacb": [
+    "cbba2800",
+    "[Boots]<Heilsam> <Boots>"
+  ],
+  "18cad2": [
+    "d2ba2800",
+    "[Boots]<Long> <Boots>"
+  ],
+  "18cad9": [
+    "d9ba2800",
+    "[Boots]<Knife> <Boots>"
+  ],
+  "18cae0": [
+    "e0ba2800",
+    "[Boots]<Leather> <Boots>"
+  ],
+  "18cae7": [
+    "e7ba2800",
+    "[Espadrilles]<Espadrilles>"
+  ],
+  "18caeb": [
+    "ebba2800",
+    "[Shoes]<Leather> <Shoes>"
+  ],
+  "18caf2": [
+    "f2ba2800",
+    "[Armel]Sincere <Sleeve>"
+  ],
+  "18cafe": [
+    "feba2800",
+    "[Armel]Green <Sleeve>"
+  ],
+  "18cb08": [
+    "08bb2800",
+    "[Armel]<Nei> <Armel>"
+  ],
+  "18cb0f": [
+    "0fbb2800",
+    "[Armel]<Laconian> <Armel>"
+  ],
+  "18cb16": [
+    "16bb2800",
+    "[Armel]<Luminous> <Armel>"
+  ],
+  "18cb1d": [
+    "1dbb2800",
+    "[Armel]<Ceramic> <Armel>"
+  ],
+  "18cb24": [
+    "24bb2800",
+    "[Armel]<Mirror> <Armel>"
+  ],
+  "18cb2b": [
+    "2bbb2800",
+    "[Armel]<Titanium> <Armel>"
+  ],
+  "18cb32": [
+    "32bb2800",
+    "[Armel]<Fiberglass> <Armel>"
+  ],
+  "18cb39": [
+    "39bb2800",
+    "[Armel]<Carbon> <Armel>"
+  ],
+  "18cb40": [
+    "40bb2800",
+    "[Shield]<Nei> <Shield>"
+  ],
+  "18cb47": [
+    "47bb2800",
+    "[Shield]<Laconian> <Shield>"
+  ],
+  "18cb4e": [
+    "4ebb2800",
+    "[Shield]<Laser> <Shield>"
+  ],
+  "18cb55": [
+    "55bb2800",
+    "[Shield]<Tranquil> <Shield>"
+  ],
+  "18cb5c": [
+    "5cbb2800",
+    "[Shield]<Ceramic> <Shield>"
+  ],
+  "18cb63": [
+    "63bb2800",
+    "[Shield]<Mirror> <Shield>"
+  ],
+  "18cb6a": [
+    "6abb2800",
+    "[Shield]<Titanium> <Shield>"
+  ],
+  "18cb71": [
+    "71bb2800",
+    "[Shield]<Fiberglass> <Shield>"
+  ],
+  "18cb78": [
+    "78bb2800",
+    "[Shield]<Carbon> <Shield>"
+  ],
+  "18cb7f": [
+    "7fbb2800",
+    "[Mantle2]<Amber> <Mantle>"
+  ],
+  "18cb86": [
+    "86bb2800",
+    "[End]<Nei> <Field>"
+  ],
+  "18cb8d": [
+    "8dbb2800",
+    "[End]<Plasma> <Field>"
+  ],
+  "18cb94": [
+    "94bb2800",
+    "[End]<Crystal> <Field>"
+  ],
+  "18cb9b": [
+    "9bbb2800",
+    "[Armor]<Nei> <Harnisch>"
+  ],
+  "18cba2": [
+    "a2bb2800",
+    "[Armor]<Laconian> <Harnisch>"
+  ],
+  "18cba9": [
+    "a9bb2800",
+    "[Armor]<Crystal> <Harnisch>"
+  ],
+  "18cbb0": [
+    "b0bb2800",
+    "[Armor]<Titanium> <Harnisch>"
+  ],
+  "18cbb7": [
+    "b7bb2800",
+    "[Fibrillae]<Laconian> <Fibrilla>e"
+  ],
+  "18cbbf": [
+    "bfbb2800",
+    "[Fibrillae]<Ceramic> <Fibrilla>e"
+  ],
+  "18cbc7": [
+    "c7bb2800",
+    "[Fibrillae]<Titanium> <Fibrilla>e"
+  ],
+  "18cbcf": [
+    "cfbb2800",
+    "[Fibrillae]<Fibrilla>e "
+  ],
+  "18cbd5": [
+    "d5bb2800",
+    "[Armor]<Zirconium> <Armor>"
+  ],
+  "18cbdc": [
+    "dcbb2800",
+    "[Armor]<Ceramic> <Armor>"
+  ],
+  "18cbe3": [
+    "e3bb2800",
+    "[Armor]<Titanium> <Armor>"
+  ],
+  "18cbea": [
+    "eabb2800",
+    "[Chestplate]<Laconian> <Chestplate>"
+  ],
+  "18cbf1": [
+    "f1bb2800",
+    "[Chestplate]<Crystal> <Chestplate>"
+  ],
+  "18cbf8": [
+    "f8bb2800",
+    "[Chestplate]<Zirconium> <Chestplate>"
+  ],
+  "18cbff": [
+    "ffbb2800",
+    "[Chestplate]<Ceramic> <Chestplate>"
+  ],
+  "18cc06": [
+    "06bc2800",
+    "[Chestplate]Titatnium <Chestplate>"
+  ],
+  "18cc14": [
+    "14bc2800",
+    "[Mantle]<White> <Mantle>"
+  ],
+  "18cc1b": [
+    "1bbc2800",
+    "[Mantle]<Fiberglass> <Mantle>"
+  ],
+  "18cc22": [
+    "22bc2800",
+    "[Coat]<Fiberglass> <Coat>"
+  ],
+  "18cc29": [
+    "29bc2800",
+    "[Vest]<Fiberglass> <Vest>"
+  ],
+  "18cc30": [
+    "30bc2800",
+    "[Vest]<Carbon> <Vest>"
+  ],
+  "18cc37": [
+    "37bc2800",
+    "[Suit]<Carbon> Suit"
+  ],
+  "18cc40": [
+    "40bc2800",
+    "[Hat]Mogic <Hat>"
+  ],
+  "18cc4a": [
+    "4abc2800",
+    "[Hat]Magic <Hat>"
+  ],
+  "18cc54": [
+    "54bc2800",
+    "[Bandana]<Gale> <Bandanna>"
+  ],
+  "18cc5b": [
+    "5bbc2800",
+    "[Bandana]<Rainbow> <Bandanna>"
+  ],
+  "18cc62": [
+    "62bc2800",
+    "[Bandana]Wind <Bandanna> "
+  ],
+  "18cc6c": [
+    "6cbc2800",
+    "[Helmet]<Nei> <Helmet>"
+  ],
+  "18cc73": [
+    "73bc2800",
+    "[Helmet]<Laconian> <Helmet>"
+  ],
+  "18cc7a": [
+    "7abc2800",
+    "[Helmet]<Titanium> <Helmet>"
+  ],
+  "18cc81": [
+    "81bc2800",
+    "[Crown]<Nei> <Crown>"
+  ],
+  "18cc88": [
+    "88bc2800",
+    "[Crown]<Jewel> <Crown>"
+  ],
+  "18cc8f": [
+    "8fbc2800",
+    "[Crown]<Silver> <Crown>"
+  ],
+  "18cc96": [
+    "96bc2800",
+    "[Ribbon]<Jewel> <Ribbon> "
+  ],
+  "18cc9e": [
+    "9ebc2800",
+    "[Ribbon]<Silver> <Ribbon>"
+  ],
+  "18cca5": [
+    "a5bc2800",
+    "[Headgear]<Laconian> <Gear>"
+  ],
+  "18ccac": [
+    "acbc2800",
+    "[Headgear]<Ceramic> <Gear>"
+  ],
+  "18ccb3": [
+    "b3bc2800",
+    "[Headgear]Storm <Gear>"
+  ],
+  "18ccbd": [
+    "bdbc2800",
+    "[Headgear]<Crescent> <Gear>"
+  ],
+  "18ccc4": [
+    "c4bc2800",
+    "[Headgear]<Titanium> <Gear>"
+  ],
+  "18cccb": [
+    "cbbc2800",
+    "[Headgear]<Fiberglass> <Gear>"
+  ],
+  "18ccd2": [
+    "d2bc2800",
+    "[Headgear]Headgear"
+  ],
+  "18ccdc": [
+    "dcbc2800",
+    "[Claw]Animal <Claw>"
+  ],
+  "18cce7": [
+    "e7bc2800",
+    "[Claw]<Silent> <Claw>"
+  ],
+  "18ccee": [
+    "eebc2800",
+    "[Claw]<Laser> <Claw>"
+  ],
+  "18ccf5": [
+    "f5bc2800",
+    "[Claw]<Ceramic> <Claw>"
+  ],
+  "18ccfc": [
+    "fcbc2800",
+    "[Claw]<Saber> <Claw>"
+  ],
+  "18cd03": [
+    "03bd2800",
+    "[Claw]<Steel> <Claw>"
+  ],
+  "18cd0a": [
+    "0abd2800",
+    "[Scale]<Laconian> <Scale>"
+  ],
+  "18cd11": [
+    "11bd2800",
+    "[Scale]<Ceramic> <Scale>"
+  ],
+  "18cd18": [
+    "18bd2800",
+    "[Scale]<Steel> <Scale>"
+  ],
+  "18cd1f": [
+    "1fbd2800",
+    "[Cane]<Windblade> <Cane>"
+  ],
+  "18cd26": [
+    "26bd2800",
+    "[Cane]Freezing <Cane>"
+  ],
+  "18cd33": [
+    "33bd2800",
+    "[Cane]<Blazing> <Cane>"
+  ],
+  "18cd3a": [
+    "3abd2800",
+    "[Whip]<Lightning> <Whip>"
+  ],
+  "18cd41": [
+    "41bd2800",
+    "[Slicer]<Nei> <Slicer>"
+  ],
+  "18cd48": [
+    "48bd2800",
+    "[Slicer]<Laconian> <Slicer>"
+  ],
+  "18cd4f": [
+    "4fbd2800",
+    "[Slicer]<Ice> <Slicer>"
+  ],
+  "18cd56": [
+    "56bd2800",
+    "[Slicer]Fire <Slicer>"
+  ],
+  "18cd5f": [
+    "5fbd2800",
+    "[Slicer]<Laser> <Slicer>"
+  ],
+  "18cd66": [
+    "66bd2800",
+    "[Slicer]<Titanium> <Slicer>"
+  ],
+  "18cd6d": [
+    "6dbd2800",
+    "[Slicer]<Slicer>"
+  ],
+  "18cd71": [
+    "71bd2800",
+    "[Slicer]<Boomerang>"
+  ],
+  "18cd75": [
+    "75bd2800",
+    "[Gun]<Needle> <Gun>"
+  ],
+  "18cd7c": [
+    "7cbd2800",
+    "[Cannon]<Plasma> <Cannon>"
+  ],
+  "18cd83": [
+    "83bd2800",
+    "[Cannon]<Pulse> <Cannon>"
+  ],
+  "18cd8a": [
+    "8abd2800",
+    "[Cannon]<Laser> <Cannon>"
+  ],
+  "18cd91": [
+    "91bd2800",
+    "[Vulcan]<Pulse> <Vulcan>"
+  ],
+  "18cd98": [
+    "98bd2800",
+    "[Vulcan]<Laser> <Vulcan>"
+  ],
+  "18cd9f": [
+    "9fbd2800",
+    "[Vulcan]<Vulcan>"
+  ],
+  "18cda3": [
+    "a3bd2800",
+    "[Shot]<Shotgun>"
+  ],
+  "18cda7": [
+    "a7bd2800",
+    "[Gun]<Wave> <Gun>"
+  ],
+  "18cdae": [
+    "aebd2800",
+    "[Gun]<Sonic> <Gun>"
+  ],
+  "18cdb5": [
+    "b5bd2800",
+    "[Shot]<Nei> <Shot>"
+  ],
+  "18cdbc": [
+    "bcbd2800",
+    "[Shot]<Napalm> <Shot>"
+  ],
+  "18cdc3": [
+    "c3bd2800",
+    "[Shot]<Laser> <Shot>"
+  ],
+  "18cdca": [
+    "cabd2800",
+    "[Shot]<Acid> <Shot>"
+  ],
+  "18cdd1": [
+    "d1bd2800",
+    "[Shot]Poison <Shot>"
+  ],
+  "18cddc": [
+    "dcbd2800",
+    "[Shot]<Silent> <Shot>"
+  ],
+  "18cde3": [
+    "e3bd2800",
+    "[Sword]<Nei> <Sword>"
+  ],
+  "18cdea": [
+    "eabd2800",
+    "[Sword]<Chain> <Sword>"
+  ],
+  "18cdf1": [
+    "f1bd2800",
+    "[Sword]<Laconian> <Sword>"
+  ],
+  "18cdf8": [
+    "f8bd2800",
+    "[Sword]<Plasma> <Sword>"
+  ],
+  "18cdff": [
+    "ffbd2800",
+    "[Sword]Angry <Sword>"
+  ],
+  "18ce09": [
+    "09be2800",
+    "[Sword]<Laser> <Sword>"
+  ],
+  "18ce10": [
+    "10be2800",
+    "[Sword]<Flame> sword"
+  ],
+  "18ce1a": [
+    "1abe2800",
+    "[Sword]<Ceramic> <Sword>"
+  ],
+  "18ce21": [
+    "21be2800",
+    "[Scalpel]<Laser> <Scalpel>"
+  ],
+  "18ce28": [
+    "28be2800",
+    "[Dagger]<Laconian> <Dagger>"
+  ],
+  "18ce2f": [
+    "2fbe2800",
+    "[Dagger]Wind <Dagger>"
+  ],
+  "18ce38": [
+    "38be2800",
+    "[Dagger]<Ceramic> <Dagger>"
+  ],
+  "18ce3f": [
+    "3fbe2800",
+    "[Knife]<Silver> <Knife>"
+  ],
+  "18ce46": [
+    "46be2800",
+    "[Knife]<Laser> <Knife>"
+  ],
+  "18ce4d": [
+    "4dbe2800",
+    "[Knife]<Ceramic> <Knife>"
+  ],
+  "1db2d8": [
+    "d8a22d00",
+    "Ransom Note"
+  ],
+  "1db2e4": [
+    "e4a22d00",
+    "[Suit]Prison Uniform"
+  ],
+  "1db2f4": [
+    "f4a22d00",
+    "[Crown]Thunder <Crown>"
+  ],
+  "1db300": [
+    "00a32d00",
+    "[Crown]<Snow> <Crown>"
+  ],
+  "1db307": [
+    "07a32d00",
+    "[Ribbon]<Ribbon>"
+  ],
+  "1db30b": [
+    "0ba32d00",
+    "[Whip]<Whip>"
+  ],
+  "1db30f": [
+    "0fa32d00",
+    "[Cannon]<Cannon>"
+  ],
+  "1db313": [
+    "13a32d00",
+    "[Sword]<Sword>"
+  ],
+  "1db317": [
+    "17a32d00",
+    "[Scalpel]<Scalpel>"
+  ],
+  "1db31b": [
+    "1ba32d00",
+    "[Dagger]<Dagger>"
+  ],
+  "1db31f": [
+    "1fa32d00",
+    "[Knife]<Knife>"
+  ]
+}

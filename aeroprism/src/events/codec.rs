@@ -466,7 +466,7 @@ pub fn decode_psg2_string(mut raw_ps2_sjis_string: Vec<u8>) -> DialogString {
                 }
                 let val = DialogItem::Portrait(Portrait(
                     String::from_utf8(portrait_numerals)
-                        .unwrap_or_else(|err| {error!("Error decoding portrait numeral: {err}\n I'll give you a motavian instead."); "86".into()}),
+                        .unwrap_or_else(|err| {warn!("Error decoding portrait numeral: {err}\n I'll give you a motavian instead."); "86".into()}),
                 ));
                 dialog_string.push(val);
             }

@@ -1,0 +1,600 @@
+#![allow(clippy::arbitrary_source_item_ordering, reason = "not needed")]
+use crate::{
+    events::{DialogString, codec::decode_psg2_string},
+    helpers::{
+        deserialize_u8_hex, deserialize_u32_hex, is_default, serialize_u8_hex, serialize_u32_hex,
+    },
+    slpm_patcher::{Elemental, POINTER_OFFSET},
+};
+use core::mem::size_of;
+use log::warn;
+use serde::{Deserialize, Serialize};
+use std::io;
+use strum::IntoEnumIterator;
+use tokio::{
+    fs::{self},
+    io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, AsyncWriteExt, BufWriter, SeekFrom},
+};
+
+static ENEMY_STRUCTS_START: usize = 0x1A_422C;
+static ENEMY_STRUCT_SIZE: usize = 148;
+static ENEMY_STRUCT_COUNT: usize = 124;
+static ENEMY_STRUCT_FIELDS: usize = ENEMY_STRUCT_SIZE / size_of::<u32>();
+
+#[repr(u8)]
+#[derive(Serialize, Deserialize, Default, Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Debug)]
+enum EnemyType {
+    #[default]
+    Demonic, // First and second bits turned off. Effectively, the below two bits count as a weakness to certain techniques. This simply indicates immunity to both biologic and robitic techniques.
+    Biologic = 0x01,
+    Robotic = 0x02,
+}
+
+#[derive(Serialize, Deserialize, Default, Debug)]
+pub struct EnemyAttributes {
+    // #[serde(
+    //     serialize_with = "serialize_u32_hex",
+    //     deserialize_with = "deserialize_u32_hex"
+    // )]
+    // attribute_field: u32, // All bytes of the attribute field. The below values will overwrite the data in this field if it is changed.
+    #[serde(default, skip_serializing_if = "is_default")]
+    resistances: Box<[Elemental]>, // First four bits of first byte of attribute field
+    #[serde(default, skip_serializing_if = "is_default")]
+    weaknesses: Box<[Elemental]>, // Second four bits of first byte of attribute field
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_1: u8, // Second byte of attribute field. Always appears to be zero.
+    r#type: EnemyType, // First four bits of third byte of attribute field
+    #[serde(default, skip_serializing_if = "is_default")]
+    boss: bool, // Mask: 0x04. The name is just a guess. Possessed by Dark Falz, Motherbrain, Neifirst (both occurrences) and Army Eye. No idea what it does.
+    #[serde(default, skip_serializing_if = "is_default")]
+    super_boss: bool, // Mask: 0x08. As above, the name is just a guess. Only Dark Falz and Motherbrain appear to have the bit for this set. As above, no idea what it does.
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_2: u8, // Second four bits of third byte of attribute field. Always appears to be zero.
+    #[serde(
+        default,
+        serialize_with = "serialize_u8_hex",
+        deserialize_with = "deserialize_u8_hex",
+        skip_serializing_if = "is_default"
+    )]
+    animation: u8, // Fourth byte of attribute field. Controls graphical effects such as whether the enemy floats, sits still, flashes, and others.
+}
+
+impl From<[u8; 4]> for EnemyAttributes {
+    // De-bitpack the attributes field
+    #[inline]
+    fn from(attr_field: [u8; 4]) -> Self {
+        let mut attributes = Self::default();
+        // attributes.attribute_field = value;
+        let resistances = attr_field[0] >> 4;
+        let weaknesses = attr_field[0] & 0xf;
+        let mut r = Vec::with_capacity(4);
+        let mut w = Vec::with_capacity(4);
+        for ele in Elemental::iter() {
+            if resistances & ele as u8 == ele as u8 {
+                r.push(ele);
+            }
+            if weaknesses & ele as u8 == ele as u8 {
+                w.push(ele);
+            }
+        }
+        attributes.resistances = r.into_boxed_slice();
+        attributes.weaknesses = w.into_boxed_slice();
+        attributes.field_1 = attr_field[1];
+        let enemy_types = attr_field[2] >> 4;
+        attributes.field_2 = attr_field[2] & 0xf;
+        if enemy_types & 0x1 == 0x1 {
+            attributes.r#type = EnemyType::Biologic;
+        } else if enemy_types & 0x2 == 0x2 {
+            attributes.r#type = EnemyType::Robotic;
+        } else if enemy_types & 0x3 == 0x3 {
+            warn!("Enemy flagged as both biologic AND robitic! This is invalid.");
+        }
+        if enemy_types & 0x4 == 0x4 {
+            attributes.boss = true;
+        }
+        if enemy_types & 0x8 == 0x8 {
+            attributes.super_boss = true;
+        }
+        attributes.animation = attr_field[3];
+        attributes
+    }
+}
+
+impl From<&EnemyAttributes> for u32 {
+    #[inline]
+    fn from(value: &EnemyAttributes) -> Self {
+        // Re-bitpack the attributes field
+        let EnemyAttributes {
+            // attribute_field,
+            resistances,
+            weaknesses,
+            field_1,
+            r#type,
+            boss,
+            super_boss,
+            field_2,
+            animation,
+        } = value;
+        // Fill resistances and weaknesses byte
+        let mut rw = 0;
+        for ele in resistances {
+            rw |= (*ele as u8) << 4;
+        }
+        for ele in weaknesses {
+            rw |= *ele as u8;
+        }
+        let mut etype = *r#type as u8;
+        if *boss {
+            etype |= 0x4;
+        }
+        if *super_boss {
+            etype |= 0x8;
+        }
+        etype <<= 4;
+        etype |= field_2;
+        Self::from_be_bytes([rw, *field_1, etype, *animation])
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct EnemyInfo {
+    enemy_number: usize,
+    enemy_name: DialogString,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
+    name_pointer: u32, // Pointer (alias?) to the enemy name string. First field.
+    #[serde(flatten)]
+    attributes: EnemyAttributes,
+    health: u32, // Third field
+    attack: u32, // Fourth field
+    #[serde(default, skip_serializing_if = "is_default")]
+    defense: u32, // Fifth field
+    #[serde(default, skip_serializing_if = "is_default")]
+    agility: u32, // Sixth field. Controls chance to dodge your hits, possibly others.
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_7: u32, // These fields serve an unknown purpose. Possible values include: intellect, stamina, technique points
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_8: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_9: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_10: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_11: u32,
+    // 12 through 17 appear to control the art assets used for this enemy. E.g. dropping the data in these fields from mother brain into neifirst will make neifirst look like mother brain
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    art_1: u32, // Field 12
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    art_2: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    art_3: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    art_4: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    art_5: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    art_6: u32, // Field 17
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_18: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_19: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_20: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_21: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_22: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_23: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_24: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_25: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_26: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_27: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_28: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_29: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_30: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_31: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_32: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_33: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_34: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_35: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_36: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    field_37: u32,
+}
+
+#[inline]
+pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
+    reader: &mut R,
+) -> Result<Vec<EnemyInfo>, io::Error> {
+    reader
+        .seek(SeekFrom::Start(ENEMY_STRUCTS_START as u64))
+        .await
+        .unwrap();
+    let mut field_bytes = [0u8; 4];
+    let mut field_vec = Vec::with_capacity(ENEMY_STRUCT_FIELDS);
+    let mut enemies = Vec::with_capacity(ENEMY_STRUCT_COUNT);
+    for enemy_no in 0..ENEMY_STRUCT_COUNT {
+        for _field_no in 0..ENEMY_STRUCT_FIELDS {
+            reader.read_exact(&mut field_bytes).await?;
+            field_vec.push(field_bytes);
+        }
+        field_vec.reverse();
+        let enemy = EnemyInfo {
+            enemy_number: enemy_no + 1usize,
+            enemy_name: DialogString::default(),
+            name_pointer: u32::from_le_bytes(field_vec.pop().unwrap()),
+            attributes: EnemyAttributes::from(field_vec.pop().unwrap()),
+            health: u32::from_le_bytes(field_vec.pop().unwrap()),
+            attack: u32::from_le_bytes(field_vec.pop().unwrap()),
+            defense: u32::from_le_bytes(field_vec.pop().unwrap()),
+            agility: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_7: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_8: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_9: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_10: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_11: u32::from_le_bytes(field_vec.pop().unwrap()),
+            art_1: u32::from_le_bytes(field_vec.pop().unwrap()),
+            art_2: u32::from_le_bytes(field_vec.pop().unwrap()),
+            art_3: u32::from_le_bytes(field_vec.pop().unwrap()),
+            art_4: u32::from_le_bytes(field_vec.pop().unwrap()),
+            art_5: u32::from_le_bytes(field_vec.pop().unwrap()),
+            art_6: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_18: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_19: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_20: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_21: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_22: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_23: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_24: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_25: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_26: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_27: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_28: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_29: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_30: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_31: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_32: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_33: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_34: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_35: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_36: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_37: u32::from_le_bytes(field_vec.pop().unwrap()),
+        };
+        enemies.push(enemy);
+    }
+    // use crate::slpm_patcher::Hexu32;
+    // use alloc::collections::BTreeMap;
+    // use crate::helpers::{save_binary_file, encode_hex};
+    // use std::path::PathBuf;
+    // let mut enemy_pointers = BTreeMap::new();
+    // Fill in the enemy names
+    for enemy in &mut enemies {
+        reader
+            .seek(SeekFrom::Start(
+                u64::from(enemy.name_pointer) - POINTER_OFFSET as u64,
+            ))
+            .await
+            .unwrap();
+        let mut string_bytes = Vec::with_capacity(20);
+        while let Ok(byte) = reader.read_u8().await
+            && byte != 0
+        {
+            string_bytes.push(byte);
+        }
+        enemy.enemy_name = decode_psg2_string(string_bytes);
+        // enemy_pointers.insert(
+        //     Hexu32(enemy.name_pointer - 0xff000),
+        //     (
+        //         encode_hex(&enemy.name_pointer.to_le_bytes()),
+        //         enemy.enemy_name.to_string(),
+        //     ),
+        // );
+    }
+    // let bytes = serde_json::to_string_pretty(&enemy_pointers)
+    //     .unwrap()
+    //     .into_bytes();
+    // save_binary_file(&PathBuf::from("eng_enemy_pointers.json"), &bytes).await?;
+    enemies.shrink_to_fit();
+    Ok(enemies)
+}
+
+#[inline]
+pub async fn patch(
+    exec_writer: &mut BufWriter<fs::File>,
+    enemies: Box<[EnemyInfo]>,
+) -> Result<(), io::Error> {
+    exec_writer
+        .seek(SeekFrom::Start(ENEMY_STRUCTS_START.try_into().unwrap()))
+        .await
+        .unwrap();
+    assert_eq!(
+        ENEMY_STRUCT_COUNT,
+        enemies.len(),
+        "Enemy count MUST be exact!"
+    );
+    for enemy_info in enemies {
+        exec_writer
+            .write_all(&enemy_info.name_pointer.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&u32::from(&enemy_info.attributes).to_be_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.health.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.attack.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.defense.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.agility.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_7.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_8.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_9.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_10.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_11.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.art_1.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.art_2.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.art_3.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.art_4.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.art_5.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.art_6.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_18.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_19.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_20.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_21.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_22.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_23.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_24.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_25.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_26.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_27.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_28.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_29.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_30.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_31.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_32.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_33.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_34.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_35.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_36.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&enemy_info.field_37.to_le_bytes())
+            .await?;
+    }
+    Ok(())
+}

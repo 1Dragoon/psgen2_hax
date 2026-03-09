@@ -114,12 +114,30 @@ pub async fn copy_dir_all<P: AsRef<Path> + Sync + Send>(src: P, dst: P) -> io::R
     Ok(())
 }
 
+#[inline]
+pub fn is_default<T: Default + PartialEq>(value: &T) -> bool {
+    *value == T::default()
+}
+
+#[inline]
+#[expect(clippy::trivially_copy_pass_by_ref, reason = "ref required for serde")]
+pub const fn is_u16_max(val: &u16) -> bool {
+    *val == u16::MAX
+}
+
+#[inline]
+pub const fn max_u16() -> u16 {
+    0xffff
+}
+
+#[inline]
 pub async fn copy_file(source: &Path, dest: &Path) -> Result<(), io::Error> {
     unset_readonly(dest).await?;
     fs::copy(source, dest).await?;
     Ok(())
 }
 
+#[inline]
 pub fn serialize_hex<S>(x: &[u8], s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
@@ -127,6 +145,7 @@ where
     s.serialize_str(&encode_hex(x))
 }
 
+#[inline]
 pub fn deserialize_hex<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
 where
     D: Deserializer<'de>,
@@ -151,6 +170,7 @@ where
     deserializer.deserialize_str(HexVisitor)
 }
 
+#[inline]
 pub fn serialize_rc_empty<S>(_: &Archy, s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
@@ -159,6 +179,7 @@ where
 }
 
 #[expect(clippy::trivially_copy_pass_by_ref, reason = "required for trait impl")]
+#[inline]
 pub fn serialize_u32_hex<S>(x: &u32, s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
@@ -170,6 +191,7 @@ where
     s.serialize_str(hex.as_str())
 }
 
+#[inline]
 pub fn deserialize_u32_hex<'de, D>(deserializer: D) -> Result<u32, D::Error>
 where
     D: Deserializer<'de>,
@@ -200,6 +222,7 @@ where
 }
 
 #[expect(clippy::trivially_copy_pass_by_ref, reason = "required for trait impl")]
+#[inline]
 pub fn serialize_u16_hex<S>(x: &u16, s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
@@ -211,6 +234,7 @@ where
     s.serialize_str(hex.as_str())
 }
 
+#[inline]
 pub fn deserialize_u16_hex<'de, D>(deserializer: D) -> Result<u16, D::Error>
 where
     D: Deserializer<'de>,
@@ -246,6 +270,7 @@ where
     s.serialize_str(format!("{x:02x}").as_str())
 }
 
+#[inline]
 pub fn deserialize_u8_hex<'de, D>(deserializer: D) -> Result<u8, D::Error>
 where
     D: Deserializer<'de>,
@@ -272,6 +297,7 @@ where
     deserializer.deserialize_str(U8visitor)
 }
 
+#[inline]
 pub fn deserialize_indexmap<'de, D, T>(d: D) -> Result<IndexMap<u32, T>, D::Error>
 where
     D: Deserializer<'de>,
@@ -284,6 +310,7 @@ where
     Ok(dict.into_iter().map(|(Wrapper(k), v)| (k, v)).collect())
 }
 
+#[inline]
 pub fn serialize_indexmap<S, T>(s: &IndexMap<u32, T>, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
