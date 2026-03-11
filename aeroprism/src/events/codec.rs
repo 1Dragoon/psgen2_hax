@@ -427,7 +427,7 @@ pub fn decode_psg2_string(mut raw_ps2_sjis_string: Vec<u8>) -> DialogString {
             | ControlCode::Knife
             | ControlCode::Mantle
             | ControlCode::Mantle2
-            | ControlCode::Monomate
+            | ControlCode::Heal
             | ControlCode::Moon
             | ControlCode::Musik
             | ControlCode::Ocarina
@@ -451,6 +451,18 @@ pub fn decode_psg2_string(mut raw_ps2_sjis_string: Vec<u8>) -> DialogString {
             | ControlCode::End
             | ControlCode::More
             | ControlCode::Select
+            | ControlCode::CCVariant1
+            | ControlCode::CCVariant3
+            | ControlCode::CCVariant2
+            | ControlCode::Megiddo
+            | ControlCode::Fire
+            | ControlCode::Gravito
+            | ControlCode::Water
+            | ControlCode::Air
+            | ControlCode::Lightning
+            | ControlCode::Volt
+            | ControlCode::Light
+            | ControlCode::Prozedun
             | ControlCode::Value => dialog_string.push(DialogItem::ControlCode(cc)),
             ControlCode::Color => {
                 if let Some(number) = string_iter.next_if(u8::is_ascii_digit) {
