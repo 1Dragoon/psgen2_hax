@@ -387,15 +387,34 @@ pub fn decode_psg2_string(mut raw_ps2_sjis_string: Vec<u8>) -> DialogString {
     let mut dialog_string = Vec::<DialogItem>::with_capacity(16);
     while let Some(byte) = string_iter.next() {
         // Try for MTE codes first
-        if [0x09, 0x10, 0x11, 0x12, 0x13].contains(&byte)
+        if (0x00..=0x1f).contains(&byte)
             && let Some(next_byte) = string_iter.peek()
         {
             let word = u16::from_be_bytes([byte, *next_byte]);
             let mc = MTECode::from(word);
-            // If this is a valid MTE code, store it and continue to the next byte
+            // If this is a valid 16-bit MTE code, store it and move the cursor to the next byte
             if !matches!(mc, MTECode::None) {
                 dialog_string.push(DialogItem::MTECode(mc));
                 string_iter.next().unwrap();
+                continue;
+            }
+        }
+        if *crate::ENGRISH.get().unwrap() && (0x20..=0xff).contains(&byte) {
+            if let Some(next_byte) = string_iter.peek() {
+                let word = u16::from_be_bytes([byte, *next_byte]);
+                let mc = MTECode::from(word);
+                // If this is a valid upper-range 16-bit MTE code, store it and move the cursor to the next byte
+                if !matches!(mc, MTECode::None) {
+                    dialog_string.push(DialogItem::MTECode(mc));
+                    string_iter.next().unwrap();
+                    continue;
+                }
+            }
+            let word = u16::from_be_bytes([0x00, byte]);
+            let mc = MTECode::from(word);
+            // If this is a valid 8-bit MTE code, store it
+            if !matches!(mc, MTECode::None) {
+                dialog_string.push(DialogItem::MTECode(mc));
                 continue;
             }
         }
@@ -688,11 +707,30 @@ pub fn parse_next_sjis(
             _ => (),
         }
     }
-    if *crate::ENGRISH.get().unwrap()
-        && let Some(string) = byte_to_engrish(byte)
-    {
-        sjis_string.push(string.into());
-        return Ok(1);
+    if *crate::ENGRISH.get().unwrap() {
+        if let Some(string) = byte_to_engrish(byte) {
+            sjis_string.push(string.into());
+            return Ok(1);
+        }
+        if (0x20..=0xff).contains(&byte) {
+            if let Some(next_byte) = string_iter.peek() {
+                let word = u16::from_be_bytes([byte, *next_byte]);
+                let mc = MTECode::from(word);
+                // If this is a valid upper-range 16-bit MTE code, store it and move the cursor to the next byte
+                if !matches!(mc, MTECode::None) {
+                    sjis_string.push(DialogItem::MTECode(mc).to_string());
+                    string_iter.next().unwrap();
+                    return Ok(2);
+                }
+            }
+            let word = u16::from_be_bytes([0x00, byte]);
+            let mc = MTECode::from(word);
+            // If this is a valid 8-bit MTE code, store it
+            if !matches!(mc, MTECode::None) {
+                sjis_string.push(DialogItem::MTECode(mc).to_string());
+                return Ok(1);
+            }
+        }
     }
     if let Some(string) = byte_to_sjis(byte) {
         sjis_string.push(string.into());

@@ -8,6 +8,7 @@ use crate::{
     slpm_patcher::{end_credits::EndCreditItem, enemies::EnemyInfo, items::ItemInfo},
 };
 use alloc::collections::BTreeMap;
+// use indexmap::IndexMap;
 use log::{Level, info, log_enabled};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -53,6 +54,10 @@ static TECHNIQUE_STRUCT_FIELDS: usize = 14;
 static MUSIC_STRUCT_START: usize = 0x18_9450;
 static MUSIC_STRUCT_COUNT: usize = 19;
 static MUSIC_STRUCT_FIELDS: usize = 2;
+
+// static DUNNO_STRUCT_START: usize = 0x1A_28A0; // end 1A3AC8
+// static DUNNO_STRUCT_COUNT: usize = 186;
+// static DUNNO_STRUCT_FIELDS: usize = 14;
 
 #[derive(Serialize, Deserialize)]
 pub struct Song {
@@ -322,7 +327,8 @@ pub struct ExecData {
     pub mapnames: BTreeMap<Hexu32, DialogString>,
     pub menu_text: BTreeMap<Hexu32, DialogString>,
     pub item_descriptions: BTreeMap<Hexu32, DialogString>,
-    pub dunno: BTreeMap<Hexu32, DialogString>,
+    pub dunno_jumplist: BTreeMap<Hexu32, DialogString>,
+    // pub dunno_struct: IndexMap<Hexu32, (DialogString, Vec<Hexu32>)>,
     pub techniques: Box<[Technique]>,
     pub songs: Box<[Song]>,
     pub items: Box<[ItemInfo]>,
@@ -365,8 +371,13 @@ pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
             ITEM_DESCRIPTION_JUMPLIST_FIELDS,
         )
         .await?,
-        dunno: parse_jumplist_strings(&mut elf_reader, DUNNO_JUMPLIST_START, DUNNO_JUMPLIST_FIELDS)
-            .await?,
+        // dunno_struct: parse_structs(&mut elf_reader, DUNNO_STRUCT_START, DUNNO_STRUCT_FIELDS, DUNNO_STRUCT_COUNT, 0).await?,
+        dunno_jumplist: parse_jumplist_strings(
+            &mut elf_reader,
+            DUNNO_JUMPLIST_START,
+            DUNNO_JUMPLIST_FIELDS,
+        )
+        .await?,
         techniques: parse_techniques(&mut elf_reader).await?,
         songs: parse_songs(&mut elf_reader).await?,
         items: items::parse(&mut elf_reader).await?.into_boxed_slice(),
@@ -395,9 +406,10 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
         mapnames: _a,
         menu_text: _b,
         item_descriptions: _c,
-        dunno: _d,
-        techniques: _e,
-        songs: _f,
+        dunno_jumplist: _d,
+        // dunno_struct: _e,
+        techniques: _f,
+        songs: _g,
         items,
         enemies,
         end_credits,

@@ -42,7 +42,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         // The way each "credit header" appears to work is:
         // 01000XXXX 0200YYYY
         // - XXXX is a 16-bit number to indicate how far we should scroll before displaying the string that follows.
-        // - YYYY is a 16-bit number to indicate the length in bytes PLUS the first null terminator of the string to.
+        // - YYYY is a 16-bit number to indicate the length in bytes PLUS the first null terminator of the string to
         // display
         // The string PLUS null terminator that follows then must be padded to the next 32-bit boundary.
 
@@ -90,22 +90,17 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             );
             debug!("Raw credit string: {}", hex_edit_encode(&string_bytes));
         }
-        let engrish_str = decode_psg2_string(string_bytes);
+        let credit_string = decode_psg2_string(string_bytes);
         if log_enabled!(Level::Debug) {
-            debug!(
-                "Rendered credit string: {}",
-                hex_edit_encode(&engrish_str.clone().into_bytes(None))
-            );
-            debug!("Debugged credit string: {engrish_str:#?}",);
+            debug!("Rendered credit string: {credit_string}");
+            debug!("Debugged credit string: {credit_string:#?}",);
         }
         // Read the next two fields
         credit_items.push(EndCreditItem {
             vertical_space,
-            credit_string: engrish_str,
+            credit_string,
         });
     }
-    // reader.read_exact(&mut credit_bytes).await?;
-    // let mut credits_iter
     credit_items.shrink_to_fit();
     Ok(credit_items)
 }

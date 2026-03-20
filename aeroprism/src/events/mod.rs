@@ -359,6 +359,9 @@ enum MTECode {
     Check = 0x1026,
     Chestplate = 0x1271,
     Chiffon = 0x12f0,
+    CircumflexÔ = 0x0089, // French O-circumflex
+    Circumflexô = 0x0098, // French o-circumflex
+    Circumflexû = 0x009b, // French u-circumflex
     Claw = 0x11ec,
     Coat = 0x1276,
     Coloring = 0x103b,
@@ -526,10 +529,20 @@ enum MTECode {
     Trimate = 0x12b6,
     Tryphon = 0x1195,
     Vampir = 0x1376,
-    Variant1 = 0x1315,
-    Variant2 = 0x131a,
-    Variant3 = 0x0923,
-    Variant4 = 0xffa0,
+    Variable = 0x00ff,
+    Variant1 = 0x0606,
+    Variant2 = 0x060a,
+    Variant3 = 0x0806,
+    Variant4 = 0x0808,
+    Variant5 = 0x0908,
+    Variant6 = 0x0909,
+    Variant7 = 0x090c,
+    Variant8 = 0x0923,
+    Variant9 = 0x0a09,
+    Variant10 = 0x0a0a,
+    Variant11 = 0x0c0a,
+    Variant12 = 0x1315,
+    Variant13 = 0x131a,
     Vest = 0x1278,
     Vulcan = 0x11d9,
     Wave = 0x11aa,
@@ -571,6 +584,9 @@ impl Display for MTECode {
             Self::Check => write!(f, "<Check>"),
             Self::Chestplate => write!(f, "<Chestplate>"),
             Self::Chiffon => write!(f, "<Chiffon>"),
+            Self::Circumflexô => write!(f, "<ô>"),
+            Self::CircumflexÔ => write!(f, "<uÔ>"),
+            Self::Circumflexû => write!(f, "<û>"),
             Self::Claw => write!(f, "<Claw>"),
             Self::Coat => write!(f, "<Coat>"),
             Self::Coloring => write!(f, "<Coloring>"),
@@ -738,10 +754,20 @@ impl Display for MTECode {
             Self::Trimate => write!(f, "<Trimate>"),
             Self::Tryphon => write!(f, "<Tryphon>"),
             Self::Vampir => write!(f, "<Vampir>"),
+            Self::Variable => write!(f, "<Variable>"),
             Self::Variant1 => write!(f, "<Variant1>"),
             Self::Variant2 => write!(f, "<Variant2>"),
             Self::Variant3 => write!(f, "<Variant3>"),
             Self::Variant4 => write!(f, "<Variant4>"),
+            Self::Variant5 => write!(f, "<Variant5>"),
+            Self::Variant6 => write!(f, "<Variant6>"),
+            Self::Variant7 => write!(f, "<Variant7>"),
+            Self::Variant8 => write!(f, "<Variant8>"),
+            Self::Variant9 => write!(f, "<Variant9>"),
+            Self::Variant10 => write!(f, "<Variant10>"),
+            Self::Variant11 => write!(f, "<Variant11>"),
+            Self::Variant12 => write!(f, "<Variant12>"),
+            Self::Variant13 => write!(f, "<Variant13>"),
             Self::Vest => write!(f, "<Vest>"),
             Self::Vulcan => write!(f, "<Vulcan>"),
             Self::Wave => write!(f, "<Wave>"),
@@ -888,6 +914,8 @@ impl FromStr for MTECode {
             "naulastyle" => Ok(Self::NaulaStyle),
             "needle" => Ok(Self::Needle),
             "nei" => Ok(Self::Nei),
+            "ô" => Ok(Self::Circumflexô),
+            "uô" => Ok(Self::CircumflexÔ),
             "ocarina" => Ok(Self::Ocarina),
             "original" => Ok(Self::Original),
             "package" => Ok(Self::Package),
@@ -952,11 +980,22 @@ impl FromStr for MTECode {
             "traveling" => Ok(Self::Traveling),
             "trimate" => Ok(Self::Trimate),
             "tryphon" => Ok(Self::Tryphon),
+            "û" => Ok(Self::Circumflexû),
+            "vampir" => Ok(Self::Vampir),
+            "variable" => Ok(Self::Variable),
             "variant1" => Ok(Self::Variant1),
             "variant2" => Ok(Self::Variant2),
             "variant3" => Ok(Self::Variant3),
             "variant4" => Ok(Self::Variant4),
-            "vampir" => Ok(Self::Vampir),
+            "variant5" => Ok(Self::Variant5),
+            "variant6" => Ok(Self::Variant6),
+            "variant7" => Ok(Self::Variant7),
+            "variant8" => Ok(Self::Variant8),
+            "variant9" => Ok(Self::Variant9),
+            "variant10" => Ok(Self::Variant10),
+            "variant11" => Ok(Self::Variant11),
+            "variant12" => Ok(Self::Variant12),
+            "variant13" => Ok(Self::Variant13),
             "vest" => Ok(Self::Vest),
             "vulcan" => Ok(Self::Vulcan),
             "wave" => Ok(Self::Wave),
@@ -974,11 +1013,25 @@ impl FromStr for MTECode {
 impl From<u16> for MTECode {
     fn from(value: u16) -> Self {
         match value {
+            0x0089 => Self::CircumflexÔ,
+            0x0098 => Self::Circumflexô,
+            0x009b => Self::Circumflexû,
+            0x00ff => Self::Variable,
+            0x0606 => Self::Variant1,
+            0x060a => Self::Variant2,
+            0x0806 => Self::Variant3,
+            0x0808 => Self::Variant4,
+            0x0908 => Self::Variant5,
+            0x0909 => Self::Variant6,
+            0x090c => Self::Variant7,
             0x0914 => Self::SmallIndent,
-            0x0923 => Self::Variant3,
+            0x0923 => Self::Variant8,
             0x0928 => Self::MidIndent,
             0x093c => Self::LargeIndent,
             0x0964 => Self::XLIndent,
+            0x0a09 => Self::Variant9,
+            0x0a0a => Self::Variant10,
+            0x0c0a => Self::Variant11,
             0x1001 => Self::SegaWow,
             0x1007 => Self::SonicTeam,
             0x1013 => Self::Reco,
@@ -1133,8 +1186,8 @@ impl From<u16> for MTECode {
             0x12fa => Self::NaulaStyle,
             0x1301 => Self::Shortcake,
             0x1306 => Self::Antidote,
-            0x1315 => Self::Variant1,
-            0x131a => Self::Variant2,
+            0x1315 => Self::Variant12,
+            0x131a => Self::Variant13,
             0x1336 => Self::Nasarester,
             0x133b => Self::Shinparo,
             0x133f => Self::Drunk,
@@ -1179,7 +1232,6 @@ impl From<u16> for MTECode {
             0x13d6 => Self::Girester,
             0x13da => Self::Saschneller,
             0x13e6 => Self::DWand,
-            0xffa0 => Self::Variant4,
             _ => Self::None,
         }
     }
@@ -1271,7 +1323,13 @@ impl DialogItem {
         match self {
             Self::Color(_color) => mem::size_of::<Color>() + mem::size_of::<u8>(),
             Self::ControlCode(_control_code) => mem::size_of::<ControlCode>(),
-            Self::MTECode(_mtecode) => mem::size_of::<MTECode>(),
+            Self::MTECode(mc) => {
+                if *mc as u16 <= 0xff {
+                    mem::size_of::<u8>()
+                } else {
+                    mem::size_of::<MTECode>()
+                }
+            }
             Self::Portrait(portrait) => mem::size_of::<u8>() + portrait.0.len(),
             Self::String(string) => {
                 let mut size = 0;
@@ -1290,7 +1348,11 @@ impl DialogItem {
             Self::ControlCode(cc) => vec![cc as u8],
             Self::MTECode(mc) => {
                 let mte = (mc as u16).to_be_bytes();
-                vec![mte[0], mte[1]]
+                if mc as u16 <= 0xff {
+                    vec![mte[1]]
+                } else {
+                    vec![mte[0], mte[1]]
+                }
             }
             Self::Portrait(portrait) => {
                 [vec![ControlCode::Portrait as u8], portrait.0.into_bytes()].concat()

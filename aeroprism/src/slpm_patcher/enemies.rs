@@ -1,9 +1,7 @@
 #![allow(clippy::arbitrary_source_item_ordering, reason = "not needed")]
 use crate::{
     events::{DialogString, codec::decode_psg2_string},
-    helpers::{
-        deserialize_u8_hex, deserialize_u32_hex, is_default, serialize_u8_hex, serialize_u32_hex,
-    },
+    helpers::{deserialize_u32_hex, is_default, serialize_u32_hex},
     slpm_patcher::{Elemental, POINTER_OFFSET},
 };
 use core::mem::size_of;
@@ -45,18 +43,34 @@ pub struct EnemyAttributes {
     field_1: u8, // Second byte of attribute field. Always appears to be zero.
     r#type: EnemyType, // First four bits of third byte of attribute field
     #[serde(default, skip_serializing_if = "is_default")]
-    boss: bool, // Mask: 0x04. The name is just a guess. Possessed by Dark Falz, Motherbrain, Neifirst (both occurrences) and Army Eye. No idea what it does.
+    gravito_immune: bool, // Mask: 0x04. Possessed by Dark Falz, Motherbrain, Neifirst (both occurrences) and Army Eye. Conveys immunity to gravito techs, possibly other effects.
     #[serde(default, skip_serializing_if = "is_default")]
-    super_boss: bool, // Mask: 0x08. As above, the name is just a guess. Only Dark Falz and Motherbrain appear to have the bit for this set. As above, no idea what it does.
+    super_boss: bool, // Mask: 0x08. The name is just a guess. Only Dark Falz and Motherbrain appear to have the bit for this set. No idea what it does.
     #[serde(default, skip_serializing_if = "is_default")]
     field_2: u8, // Second four bits of third byte of attribute field. Always appears to be zero.
-    #[serde(
-        default,
-        serialize_with = "serialize_u8_hex",
-        deserialize_with = "deserialize_u8_hex",
-        skip_serializing_if = "is_default"
-    )]
-    animation: u8, // Fourth byte of attribute field. Controls graphical effects such as whether the enemy floats, sits still, flashes, and others.
+    #[serde(default, skip_serializing_if = "is_default")]
+    gfx_somepattern: GfxSomePattern, // Fourth byte of attribute field, first nibble. Flash and two other things, not sure which yet
+    #[serde(default, skip_serializing_if = "is_default")]
+    gfx_float: GfxFloatPattern, // Fourth byte of attribute field, second nibble. Controls whether the enemy floats and what float pattern is used
+}
+
+#[repr(u8)]
+#[derive(Serialize, Deserialize, Default, Debug, Copy, Clone, PartialEq, Eq)]
+enum GfxSomePattern {
+    #[default]
+    None = 0x0,
+    PatternA = 0x1, // I.e. dark falz, mother brain, demons
+    PatternB = 0x2, // I.e. grass killer, satman (robot)
+    PatternC = 0x4, // I.e. eyesore, heavy soldier
+}
+
+#[repr(u8)]
+#[derive(Serialize, Deserialize, Default, Debug, Copy, Clone, PartialEq, Eq)]
+enum GfxFloatPattern {
+    #[default]
+    None = 0x0,
+    Fast = 0x1,   // I.e. mosquito and other flying bugs
+    Subtle = 0x4, // I.e. spinner and flying robots
 }
 
 impl From<[u8; 4]> for EnemyAttributes {
@@ -87,15 +101,30 @@ impl From<[u8; 4]> for EnemyAttributes {
         } else if enemy_types & 0x2 == 0x2 {
             attributes.r#type = EnemyType::Robotic;
         } else if enemy_types & 0x3 == 0x3 {
-            warn!("Enemy flagged as both biologic AND robitic! This is invalid.");
+            warn!(
+                "Enemy flagged as both biologic AND robotic! This is invalid. Defaulting to Demon"
+            );
         }
         if enemy_types & 0x4 == 0x4 {
-            attributes.boss = true;
+            attributes.gravito_immune = true;
         }
         if enemy_types & 0x8 == 0x8 {
             attributes.super_boss = true;
         }
-        attributes.animation = attr_field[3];
+        let float_pattern = attr_field[3] & 0xf;
+        let some_pattern = attr_field[3] >> 4;
+        if float_pattern & 0x1 == 0x1 {
+            attributes.gfx_float = GfxFloatPattern::Fast;
+        } else if float_pattern & 0x4 == 0x4 {
+            attributes.gfx_float = GfxFloatPattern::Subtle;
+        }
+        if some_pattern & 0x1 == 0x1 {
+            attributes.gfx_somepattern = GfxSomePattern::PatternA;
+        } else if some_pattern & 0x2 == 0x2 {
+            attributes.gfx_somepattern = GfxSomePattern::PatternB;
+        } else if some_pattern & 0x4 == 0x4 {
+            attributes.gfx_somepattern = GfxSomePattern::PatternC;
+        }
         attributes
     }
 }
@@ -110,10 +139,11 @@ impl From<&EnemyAttributes> for u32 {
             weaknesses,
             field_1,
             r#type,
-            boss,
+            gravito_immune,
             super_boss,
             field_2,
-            animation,
+            gfx_somepattern,
+            gfx_float,
         } = value;
         // Fill resistances and weaknesses byte
         let mut rw = 0;
@@ -123,8 +153,9 @@ impl From<&EnemyAttributes> for u32 {
         for ele in weaknesses {
             rw |= *ele as u8;
         }
+
         let mut etype = *r#type as u8;
-        if *boss {
+        if *gravito_immune {
             etype |= 0x4;
         }
         if *super_boss {
@@ -132,7 +163,13 @@ impl From<&EnemyAttributes> for u32 {
         }
         etype <<= 4;
         etype |= field_2;
-        Self::from_be_bytes([rw, *field_1, etype, *animation])
+
+        let mut gfx_effect = 0u8;
+        gfx_effect |= *gfx_somepattern as u8;
+        gfx_effect <<= 4;
+        gfx_effect |= *gfx_float as u8;
+
+        Self::from_be_bytes([rw, *field_1, etype, gfx_effect])
     }
 }
 
