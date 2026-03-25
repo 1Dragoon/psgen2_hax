@@ -49,7 +49,7 @@ pub fn parse_events<R: Seek + BufRead>(
 ) -> Result<(OrderedData, OrderedDialog), io::Error> {
     #[expect(
         unused_assignments,
-        reason = "it does get used, only can be written to before then, but this is fine."
+        reason = "it does get used, but can be written to before its first use, which is fine."
     )]
     let mut current_section = 0;
     let mut string_offsets: BTreeMap<Offset, Archy> = BTreeMap::new();
@@ -97,7 +97,7 @@ pub fn parse_events<R: Seek + BufRead>(
         }
         let bytes_remaining = eof.saturating_sub(current_offset);
         // println!("Bytes remaining: {}", bytes_remaining);
-        if bytes_remaining >= u32::try_from(current_u32.len()).unwrap() {
+        if bytes_remaining >= u32::try_from(mem::size_of_val(&current_u32)).unwrap() {
             reader.read_exact(&mut current_u32)?;
             match current_u32 {
                 [op, 0x00, _, 0x00]

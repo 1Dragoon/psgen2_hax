@@ -10,7 +10,7 @@ use crate::{
         deserialize_hex, deserialize_indexmap, encode_hex, serialize_hex, serialize_indexmap,
         serialize_rc_empty,
     },
-    slpm_patcher::ExecData,
+    slpm_patcher::{ExecJumplistStrings, ExecStructures},
 };
 use alloc::{
     collections::{BTreeMap, BTreeSet},
@@ -1950,13 +1950,22 @@ pub fn load_dialog_strings<P: AsRef<Path>>(path: P) -> Result<OrderedDialog, io:
         .0)
 }
 
-pub fn load_exec_patch<P: AsRef<Path>>(path: P) -> Result<ExecData, io::Error> {
+pub fn load_exec_jumplist_patch<P: AsRef<Path>>(path: P) -> Result<ExecJumplistStrings, io::Error> {
     let file = OpenOptions::new().read(true).open(path)?;
     let mut string =
         String::with_capacity(usize::try_from(file.metadata().unwrap().len()).unwrap());
     let mut br = BufReader::new(file);
     br.read_to_string(&mut string)?;
-    Ok(serde_json::from_str::<ExecData>(&string).unwrap())
+    Ok(toml::from_str(&string).unwrap())
+}
+
+pub fn load_exec_struct_patch<P: AsRef<Path>>(path: P) -> Result<ExecStructures, io::Error> {
+    let file = OpenOptions::new().read(true).open(path)?;
+    let mut string =
+        String::with_capacity(usize::try_from(file.metadata().unwrap().len()).unwrap());
+    let mut br = BufReader::new(file);
+    br.read_to_string(&mut string)?;
+    Ok(serde_json::from_str(&string).unwrap())
 }
 
 #[expect(

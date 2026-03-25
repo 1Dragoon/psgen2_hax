@@ -3,7 +3,8 @@ pub mod end_credits;
 pub mod enemies;
 pub mod items;
 use crate::{
-    events::{codec::decode_psg2_string, load_exec_patch},
+    EXEC_JUMPLIST_STRINGS_FILENAME, EXEC_STRUCTURES_FILENAME,
+    events::{codec::decode_psg2_string, load_exec_jumplist_patch, load_exec_struct_patch},
     helpers::{is_default, save_binary_file, unset_readonly},
     slpm_patcher::{end_credits::EndCreditItem, enemies::EnemyInfo, items::ItemInfo},
 };
@@ -323,17 +324,21 @@ pub async fn parse_techniques<R: AsyncBufRead + AsyncSeek + Unpin>(
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct ExecData {
-    pub mapnames: BTreeMap<Hexu32, DialogString>,
-    pub menu_text: BTreeMap<Hexu32, DialogString>,
-    pub item_descriptions: BTreeMap<Hexu32, DialogString>,
-    pub dunno_jumplist: BTreeMap<Hexu32, DialogString>,
+pub struct ExecStructures {
     // pub dunno_struct: IndexMap<Hexu32, (DialogString, Vec<Hexu32>)>,
     pub techniques: Box<[Technique]>,
     pub songs: Box<[Song]>,
     pub items: Box<[ItemInfo]>,
     pub enemies: Box<[EnemyInfo]>,
     pub end_credits: Box<[EndCreditItem]>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ExecJumplistStrings {
+    pub mapnames: BTreeMap<Hexu32, DialogString>,
+    pub menu_text: BTreeMap<Hexu32, DialogString>,
+    pub item_descriptions: BTreeMap<Hexu32, DialogString>,
+    pub dunno_jumplist: BTreeMap<Hexu32, DialogString>,
 }
 
 #[repr(u8)]
@@ -347,12 +352,12 @@ enum Elemental {
 
 #[inline]
 pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
-    path: &PathBuf,
+    elf_exec: &PathBuf,
     out_dir: &P,
 ) -> Result<(), io::Error> {
-    let elf_file = fs::File::open(path).await?;
+    let elf_file = fs::File::open(elf_exec).await?;
     let mut elf_reader = BufReader::new(elf_file);
-    let exec_data = ExecData {
+    let exec_jumplist_strings = ExecJumplistStrings {
         mapnames: parse_jumplist_strings(
             &mut elf_reader,
             MAPNAMES_JUMPLIST_START,
@@ -378,6 +383,19 @@ pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
             DUNNO_JUMPLIST_FIELDS,
         )
         .await?,
+    };
+    let exec_jumplist_strings_path = PathBuf::with_capacity(128)
+        .join(out_dir)
+        .join(EXEC_JUMPLIST_STRINGS_FILENAME);
+    save_binary_file(
+        &exec_jumplist_strings_path,
+        toml::to_string_pretty(&exec_jumplist_strings)
+            .unwrap()
+            .as_bytes(),
+    )
+    .await?;
+
+    let exec_structures = ExecStructures {
         techniques: parse_techniques(&mut elf_reader).await?,
         songs: parse_songs(&mut elf_reader).await?,
         items: items::parse(&mut elf_reader).await?.into_boxed_slice(),
@@ -386,41 +404,54 @@ pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
             .await?
             .into_boxed_slice(),
     };
-    let save_path = PathBuf::with_capacity(128)
+    let exec_structures_path = PathBuf::with_capacity(128)
         .join(out_dir)
-        .join("exec_data.json");
+        .join(EXEC_STRUCTURES_FILENAME);
     save_binary_file(
-        &save_path,
-        serde_json::to_string_pretty(&exec_data).unwrap().as_bytes(),
+        &exec_structures_path,
+        serde_json::to_string_pretty(&exec_structures)
+            .unwrap()
+            .as_bytes(),
     )
     .await?;
     Ok(())
 }
 
 #[inline]
-pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), io::Error> {
+pub async fn patch_exec(
+    dest: &PathBuf,
+    exec_data_path: Option<PathBuf>,
+    exec_jumplist_path: Option<PathBuf>,
+) -> Result<(), io::Error> {
     if log_enabled!(Level::Info) {
         info!("Patching '{}'", dest.to_string_lossy());
     }
-    let ExecData {
-        mapnames: _a,
-        menu_text: _b,
-        item_descriptions: _c,
-        dunno_jumplist: _d,
-        // dunno_struct: _e,
-        techniques: _f,
-        songs: _g,
-        items,
-        enemies,
-        end_credits,
-    } = load_exec_patch(exec_data_path)?;
-    unset_readonly(dest).await?;
-    let elf_binary = OpenOptions::new().write(true).open(dest).await?;
-    let mut bw = BufWriter::new(elf_binary);
-    items::patch(&mut bw, items).await?;
-    enemies::patch(&mut bw, enemies).await?;
-    end_credits::patch(&mut bw, end_credits).await?;
-    bw.flush().await?;
+    if let Some(path) = exec_jumplist_path {
+        let ExecJumplistStrings {
+            mapnames: _a,
+            menu_text: _b,
+            item_descriptions: _c,
+            dunno_jumplist: _d,
+        } = load_exec_jumplist_patch(path)?;
+    }
+    if let Some(path) = exec_data_path {
+        let ExecStructures {
+            // dunno_struct: _e,
+            techniques: _f,
+            songs: _g,
+            items,
+            enemies,
+            end_credits,
+        } = load_exec_struct_patch(path)?;
+        unset_readonly(dest).await?;
+        let elf_binary = OpenOptions::new().write(true).open(dest).await?;
+        let mut bw = BufWriter::new(elf_binary);
+        items::patch(&mut bw, items).await?;
+        enemies::patch(&mut bw, enemies).await?;
+        end_credits::patch(&mut bw, end_credits).await?;
+        bw.flush().await?;
+    }
+
     Ok(())
 }
 

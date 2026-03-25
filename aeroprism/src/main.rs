@@ -68,6 +68,8 @@ use tokio::{
 };
 
 static ENGRISH: OnceLock<bool> = OnceLock::new();
+const EXEC_STRUCTURES_FILENAME: &str = "exec_structures.json";
+const EXEC_JUMPLIST_STRINGS_FILENAME: &str = "exec_jumplist_strings.toml";
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -198,10 +200,10 @@ async fn write_dir_entry<P: AsRef<Path> + Send + Sync>(
         .extension()
         .is_some_and(|stem| !stem.to_string_lossy().ends_with("DAT"))
     {
-        if dest
-            .file_name()
-            .is_some_and(|file_name| file_name.to_string_lossy().to_lowercase() == "exec_data.json")
-        {
+        if dest.file_name().is_some_and(|file_name| {
+            [EXEC_JUMPLIST_STRINGS_FILENAME, EXEC_STRUCTURES_FILENAME]
+                .contains(&file_name.to_string_lossy().to_lowercase().as_str())
+        }) {
             return Ok(None);
         }
         if path != dest {
@@ -217,31 +219,39 @@ async fn write_dir_entry<P: AsRef<Path> + Send + Sync>(
         if dest
             .file_name()
             .is_some_and(|file_name| file_name.to_string_lossy().to_uppercase() == "SLPM_625.53")
-            && let Some(exec_data_path) = find_json(in_dir)?
+            && let (exec_structures_path, exec_jumplist_strings_path) = find_patches(in_dir)?
+            && (exec_jumplist_strings_path.is_some() || exec_structures_path.is_some())
         {
-            patch_exec(&dest, exec_data_path).await?;
+            patch_exec(&dest, exec_structures_path, exec_jumplist_strings_path).await?;
         }
     }
     Ok(Some(dest))
 }
 
-fn find_json<P: AsRef<Path> + Send + Sync>(
+#[inline]
+fn find_patches<P: AsRef<Path> + Send + Sync>(
     path: P,
     // search_name: P,
-) -> Result<Option<PathBuf>, io::Error> {
+) -> Result<(Option<PathBuf>, Option<PathBuf>), io::Error> {
+    let mut structures = None;
+    let mut jumplists = None;
     for entry in path.as_ref().read_dir()? {
         let file = entry?.path();
-        if file
+        let file_name = file
+            .file_name()
+            .unwrap_or_default()
             .to_string_lossy()
-            .to_lowercase()
-            .ends_with(&"exec_data.json")
-        {
-            return Ok(Some(file));
+            .to_lowercase();
+        if file_name == EXEC_STRUCTURES_FILENAME {
+            structures = Some(file);
+        } else if file_name == EXEC_JUMPLIST_STRINGS_FILENAME {
+            jumplists = Some(file);
         }
     }
-    Ok(None)
+    Ok((structures, jumplists))
 }
 
+#[inline]
 #[expect(clippy::single_call_fn, reason = "Readability")]
 async fn unpack(in_path: PathBuf, out_dir: PathBuf, copy_images: bool) -> Result<(), io::Error> {
     let now = Instant::now();
@@ -270,6 +280,7 @@ async fn unpack(in_path: PathBuf, out_dir: PathBuf, copy_images: bool) -> Result
     Ok(())
 }
 
+#[inline]
 async fn read_dir_entry<P: AsRef<Path> + Send + Sync>(
     out_dir: Arc<P>,
     copy_images: bool,
