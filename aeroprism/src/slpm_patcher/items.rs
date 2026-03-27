@@ -58,7 +58,7 @@ pub struct ItemInfo {
         deserialize_with = "deserialize_u32_hex"
     )]
     name_pointer: u32,
-    item_name: DialogString,
+    name: DialogString,
     #[serde(default, skip_serializing_if = "is_default")]
     equip_slot: ItemEquipSlot,
     #[serde(
@@ -181,7 +181,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
 
         let item = ItemInfo {
             item_number: u32::try_from(item_no + 1).unwrap(),
-            item_name: DialogString::default(),
+            name: DialogString::default(),
             name_pointer,
             equip_slot,
             field_1,
@@ -219,7 +219,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         let engrish_str = decode_psg2_string(string_bytes);
-        item.item_name = engrish_str;
+        item.name = engrish_str;
         // item_pointers.insert(
         //     Hexu32(item.name_pointer - 0xff000),
         //     (

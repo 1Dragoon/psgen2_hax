@@ -69,8 +69,8 @@ enum GfxSomePattern {
 enum GfxFloatPattern {
     #[default]
     None = 0x0,
-    Fast = 0x1,   // I.e. mosquito and other flying bugs
-    Subtle = 0x4, // I.e. spinner and flying robots
+    Fly = 0x1,   // I.e. mosquito and other flying bugs
+    Hover = 0x4, // I.e. spinner and hovering robots
 }
 
 impl From<[u8; 4]> for EnemyAttributes {
@@ -114,9 +114,9 @@ impl From<[u8; 4]> for EnemyAttributes {
         let float_pattern = attr_field[3] & 0xf;
         let some_pattern = attr_field[3] >> 4;
         if float_pattern & 0x1 == 0x1 {
-            attributes.gfx_float = GfxFloatPattern::Fast;
+            attributes.gfx_float = GfxFloatPattern::Fly;
         } else if float_pattern & 0x4 == 0x4 {
-            attributes.gfx_float = GfxFloatPattern::Subtle;
+            attributes.gfx_float = GfxFloatPattern::Hover;
         }
         if some_pattern & 0x1 == 0x1 {
             attributes.gfx_somepattern = GfxSomePattern::PatternA;
@@ -176,7 +176,7 @@ impl From<&EnemyAttributes> for u32 {
 #[derive(Serialize, Deserialize)]
 pub struct EnemyInfo {
     enemy_number: usize,
-    enemy_name: DialogString,
+    name: DialogString,
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
@@ -429,7 +429,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         field_vec.reverse();
         let enemy = EnemyInfo {
             enemy_number: enemy_no + 1usize,
-            enemy_name: DialogString::default(),
+            name: DialogString::default(),
             name_pointer: u32::from_le_bytes(field_vec.pop().unwrap()),
             attributes: EnemyAttributes::from(field_vec.pop().unwrap()),
             health: u32::from_le_bytes(field_vec.pop().unwrap()),
@@ -489,7 +489,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         {
             string_bytes.push(byte);
         }
-        enemy.enemy_name = decode_psg2_string(string_bytes);
+        enemy.name = decode_psg2_string(string_bytes);
         // enemy_pointers.insert(
         //     Hexu32(enemy.name_pointer - 0xff000),
         //     (

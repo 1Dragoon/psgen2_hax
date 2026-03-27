@@ -1,0 +1,53 @@
+string region A: 0x188770 - 0x1890B0
+string region E: 0x18C8F0 - 0x18DD88
+string region F: 0x1A89E0 - 0x1A9298
+string region C: 0x1A9AF0 - 0x1AD808
+string region D: 0x1B1840 - 0x1B1940
+string region B: 0x1DB218 - 0x1DB2D0
+string region G: 0x1DB680 - 0x1DB7A8
+string region H: 0x18DF18 - 0x18E0A0
+string region I: 0x1894E8 - 0x189690
+
+mapnames pointers A region start: 0x188770
+mapnames pointers A region end: 0x1890B0
+mapnames pointers B region start: 0x1DB218
+mapnames pointers B region end: 0x1DB228
+
+menu pointers C region start: 0x1A9AF0
+menu pointers C region end: 0x1AAE88
+menu pointers B region start: 0x1DB680
+menu pointers B region end: 0x1DB7A8
+
+item desc pointers C region start: 0x1AA2E0
+item desc pointers C region end: 0x1AD808
+item desc pointers D region start: 0x1B1840
+item desc pointers D region end: 0x1B1940
+item desc pointers B region start: 0x1DB7A0
+item desc pointers B region end: 0x1DB7A8
+
+misc string pointers A region start: 0x18D590
+misc string pointers A region end: 0x18D9D8
+misc string pointers B region start: 0x1DB338
+misc string pointers B region end: 0x1DB488
+
+mc string pointers H region start: 0x18DF18
+mc string pointers H region end: 0x18E0A0
+
+song string pointers I region start: 0x1894E8
+song string pointers I region end: 0x189690
+song string pointers B region start: 0x1DB228
+song string pointers B region end: 0x1DB230
+
+enemy pointers F region start: 0x1A89E0
+enemy pointers F region end: 0x1A9298
+enemy pointers B region start: 0x1DB618
+enemy pointers B region end: 0x1DB638
+
+item pointers E region start 0x18C8F0
+item pointers E region end 0x18D590
+item pointers B region start 0x1DB2D8
+item pointers B region end: 0x1DB330
+
+B region terminators:
+PTR: 0x1A4198 = 0x1DB638 (dummy)
+PTR: 0x161868 = 0x1DB640 (literal ???)

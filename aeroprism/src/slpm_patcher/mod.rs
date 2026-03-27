@@ -33,14 +33,17 @@ static MAPNAMES_JUMPLIST_FIELDS: usize = 107;
 // static MAPNAMES_STRING_REGION_START: usize = 0x18_8770;
 // static MAPNAMES_STRING_REGION_END: usize = 0x18_90AF;
 
-static DUNNO_JUMPLIST_START: usize = 0x15_5778;
-static DUNNO_JUMPLIST_FIELDS: usize = 97;
+static MISC_STRINGS_JUMPLIST_START: usize = 0x15_5778;
+static MISC_STRINGS_JUMPLIST_FIELDS: usize = 97;
 
 static MENU_TEXT_JUMPLIST_START: usize = 0x16_51D0;
 static MENU_TEXT_JUMPLIST_FIELDS: usize = 149;
 
 static ITEM_DESCRIPTION_JUMPLIST_START: usize = 0x16_5428;
 static ITEM_DESCRIPTION_JUMPLIST_FIELDS: usize = 195;
+
+// static DUNNO_JUMPLIST_START: usize = 0x18_B048;
+// static DUNNO_JUMPLIST_FIELDS: usize = 5;
 
 // static STRING_REGION_A_START: usize = 0x1A_9AF0; // menu text
 // static STRING_REGION_A_END: usize = 0x1A_D802; //
@@ -56,12 +59,36 @@ static MUSIC_STRUCT_START: usize = 0x18_9450;
 static MUSIC_STRUCT_COUNT: usize = 19;
 static MUSIC_STRUCT_FIELDS: usize = 2;
 
-// static DUNNO_STRUCT_START: usize = 0x1A_28A0; // end 1A3AC8
-// static DUNNO_STRUCT_COUNT: usize = 186;
-// static DUNNO_STRUCT_FIELDS: usize = 14;
+static MEMCARD_STRUCT_START: usize = 0x18_E0A0;
+static MEMCARD_STRUCT_COUNT: usize = 9;
+static MEMCARD_STRUCT_FIELDS: usize = 2;
+
+// static DUNNO_STRUCT_START: usize = 0x18_E0A0; // end 1A3AC8
+// static DUNNO_STRUCT_COUNT: usize = 9;
+// static DUNNO_STRUCT_FIELDS: usize = 2;
 
 #[derive(Serialize, Deserialize)]
 pub struct Song {
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
+    number: u32,
+    name: DialogString,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
+    name_pointer: u32,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
+    field_1: u32,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct MemcardOpt {
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
@@ -192,7 +219,7 @@ pub struct Technique {
 //     field_count: usize,
 //     struct_count: usize,
 //     text_field: usize,
-// ) -> Result<IndexMap<Hexu32, (DialogString, Vec<Hexu32>)>, io::Error> {
+// ) -> Result<indexmap::IndexMap<Hexu32, (DialogString, Vec<Hexu32>)>, io::Error> {
 //     reader.seek(SeekFrom::Start(location as u64)).await?;
 //     let mut field_bytes = [0u8; 4];
 //     let mut structs = Vec::with_capacity(struct_count);
@@ -204,7 +231,7 @@ pub struct Technique {
 //         }
 //         structs.push(field_vec);
 //     }
-//     let mut index_map = IndexMap::with_capacity(struct_count);
+//     let mut index_map = indexmap::IndexMap::with_capacity(struct_count);
 //     for (i, fields) in structs.into_iter().enumerate() {
 //         reader
 //             .seek(SeekFrom::Start(
@@ -250,6 +277,8 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
         songs.push(song);
     }
 
+    // let mut name_pointers = BTreeMap::new();
+
     for song in &mut songs {
         reader
             .seek(SeekFrom::Start(
@@ -263,9 +292,74 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         song.name = decode_psg2_string(string_bytes);
+        // name_pointers.insert(
+        //     Hexu32(song.name_pointer - 0xff000),
+        //     (
+        //         crate::helpers::encode_hex(&song.name_pointer.to_le_bytes()),
+        //         song.name.to_string(),
+        //     ),
+        // );
     }
+    // let bytes = serde_json::to_string_pretty(&name_pointers)
+    //     .unwrap()
+    //     .into_bytes();
+    // save_binary_file(&PathBuf::from("jap_song_pointers.json"), &bytes).await?;
 
     Ok(songs.into_boxed_slice())
+}
+
+pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
+    reader: &mut R,
+) -> Result<Box<[MemcardOpt]>, io::Error> {
+    reader
+        .seek(SeekFrom::Start(MEMCARD_STRUCT_START as u64))
+        .await?;
+    let mut field_bytes = [0u8; 4];
+    let mut memcard_opts = Vec::with_capacity(MEMCARD_STRUCT_COUNT);
+    for i in 0..MEMCARD_STRUCT_COUNT {
+        let mut fields = Vec::with_capacity(MEMCARD_STRUCT_FIELDS);
+        for _ in 0..MEMCARD_STRUCT_FIELDS {
+            reader.read_exact(&mut field_bytes).await?;
+            fields.push(field_bytes);
+        }
+        let memcard_opt = MemcardOpt {
+            number: u32::try_from(i).unwrap(),
+            name: DialogString::default(),
+            name_pointer: u32::from_le_bytes(fields.pop().unwrap()),
+            field_1: u32::from_le_bytes(fields.pop().unwrap()),
+        };
+        memcard_opts.push(memcard_opt);
+    }
+
+    // let mut name_pointers = BTreeMap::new();
+
+    for memcard_opt in &mut memcard_opts {
+        reader
+            .seek(SeekFrom::Start(
+                u64::from(memcard_opt.name_pointer) - POINTER_OFFSET as u64,
+            ))
+            .await?;
+        let mut string_bytes = Vec::with_capacity(20);
+        while let Ok(byte) = reader.read_u8().await
+            && byte != 0
+        {
+            string_bytes.push(byte);
+        }
+        memcard_opt.name = decode_psg2_string(string_bytes);
+        // name_pointers.insert(
+        //     Hexu32(memcard_opt.name_pointer - 0xff000),
+        //     (
+        //         crate::helpers::encode_hex(&memcard_opt.name_pointer.to_le_bytes()),
+        //         memcard_opt.name.to_string(),
+        //     ),
+        // );
+    }
+    // let bytes = serde_json::to_string_pretty(&name_pointers)
+    //     .unwrap()
+    //     .into_bytes();
+    // save_binary_file(&PathBuf::from("jap_mc_pointers.json"), &bytes).await?;
+
+    Ok(memcard_opts.into_boxed_slice())
 }
 
 pub async fn parse_techniques<R: AsyncBufRead + AsyncSeek + Unpin>(
@@ -305,6 +399,8 @@ pub async fn parse_techniques<R: AsyncBufRead + AsyncSeek + Unpin>(
         techniques.push(technique);
     }
 
+    // let mut tech_pointers = BTreeMap::new();
+
     for technique in &mut techniques {
         reader
             .seek(SeekFrom::Start(
@@ -318,14 +414,26 @@ pub async fn parse_techniques<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         technique.name = decode_psg2_string(string_bytes);
+        // tech_pointers.insert(
+        //     Hexu32(technique.name_pointer - 0xff000),
+        //     (
+        //         crate::helpers::encode_hex(&technique.name_pointer.to_le_bytes()),
+        //         technique.name.to_string(),
+        //     ),
+        // );
     }
+    // let bytes = serde_json::to_string_pretty(&tech_pointers)
+    //     .unwrap()
+    //     .into_bytes();
+    // save_binary_file(&PathBuf::from("jap_tech_pointers.json"), &bytes).await?;
 
     Ok(techniques.into_boxed_slice())
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct ExecStructures {
-    // pub dunno_struct: IndexMap<Hexu32, (DialogString, Vec<Hexu32>)>,
+    // pub dunno_struct: indexmap::IndexMap<Hexu32, (DialogString, Vec<Hexu32>)>,
+    pub memcard_opts: Box<[MemcardOpt]>,
     pub techniques: Box<[Technique]>,
     pub songs: Box<[Song]>,
     pub items: Box<[ItemInfo]>,
@@ -338,7 +446,8 @@ pub struct ExecJumplistStrings {
     pub mapnames: BTreeMap<Hexu32, DialogString>,
     pub menu_text: BTreeMap<Hexu32, DialogString>,
     pub item_descriptions: BTreeMap<Hexu32, DialogString>,
-    pub dunno_jumplist: BTreeMap<Hexu32, DialogString>,
+    pub misc_strings: BTreeMap<Hexu32, DialogString>,
+    // pub dunno: BTreeMap<Hexu32, DialogString>,
 }
 
 #[repr(u8)]
@@ -376,13 +485,14 @@ pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
             ITEM_DESCRIPTION_JUMPLIST_FIELDS,
         )
         .await?,
-        // dunno_struct: parse_structs(&mut elf_reader, DUNNO_STRUCT_START, DUNNO_STRUCT_FIELDS, DUNNO_STRUCT_COUNT, 0).await?,
-        dunno_jumplist: parse_jumplist_strings(
+        misc_strings: parse_jumplist_strings(
             &mut elf_reader,
-            DUNNO_JUMPLIST_START,
-            DUNNO_JUMPLIST_FIELDS,
+            MISC_STRINGS_JUMPLIST_START,
+            MISC_STRINGS_JUMPLIST_FIELDS,
         )
         .await?,
+        // dunno: parse_jumplist_strings(&mut elf_reader, DUNNO_JUMPLIST_START, DUNNO_JUMPLIST_FIELDS)
+        //     .await?,
     };
     let exec_jumplist_strings_path = PathBuf::with_capacity(128)
         .join(out_dir)
@@ -396,6 +506,7 @@ pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
     .await?;
 
     let exec_structures = ExecStructures {
+        memcard_opts: parse_memcard_opts(&mut elf_reader).await?,
         techniques: parse_techniques(&mut elf_reader).await?,
         songs: parse_songs(&mut elf_reader).await?,
         items: items::parse(&mut elf_reader).await?.into_boxed_slice(),
@@ -403,6 +514,14 @@ pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
         end_credits: end_credits::parse(&mut elf_reader)
             .await?
             .into_boxed_slice(),
+        // dunno_struct: parse_structs(
+        //     &mut elf_reader,
+        //     DUNNO_STRUCT_START,
+        //     DUNNO_STRUCT_FIELDS,
+        //     DUNNO_STRUCT_COUNT,
+        //     1,
+        // )
+        // .await?,
     };
     let exec_structures_path = PathBuf::with_capacity(128)
         .join(out_dir)
@@ -431,7 +550,8 @@ pub async fn patch_exec(
             mapnames: _a,
             menu_text: _b,
             item_descriptions: _c,
-            dunno_jumplist: _d,
+            misc_strings: _d,
+            // dunno: _e,
         } = load_exec_jumplist_patch(path)?;
     }
     if let Some(path) = exec_data_path {
@@ -439,6 +559,7 @@ pub async fn patch_exec(
             // dunno_struct: _e,
             techniques: _f,
             songs: _g,
+            memcard_opts: _h,
             items,
             enemies,
             end_credits,
@@ -476,7 +597,7 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader.seek(SeekFrom::Start(location as u64)).await?;
     let mut pointer_bytes = [0u8; 4];
     let mut pointer_vec = Vec::with_capacity(count);
-    let mut mapnames = BTreeMap::new();
+    let mut strings = BTreeMap::new();
     for _ in 0..count {
         reader.read_exact(&mut pointer_bytes).await?;
         pointer_vec.push(u32::from_le_bytes(pointer_bytes));
@@ -500,10 +621,10 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
             engrish_bytes.push(byte);
         }
         let engrish_str = decode_psg2_string(engrish_bytes);
-        mapnames.insert(
+        strings.insert(
             Hexu32(pointer - u32::try_from(POINTER_OFFSET).unwrap()),
             engrish_str,
         );
     }
-    Ok(mapnames)
+    Ok(strings)
 }
