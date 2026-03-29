@@ -68,8 +68,7 @@ use tokio::{
 };
 
 static ENGRISH: OnceLock<bool> = OnceLock::new();
-const EXEC_STRUCTURES_FILENAME: &str = "exec_structures.json";
-const EXEC_JUMPLIST_STRINGS_FILENAME: &str = "exec_jumplist_strings.toml";
+const EXEC_STRUCTURES_FILENAME: &str = "exec_structures.toml";
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -201,7 +200,7 @@ async fn write_dir_entry<P: AsRef<Path> + Send + Sync>(
         .is_some_and(|stem| !stem.to_string_lossy().ends_with("DAT"))
     {
         if dest.file_name().is_some_and(|file_name| {
-            [EXEC_JUMPLIST_STRINGS_FILENAME, EXEC_STRUCTURES_FILENAME]
+            [EXEC_STRUCTURES_FILENAME]
                 .contains(&file_name.to_string_lossy().to_lowercase().as_str())
         }) {
             return Ok(None);
@@ -219,10 +218,9 @@ async fn write_dir_entry<P: AsRef<Path> + Send + Sync>(
         if dest
             .file_name()
             .is_some_and(|file_name| file_name.to_string_lossy().to_uppercase() == "SLPM_625.53")
-            && let (exec_structures_path, exec_jumplist_strings_path) = find_patches(in_dir)?
-            && (exec_jumplist_strings_path.is_some() || exec_structures_path.is_some())
+            && let Some(exec_structures_path) = find_patches(in_dir)?
         {
-            patch_exec(&dest, exec_structures_path, exec_jumplist_strings_path).await?;
+            patch_exec(&dest, exec_structures_path).await?;
         }
     }
     Ok(Some(dest))
@@ -232,9 +230,8 @@ async fn write_dir_entry<P: AsRef<Path> + Send + Sync>(
 fn find_patches<P: AsRef<Path> + Send + Sync>(
     path: P,
     // search_name: P,
-) -> Result<(Option<PathBuf>, Option<PathBuf>), io::Error> {
+) -> Result<Option<PathBuf>, io::Error> {
     let mut structures = None;
-    let mut jumplists = None;
     for entry in path.as_ref().read_dir()? {
         let file = entry?.path();
         let file_name = file
@@ -244,11 +241,9 @@ fn find_patches<P: AsRef<Path> + Send + Sync>(
             .to_lowercase();
         if file_name == EXEC_STRUCTURES_FILENAME {
             structures = Some(file);
-        } else if file_name == EXEC_JUMPLIST_STRINGS_FILENAME {
-            jumplists = Some(file);
         }
     }
-    Ok((structures, jumplists))
+    Ok(structures)
 }
 
 #[inline]

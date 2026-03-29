@@ -10,7 +10,7 @@ use crate::{
         deserialize_hex, deserialize_indexmap, encode_hex, serialize_hex, serialize_indexmap,
         serialize_rc_empty,
     },
-    slpm_patcher::{ExecJumplistStrings, ExecStructures},
+    slpm_patcher::ExecStructures,
 };
 use alloc::{
     collections::{BTreeMap, BTreeSet},
@@ -39,7 +39,7 @@ type Offset = u32;
 #[repr(u8)]
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(rename_all(deserialize = "lowercase"))]
-enum ControlCode {
+pub enum ControlCode {
     None,
     Fibrillae, // Also 'c' like color, so it needs special handling
     #[serde(alias = "wait")]
@@ -331,7 +331,7 @@ impl From<u8> for ControlCode {
 #[repr(u16)]
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(rename_all(deserialize = "lowercase"))]
-enum MTECode {
+pub enum MTECode {
     None,
     Acid = 0x11a1,
     Ager = 0x1374,
@@ -1238,7 +1238,7 @@ impl From<u16> for MTECode {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-struct Portrait(String);
+pub struct Portrait(String);
 
 impl Display for Portrait {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -1248,7 +1248,7 @@ impl Display for Portrait {
 
 #[repr(u8)]
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
-enum Color {
+pub enum Color {
     Blue = b'1',
     Red = b'2',
     Purple = b'3',
@@ -1310,7 +1310,7 @@ impl From<u8> for Color {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-enum DialogItem {
+pub enum DialogItem {
     Color(Color),
     ControlCode(ControlCode),
     MTECode(MTECode),
@@ -1383,12 +1383,12 @@ impl Display for DialogItem {
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct DialogString {
     #[serde(default, skip_serializing_if = "is_false")]
-    padded: bool,
+    pub padded: bool,
     #[serde(
         deserialize_with = "deserialize_dialog_items",
         serialize_with = "serialize_dialog_items"
     )]
-    text: Vec<DialogItem>,
+    pub text: Vec<DialogItem>,
 }
 
 impl Display for DialogString {
@@ -1950,22 +1950,13 @@ pub fn load_dialog_strings<P: AsRef<Path>>(path: P) -> Result<OrderedDialog, io:
         .0)
 }
 
-pub fn load_exec_jumplist_patch<P: AsRef<Path>>(path: P) -> Result<ExecJumplistStrings, io::Error> {
-    let file = OpenOptions::new().read(true).open(path)?;
-    let mut string =
-        String::with_capacity(usize::try_from(file.metadata().unwrap().len()).unwrap());
-    let mut br = BufReader::new(file);
-    br.read_to_string(&mut string)?;
-    Ok(toml::from_str(&string).unwrap())
-}
-
 pub fn load_exec_struct_patch<P: AsRef<Path>>(path: P) -> Result<ExecStructures, io::Error> {
     let file = OpenOptions::new().read(true).open(path)?;
     let mut string =
         String::with_capacity(usize::try_from(file.metadata().unwrap().len()).unwrap());
     let mut br = BufReader::new(file);
     br.read_to_string(&mut string)?;
-    Ok(serde_json::from_str(&string).unwrap())
+    Ok(toml::from_str(&string).unwrap())
 }
 
 #[expect(
@@ -1976,7 +1967,7 @@ fn is_false(val: &bool) -> bool {
     !val
 }
 
-fn serialize_dialog_items<S>(x: &Vec<DialogItem>, s: S) -> Result<S::Ok, S::Error>
+pub fn serialize_dialog_items<S>(x: &Vec<DialogItem>, s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
@@ -1988,7 +1979,7 @@ where
     s.serialize_str(string.as_str())
 }
 
-fn deserialize_dialog_items<'de, D>(deserializer: D) -> Result<Vec<DialogItem>, D::Error>
+pub fn deserialize_dialog_items<'de, D>(deserializer: D) -> Result<Vec<DialogItem>, D::Error>
 where
     D: Deserializer<'de>,
 {

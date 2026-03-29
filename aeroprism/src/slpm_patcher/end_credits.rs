@@ -3,6 +3,7 @@ use crate::{
     events::{DialogString, codec::decode_psg2_string},
     helpers::hex_edit_encode,
 };
+use alloc::collections::BTreeMap;
 use core::mem::size_of;
 use log::{Level, debug, log_enabled, warn};
 use serde::{Deserialize, Serialize};
@@ -22,18 +23,19 @@ static CREDIT_FOOTER: [u8; CREDIT_ITEM_HEADER_SIZE] =
 #[derive(Serialize, Deserialize)]
 pub struct EndCreditItem {
     vertical_space: u16,
+    #[serde(flatten)]
     credit_string: DialogString,
 }
 
 #[inline]
 pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-) -> Result<Vec<EndCreditItem>, io::Error> {
+) -> Result<BTreeMap<usize, EndCreditItem>, io::Error> {
     reader
         .seek(SeekFrom::Start(END_CREDITS_START as u64))
         .await?;
 
-    let mut credit_items = Vec::with_capacity(255);
+    let mut credit_items = BTreeMap::new();
     let mut field = [0x0; 2];
     let mut i = 0;
     debug!("Parsing end credits...");
@@ -96,25 +98,27 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             debug!("Debugged credit string: {credit_string:#?}",);
         }
         // Read the next two fields
-        credit_items.push(EndCreditItem {
-            vertical_space,
-            credit_string,
-        });
+        credit_items.insert(
+            i,
+            EndCreditItem {
+                vertical_space,
+                credit_string,
+            },
+        );
     }
-    credit_items.shrink_to_fit();
     Ok(credit_items)
 }
 
 #[inline]
 pub async fn patch(
     exec_writer: &mut BufWriter<fs::File>,
-    end_credits: Box<[EndCreditItem]>,
+    end_credits: BTreeMap<usize, EndCreditItem>,
 ) -> Result<(), io::Error> {
     exec_writer
         .seek(SeekFrom::Start(END_CREDITS_START.try_into().unwrap()))
         .await?;
     let mut total_bytes = 0;
-    for end_credit_item in end_credits {
+    for (_, end_credit_item) in end_credits {
         let EndCreditItem {
             vertical_space,
             mut credit_string,

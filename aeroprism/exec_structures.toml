@@ -1,0 +1,11419 @@
+[memcard_opt.0000]
+name = """
+フォーマットされていないメモリーカード（ＰＳ２）です。
+"""
+name_pointer = "28cf18"
+field_1 = "fffffffe"
+
+[memcard_opt.0001]
+name = """
+空き容量不足のため書き込み出来ません。
+"""
+name_pointer = "28cf50"
+field_1 = "fffffffd"
+
+[memcard_opt.0002]
+name = """
+メモリーカード（ＰＳ２）の読み込みに失敗しました。
+"""
+name_pointer = "28cf78"
+field_1 = "fffffffc"
+
+[memcard_opt.0003]
+name = """
+メモリーカード（ＰＳ２）の書き込みに失敗しました。
+"""
+name_pointer = "28cfb0"
+field_1 = "fffffffb"
+
+[memcard_opt.0004]
+name = """
+メモリーカード（ＰＳ２）が正しく差されていません。
+"""
+name_pointer = "28cfe8"
+field_1 = "fffffff6"
+
+[memcard_opt.0005]
+name = """
+セーブデータがありません。
+"""
+name_pointer = "28d020"
+field_1 = "ffffff9c"
+
+[memcard_opt.0006]
+name = """
+データが壊れている可能性があります。
+"""
+name_pointer = "28d040"
+field_1 = "ffffff9b"
+
+[memcard_opt.0007]
+name = """
+メモリーカード（ＰＳ２）の空き容量が不足しています。
+"""
+name_pointer = "28d068"
+field_1 = "ffffff9a"
+
+[memcard_opt.0008]
+name = """
+メモリーカード（ＰＳ２）の読み込みに失敗しました。
+"""
+name_pointer = "28cf78"
+field_1 = "0000"
+
+[technique.0000]
+name = """
+ダミー
+"""
+name_pointer = "2da610"
+field_1 = "0400"
+field_3 = "0002"
+field_5 = "000a"
+
+[technique.0001]
+name = """
+フォイエ
+"""
+name_pointer = "2a2f08"
+field_1 = "1401"
+field_3 = "0002"
+field_5 = "000f"
+field_6 = "0001"
+field_9 = "0007"
+field_10 = "000d"
+field_11 = "0001"
+field_12 = "0001"
+field_13 = "0001"
+
+[technique.0002]
+name = """
+ギフォイエ
+"""
+name_pointer = "2a2ef8"
+field_1 = "0401"
+field_3 = "0006"
+field_5 = "0028"
+field_6 = "0007"
+field_10 = "0012"
+field_13 = "0016"
+
+[technique.0003]
+name = """
+ナフォイエ
+"""
+name_pointer = "2a2ee8"
+field_1 = "2401"
+field_3 = "000c"
+field_5 = "0078"
+field_6 = "0015"
+
+[technique.0004]
+name = """
+バータ
+"""
+name_pointer = "2da608"
+field_1 = "1402"
+field_3 = "0003"
+field_5 = "0011"
+field_6 = "0012"
+field_10 = "0006"
+
+[technique.0005]
+name = """
+ギバータ
+"""
+name_pointer = "2a2ed8"
+field_1 = "0402"
+field_3 = "0007"
+field_5 = "002d"
+field_6 = "0019"
+field_10 = "000f"
+
+[technique.0006]
+name = """
+ギサバータ
+"""
+name_pointer = "2a2ec8"
+field_1 = "2402"
+field_3 = "000c"
+field_4 = "0001"
+field_5 = "002d"
+field_10 = "001e"
+
+[technique.0007]
+name = """
+ゾンデ
+"""
+name_pointer = "2da600"
+field_1 = "1408"
+field_3 = "0002"
+field_5 = "000f"
+field_6 = "0012"
+field_12 = "0009"
+
+[technique.0008]
+name = """
+ギゾンデ
+"""
+name_pointer = "2a2eb8"
+field_1 = "0408"
+field_3 = "0006"
+field_5 = "0028"
+field_6 = "0019"
+field_12 = "0012"
+
+[technique.0009]
+name = """
+ギサゾンデ
+"""
+name_pointer = "2a2ea8"
+field_1 = "2408"
+field_3 = "000e"
+field_4 = "0005"
+field_5 = "0028"
+field_12 = "001e"
+
+[technique.000a]
+name = """
+ザン
+"""
+name_pointer = "2da5f8"
+field_1 = "0404"
+field_3 = "0004"
+field_4 = "0001"
+field_5 = "0014"
+field_6 = "000a"
+field_10 = "001b"
+field_11 = "0030"
+field_12 = "000f"
+field_13 = "001b"
+
+[technique.000b]
+name = """
+ギザン
+"""
+name_pointer = "2da5f0"
+field_1 = "0404"
+field_3 = "0007"
+field_4 = "0001"
+field_5 = "0023"
+field_6 = "0018"
+field_10 = "0036"
+field_12 = "002e"
+field_13 = "0028"
+
+[technique.000c]
+name = """
+ナザン
+"""
+name_pointer = "2da5e8"
+field_1 = "2404"
+field_3 = "000b"
+field_4 = "0001"
+field_5 = "0064"
+field_6 = "0024"
+field_13 = "0031"
+
+[technique.000d]
+name = """
+グラブト
+"""
+name_pointer = "2a2e98"
+field_1 = "2440"
+field_3 = "0008"
+field_4 = "0005"
+field_5 = "0019"
+field_6 = "000f"
+field_9 = "003a"
+field_10 = "0028"
+field_12 = "0015"
+field_13 = "0024"
+
+[technique.000e]
+name = """
+ギグラブト
+"""
+name_pointer = "2a2e88"
+field_1 = "2440"
+field_3 = "000c"
+field_4 = "0005"
+field_5 = "002d"
+field_6 = "002a"
+field_9 = "0048"
+field_10 = "0031"
+field_13 = "0036"
+
+[technique.000f]
+name = """
+ナグラブト
+"""
+name_pointer = "2a2e78"
+field_1 = "2440"
+field_3 = "0014"
+field_4 = "0005"
+field_5 = "0050"
+field_13 = "0043"
+
+[technique.0010]
+name = """
+グランツ
+"""
+name_pointer = "2a2e68"
+field_1 = "0400"
+field_3 = "0006"
+field_5 = "003c"
+field_6 = "0007"
+
+[technique.0011]
+name = """
+ギグランツ
+"""
+name_pointer = "2a2e58"
+field_1 = "0400"
+field_3 = "000d"
+field_5 = "0050"
+field_6 = "0010"
+
+[technique.0012]
+name = """
+ナグランツ
+"""
+name_pointer = "2a2e48"
+field_1 = "0400"
+field_3 = "0014"
+field_5 = "00b4"
+field_6 = "001e"
+
+[technique.0013]
+name = """
+シフタ
+"""
+name_pointer = "2da5e0"
+field_1 = "1100"
+field_2 = "108000"
+field_3 = "0005"
+field_4 = "ffffffff"
+field_5 = "000a"
+field_7 = "0032"
+field_11 = "000c"
+
+[technique.0014]
+name = """
+ファンビア
+"""
+name_pointer = "2a2e38"
+field_1 = "0400"
+field_2 = "2000"
+field_3 = "0002"
+field_5 = "000a"
+field_11 = "0018"
+
+[technique.0015]
+name = """
+エイジア
+"""
+name_pointer = "2a2e28"
+field_1 = "0420"
+field_3 = "0004"
+field_4 = "0001"
+field_5 = "0017"
+field_12 = "0006"
+
+[technique.0016]
+name = """
+プロセダン
+"""
+name_pointer = "2a2e18"
+field_1 = "0460"
+field_2 = "1000"
+field_3 = "0008"
+field_5 = "270f"
+field_12 = "0025"
+
+[technique.0017]
+name = """
+コンテル
+"""
+name_pointer = "2a2e08"
+field_1 = "0460"
+field_2 = "01008000"
+field_3 = "0006"
+field_12 = "000d"
+
+[technique.0018]
+name = """
+シーザス
+"""
+name_pointer = "2a2df8"
+field_1 = "0450"
+field_2 = "01008000"
+field_3 = "0006"
+field_10 = "0009"
+
+[technique.0019]
+name = """
+ガージ
+"""
+name_pointer = "2da5d8"
+field_1 = "1420"
+field_3 = "0001"
+field_5 = "0014"
+field_12 = "000a"
+
+[technique.001a]
+name = """
+ギガージ
+"""
+name_pointer = "2a2de8"
+field_1 = "0420"
+field_3 = "0005"
+field_5 = "003c"
+field_12 = "000f"
+
+[technique.001b]
+name = """
+ナガージ
+"""
+name_pointer = "2a2dd8"
+field_1 = "2420"
+field_3 = "000f"
+field_5 = "0096"
+field_12 = "0019"
+
+[technique.001c]
+name = """
+サガージ
+"""
+name_pointer = "2a2dc8"
+field_1 = "0420"
+field_3 = "0003"
+field_4 = "0005"
+field_5 = "0014"
+field_12 = "0013"
+
+[technique.001d]
+name = """
+ギサガージ
+"""
+name_pointer = "2a2db8"
+field_1 = "0420"
+field_3 = "000f"
+field_4 = "0005"
+field_5 = "003c"
+field_12 = "001f"
+
+[technique.001e]
+name = """
+ナサガージ
+"""
+name_pointer = "2a2da8"
+field_1 = "2420"
+field_3 = "001b"
+field_4 = "0005"
+field_5 = "0096"
+field_12 = "002a"
+
+[technique.001f]
+name = """
+ジェネラ
+"""
+name_pointer = "2a2d98"
+field_1 = "1410"
+field_3 = "0001"
+field_5 = "0014"
+field_10 = "0004"
+
+[technique.0020]
+name = """
+サジェネラ
+"""
+name_pointer = "2a2d88"
+field_1 = "0410"
+field_3 = "0003"
+field_4 = "0005"
+field_5 = "0014"
+field_10 = "0007"
+
+[technique.0021]
+name = """
+ボルト
+"""
+name_pointer = "2da5d0"
+field_1 = "0450"
+field_2 = "1000"
+field_3 = "0008"
+field_5 = "270f"
+field_10 = "0016"
+
+[technique.0022]
+name = """
+サボルト
+"""
+name_pointer = "2a2d78"
+field_1 = "0450"
+field_2 = "1000"
+field_3 = "0010"
+field_4 = "0001"
+field_5 = "270f"
+field_10 = "0024"
+
+[technique.0023]
+name = """
+シューツ
+"""
+name_pointer = "2a2d68"
+field_1 = "1200"
+field_2 = "208000"
+field_3 = "0003"
+field_4 = "fffffffe"
+field_9 = "0003"
+
+[technique.0024]
+name = """
+サシューツ
+"""
+name_pointer = "2a2d58"
+field_1 = "0200"
+field_2 = "208000"
+field_3 = "0008"
+field_4 = "fffffffd"
+field_7 = "0041"
+field_9 = "0016"
+
+[technique.0025]
+name = """
+ドランク
+"""
+name_pointer = "2a2d48"
+field_1 = "0010"
+field_2 = "04008000"
+field_3 = "0002"
+field_10 = "0004"
+
+[technique.0026]
+name = """
+リミタ
+"""
+name_pointer = "2da5c8"
+field_1 = "0010"
+field_2 = "02008000"
+field_3 = "0003"
+field_10 = "0003"
+
+[technique.0027]
+name = """
+シンパロ
+"""
+name_pointer = "2a2d38"
+field_1 = "1010"
+field_2 = "8000"
+field_3 = "0004"
+field_4 = "0005"
+field_10 = "0007"
+
+[technique.0028]
+name = """
+フォルサ
+"""
+name_pointer = "2a2d28"
+field_1 = "0020"
+field_2 = "04008000"
+field_3 = "0002"
+field_4 = "0001"
+field_12 = "0001"
+
+[technique.0029]
+name = """
+リミテ
+"""
+name_pointer = "2da5c0"
+field_1 = "0020"
+field_2 = "02008000"
+field_3 = "0003"
+field_12 = "000a"
+
+[technique.002a]
+name = """
+デバンド
+"""
+name_pointer = "2a2d18"
+field_1 = "1200"
+field_2 = "8000"
+field_3 = "0004"
+field_4 = "fffffffd"
+field_7 = "0037"
+field_9 = "0006"
+
+[technique.002b]
+name = """
+シュネラ
+"""
+name_pointer = "2a2d08"
+field_1 = "0200"
+field_2 = "408000"
+field_3 = "0002"
+field_4 = "fffffffe"
+field_11 = "0009"
+
+[technique.002c]
+name = """
+サシュネラ
+"""
+name_pointer = "2a2cf8"
+field_1 = "0200"
+field_2 = "408000"
+field_3 = "0006"
+field_4 = "fffffffd"
+field_7 = "0046"
+field_9 = "0024"
+
+[technique.002d]
+name = """
+レスタ
+"""
+name_pointer = "2da5b8"
+field_1 = "80001200"
+field_2 = "808000"
+field_3 = "0003"
+field_4 = "fffffffe"
+field_5 = "0014"
+field_6 = "000c"
+field_7 = "0001"
+field_9 = "0001"
+field_10 = "000c"
+field_13 = "0012"
+
+[technique.002e]
+name = """
+ギレスタ
+"""
+name_pointer = "2a2ce8"
+field_1 = "80001200"
+field_2 = "808000"
+field_3 = "0007"
+field_4 = "fffffffe"
+field_5 = "003c"
+field_6 = "0018"
+field_9 = "0009"
+field_10 = "002d"
+field_13 = "002d"
+
+[technique.002f]
+name = """
+ナレスタ
+"""
+name_pointer = "2a2cd8"
+field_1 = "80000200"
+field_2 = "808000"
+field_3 = "000d"
+field_4 = "fffffffe"
+field_5 = "270f"
+field_7 = "003c"
+field_9 = "0016"
+
+[technique.0030]
+name = """
+サレスタ
+"""
+name_pointer = "2a2cc8"
+field_1 = "80001200"
+field_2 = "808000"
+field_3 = "000d"
+field_4 = "fffffffd"
+field_5 = "0014"
+field_9 = "000d"
+
+[technique.0031]
+name = """
+ギサレスタ
+"""
+name_pointer = "2a2cb8"
+field_1 = "80001200"
+field_2 = "808000"
+field_3 = "001d"
+field_4 = "fffffffd"
+field_5 = "003c"
+field_9 = "0028"
+
+[technique.0032]
+name = """
+ナサレスタ
+"""
+name_pointer = "2a2ca8"
+field_1 = "80000200"
+field_2 = "808000"
+field_3 = "0035"
+field_4 = "fffffffd"
+field_5 = "270f"
+field_7 = "004b"
+field_9 = "002d"
+
+[technique.0033]
+name = """
+サークラ
+"""
+name_pointer = "2a2c98"
+field_1 = "80001200"
+field_2 = "808000"
+field_3 = "0001"
+field_4 = "fffffffa"
+field_5 = "270f"
+field_7 = "001e"
+field_9 = "000f"
+
+[technique.0034]
+name = """
+ナサークラ
+"""
+name_pointer = "2a2c88"
+field_1 = "80001200"
+field_2 = "808000"
+field_3 = "0001"
+field_4 = "fffffff9"
+field_5 = "270f"
+field_7 = "0024"
+field_9 = "0012"
+
+[technique.0035]
+name = """
+アンティ
+"""
+name_pointer = "2a2c78"
+field_1 = "c0000200"
+field_2 = "8000"
+field_3 = "0002"
+field_4 = "fffffffe"
+field_7 = "0018"
+field_9 = "0007"
+
+[technique.0036]
+name = """
+リバーサー
+"""
+name_pointer = "2a2c68"
+field_1 = "c0000200"
+field_2 = "08008000"
+field_3 = "001e"
+field_4 = "fffffffe"
+field_5 = "001e"
+field_6 = "002d"
+field_9 = "0024"
+
+[technique.0037]
+name = """
+リューカー
+"""
+name_pointer = "2a2c58"
+field_1 = "c0000200"
+field_2 = "8000"
+field_3 = "0008"
+field_4 = "fffffffd"
+field_6 = "0006"
+field_13 = "0009"
+
+[technique.0038]
+name = """
+ヒーナス
+"""
+name_pointer = "2a2c48"
+field_1 = "c0000200"
+field_2 = "8000"
+field_3 = "0004"
+field_4 = "fffffffd"
+field_6 = "000a"
+field_13 = "000d"
+
+[technique.0039]
+name = """
+ムシカ
+"""
+name_pointer = "2da5b0"
+field_1 = "c0000200"
+field_2 = "8000"
+field_3 = "0003"
+field_4 = "fffffffd"
+
+[technique.003a]
+name = """
+メギド
+"""
+name_pointer = "2da5a8"
+field_1 = "0600"
+field_2 = "4000"
+field_3 = "0037"
+field_4 = "fffffffc"
+field_5 = "01f4"
+field_6 = "0034"
+
+[technique.003b]
+name = """
+ミワクノオカリナ
+"""
+name_pointer = "2a2c30"
+field_1 = "0200"
+field_2 = "8000"
+field_4 = "fffffffd"
+
+[technique.003c]
+name = """
+モノメイト
+"""
+name_pointer = "2a2c20"
+field_1 = "0200"
+field_2 = "808000"
+field_4 = "fffffffe"
+field_5 = "0014"
+
+[technique.003d]
+name = """
+ディメイト
+"""
+name_pointer = "2a2c10"
+field_1 = "0200"
+field_2 = "808000"
+field_4 = "fffffffe"
+field_5 = "003c"
+
+[technique.003e]
+name = """
+トリメイト
+"""
+name_pointer = "2a2c00"
+field_1 = "0200"
+field_2 = "808000"
+field_4 = "fffffffe"
+field_5 = "270f"
+
+[technique.003f]
+name = """
+モノフルイド
+"""
+name_pointer = "2a2bf0"
+field_1 = "0200"
+field_2 = "028000"
+field_4 = "fffffffe"
+field_5 = "000a"
+
+[technique.0040]
+name = """
+ディフルイド
+"""
+name_pointer = "2a2be0"
+field_1 = "0200"
+field_2 = "028000"
+field_4 = "fffffffe"
+field_5 = "0032"
+
+[technique.0041]
+name = """
+トリフルイド
+"""
+name_pointer = "2a2bd0"
+field_1 = "0200"
+field_2 = "028000"
+field_4 = "fffffffe"
+field_5 = "0064"
+
+[technique.0042]
+name = """
+アンティポイズン
+"""
+name_pointer = "2a2bb8"
+field_1 = "0200"
+field_2 = "018000"
+field_4 = "fffffffe"
+
+[technique.0043]
+name = """
+ムーンアトマイザー
+"""
+name_pointer = "2a2ba0"
+field_1 = "0200"
+field_2 = "08008000"
+field_4 = "fffffffb"
+field_5 = "270f"
+
+[technique.0044]
+name = """
+スターアトマイザー
+"""
+name_pointer = "2a2b88"
+field_1 = "0200"
+field_2 = "808000"
+field_4 = "fffffffd"
+field_5 = "270f"
+
+[technique.0045]
+name = """
+ソルアトマイザー
+"""
+name_pointer = "2a2b70"
+field_1 = "0200"
+field_2 = "20008000"
+field_4 = "fffffffd"
+
+[technique.0046]
+name = """
+ロイヤルガード
+"""
+name_pointer = "2a2b60"
+field_1 = "1200"
+field_2 = "8000"
+field_4 = "fffffffd"
+
+[technique.0047]
+name = """
+ラストフォース
+"""
+name_pointer = "2a2b50"
+field_1 = "0200"
+field_2 = "028000"
+field_4 = "fffffffe"
+field_5 = "270f"
+
+[technique.0048]
+name = """
+リベンジ
+"""
+name_pointer = "2a2b40"
+field_1 = "2400"
+field_5 = "01bc"
+
+[technique.0049]
+name = """
+ナリバーサー
+"""
+name_pointer = "2a2b30"
+field_1 = "1200"
+field_2 = "08008000"
+field_4 = "fffffffb"
+field_5 = "270f"
+
+[technique.004a]
+name = """
+サルファー
+"""
+name_pointer = "2a2b20"
+field_1 = "0400"
+field_2 = "02000000"
+field_4 = "0005"
+field_5 = "0078"
+
+[technique.004b]
+name = """
+メディカルトリート
+"""
+name_pointer = "2a2b08"
+field_1 = "2200"
+field_2 = "20008000"
+field_4 = "fffffffd"
+
+[technique.004c]
+name = """
+バーストタッチ
+"""
+name_pointer = "2a2af8"
+field_1 = "0420"
+field_4 = "0005"
+field_5 = "00f0"
+
+[technique.004d]
+name = """
+トルネード
+"""
+name_pointer = "2a2ae8"
+field_1 = "0404"
+field_4 = "0005"
+field_5 = "008c"
+
+[technique.004e]
+name = """
+スリープ
+"""
+name_pointer = "2a2ad8"
+field_1 = "0400"
+field_2 = "8010"
+
+[technique.004f]
+name = """
+ジェルン
+"""
+name_pointer = "2a2ac8"
+field_1 = "0400"
+field_2 = "8100"
+
+[technique.0050]
+name = """
+ザルア
+"""
+name_pointer = "2da5a0"
+field_1 = "0400"
+field_2 = "8200"
+
+[technique.0051]
+name = """
+ドランク
+"""
+name_pointer = "2a2d48"
+field_1 = "0400"
+field_2 = "8400"
+
+[technique.0052]
+name = """
+ドク
+"""
+name_pointer = "2da598"
+field_1 = "0400"
+field_2 = "088000"
+
+[song.0000]
+name = """
+ファンタシー　スプレイト
+"""
+name_pointer = "288670"
+field_1 = "0000"
+
+[song.0001]
+name = """
+レストレイション
+"""
+name_pointer = "288658"
+field_1 = "0007"
+
+[song.0002]
+name = """
+プレジャー　ストーム
+"""
+name_pointer = "288640"
+field_1 = "0002"
+
+[song.0003]
+name = """
+アドバンスト　ポジション
+"""
+name_pointer = "288620"
+field_1 = "000b"
+
+[song.0004]
+name = """
+ステップアップ
+"""
+name_pointer = "288610"
+field_1 = "0005"
+
+[song.0005]
+name = """
+ブラッキー　ニュース
+"""
+name_pointer = "2885f8"
+field_1 = "0006"
+
+[song.0006]
+name = """
+マイ　ホーム
+"""
+name_pointer = "2885e8"
+field_1 = "0004"
+
+[song.0007]
+name = """
+プレッシャー
+"""
+name_pointer = "2885d8"
+field_1 = "0003"
+
+[song.0008]
+name = """
+プロローグ
+"""
+name_pointer = "2885c8"
+field_1 = "0001"
+
+[song.0009]
+name = """
+ライズ　オア　フォール
+"""
+name_pointer = "2885b0"
+field_1 = "0008"
+
+[song.000a]
+name = """
+ムーブメント
+"""
+name_pointer = "2885a0"
+field_1 = "0009"
+
+[song.000b]
+name = """
+オーヴァー
+"""
+name_pointer = "288590"
+field_1 = "000a"
+
+[song.000c]
+name = """
+シークレット　ウェイズ
+"""
+name_pointer = "288578"
+field_1 = "000c"
+
+[song.000d]
+name = """
+プロマイズド　ミステリー
+"""
+name_pointer = "288558"
+field_1 = "000f"
+
+[song.000e]
+name = """
+ザ　プレイス　オブ　デス
+"""
+name_pointer = "288538"
+field_1 = "000d"
+
+[song.000f]
+name = """
+サイレント　ゾーン
+"""
+name_pointer = "288520"
+field_1 = "0011"
+
+[song.0010]
+name = """
+エキサイティング　タウン
+"""
+name_pointer = "288500"
+field_1 = "0012"
+
+[song.0011]
+name = """
+バイオレイション
+"""
+name_pointer = "2884e8"
+field_1 = "0013"
+
+[song.0012]
+name = """
+パワー
+"""
+name_pointer = "2da228"
+field_1 = "000e"
+
+[item.0001]
+name = """
+ナイフ
+"""
+name_pointer = "2da328"
+equip_slot = "OneHand"
+field_3 = "0064"
+field_4 = "0032"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Anne",
+    "Huey",
+    "Amia",
+    "Keinz",
+    "Silka",
+]
+attack = 5
+
+[item.0002]
+name = """
+セラミックナイフ
+"""
+name_pointer = "28c578"
+equip_slot = "OneHand"
+field_3 = "0af0"
+field_4 = "0578"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Anne",
+    "Huey",
+    "Amia",
+    "Keinz",
+    "Silka",
+]
+attack = 20
+defense = 3
+
+[item.0003]
+name = """
+レーザーナイフ
+"""
+name_pointer = "28c568"
+equip_slot = "OneHand"
+field_3 = "1130"
+field_4 = "0898"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Anne",
+    "Huey",
+    "Amia",
+    "Keinz",
+    "Silka",
+]
+attack = 28
+defense = 5
+
+[item.0004]
+name = """
+シルバーナイフ
+"""
+name_pointer = "28c558"
+equip_slot = "OneHand"
+field_3 = "2710"
+field_4 = "1388"
+can_equip = [
+    "Anne",
+    "Amia",
+    "Silka",
+]
+attack = 26
+defense = 6
+skill = 1
+agility = 1
+luck = 2
+
+[item.0005]
+name = """
+ダガー
+"""
+name_pointer = "2da320"
+equip_slot = "OneHand"
+field_3 = "00c8"
+field_4 = "0064"
+can_equip = [
+    "Rudger",
+    "Huey",
+    "Keinz",
+    "Silka",
+]
+attack = 8
+defense = 1
+
+[item.0006]
+name = """
+セラミックダガー
+"""
+name_pointer = "28c540"
+equip_slot = "OneHand"
+field_3 = "32c8"
+field_4 = "1964"
+can_equip = ["Silka"]
+attack = 26
+defense = 4
+skill = 4
+luck = 2
+
+[item.0007]
+name = """
+ウィンドダガー
+"""
+name_pointer = "28c530"
+equip_slot = "OneHand"
+field_3 = "3e80"
+field_4 = "1f40"
+can_equip = ["Silka"]
+field_6 = "0008"
+attack = 32
+defense = 4
+skill = 8
+agility = 2
+luck = 6
+
+[item.0008]
+name = """
+ラコニアダガー
+"""
+name_pointer = "28c520"
+equip_slot = "OneHand"
+field_3 = "47e0"
+field_4 = "23f0"
+can_equip = ["Silka"]
+attack = 45
+defense = 7
+
+[item.0009]
+name = """
+メス
+"""
+name_pointer = "2da318"
+equip_slot = "OneHand"
+field_3 = "00b4"
+field_4 = "005a"
+can_equip = [
+    "Anne",
+    "Huey",
+]
+attack = 7
+
+[item.000a]
+name = """
+レーザーメス
+"""
+name_pointer = "28c510"
+equip_slot = "OneHand"
+field_3 = "3cf0"
+field_4 = "1e78"
+can_equip = [
+    "Anne",
+    "Huey",
+]
+attack = 18
+defense = 2
+skill = 2
+luck = 1
+
+[item.000b]
+name = """
+ソード
+"""
+name_pointer = "2da310"
+equip_slot = "TwoHand"
+field_3 = "04b0"
+field_4 = "0258"
+can_equip = ["Eusis"]
+attack = 36
+defense = 8
+
+[item.000c]
+name = """
+セラミックソード
+"""
+name_pointer = "28c4f8"
+equip_slot = "TwoHand"
+field_3 = "0c80"
+field_4 = "0640"
+can_equip = ["Eusis"]
+attack = 60
+defense = 10
+
+[item.000d]
+name = """
+フレイムソード
+"""
+name_pointer = "28c4e8"
+equip_slot = "TwoHand"
+field_3 = "3e80"
+field_4 = "1f40"
+can_equip = ["Eusis"]
+field_6 = "0001"
+attack = 84
+defense = 12
+skill = 10
+luck = 8
+
+[item.000e]
+name = """
+レーザーソード
+"""
+name_pointer = "28c4d8"
+equip_slot = "TwoHand"
+field_3 = "1518"
+field_4 = "0a8c"
+can_equip = ["Eusis"]
+attack = 100
+defense = 18
+
+[item.000f]
+name = """
+怒りの剣
+"""
+name_pointer = "28c4c8"
+equip_slot = "TwoHand"
+field_3 = "36b0"
+field_4 = "008c"
+can_equip = ["Eusis"]
+attack = 116
+
+[item.0010]
+name = """
+プラズマソード
+"""
+name_pointer = "28c4b8"
+equip_slot = "TwoHand"
+field_3 = "47e0"
+field_4 = "23f0"
+can_equip = ["Eusis"]
+attack = 110
+defense = 16
+skill = 10
+luck = 12
+
+[item.0011]
+name = """
+ラコニアソード
+"""
+name_pointer = "28c4a8"
+equip_slot = "TwoHand"
+field_3 = "55f0"
+field_4 = "2af8"
+can_equip = ["Eusis"]
+attack = 124
+defense = 14
+
+[item.0012]
+name = """
+チェインソード
+"""
+name_pointer = "28c498"
+equip_slot = "TwoHand"
+field_3 = "4c90"
+field_4 = "2648"
+can_equip = ["Eusis"]
+attack = 138
+defense = 12
+skill = 16
+luck = 10
+
+[item.0013]
+name = """
+ネイソード
+"""
+name_pointer = "28c488"
+equip_slot = "TwoHand"
+field_3 = "4e20"
+can_equip = ["Eusis"]
+field_6 = "4000"
+attack = 150
+defense = 48
+
+[item.0014]
+name = """
+サイレントショット
+"""
+name_pointer = "28c470"
+equip_slot = "TwoHand"
+field_3 = "0398"
+field_4 = "01cc"
+can_equip = ["Anne"]
+field_6 = "0010"
+attack = 20
+
+[item.0015]
+name = """
+ポイズンショット
+"""
+name_pointer = "28c458"
+equip_slot = "OneHand"
+field_3 = "06a4"
+field_4 = "0352"
+can_equip = [
+    "Anne",
+    "Huey",
+]
+attack = 15
+
+[item.0016]
+name = """
+アシドショット
+"""
+name_pointer = "28c448"
+equip_slot = "OneHand"
+field_3 = "12c0"
+field_4 = "0960"
+can_equip = [
+    "Anne",
+    "Huey",
+]
+attack = 25
+
+[item.0017]
+name = """
+レーザーショット
+"""
+name_pointer = "28c430"
+equip_slot = "TwoHand"
+field_3 = "1838"
+field_4 = "0c1c"
+can_equip = [
+    "Rudger",
+    "Keinz",
+]
+attack = 40
+
+[item.0018]
+name = """
+ナパームショット
+"""
+name_pointer = "28c418"
+equip_slot = "TwoHand"
+field_3 = "3520"
+field_4 = "1a90"
+can_equip = [
+    "Rudger",
+    "Keinz",
+]
+field_6 = "0001"
+attack = 60
+skill = 8
+luck = 2
+
+[item.0019]
+name = """
+ネイショット
+"""
+name_pointer = "28c408"
+equip_slot = "TwoHand"
+field_3 = "4e20"
+can_equip = ["Rudger"]
+field_6 = "4000"
+attack = 120
+
+[item.001a]
+name = """
+ソニックガン
+"""
+name_pointer = "28c3f8"
+equip_slot = "OneHand"
+field_3 = "0280"
+field_4 = "0140"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Huey",
+    "Keinz",
+]
+field_6 = "0008"
+attack = 17
+
+[item.001b]
+name = """
+ウェーブガン
+"""
+name_pointer = "28c3e8"
+equip_slot = "OneHand"
+field_3 = "4010"
+field_4 = "2008"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Huey",
+    "Keinz",
+]
+attack = 48
+skill = 12
+luck = 4
+
+[item.001c]
+name = """
+ショットガン
+"""
+name_pointer = "28c3d8"
+equip_slot = "TwoHand"
+field_3 = "0320"
+field_4 = "0190"
+can_equip = [
+    "Rudger",
+    "Keinz",
+]
+attack = 20
+
+[item.001d]
+name = """
+バルカン
+"""
+name_pointer = "28c3c8"
+equip_slot = "TwoHand"
+field_3 = "3138"
+field_4 = "189c"
+can_equip = ["Rudger"]
+attack = 56
+
+[item.001e]
+name = """
+レーザーバルカン
+"""
+name_pointer = "28c3b0"
+equip_slot = "TwoHand"
+field_3 = "7b70"
+field_4 = "3db8"
+can_equip = ["Rudger"]
+attack = 66
+skill = 8
+luck = 12
+
+[item.001f]
+name = """
+パルスバルカン
+"""
+name_pointer = "28c3a0"
+equip_slot = "TwoHand"
+field_3 = "bb80"
+field_4 = "5dc0"
+can_equip = ["Rudger"]
+attack = 76
+
+[item.0020]
+name = """
+カノン
+"""
+name_pointer = "2da308"
+equip_slot = "TwoHand"
+field_3 = "0898"
+field_4 = "044c"
+can_equip = [
+    "Rudger",
+    "Keinz",
+]
+attack = 36
+
+[item.0021]
+name = """
+レーザーカノン
+"""
+name_pointer = "28c390"
+equip_slot = "TwoHand"
+field_3 = "4e20"
+field_4 = "2710"
+can_equip = ["Rudger"]
+attack = 60
+
+[item.0022]
+name = """
+パルスカノン
+"""
+name_pointer = "28c380"
+equip_slot = "TwoHand"
+field_3 = "7d00"
+field_4 = "3e80"
+can_equip = ["Rudger"]
+attack = 70
+
+[item.0023]
+name = """
+プラズマカノン
+"""
+name_pointer = "28c370"
+equip_slot = "TwoHand"
+field_3 = "9ab0"
+field_4 = "4d58"
+can_equip = ["Rudger"]
+attack = 80
+skill = 14
+luck = 8
+
+[item.0024]
+name = """
+ニードルガン
+"""
+name_pointer = "28c360"
+equip_slot = "OneHand"
+field_3 = "012c"
+field_4 = "0096"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Huey",
+    "Keinz",
+]
+attack = 10
+
+[item.0025]
+name = """
+ブーメラン
+"""
+name_pointer = "28c350"
+equip_slot = "OneHand"
+field_3 = "01e0"
+field_4 = "00f0"
+can_equip = ["Amia"]
+attack = 12
+
+[item.0026]
+name = """
+スライサー
+"""
+name_pointer = "28c340"
+equip_slot = "OneHand"
+field_3 = "07d0"
+field_4 = "03e8"
+can_equip = ["Amia"]
+attack = 17
+
+[item.0027]
+name = """
+チタンスライサー
+"""
+name_pointer = "28c328"
+equip_slot = "OneHand"
+field_3 = "2580"
+field_4 = "12c0"
+can_equip = ["Amia"]
+attack = 24
+skill = 1
+luck = 8
+
+[item.0028]
+name = """
+レーザースライサー
+"""
+name_pointer = "28c310"
+equip_slot = "OneHand"
+field_3 = "1a2c"
+field_4 = "0d16"
+can_equip = ["Amia"]
+attack = 30
+
+[item.0029]
+name = """
+ファイアスライサー
+"""
+name_pointer = "28c2f8"
+equip_slot = "OneHand"
+field_3 = "4268"
+field_4 = "00aa"
+can_equip = ["Amia"]
+field_6 = "0001"
+attack = 36
+
+[item.002a]
+name = """
+アイススライサー
+"""
+name_pointer = "28c2e0"
+equip_slot = "OneHand"
+field_3 = "3520"
+field_4 = "1a90"
+can_equip = ["Amia"]
+attack = 40
+skill = 8
+luck = 16
+
+[item.002b]
+name = """
+ラコニアスライサー
+"""
+name_pointer = "28c2c8"
+equip_slot = "OneHand"
+field_3 = "5dc0"
+field_4 = "2ee0"
+can_equip = ["Amia"]
+attack = 42
+
+[item.002c]
+name = """
+ネイスライサー
+"""
+name_pointer = "28c2b8"
+equip_slot = "OneHand"
+field_3 = "4e20"
+can_equip = ["Amia"]
+field_6 = "4000"
+attack = 60
+
+[item.002d]
+name = """
+ムチ
+"""
+name_pointer = "2da300"
+equip_slot = "OneHand"
+field_3 = "0578"
+field_4 = "02bc"
+can_equip = ["Amia"]
+attack = 20
+defense = 2
+
+[item.002e]
+name = """
+電光のムチ
+"""
+name_pointer = "28c2a8"
+equip_slot = "OneHand"
+field_3 = "3520"
+field_4 = "1a90"
+can_equip = ["Amia"]
+field_6 = "0004"
+attack = 48
+defense = 6
+skill = 12
+luck = 4
+
+[item.002f]
+name = """
+火炎の杖
+"""
+name_pointer = "28c298"
+equip_slot = "OneHand"
+field_3 = "82dc"
+field_4 = "014f"
+can_equip = ["Anne"]
+field_6 = "0001"
+attack = 32
+defense = 11
+
+[item.0030]
+name = """
+氷結の杖
+"""
+name_pointer = "28c288"
+equip_slot = "OneHand"
+field_3 = "4010"
+field_4 = "2008"
+can_equip = ["Anne"]
+field_6 = "0002"
+attack = 38
+defense = 15
+skill = 8
+luck = 8
+
+[item.0031]
+name = """
+風刃の杖
+"""
+name_pointer = "28c278"
+equip_slot = "OneHand"
+field_3 = "4c90"
+field_4 = "2648"
+can_equip = ["Anne"]
+field_6 = "0008"
+attack = 36
+defense = 17
+skill = 12
+luck = 10
+
+[item.0032]
+name = """
+スチールスケール
+"""
+name_pointer = "28c260"
+equip_slot = "OneHand"
+field_3 = "15e0"
+field_4 = "0af0"
+can_equip = [
+    "Huey",
+    "Keinz",
+]
+attack = 12
+defense = 4
+skill = 1
+luck = 6
+
+[item.0033]
+name = """
+セラミックスケール
+"""
+name_pointer = "28c248"
+equip_slot = "OneHand"
+field_3 = "1900"
+field_4 = "0c80"
+can_equip = [
+    "Huey",
+    "Keinz",
+]
+attack = 20
+defense = 6
+skill = 6
+luck = 12
+
+[item.0034]
+name = """
+ラコニアスケール
+"""
+name_pointer = "28c230"
+equip_slot = "OneHand"
+field_3 = "41a0"
+field_4 = "20d0"
+can_equip = [
+    "Huey",
+    "Keinz",
+]
+attack = 40
+defense = 8
+
+[item.0035]
+name = """
+スチールクロー
+"""
+name_pointer = "28c220"
+equip_slot = "OneHand"
+field_3 = "0050"
+field_4 = "0028"
+can_equip = ["Nei"]
+attack = 7
+defense = 2
+
+[item.0036]
+name = """
+サーベルクロー
+"""
+name_pointer = "28c210"
+equip_slot = "OneHand"
+field_3 = "0960"
+field_4 = "04b0"
+can_equip = ["Nei"]
+attack = 17
+defense = 2
+skill = 2
+luck = 10
+
+[item.0037]
+name = """
+セラミッククロー
+"""
+name_pointer = "28c1f8"
+equip_slot = "OneHand"
+field_3 = "04b0"
+field_4 = "0258"
+can_equip = ["Nei"]
+attack = 27
+defense = 2
+
+[item.0038]
+name = """
+レーザークロー
+"""
+name_pointer = "28c1e8"
+equip_slot = "OneHand"
+field_3 = "0c1c"
+field_4 = "060e"
+can_equip = ["Nei"]
+attack = 38
+defense = 3
+
+[item.0039]
+name = """
+サイレントクロー
+"""
+name_pointer = "28c1d0"
+equip_slot = "OneHand"
+field_3 = "20d0"
+field_4 = "1068"
+can_equip = ["Nei"]
+attack = 24
+defense = 3
+skill = 7
+luck = 18
+
+[item.003a]
+name = """
+アニマルクロー
+"""
+name_pointer = "28c1c0"
+equip_slot = "OneHand"
+field_3 = "3200"
+can_equip = ["Nei"]
+field_6 = "4000"
+attack = 124
+defense = 48
+
+[item.003b]
+name = """
+ヘッドギア
+"""
+name_pointer = "28c1b0"
+equip_slot = "Head"
+field_3 = "0078"
+field_4 = "003c"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Anne",
+    "Huey",
+    "Amia",
+    "Keinz",
+    "Silka",
+]
+defense = 3
+
+[item.003c]
+name = """
+グラスギア
+"""
+name_pointer = "28c1a0"
+equip_slot = "Head"
+field_3 = "01ae"
+field_4 = "00d7"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Anne",
+    "Huey",
+    "Amia",
+    "Keinz",
+    "Silka",
+]
+defense = 8
+
+[item.003d]
+name = """
+チタンギア
+"""
+name_pointer = "28c190"
+equip_slot = "Head"
+field_3 = "0578"
+field_4 = "02bc"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Anne",
+    "Huey",
+    "Amia",
+    "Keinz",
+    "Silka",
+]
+defense = 14
+
+[item.003e]
+name = """
+クレセントギア
+"""
+name_pointer = "28c180"
+equip_slot = "Head"
+field_4 = "008c"
+can_equip = ["Rudger"]
+defense = 14
+
+[item.003f]
+name = """
+ストームギア
+"""
+name_pointer = "28c170"
+equip_slot = "Head"
+field_4 = "013b"
+can_equip = ["Keinz"]
+defense = 17
+
+[item.0040]
+name = """
+セラミックギア
+"""
+name_pointer = "28c160"
+equip_slot = "Head"
+field_4 = "12c0"
+can_equip = [
+    "Rudger",
+    "Huey",
+]
+defense = 19
+skill = 2
+luck = 6
+
+[item.0041]
+name = """
+ラコニアギア
+"""
+name_pointer = "28c150"
+equip_slot = "Head"
+field_3 = "6d60"
+field_4 = "36b0"
+can_equip = [
+    "Rudger",
+    "Huey",
+]
+defense = 27
+
+[item.0042]
+name = """
+リボン
+"""
+name_pointer = "2da2f8"
+equip_slot = "Head"
+field_3 = "0050"
+field_4 = "0028"
+can_equip = ["Nei"]
+defense = 3
+
+[item.0043]
+name = """
+シルバーリボン
+"""
+name_pointer = "28c140"
+equip_slot = "Head"
+field_3 = "017c"
+field_4 = "00be"
+can_equip = ["Nei"]
+defense = 12
+
+[item.0044]
+name = """
+ジュエルリボン
+"""
+name_pointer = "28c130"
+equip_slot = "Head"
+field_3 = "125c"
+field_4 = "092e"
+can_equip = ["Nei"]
+defense = 21
+
+[item.0045]
+name = """
+シルバークラウン
+"""
+name_pointer = "28c118"
+equip_slot = "Head"
+field_3 = "01d6"
+field_4 = "00eb"
+can_equip = [
+    "Anne",
+    "Amia",
+    "Silka",
+]
+defense = 14
+
+[item.0046]
+name = """
+ジュエルクラウン
+"""
+name_pointer = "28c100"
+equip_slot = "Head"
+field_3 = "11f8"
+field_4 = "08fc"
+can_equip = [
+    "Anne",
+    "Amia",
+    "Silka",
+]
+defense = 17
+
+[item.0047]
+name = """
+雪の冠
+"""
+name_pointer = "2da2f0"
+equip_slot = "Head"
+field_4 = "00f5"
+can_equip = [
+    "Nei",
+    "Anne",
+]
+defense = 21
+
+[item.0048]
+name = """
+雷の冠
+"""
+name_pointer = "2da2e8"
+equip_slot = "Head"
+field_4 = "1e78"
+can_equip = [
+    "Nei",
+    "Anne",
+]
+defense = 32
+skill = 8
+luck = 12
+
+[item.0049]
+name = """
+ネイクラウン
+"""
+name_pointer = "28c0f0"
+equip_slot = "Head"
+can_equip = [
+    "Nei",
+    "Anne",
+]
+field_6 = "4000"
+defense = 48
+
+[item.004a]
+name = """
+チタンメット
+"""
+name_pointer = "28c0e0"
+equip_slot = "Head"
+field_3 = "0e74"
+field_4 = "073a"
+can_equip = [
+    "Eusis",
+    "Keinz",
+]
+defense = 16
+
+[item.004b]
+name = """
+ラコニアメット
+"""
+name_pointer = "28c0d0"
+equip_slot = "Head"
+field_3 = "7148"
+field_4 = "38a4"
+can_equip = [
+    "Eusis",
+    "Keinz",
+]
+defense = 29
+
+[item.004c]
+name = """
+ネイメット
+"""
+name_pointer = "28c0c0"
+equip_slot = "Head"
+can_equip = [
+    "Eusis",
+    "Keinz",
+]
+field_6 = "4000"
+defense = 50
+
+[item.004d]
+name = """
+風のバンダナ
+"""
+name_pointer = "28c0b0"
+equip_slot = "Head"
+field_4 = "003c"
+can_equip = ["Silka"]
+defense = 17
+
+[item.004e]
+name = """
+虹のバンダナ
+"""
+name_pointer = "28c0a0"
+equip_slot = "Head"
+field_4 = "0041"
+can_equip = ["Amia"]
+defense = 17
+
+[item.004f]
+name = """
+疾風のバンダナ
+"""
+name_pointer = "28c090"
+equip_slot = "Head"
+field_4 = "2648"
+can_equip = ["Silka"]
+defense = 17
+skill = 3
+agility = 4
+luck = 8
+
+[item.0050]
+name = """
+マジックハット
+"""
+name_pointer = "28c080"
+equip_slot = "Head"
+can_equip = ["Eusis"]
+field_6 = "4000"
+defense = 2
+luck = 10
+
+[item.0051]
+name = """
+モジックハット
+"""
+name_pointer = "28c070"
+equip_slot = "Head"
+can_equip = ["Eusis"]
+field_6 = "4000"
+defense = 2
+luck = 10
+
+[item.0052]
+name = """
+カーボンスーツ
+"""
+name_pointer = "28c060"
+equip_slot = "Torso"
+field_3 = "0080"
+field_4 = "0040"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Anne",
+    "Huey",
+    "Amia",
+    "Keinz",
+    "Silka",
+]
+defense = 4
+
+[item.0053]
+name = """
+カーボンベスト
+"""
+name_pointer = "28c050"
+equip_slot = "Torso"
+field_3 = "0078"
+field_4 = "003c"
+can_equip = ["Nei"]
+defense = 4
+
+[item.0054]
+name = """
+グラスベスト
+"""
+name_pointer = "28c040"
+equip_slot = "Torso"
+field_3 = "0118"
+field_4 = "008c"
+can_equip = ["Nei"]
+defense = 6
+
+[item.0055]
+name = """
+グラスコート
+"""
+name_pointer = "28c030"
+equip_slot = "Torso"
+field_3 = "012c"
+field_4 = "0096"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Huey",
+    "Keinz",
+]
+defense = 8
+
+[item.0056]
+name = """
+グラスマント
+"""
+name_pointer = "28c020"
+equip_slot = "Torso"
+field_3 = "01a4"
+field_4 = "00d2"
+can_equip = [
+    "Anne",
+    "Amia",
+    "Silka",
+]
+defense = 8
+
+[item.0057]
+name = """
+ホワイトマント
+"""
+name_pointer = "28c010"
+equip_slot = "Torso"
+field_4 = "0708"
+can_equip = ["Huey"]
+defense = 12
+skill = 3
+luck = 6
+
+[item.0058]
+name = """
+チタンチェスト
+"""
+name_pointer = "28c000"
+equip_slot = "Torso"
+field_3 = "1518"
+field_4 = "0a8c"
+can_equip = [
+    "Eusis",
+    "Huey",
+]
+defense = 21
+
+[item.0059]
+name = """
+セラミックチェスト
+"""
+name_pointer = "28bfe8"
+equip_slot = "Torso"
+field_3 = "2710"
+field_4 = "1388"
+can_equip = [
+    "Eusis",
+    "Huey",
+]
+defense = 46
+
+[item.005a]
+name = """
+ジルコニウムチェスト
+"""
+name_pointer = "28bfd0"
+equip_slot = "Torso"
+field_4 = "0c80"
+can_equip = [
+    "Eusis",
+    "Huey",
+]
+defense = 52
+skill = 9
+luck = 12
+
+[item.005b]
+name = """
+クリスタチェスト
+"""
+name_pointer = "28bfb8"
+equip_slot = "Torso"
+field_4 = "014f"
+can_equip = ["Eusis"]
+defense = 60
+
+[item.005c]
+name = """
+ラコニアチェスト
+"""
+name_pointer = "28bfa0"
+equip_slot = "Torso"
+field_3 = "6d60"
+field_4 = "36b0"
+can_equip = ["Eusis"]
+defense = 80
+
+[item.005d]
+name = """
+チタンアーマー
+"""
+name_pointer = "28bf90"
+equip_slot = "Torso"
+field_3 = "15e0"
+field_4 = "0af0"
+can_equip = [
+    "Rudger",
+    "Keinz",
+]
+defense = 24
+
+[item.005e]
+name = """
+セラミックアーマー
+"""
+name_pointer = "28bf78"
+equip_slot = "Torso"
+field_3 = "2db4"
+field_4 = "16da"
+can_equip = [
+    "Rudger",
+    "Keinz",
+]
+defense = 48
+
+[item.005f]
+name = """
+ジルコニウムアーマー
+"""
+name_pointer = "28bf60"
+equip_slot = "Torso"
+field_4 = "23f0"
+can_equip = [
+    "Rudger",
+    "Keinz",
+]
+defense = 56
+skill = 10
+luck = 16
+
+[item.0060]
+name = """
+フィブリラ
+"""
+name_pointer = "28bf50"
+equip_slot = "Torso"
+field_4 = "16a8"
+can_equip = [
+    "Anne",
+    "Amia",
+]
+defense = 20
+skill = 1
+luck = 8
+
+[item.0061]
+name = """
+チタンフィブリラ
+"""
+name_pointer = "28bf38"
+equip_slot = "Torso"
+field_3 = "189c"
+field_4 = "0c4e"
+can_equip = [
+    "Anne",
+    "Amia",
+]
+defense = 28
+
+[item.0062]
+name = """
+セラミックフィブリラ
+"""
+name_pointer = "28bf20"
+equip_slot = "Torso"
+field_3 = "3070"
+field_4 = "1838"
+can_equip = [
+    "Anne",
+    "Amia",
+    "Silka",
+]
+defense = 56
+
+[item.0063]
+name = """
+ラコニアフィブリラ
+"""
+name_pointer = "28bf08"
+equip_slot = "Torso"
+field_3 = "8ca0"
+field_4 = "4650"
+can_equip = ["Amia"]
+defense = 70
+
+[item.0064]
+name = """
+チタンハーニッシュ
+"""
+name_pointer = "28bef0"
+equip_slot = "Torso"
+field_4 = "3200"
+can_equip = [
+    "Rudger",
+    "Keinz",
+]
+defense = 45
+skill = 7
+luck = 14
+
+[item.0065]
+name = """
+クリスタハーニッシュ
+"""
+name_pointer = "28bed8"
+equip_slot = "Torso"
+field_4 = "013b"
+can_equip = [
+    "Rudger",
+    "Keinz",
+]
+defense = 60
+
+[item.0066]
+name = """
+ラコニアハーニッシュ
+"""
+name_pointer = "28bec0"
+equip_slot = "Torso"
+field_3 = "88b8"
+field_4 = "445c"
+can_equip = [
+    "Rudger",
+    "Keinz",
+]
+defense = 65
+
+[item.0067]
+name = """
+ネイハーニッシュ
+"""
+name_pointer = "28bea8"
+equip_slot = "Torso"
+can_equip = [
+    "Rudger",
+    "Keinz",
+]
+field_6 = "4000"
+defense = 95
+
+[item.0068]
+name = """
+クリスタフィールド
+"""
+name_pointer = "28be90"
+equip_slot = "Torso"
+field_4 = "01a4"
+can_equip = [
+    "Nei",
+    "Anne",
+    "Amia",
+    "Silka",
+]
+defense = 62
+
+[item.0069]
+name = """
+プラズマフィールド
+"""
+name_pointer = "28be78"
+equip_slot = "Torso"
+field_4 = "41a0"
+can_equip = [
+    "Nei",
+    "Anne",
+    "Amia",
+    "Silka",
+]
+defense = 72
+skill = 9
+luck = 18
+
+[item.006a]
+name = """
+ネイフィールド
+"""
+name_pointer = "28be68"
+equip_slot = "Torso"
+can_equip = [
+    "Nei",
+    "Anne",
+    "Silka",
+]
+field_6 = "4000"
+defense = 88
+
+[item.006b]
+name = """
+琥珀の法衣
+"""
+name_pointer = "28be58"
+equip_slot = "Torso"
+field_4 = "0055"
+can_equip = ["Huey"]
+defense = 20
+
+[item.006c]
+name = """
+囚人服
+"""
+name_pointer = "2da2e0"
+equip_slot = "Torso"
+can_equip = [
+    "Eusis",
+    "Nei",
+    "Rudger",
+    "Anne",
+    "Huey",
+    "Amia",
+    "Keinz",
+    "Silka",
+]
+defense = 2
+
+[item.006d]
+name = """
+カーボンシールド
+"""
+name_pointer = "28be40"
+equip_slot = "Shield"
+field_3 = "021c"
+field_4 = "010e"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Huey",
+    "Keinz",
+]
+defense = 8
+
+[item.006e]
+name = """
+グラスシールド
+"""
+name_pointer = "28be30"
+equip_slot = "Shield"
+field_3 = "04b0"
+field_4 = "0258"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Huey",
+    "Keinz",
+]
+defense = 15
+
+[item.006f]
+name = """
+チタンシールド
+"""
+name_pointer = "28be20"
+equip_slot = "Shield"
+field_4 = "1a90"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Huey",
+    "Keinz",
+]
+defense = 24
+skill = 2
+luck = 7
+
+[item.0070]
+name = """
+ミラーシールド
+"""
+name_pointer = "28be10"
+equip_slot = "Shield"
+field_3 = "12c0"
+field_4 = "0960"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Huey",
+    "Keinz",
+]
+defense = 32
+
+[item.0071]
+name = """
+セラミックシールド
+"""
+name_pointer = "28bdf8"
+equip_slot = "Shield"
+field_3 = "206c"
+field_4 = "1036"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Huey",
+    "Keinz",
+]
+defense = 39
+
+[item.0072]
+name = """
+静謐の盾
+"""
+name_pointer = "28bde8"
+equip_slot = "Shield"
+field_4 = "0258"
+can_equip = [
+    "Huey",
+    "Keinz",
+]
+defense = 32
+
+[item.0073]
+name = """
+レーザーシールド
+"""
+name_pointer = "28bdd0"
+equip_slot = "Shield"
+field_4 = "2648"
+can_equip = [
+    "Huey",
+    "Keinz",
+]
+defense = 44
+skill = 3
+luck = 9
+
+[item.0074]
+name = """
+ラコニアシールド
+"""
+name_pointer = "28bdb8"
+equip_slot = "Shield"
+field_3 = "32c8"
+field_4 = "1964"
+can_equip = [
+    "Rudger",
+    "Huey",
+    "Keinz",
+]
+defense = 85
+
+[item.0075]
+name = """
+ネイシールド
+"""
+name_pointer = "28bda8"
+equip_slot = "Shield"
+can_equip = [
+    "Huey",
+    "Keinz",
+]
+field_6 = "4000"
+defense = 95
+
+[item.0076]
+name = """
+カーボンエーメル
+"""
+name_pointer = "28bd90"
+equip_slot = "Shield"
+field_3 = "01a4"
+field_4 = "00d2"
+can_equip = [
+    "Anne",
+    "Amia",
+    "Silka",
+]
+defense = 7
+
+[item.0077]
+name = """
+グラスエーメル
+"""
+name_pointer = "28bd80"
+equip_slot = "Shield"
+field_3 = "0550"
+field_4 = "02a8"
+can_equip = [
+    "Anne",
+    "Amia",
+    "Silka",
+]
+defense = 17
+
+[item.0078]
+name = """
+チタンエーメル
+"""
+name_pointer = "28bd70"
+equip_slot = "Shield"
+field_4 = "1838"
+can_equip = [
+    "Anne",
+    "Amia",
+    "Silka",
+]
+defense = 24
+skill = 5
+luck = 11
+
+[item.0079]
+name = """
+ミラーエーメル
+"""
+name_pointer = "28bd60"
+equip_slot = "Shield"
+field_3 = "1400"
+field_4 = "0a00"
+can_equip = [
+    "Anne",
+    "Amia",
+    "Silka",
+]
+defense = 30
+
+[item.007a]
+name = """
+セラミックエーメル
+"""
+name_pointer = "28bd48"
+equip_slot = "Shield"
+field_3 = "25e4"
+field_4 = "12f2"
+can_equip = [
+    "Anne",
+    "Amia",
+    "Silka",
+]
+defense = 40
+
+[item.007b]
+name = """
+ルミナスエーメル
+"""
+name_pointer = "28bd30"
+equip_slot = "Shield"
+field_4 = "1e78"
+can_equip = [
+    "Amia",
+    "Silka",
+]
+defense = 40
+skill = 7
+luck = 13
+
+[item.007c]
+name = """
+ラコニアエーメル
+"""
+name_pointer = "28bd18"
+equip_slot = "Shield"
+field_3 = "2ee0"
+field_4 = "1770"
+can_equip = [
+    "Anne",
+    "Amia",
+]
+defense = 68
+
+[item.007d]
+name = """
+ネイエーメル
+"""
+name_pointer = "28bd08"
+equip_slot = "Shield"
+can_equip = [
+    "Amia",
+    "Silka",
+]
+field_6 = "4000"
+defense = 118
+
+[item.007e]
+name = """
+グリーンスリーブ
+"""
+name_pointer = "28bcf0"
+equip_slot = "Shield"
+field_4 = "01a4"
+can_equip = ["Amia"]
+defense = 63
+
+[item.007f]
+name = """
+誠意の袖
+"""
+name_pointer = "28bce0"
+equip_slot = "Shield"
+field_4 = "0168"
+can_equip = ["Silka"]
+defense = 59
+
+[item.0080]
+name = """
+レザーシューズ
+"""
+name_pointer = "28bcd0"
+equip_slot = "Feet"
+field_3 = "00f0"
+field_4 = "0078"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Anne",
+    "Huey",
+    "Amia",
+    "Keinz",
+    "Silka",
+]
+defense = 3
+agility = 2
+
+[item.0081]
+name = """
+エスパドリュー
+"""
+name_pointer = "28bcc0"
+equip_slot = "Feet"
+field_3 = "00b4"
+field_4 = "005a"
+can_equip = ["Nei"]
+defense = 3
+agility = 3
+
+[item.0082]
+name = """
+レザーブーツ
+"""
+name_pointer = "28bcb0"
+equip_slot = "Feet"
+field_3 = "03e8"
+field_4 = "01f4"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Anne",
+    "Huey",
+    "Amia",
+    "Keinz",
+    "Silka",
+]
+defense = 7
+agility = 3
+
+[item.0083]
+name = """
+ナイフブーツ
+"""
+name_pointer = "28bca0"
+equip_slot = "Feet"
+field_3 = "1068"
+field_4 = "0834"
+can_equip = [
+    "Nei",
+    "Amia",
+]
+attack = 7
+defense = 7
+agility = 5
+
+[item.0084]
+name = """
+ロングブーツ
+"""
+name_pointer = "28bc90"
+equip_slot = "Feet"
+field_3 = "1a90"
+field_4 = "0d48"
+can_equip = ["Amia"]
+attack = 5
+defense = 7
+agility = 7
+
+[item.0085]
+name = """
+ハイルザムブーツ
+"""
+name_pointer = "28bc78"
+equip_slot = "Feet"
+field_3 = "2648"
+field_4 = "1324"
+can_equip = [
+    "Anne",
+    "Silka",
+]
+defense = 7
+agility = 7
+
+[item.0086]
+name = """
+シュネラブーツ
+"""
+name_pointer = "28bc68"
+equip_slot = "Feet"
+field_3 = "1d4c"
+field_4 = "0ea6"
+can_equip = [
+    "Amia",
+    "Silka",
+]
+defense = 7
+agility = 10
+
+[item.0087]
+name = """
+ブラックブーツ
+"""
+name_pointer = "28bc58"
+equip_slot = "Feet"
+field_4 = "3200"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Huey",
+    "Keinz",
+]
+attack = 5
+defense = 10
+skill = 1
+agility = 8
+luck = 4
+
+[item.0088]
+name = """
+ホワイトブーツ
+"""
+name_pointer = "28bc48"
+equip_slot = "Feet"
+field_4 = "39d0"
+can_equip = [
+    "Nei",
+    "Anne",
+    "Amia",
+    "Silka",
+]
+defense = 10
+skill = 3
+agility = 8
+luck = 7
+
+[item.0089]
+name = """
+ガーダブーツ
+"""
+name_pointer = "28bc38"
+equip_slot = "Feet"
+field_3 = "3070"
+field_4 = "1838"
+can_equip = [
+    "Eusis",
+    "Rudger",
+    "Huey",
+    "Keinz",
+]
+defense = 15
+agility = 8
+
+[item.008a]
+name = """
+モノメイト
+"""
+name_pointer = "28bc28"
+field_3 = "0014"
+field_4 = "000a"
+
+[item.008b]
+name = """
+ディメイト
+"""
+name_pointer = "28bc18"
+field_3 = "003c"
+field_4 = "001e"
+
+[item.008c]
+name = """
+トリメイト
+"""
+name_pointer = "28bc08"
+field_3 = "00a0"
+field_4 = "0050"
+
+[item.008d]
+name = """
+モノフルイド
+"""
+name_pointer = "28bbf8"
+field_3 = "0190"
+field_4 = "00c8"
+
+[item.008e]
+name = """
+ディフルイド
+"""
+name_pointer = "28bbe8"
+field_3 = "02ee"
+field_4 = "0226"
+
+[item.008f]
+name = """
+トリフルイド
+"""
+name_pointer = "28bbd8"
+field_3 = "03e8"
+field_4 = "02ee"
+
+[item.0090]
+name = """
+アンティポイズン
+"""
+name_pointer = "28bbc0"
+field_3 = "000a"
+field_4 = "0005"
+
+[item.0091]
+name = """
+ムーンアトマイザー
+"""
+name_pointer = "28bba8"
+field_3 = "2ee0"
+field_4 = "1770"
+
+[item.0092]
+name = """
+スターアトマイザー
+"""
+name_pointer = "28bb90"
+field_3 = "03e8"
+field_4 = "01f4"
+
+[item.0093]
+name = """
+ソルアトマイザー
+"""
+name_pointer = "28bb78"
+field_3 = "00fa"
+field_4 = "007d"
+
+[item.0094]
+name = """
+旅のオカリナ
+"""
+name_pointer = "28bb68"
+field_3 = "0082"
+field_4 = "0041"
+
+[item.0095]
+name = """
+迷いのオカリナ
+"""
+name_pointer = "28bb58"
+field_3 = "0046"
+field_4 = "0023"
+
+[item.0096]
+name = """
+忍びのオカリナ
+"""
+name_pointer = "28bb48"
+field_3 = "0118"
+field_4 = "008c"
+
+[item.0097]
+name = """
+魅惑のオカリナ
+"""
+name_pointer = "28bb38"
+field_3 = "01f4"
+field_4 = "00fa"
+
+[item.0098]
+name = """
+ショートケーキ
+"""
+name_pointer = "28bb28"
+field_4 = "04b0"
+
+[item.0099]
+name = """
+モンブランケーキ
+"""
+name_pointer = "28bb10"
+field_4 = "0708"
+
+[item.009a]
+name = """
+フルーツタルト
+"""
+name_pointer = "28bb00"
+field_4 = "0640"
+
+[item.009b]
+name = """
+シフォンケーキ
+"""
+name_pointer = "28baf0"
+field_4 = "0898"
+
+[item.009c]
+name = """
+Ｓケーキ・ナウラ風
+"""
+name_pointer = "28bad8"
+field_4 = "12c0"
+
+[item.009d]
+name = """
+ランドマスター
+"""
+name_pointer = "28bac8"
+field_3 = "53fc"
+field_4 = "01f4"
+
+[item.009e]
+name = """
+ジェットスクーター
+"""
+name_pointer = "28bab0"
+field_6 = "4000"
+
+[item.009f]
+name = """
+アイスデッカー
+"""
+name_pointer = "28baa0"
+field_3 = "db88"
+field_4 = "03e8"
+
+[item.00a0]
+name = """
+ダイナマイト
+"""
+name_pointer = "28ba90"
+field_6 = "4000"
+
+[item.00a1]
+name = """
+アトラス
+"""
+name_pointer = "28ba80"
+field_3 = "03d4"
+field_6 = "4000"
+
+[item.00a2]
+name = """
+脅迫状
+"""
+name_pointer = "2da2d8"
+field_6 = "4000"
+
+[item.00a3]
+name = """
+システムレコーダー
+"""
+name_pointer = "28ba68"
+field_6 = "4000"
+
+[item.00a4]
+name = """
+マルエラリーブ
+"""
+name_pointer = "28ba58"
+field_6 = "4000"
+
+[item.00a5]
+name = """
+マルエラガム
+"""
+name_pointer = "28ba48"
+field_6 = "4000"
+
+[item.00a6]
+name = """
+エアロプリズム
+"""
+name_pointer = "28ba38"
+field_6 = "4000"
+
+[item.00a7]
+name = """
+プラズマリング
+"""
+name_pointer = "28ba28"
+field_6 = "4000"
+
+[item.00a8]
+name = """
+ヒールリング
+"""
+name_pointer = "28ba18"
+field_6 = "4000"
+
+[item.00a9]
+name = """
+黄金の石
+"""
+name_pointer = "28ba08"
+field_6 = "4000"
+
+[item.00aa]
+name = """
+ちから・もりもりん
+"""
+name_pointer = "28b9f0"
+field_6 = "4000"
+
+[item.00ab]
+name = """
+メインキー
+"""
+name_pointer = "28b9e0"
+field_6 = "4000"
+
+[item.00ac]
+name = """
+電子楽譜
+"""
+name_pointer = "28b9d0"
+field_6 = "4000"
+
+[item.00ad]
+name = """
+モタビアンリング
+"""
+name_pointer = "28b9b8"
+field_6 = "4000"
+
+[item.00ae]
+name = """
+マルエラベリー
+"""
+name_pointer = "28b9a8"
+field_6 = "4000"
+
+[item.00af]
+name = """
+幸福の指輪
+"""
+name_pointer = "28b998"
+field_6 = "4000"
+
+[item.00b0]
+name = """
+ビジフォン
+"""
+name_pointer = "28b988"
+field_4 = "05dc"
+
+[item.00b1]
+name = """
+レッドカード
+"""
+name_pointer = "28b978"
+field_6 = "4000"
+
+[item.00b2]
+name = """
+イエローカード
+"""
+name_pointer = "28b968"
+field_6 = "4000"
+
+[item.00b3]
+name = """
+ブルーカード
+"""
+name_pointer = "28b958"
+field_6 = "4000"
+
+[item.00b4]
+name = """
+グリーンカード
+"""
+name_pointer = "28b948"
+field_6 = "4000"
+
+[item.00b5]
+name = """
+コンテナのカギ
+"""
+name_pointer = "28b938"
+field_6 = "4000"
+
+[item.00b6]
+name = """
+チューブキー
+"""
+name_pointer = "28b928"
+field_6 = "4000"
+
+[item.00b7]
+name = """
+ポリメテラール
+"""
+name_pointer = "28b918"
+field_6 = "4000"
+
+[item.00b8]
+name = """
+銀の弾丸ネックレス
+"""
+name_pointer = "28b900"
+field_6 = "4000"
+
+[item.00b9]
+name = """
+ナネットの手紙
+"""
+name_pointer = "28b8f0"
+field_6 = "4000"
+
+[enemy.0001]
+name = """
+バイテングアント
+"""
+name_pointer = "2a8288"
+resistances = ["Air"]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 9
+attack = 3
+defense = 4
+agility = 23
+field_7 = "0003"
+field_8 = "0005"
+field_9 = "0046"
+field_10 = "0032"
+field_11 = "008a"
+art_2 = "0001"
+art_3 = "0002"
+art_4 = "0003"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "0003"
+field_26 = "0001"
+field_27 = "0001"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0002]
+name = """
+ア−ムドアント
+"""
+name_pointer = "2a8278"
+resistances = ["Air"]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 23
+attack = 12
+defense = 16
+agility = 48
+field_7 = "001a"
+field_8 = "0022"
+field_9 = "0046"
+field_10 = "0032"
+field_11 = "008a"
+art_2 = "0004"
+art_3 = "0005"
+art_4 = "0006"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "000c"
+field_28 = "000a"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0003]
+name = """
+パンツァアント
+"""
+name_pointer = "2a8268"
+resistances = ["Air"]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 45
+attack = 30
+defense = 27
+agility = 65
+field_7 = "0053"
+field_8 = "0063"
+field_9 = "003c"
+field_10 = "0032"
+field_11 = "008a"
+art_2 = "0007"
+art_3 = "0008"
+art_4 = "0009"
+field_18 = "005a"
+field_19 = "0064"
+field_23 = "001e"
+field_27 = "0032"
+field_28 = "20000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0004]
+name = """
+モスキ−ト
+"""
+name_pointer = "2a8258"
+weaknesses = [
+    "Fire",
+    "Air",
+]
+type = "Biologic"
+gfx_float = "Fly"
+health = 9
+attack = 2
+defense = 4
+agility = 23
+field_7 = "0003"
+field_8 = "0005"
+field_9 = "0032"
+field_10 = "000a"
+field_11 = "008a"
+art_1 = "000a"
+art_2 = "000b"
+art_3 = "000c"
+art_4 = "000c"
+field_18 = "0064"
+field_23 = "0002"
+field_24 = "10000080"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0005]
+name = """
+ギガモスキ−ト
+"""
+name_pointer = "2a8248"
+weaknesses = [
+    "Fire",
+    "Air",
+]
+type = "Biologic"
+gfx_float = "Fly"
+health = 18
+attack = 13
+defense = 13
+agility = 36
+field_7 = "000f"
+field_8 = "001b"
+field_9 = "0028"
+field_10 = "000a"
+field_11 = "008a"
+art_1 = "000a"
+art_2 = "000d"
+art_3 = "000e"
+art_4 = "000e"
+field_18 = "0064"
+field_23 = "000d"
+field_24 = "10000080"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0006]
+name = """
+グランモスキ−ト
+"""
+name_pointer = "2a8230"
+weaknesses = [
+    "Fire",
+    "Air",
+]
+type = "Biologic"
+gfx_float = "Fly"
+health = 47
+attack = 31
+defense = 26
+agility = 58
+field_7 = "004e"
+field_8 = "0063"
+field_9 = "0014"
+field_10 = "000a"
+field_11 = "008a"
+art_1 = "000a"
+art_2 = "000f"
+art_3 = "0010"
+art_4 = "0010"
+field_18 = "0064"
+field_23 = "001f"
+field_24 = "10000080"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0007]
+name = """
+スピニンスフィア
+"""
+name_pointer = "2a8218"
+resistances = [
+    "Fire",
+    "Air",
+    "Lightning",
+]
+weaknesses = ["Ice"]
+type = "Biologic"
+gfx_float = "Hover"
+health = 14
+attack = 9
+defense = 10
+agility = 16
+field_7 = "0007"
+field_8 = "0010"
+field_9 = "001e"
+field_10 = "0028"
+field_11 = "008d"
+art_1 = "0011"
+art_2 = "0012"
+art_3 = "0013"
+art_4 = "0014"
+field_18 = "0064"
+field_23 = "0009"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0008]
+name = """
+ファンシスフィア
+"""
+name_pointer = "2a8200"
+resistances = [
+    "Fire",
+    "Air",
+    "Lightning",
+]
+weaknesses = ["Ice"]
+type = "Biologic"
+gfx_float = "Hover"
+health = 37
+attack = 29
+defense = 23
+agility = 18
+field_7 = "0028"
+field_8 = "004d"
+field_9 = "0014"
+field_10 = "0028"
+field_11 = "008d"
+art_1 = "0011"
+art_2 = "0015"
+art_3 = "0016"
+art_4 = "0017"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "001d"
+field_28 = "10000028"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0009]
+name = """
+ビジョンスフィア
+"""
+name_pointer = "2a81e8"
+resistances = [
+    "Fire",
+    "Air",
+    "Lightning",
+]
+weaknesses = ["Ice"]
+type = "Biologic"
+gfx_float = "Hover"
+health = 76
+attack = 48
+defense = 39
+agility = 28
+field_7 = "009c"
+field_8 = "00b8"
+field_9 = "0014"
+field_10 = "001e"
+field_11 = "008e"
+art_1 = "0011"
+art_2 = "0018"
+art_3 = "0019"
+art_4 = "001a"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "0030"
+field_26 = "00ad"
+field_28 = "10000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.000a]
+name = """
+フェンサ−
+"""
+name_pointer = "2a81d8"
+weaknesses = [
+    "Fire",
+    "Air",
+]
+type = "Biologic"
+gfx_float = "Fly"
+health = 10
+attack = 4
+defense = 7
+agility = 25
+field_7 = "0005"
+field_8 = "0009"
+field_9 = "0046"
+field_10 = "000a"
+field_11 = "008a"
+art_1 = "001b"
+art_2 = "001c"
+art_3 = "001d"
+art_4 = "001d"
+field_18 = "0064"
+field_23 = "0004"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.000b]
+name = """
+マスタフェンサ−
+"""
+name_pointer = "2a81c0"
+weaknesses = [
+    "Fire",
+    "Air",
+]
+type = "Biologic"
+gfx_float = "Fly"
+health = 27
+attack = 17
+defense = 15
+agility = 39
+field_7 = "001a"
+field_8 = "0022"
+field_9 = "0050"
+field_10 = "000a"
+field_11 = "008a"
+art_1 = "001b"
+art_2 = "001e"
+art_3 = "001f"
+art_4 = "001f"
+field_18 = "0064"
+field_23 = "0011"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.000c]
+name = """
+エムゴフェンサ−
+"""
+name_pointer = "2a81a8"
+weaknesses = [
+    "Fire",
+    "Air",
+]
+type = "Biologic"
+gfx_float = "Fly"
+health = 60
+attack = 41
+defense = 31
+agility = 66
+field_7 = "006f"
+field_8 = "008b"
+field_9 = "0046"
+field_10 = "000a"
+field_11 = "008a"
+art_1 = "001b"
+art_2 = "0020"
+art_3 = "0021"
+art_4 = "0021"
+field_18 = "0064"
+field_23 = "0029"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.000d]
+name = """
+ポイズナ−
+"""
+name_pointer = "2a8198"
+weaknesses = ["Ice"]
+type = "Biologic"
+health = 12
+attack = 4
+defense = 2
+agility = 25
+field_7 = "0005"
+field_8 = "0013"
+field_9 = "0046"
+field_10 = "0014"
+field_11 = "0090"
+art_1 = "0022"
+art_2 = "0023"
+art_3 = "0024"
+art_4 = "0025"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "0004"
+field_27 = "0004"
+field_28 = "20000002"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.000e]
+name = """
+ポイズンドアロ−
+"""
+name_pointer = "2a8180"
+weaknesses = ["Ice"]
+type = "Biologic"
+health = 21
+attack = 18
+defense = 13
+agility = 42
+field_7 = "001f"
+field_8 = "0033"
+field_9 = "003c"
+field_10 = "0028"
+field_11 = "0090"
+art_1 = "0022"
+art_2 = "0026"
+art_3 = "0027"
+art_4 = "0028"
+field_18 = "005a"
+field_19 = "0064"
+field_23 = "0012"
+field_28 = "1000000c"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.000f]
+name = """
+ポイズンファング
+"""
+name_pointer = "2a8168"
+weaknesses = ["Ice"]
+type = "Biologic"
+health = 66
+attack = 49
+defense = 28
+agility = 74
+field_7 = "00b6"
+field_8 = "00c2"
+field_9 = "003c"
+field_10 = "0050"
+field_11 = "0090"
+art_1 = "0022"
+art_2 = "0029"
+art_3 = "002a"
+art_4 = "002b"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "0031"
+field_28 = "10000009"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0010]
+name = """
+フライングペドラ
+"""
+name_pointer = "2a8150"
+resistances = ["Fire"]
+weaknesses = ["Lightning"]
+type = "Biologic"
+gfx_float = "Fly"
+health = 22
+attack = 32
+defense = 24
+agility = 35
+field_7 = "0031"
+field_8 = "0058"
+field_9 = "0014"
+field_10 = "000a"
+field_11 = "0001"
+art_1 = "002c"
+art_2 = "002d"
+art_3 = "002e"
+art_4 = "002f"
+field_18 = "0064"
+field_23 = "0020"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0011]
+name = """
+センチペドラ
+"""
+name_pointer = "2a8140"
+resistances = ["Fire"]
+weaknesses = ["Lightning"]
+type = "Biologic"
+gfx_float = "Fly"
+health = 42
+attack = 48
+defense = 31
+agility = 46
+field_7 = "007f"
+field_8 = "008b"
+field_9 = "000a"
+field_10 = "000a"
+field_11 = "0001"
+art_1 = "002c"
+art_2 = "0030"
+art_3 = "0031"
+art_4 = "0032"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "0030"
+field_26 = "0001"
+field_27 = "0030"
+field_28 = "20000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0012]
+name = """
+グリディペドラ
+"""
+name_pointer = "2a8130"
+resistances = ["Fire"]
+weaknesses = ["Lightning"]
+type = "Biologic"
+gfx_float = "Fly"
+health = 91
+attack = 75
+defense = 48
+agility = 76
+field_7 = "0165"
+field_8 = "0151"
+field_9 = "000a"
+field_10 = "0008"
+field_11 = "0002"
+art_1 = "002c"
+art_2 = "0033"
+art_3 = "0034"
+art_4 = "0035"
+field_18 = "003c"
+field_19 = "0064"
+field_23 = "004b"
+field_26 = "0001"
+field_27 = "004b"
+field_28 = "20000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0013]
+name = """
+リッカ−
+"""
+name_pointer = "2a8120"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = [
+    "Ice",
+    "Lightning",
+]
+type = "Biologic"
+health = 12
+attack = 5
+defense = 7
+agility = 28
+field_7 = "0007"
+field_8 = "000a"
+field_9 = "0014"
+field_10 = "0028"
+field_11 = "008d"
+art_1 = "0036"
+art_2 = "0037"
+art_3 = "0038"
+art_4 = "0039"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "0005"
+field_26 = "0001"
+field_27 = "0005"
+field_28 = "20000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0014]
+name = """
+フェイスリッカ−
+"""
+name_pointer = "2a8108"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = [
+    "Ice",
+    "Lightning",
+]
+type = "Biologic"
+health = 24
+attack = 17
+defense = 13
+agility = 42
+field_7 = "001e"
+field_8 = "0024"
+field_9 = "0014"
+field_10 = "003c"
+field_11 = "008d"
+art_1 = "0036"
+art_2 = "003a"
+art_3 = "003b"
+art_4 = "003c"
+field_18 = "003c"
+field_19 = "0064"
+field_23 = "0011"
+field_27 = "000a"
+field_28 = "10000040"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0015]
+name = """
+スカルリッカ−
+"""
+name_pointer = "2a80f8"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = [
+    "Ice",
+    "Lightning",
+]
+type = "Biologic"
+health = 76
+attack = 46
+defense = 32
+agility = 77
+field_7 = "010a"
+field_8 = "00b4"
+field_9 = "0014"
+field_10 = "0050"
+field_11 = "008d"
+art_1 = "0036"
+art_2 = "003d"
+art_3 = "003e"
+art_4 = "003f"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "002e"
+field_26 = "00d2"
+field_28 = "10000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0016]
+name = """
+キャリア
+"""
+name_pointer = "2a80e8"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Ice"]
+type = "Biologic"
+health = 17
+attack = 6
+defense = 10
+agility = 31
+field_7 = "0009"
+field_8 = "0010"
+field_9 = "001e"
+field_10 = "0014"
+field_11 = "008a"
+art_1 = "0040"
+art_2 = "0041"
+art_3 = "0042"
+art_4 = "0042"
+field_18 = "0064"
+field_23 = "0006"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0017]
+name = """
+チョ−キンロット
+"""
+name_pointer = "2a80d0"
+resistances = [
+    "Ice",
+    "Air",
+]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 54
+attack = 36
+defense = 29
+agility = 63
+field_7 = "0065"
+field_8 = "007c"
+field_9 = "001e"
+field_10 = "0014"
+field_11 = "008a"
+art_1 = "0043"
+art_2 = "0044"
+art_3 = "0045"
+art_4 = "0045"
+field_18 = "0064"
+field_23 = "0024"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0018]
+name = """
+ラストロット
+"""
+name_pointer = "2a80c0"
+resistances = ["Air"]
+type = "Biologic"
+health = 95
+attack = 57
+defense = 42
+agility = 85
+field_7 = "0137"
+field_8 = "00fe"
+field_9 = "001e"
+field_10 = "0014"
+field_11 = "008b"
+art_1 = "0046"
+art_2 = "0047"
+art_3 = "0048"
+art_4 = "0048"
+field_18 = "0064"
+field_23 = "0039"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0019]
+name = """
+グラスキラ−
+"""
+name_pointer = "2a80b0"
+weaknesses = ["Fire"]
+type = "Biologic"
+gfx_somepattern = "PatternB"
+health = 10
+attack = 8
+defense = 5
+agility = 23
+field_7 = "0007"
+field_8 = "000f"
+field_9 = "0028"
+field_10 = "000a"
+field_11 = "0005"
+art_1 = "0049"
+art_2 = "004a"
+art_3 = "004b"
+art_4 = "004b"
+field_18 = "0064"
+field_23 = "0008"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.001a]
+name = """
+グラスアサッシン
+"""
+name_pointer = "2a8098"
+weaknesses = ["Fire"]
+type = "Biologic"
+gfx_somepattern = "PatternB"
+health = 26
+attack = 28
+defense = 18
+agility = 40
+field_7 = "0025"
+field_8 = "0045"
+field_9 = "001e"
+field_10 = "0004"
+field_11 = "0006"
+art_1 = "0049"
+art_2 = "004c"
+art_3 = "004d"
+art_4 = "004d"
+field_18 = "0064"
+field_23 = "001c"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.001b]
+name = """
+グラススロ−タラ
+"""
+name_pointer = "2a8080"
+weaknesses = ["Fire"]
+type = "Biologic"
+gfx_somepattern = "PatternB"
+health = 80
+attack = 54
+defense = 20
+agility = 60
+field_7 = "012d"
+field_8 = "0100"
+field_9 = "0014"
+field_10 = "0008"
+field_11 = "0006"
+art_1 = "0049"
+art_2 = "004e"
+art_3 = "004f"
+art_4 = "004f"
+field_18 = "0064"
+field_23 = "0036"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.001c]
+name = """
+アメボイデ
+"""
+name_pointer = "2a8070"
+resistances = ["Air"]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 13
+attack = 11
+defense = 10
+agility = 10
+field_7 = "000c"
+field_8 = "0016"
+field_9 = "003c"
+field_10 = "0004"
+field_11 = "0092"
+art_1 = "0050"
+art_2 = "0051"
+art_3 = "0052"
+art_4 = "0053"
+art_5 = "0052"
+art_6 = "0052"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "000b"
+field_27 = "0003"
+field_28 = "0002"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.001d]
+name = """
+シュライムゼレ
+"""
+name_pointer = "2a8060"
+resistances = ["Air"]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 42
+attack = 26
+defense = 10
+agility = 20
+field_7 = "0030"
+field_8 = "0043"
+field_9 = "0046"
+field_10 = "0004"
+field_11 = "0092"
+art_1 = "0050"
+art_2 = "0054"
+art_3 = "0055"
+art_4 = "0056"
+art_5 = "0055"
+art_6 = "0055"
+field_18 = "005a"
+field_19 = "0064"
+field_23 = "001a"
+field_27 = "0012"
+field_28 = "0004"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.001e]
+name = """
+ミキサメ−ベ
+"""
+name_pointer = "2a8050"
+resistances = ["Air"]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 96
+attack = 55
+defense = 10
+agility = 20
+field_7 = "00e7"
+field_8 = "00da"
+field_9 = "003c"
+field_10 = "0002"
+field_11 = "0091"
+art_1 = "0050"
+art_2 = "0057"
+art_3 = "0058"
+art_4 = "0059"
+art_5 = "0058"
+art_6 = "0058"
+field_18 = "0046"
+field_19 = "0050"
+field_20 = "0064"
+field_23 = "0037"
+field_27 = "0019"
+field_28 = "0001"
+field_30 = "0010"
+field_32 = "0208"
+field_33 = "0004"
+field_34 = "ffffffff"
+
+[enemy.001f]
+name = """
+ヒルド
+"""
+name_pointer = "2da630"
+resistances = [
+    "Air",
+    "Lightning",
+]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 26
+attack = 20
+defense = 6
+agility = 44
+field_7 = "002f"
+field_8 = "0031"
+field_9 = "001e"
+field_10 = "0014"
+field_11 = "008a"
+art_1 = "005a"
+art_2 = "005b"
+art_3 = "005c"
+art_4 = "005d"
+field_18 = "0064"
+field_23 = "0014"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0020]
+name = """
+ベリッチリ−チ
+"""
+name_pointer = "2a8040"
+resistances = [
+    "Air",
+    "Lightning",
+]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 46
+attack = 37
+defense = 8
+agility = 63
+field_7 = "0089"
+field_8 = "0090"
+field_9 = "0028"
+field_10 = "000a"
+field_11 = "008b"
+art_1 = "005a"
+art_2 = "005e"
+art_3 = "005f"
+art_4 = "0060"
+field_18 = "0064"
+field_23 = "0025"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0021]
+name = """
+ボミテングリ−チ
+"""
+name_pointer = "2a8028"
+resistances = [
+    "Air",
+    "Lightning",
+]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 122
+attack = 65
+defense = 10
+agility = 88
+field_7 = "0147"
+field_8 = "0112"
+field_9 = "0032"
+field_10 = "000c"
+field_11 = "008b"
+art_1 = "005a"
+art_2 = "0061"
+art_3 = "0062"
+art_4 = "0063"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "0041"
+field_26 = "0001"
+field_27 = "0041"
+field_28 = "20000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0022]
+name = """
+バスカバ−
+"""
+name_pointer = "2a8018"
+resistances = ["Fire"]
+weaknesses = [
+    "Ice",
+    "Air",
+]
+type = "Biologic"
+gfx_float = "Hover"
+health = 17
+attack = 8
+defense = 10
+agility = 24
+field_7 = "000c"
+field_8 = "0012"
+field_9 = "000a"
+field_10 = "0004"
+field_11 = "0093"
+art_1 = "0064"
+art_2 = "0065"
+art_3 = "0066"
+art_4 = "0066"
+art_5 = "0067"
+art_6 = "0067"
+field_18 = "0064"
+field_23 = "0008"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0023]
+name = """
+マンカバ−
+"""
+name_pointer = "2a8008"
+resistances = ["Fire"]
+weaknesses = [
+    "Ice",
+    "Air",
+]
+type = "Biologic"
+gfx_float = "Hover"
+health = 52
+attack = 15
+defense = 10
+agility = 34
+field_7 = "0039"
+field_8 = "003c"
+field_9 = "0014"
+field_10 = "0004"
+field_11 = "0093"
+art_1 = "0064"
+art_2 = "0068"
+art_3 = "0069"
+art_4 = "0069"
+art_5 = "006a"
+art_6 = "006a"
+field_18 = "0032"
+field_19 = "0064"
+field_23 = "000f"
+field_26 = "0001"
+field_27 = "0014"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0024]
+name = """
+プラネットカバ−
+"""
+name_pointer = "2a7ff0"
+resistances = ["Fire"]
+weaknesses = [
+    "Ice",
+    "Air",
+]
+type = "Biologic"
+gfx_float = "Hover"
+health = 163
+attack = 26
+defense = 10
+agility = 60
+field_7 = "0173"
+field_8 = "0104"
+field_9 = "0014"
+field_10 = "0002"
+field_11 = "0091"
+art_1 = "0064"
+art_2 = "006b"
+art_3 = "006c"
+art_4 = "006c"
+art_5 = "006d"
+art_6 = "006d"
+field_18 = "003c"
+field_19 = "0046"
+field_20 = "0064"
+field_23 = "001a"
+field_26 = "0001"
+field_27 = "001a"
+field_30 = "0010"
+field_32 = "0208"
+field_34 = "ffffffff"
+
+[enemy.0025]
+name = """
+デッドウッド
+"""
+name_pointer = "2a7fe0"
+resistances = [
+    "Air",
+    "Lightning",
+]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 50
+attack = 45
+defense = 6
+agility = 71
+field_7 = "008d"
+field_8 = "00a7"
+field_9 = "0046"
+field_10 = "0002"
+field_11 = "0032"
+art_1 = "006e"
+art_2 = "006f"
+art_3 = "0070"
+art_4 = "0070"
+field_18 = "0064"
+field_23 = "002d"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0026]
+name = """
+ブロックヘッド
+"""
+name_pointer = "2a7fd0"
+resistances = [
+    "Air",
+    "Lightning",
+]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 80
+attack = 59
+defense = 8
+agility = 90
+field_7 = "0105"
+field_8 = "0125"
+field_9 = "0050"
+field_10 = "0004"
+field_11 = "0032"
+art_1 = "006e"
+art_2 = "0071"
+art_3 = "0072"
+art_4 = "0072"
+field_18 = "0064"
+field_23 = "003b"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0027]
+name = """
+フェイリア
+"""
+name_pointer = "2a7fc0"
+resistances = [
+    "Air",
+    "Lightning",
+]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 90
+attack = 68
+defense = 10
+agility = 98
+field_7 = "0132"
+field_8 = "0166"
+field_9 = "0046"
+field_10 = "0004"
+field_11 = "0033"
+art_1 = "006e"
+art_2 = "0073"
+art_3 = "0074"
+art_4 = "0074"
+field_18 = "0064"
+field_23 = "0044"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0028]
+name = """
+ブリザ−ダ
+"""
+name_pointer = "2a7fb0"
+resistances = [
+    "Ice",
+    "Air",
+]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 72
+attack = 54
+defense = 15
+agility = 79
+field_7 = "0105"
+field_8 = "00da"
+field_9 = "0050"
+field_10 = "0005"
+field_11 = "0036"
+art_1 = "0075"
+art_2 = "0076"
+art_3 = "0077"
+art_4 = "0078"
+art_5 = "0078"
+art_6 = "0078"
+field_18 = "0064"
+field_23 = "0036"
+field_24 = "10000000"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0029]
+name = """
+バ−ンウルフ
+"""
+name_pointer = "2a7fa0"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Ice"]
+type = "Biologic"
+health = 112
+attack = 79
+defense = 16
+agility = 101
+field_7 = "019c"
+field_8 = "017e"
+field_9 = "0050"
+field_10 = "0005"
+field_11 = "0036"
+art_1 = "0075"
+art_2 = "0079"
+art_3 = "007a"
+art_4 = "007b"
+art_5 = "007b"
+art_6 = "007b"
+field_18 = "0064"
+field_23 = "004f"
+field_24 = "10000000"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.002a]
+name = """
+フレアウルフ
+"""
+name_pointer = "2a7f90"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Ice"]
+type = "Biologic"
+health = 145
+attack = 85
+defense = 17
+agility = 109
+field_7 = "01d7"
+field_8 = "01c7"
+field_9 = "0050"
+field_10 = "0005"
+field_11 = "0036"
+art_1 = "0075"
+art_2 = "007c"
+art_3 = "007d"
+art_4 = "007e"
+art_5 = "007e"
+art_6 = "007e"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "0055"
+field_24 = "10000000"
+field_26 = "00d2"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.002b]
+name = """
+シ−シザ−ス
+"""
+name_pointer = "2a7f80"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Biologic"
+health = 16
+attack = 22
+defense = 17
+agility = 47
+field_7 = "002a"
+field_8 = "003a"
+field_9 = "0050"
+field_10 = "000a"
+field_11 = "008d"
+art_1 = "007f"
+art_2 = "0080"
+art_3 = "0081"
+art_4 = "0082"
+field_18 = "005a"
+field_19 = "0064"
+field_23 = "0016"
+field_28 = "000c"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.002c]
+name = """
+シ−シア
+"""
+name_pointer = "2a7f70"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Biologic"
+health = 88
+attack = 59
+defense = 47
+agility = 93
+field_7 = "00ce"
+field_8 = "0073"
+field_9 = "005a"
+field_10 = "000a"
+field_11 = "008d"
+art_1 = "007f"
+art_2 = "0083"
+art_3 = "0084"
+art_4 = "0085"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "003b"
+field_27 = "001e"
+field_28 = "0020"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.002d]
+name = """
+シ−シアロ−ド
+"""
+name_pointer = "2a7f60"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Biologic"
+health = 98
+attack = 69
+defense = 17
+agility = 101
+field_7 = "012e"
+field_8 = "011a"
+field_9 = "005a"
+field_10 = "0008"
+field_11 = "008e"
+art_1 = "007f"
+art_2 = "0086"
+art_3 = "0087"
+art_4 = "0088"
+field_18 = "005a"
+field_19 = "0064"
+field_23 = "0045"
+field_27 = "0058"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.002e]
+name = """
+カイトカインド
+"""
+name_pointer = "2a7f50"
+resistances = ["Fire"]
+weaknesses = [
+    "Air",
+    "Lightning",
+]
+type = "Biologic"
+gfx_float = "Fly"
+health = 67
+attack = 58
+defense = 77
+agility = 62
+field_7 = "010a"
+field_8 = "0100"
+field_9 = "0046"
+field_10 = "0004"
+field_11 = "0094"
+art_1 = "0089"
+art_2 = "008a"
+art_3 = "008b"
+art_4 = "008c"
+art_5 = "008c"
+art_6 = "008c"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "003a"
+field_28 = "000a"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.002f]
+name = """
+レプタイルカイト
+"""
+name_pointer = "2a7f38"
+resistances = ["Fire"]
+weaknesses = [
+    "Air",
+    "Lightning",
+]
+type = "Biologic"
+gfx_float = "Fly"
+health = 92
+attack = 79
+defense = 80
+agility = 70
+field_7 = "015f"
+field_8 = "01b8"
+field_9 = "0050"
+field_10 = "0004"
+field_11 = "0095"
+art_1 = "0089"
+art_2 = "008d"
+art_3 = "008e"
+art_4 = "008f"
+art_5 = "008f"
+art_6 = "008f"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "004f"
+field_26 = "008b"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0030]
+name = """
+カイトドラゴン
+"""
+name_pointer = "2a7f28"
+resistances = ["Fire"]
+weaknesses = [
+    "Air",
+    "Lightning",
+]
+type = "Biologic"
+gfx_float = "Fly"
+health = 113
+attack = 84
+defense = 85
+agility = 74
+field_7 = "015d"
+field_8 = "01db"
+field_9 = "0050"
+field_10 = "0004"
+field_11 = "0097"
+art_1 = "0089"
+art_2 = "0090"
+art_3 = "0091"
+art_4 = "0092"
+art_5 = "0092"
+art_6 = "0092"
+field_18 = "005a"
+field_19 = "0064"
+field_23 = "0054"
+field_26 = "00ae"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0031]
+name = """
+ネオカイトニア
+"""
+name_pointer = "2a7f18"
+resistances = [
+    "Air",
+    "Lightning",
+]
+weaknesses = [
+    "Fire",
+    "Ice",
+]
+type = "Biologic"
+health = 100
+attack = 60
+defense = 45
+agility = 20
+field_7 = "010a"
+field_8 = "0109"
+field_9 = "0032"
+field_10 = "0008"
+field_11 = "008b"
+art_1 = "0093"
+art_2 = "0094"
+art_3 = "0095"
+art_4 = "0096"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "0054"
+field_26 = "0001"
+field_27 = "0054"
+field_28 = "20000000"
+field_29 = "0001"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0032]
+name = """
+ネオニルソニア
+"""
+name_pointer = "2a7f08"
+resistances = [
+    "Air",
+    "Lightning",
+]
+weaknesses = [
+    "Fire",
+    "Ice",
+]
+type = "Biologic"
+health = 120
+attack = 67
+defense = 45
+agility = 40
+field_7 = "014a"
+field_8 = "013b"
+field_9 = "003c"
+field_10 = "0008"
+field_11 = "008b"
+art_1 = "0093"
+art_2 = "0097"
+art_3 = "0098"
+art_4 = "0099"
+field_18 = "003c"
+field_19 = "0064"
+field_23 = "0043"
+field_26 = "0001"
+field_27 = "0043"
+field_28 = "20000000"
+field_29 = "0001"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0033]
+name = """
+ネオベネティテス
+"""
+name_pointer = "2a7ef0"
+resistances = [
+    "Air",
+    "Lightning",
+]
+weaknesses = [
+    "Fire",
+    "Ice",
+]
+type = "Biologic"
+health = 175
+attack = 83
+defense = 58
+agility = 45
+field_7 = "01f5"
+field_8 = "01e1"
+field_9 = "001e"
+field_10 = "0004"
+field_11 = "008c"
+art_1 = "0093"
+art_2 = "009a"
+art_3 = "009b"
+art_4 = "009c"
+field_18 = "005a"
+field_19 = "0064"
+field_23 = "0053"
+field_26 = "0001"
+field_27 = "0053"
+field_28 = "20000000"
+field_29 = "0001"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0034]
+name = """
+アイル−ロス
+"""
+name_pointer = "2a7ee0"
+weaknesses = ["Lightning"]
+type = "Biologic"
+health = 67
+attack = 61
+defense = 10
+agility = 50
+field_7 = "0114"
+field_8 = "00ec"
+field_9 = "003c"
+field_10 = "000a"
+field_11 = "0035"
+art_1 = "009d"
+art_2 = "009e"
+art_3 = "009f"
+art_4 = "009f"
+field_18 = "0064"
+field_23 = "003d"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0035]
+name = """
+リュンクス
+"""
+name_pointer = "2a7ed0"
+weaknesses = ["Lightning"]
+type = "Biologic"
+health = 132
+attack = 79
+defense = 10
+agility = 55
+field_7 = "01e1"
+field_8 = "01ae"
+field_9 = "0032"
+field_10 = "0008"
+field_11 = "0038"
+art_1 = "009d"
+art_2 = "00a0"
+art_3 = "00a1"
+art_4 = "00a1"
+field_18 = "0064"
+field_23 = "004f"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0036]
+name = """
+パンテ−ラ
+"""
+name_pointer = "2a7ec0"
+weaknesses = ["Lightning"]
+type = "Biologic"
+health = 182
+attack = 86
+defense = 10
+agility = 65
+field_7 = "0209"
+field_8 = "01e0"
+field_9 = "0028"
+field_10 = "0005"
+field_11 = "0039"
+art_1 = "009d"
+art_2 = "00a2"
+art_3 = "00a3"
+art_4 = "00a3"
+field_18 = "0064"
+field_23 = "0056"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0037]
+name = """
+ホイッスル
+"""
+name_pointer = "2a7eb0"
+resistances = ["Air"]
+weaknesses = ["Fire"]
+type = "Robotic"
+health = 82
+attack = 37
+defense = 5
+agility = 68
+field_7 = "01d6"
+field_8 = "0054"
+field_9 = "0046"
+field_10 = "0002"
+field_11 = "006d"
+art_1 = "00a4"
+art_2 = "00a5"
+art_3 = "00a6"
+art_4 = "00a7"
+art_5 = "00a6"
+art_6 = "00a6"
+field_18 = "0064"
+field_23 = "0025"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0038]
+name = """
+インフォ−マ−
+"""
+name_pointer = "2a7ea0"
+resistances = ["Air"]
+weaknesses = ["Fire"]
+type = "Robotic"
+health = 125
+attack = 53
+defense = 8
+agility = 68
+field_7 = "02b1"
+field_8 = "008e"
+field_9 = "0046"
+field_10 = "0002"
+field_11 = "006d"
+art_1 = "00a4"
+art_2 = "00a8"
+art_3 = "00a9"
+art_4 = "00aa"
+art_5 = "00a9"
+art_6 = "00a9"
+field_18 = "003c"
+field_19 = "0064"
+field_23 = "0035"
+field_27 = "0019"
+field_28 = "0020"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0039]
+name = """
+トレ−サ−
+"""
+name_pointer = "2a7e90"
+resistances = ["Air"]
+weaknesses = ["Fire"]
+type = "Robotic"
+health = 40
+attack = 9
+defense = 8
+agility = 10
+field_7 = "0002"
+field_8 = "0002"
+field_9 = "0064"
+art_1 = "00a4"
+art_2 = "00ab"
+art_3 = "00ac"
+art_4 = "00ad"
+art_5 = "00ac"
+art_6 = "00ac"
+field_18 = "0064"
+field_23 = "0009"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.003a]
+name = """
+ポリツァイ
+"""
+name_pointer = "2a7e80"
+type = "Robotic"
+health = 85
+attack = 50
+defense = 10
+agility = 33
+field_7 = "0238"
+field_8 = "00a0"
+field_9 = "009e"
+field_10 = "0004"
+field_11 = "001a"
+art_1 = "00ae"
+art_2 = "00af"
+art_3 = "00b0"
+art_4 = "00b1"
+art_5 = "00b0"
+art_6 = "00b0"
+field_18 = "0064"
+field_23 = "0032"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.003b]
+name = """
+ポリツァイＡＸ
+"""
+name_pointer = "2a7e70"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Robotic"
+health = 118
+attack = 87
+defense = 10
+agility = 50
+field_7 = "0357"
+field_8 = "00f0"
+field_9 = "0050"
+field_10 = "0004"
+field_11 = "001a"
+art_1 = "00ae"
+art_2 = "00b2"
+art_3 = "00b3"
+art_4 = "00b4"
+art_5 = "00b3"
+art_6 = "00b3"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "0057"
+field_27 = "0057"
+field_28 = "0002"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.003c]
+name = """
+ポリツァイＳＳ
+"""
+name_pointer = "2a7e60"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Robotic"
+health = 20
+attack = 12
+defense = 5
+agility = 30
+field_7 = "0002"
+field_8 = "0002"
+field_9 = "0064"
+art_1 = "00ae"
+art_2 = "00b5"
+art_3 = "00b6"
+art_4 = "00b7"
+art_5 = "00b6"
+art_6 = "00b6"
+field_18 = "0064"
+field_19 = "0064"
+field_23 = "000c"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.003d]
+name = """
+デホ
+"""
+name_pointer = "2da628"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Robotic"
+health = 137
+attack = 55
+defense = 10
+agility = 67
+field_7 = "02ce"
+field_8 = "00d5"
+field_9 = "0028"
+field_10 = "0004"
+field_11 = "001a"
+art_1 = "00b8"
+art_2 = "00b9"
+art_3 = "00ba"
+art_4 = "00ba"
+field_18 = "0064"
+field_23 = "0037"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.003e]
+name = """
+ホズイトデホ
+"""
+name_pointer = "2a7e50"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Robotic"
+health = 159
+attack = 67
+defense = 15
+agility = 78
+field_7 = "03f6"
+field_8 = "0103"
+field_9 = "0028"
+field_10 = "0004"
+field_11 = "001a"
+art_1 = "00b8"
+art_2 = "00bb"
+art_3 = "00bc"
+art_4 = "00bc"
+field_18 = "0064"
+field_23 = "0043"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.003f]
+name = """
+イッポデホ
+"""
+name_pointer = "2a7e40"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Robotic"
+health = 176
+attack = 80
+defense = 15
+agility = 85
+field_7 = "047d"
+field_8 = "013f"
+field_9 = "0028"
+field_10 = "0002"
+field_11 = "001b"
+art_1 = "00b8"
+art_2 = "00bd"
+art_3 = "00be"
+art_4 = "00be"
+field_18 = "0064"
+field_23 = "0050"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0040]
+name = """
+サットマン
+"""
+name_pointer = "2a7e30"
+resistances = [
+    "Fire",
+    "Air",
+]
+type = "Robotic"
+gfx_somepattern = "PatternB"
+health = 65
+attack = 46
+defense = 68
+agility = 35
+field_7 = "0273"
+field_8 = "0114"
+field_9 = "005a"
+field_10 = "000f"
+field_11 = "008b"
+art_1 = "00bf"
+art_2 = "00c0"
+art_3 = "00c1"
+art_4 = "00c1"
+art_5 = "00c1"
+art_6 = "00c1"
+field_18 = "0064"
+field_22 = "0001"
+field_23 = "002e"
+field_25 = "0002"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0041]
+name = """
+サットボ−イ
+"""
+name_pointer = "2a7e20"
+resistances = [
+    "Fire",
+    "Air",
+]
+type = "Robotic"
+gfx_somepattern = "PatternB"
+health = 85
+attack = 71
+defense = 84
+agility = 43
+field_7 = "0379"
+field_8 = "018f"
+field_9 = "0050"
+field_10 = "0002"
+field_11 = "006f"
+art_1 = "00bf"
+art_2 = "00c2"
+art_3 = "00c3"
+art_4 = "00c3"
+art_5 = "00c3"
+art_6 = "00c3"
+field_18 = "0064"
+field_22 = "0001"
+field_23 = "0047"
+field_25 = "0002"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0042]
+name = """
+サットサット
+"""
+name_pointer = "2a7e10"
+resistances = [
+    "Fire",
+    "Air",
+]
+type = "Robotic"
+gfx_somepattern = "PatternB"
+health = 105
+attack = 86
+defense = 95
+agility = 58
+field_7 = "0456"
+field_8 = "0205"
+field_9 = "005a"
+field_10 = "0002"
+field_11 = "0078"
+art_1 = "00bf"
+art_2 = "00c4"
+art_3 = "00c5"
+art_4 = "00c5"
+art_5 = "00c5"
+art_6 = "00c5"
+field_18 = "0064"
+field_22 = "0001"
+field_23 = "0056"
+field_25 = "0002"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0043]
+name = """
+ミゾランガンマ
+"""
+name_pointer = "2a7e00"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Robotic"
+health = 152
+attack = 68
+defense = 5
+agility = 90
+field_7 = "02af"
+field_8 = "00cd"
+field_9 = "0050"
+field_10 = "0002"
+field_11 = "002e"
+art_1 = "00c6"
+art_2 = "00c7"
+art_3 = "00c8"
+art_4 = "00c9"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "0044"
+field_26 = "0001"
+field_27 = "0044"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0044]
+name = """
+ミゾランシグマ
+"""
+name_pointer = "2a7df0"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Robotic"
+health = 184
+attack = 88
+defense = 17
+agility = 108
+field_7 = "03c0"
+field_8 = "0138"
+field_9 = "0046"
+field_10 = "0002"
+field_11 = "002e"
+art_1 = "00c6"
+art_2 = "00ca"
+art_3 = "00cb"
+art_4 = "00cb"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "0058"
+field_26 = "0001"
+field_27 = "0058"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0045]
+name = """
+ミゾランオメガ
+"""
+name_pointer = "2a7de0"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Robotic"
+health = 215
+attack = 102
+defense = 20
+agility = 125
+field_7 = "04ff"
+field_8 = "0154"
+field_9 = "0050"
+field_10 = "0008"
+field_11 = "002e"
+art_1 = "00c6"
+art_2 = "00cd"
+art_3 = "00ce"
+art_4 = "00ce"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "0066"
+field_26 = "0001"
+field_27 = "0066"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0046]
+name = """
+バンブ−
+"""
+name_pointer = "2a7dd0"
+resistances = [
+    "Air",
+    "Lightning",
+]
+weaknesses = ["Fire"]
+type = "Robotic"
+health = 148
+attack = 64
+defense = 3
+agility = 68
+field_7 = "02c3"
+field_8 = "00c5"
+field_9 = "0050"
+field_10 = "0004"
+field_11 = "0021"
+art_1 = "00d0"
+art_2 = "00d1"
+art_3 = "00d2"
+art_4 = "00d3"
+art_5 = "00d3"
+art_6 = "00d3"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "0040"
+field_26 = "0001"
+field_27 = "0040"
+field_28 = "20000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0047]
+name = """
+バンブ−トウィグ
+"""
+name_pointer = "2a7db8"
+resistances = [
+    "Air",
+    "Lightning",
+]
+weaknesses = ["Fire"]
+type = "Robotic"
+health = 158
+attack = 84
+defense = 14
+agility = 88
+field_7 = "0421"
+field_8 = "0116"
+field_9 = "0046"
+field_10 = "0004"
+field_11 = "0021"
+art_1 = "00d0"
+art_2 = "00d4"
+art_3 = "00d5"
+art_4 = "00d6"
+art_5 = "00d6"
+art_6 = "00d6"
+field_18 = "0064"
+field_23 = "0054"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0048]
+name = """
+バンブ−ド−ル
+"""
+name_pointer = "2a7da8"
+resistances = [
+    "Air",
+    "Lightning",
+]
+weaknesses = ["Fire"]
+type = "Robotic"
+health = 208
+attack = 108
+defense = 16
+agility = 93
+field_7 = "04ff"
+field_8 = "0149"
+field_9 = "0050"
+field_10 = "0002"
+field_11 = "0073"
+art_1 = "00d0"
+art_2 = "00d7"
+art_3 = "00d8"
+art_4 = "00d9"
+art_5 = "00d9"
+art_6 = "00d9"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "006c"
+field_26 = "0001"
+field_27 = "006c"
+field_28 = "20000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0049]
+name = """
+アイソ−ル
+"""
+name_pointer = "2a7d98"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Robotic"
+gfx_somepattern = "PatternC"
+health = 136
+attack = 61
+defense = 80
+agility = 48
+field_7 = "034d"
+field_8 = "01ce"
+field_9 = "0032"
+field_10 = "0008"
+field_11 = "001d"
+art_1 = "00da"
+art_2 = "00db"
+art_3 = "00dc"
+art_4 = "00dd"
+art_5 = "00dd"
+art_6 = "00dd"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "003d"
+field_26 = "0001"
+field_27 = "003d"
+field_28 = "20000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.004a]
+name = """
+ヘビ−ソルジャ−
+"""
+name_pointer = "2a7d80"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Robotic"
+gfx_somepattern = "PatternC"
+health = 190
+attack = 84
+defense = 92
+agility = 58
+field_7 = "0827"
+field_8 = "02be"
+field_9 = "0028"
+field_10 = "0004"
+field_11 = "001e"
+art_1 = "00da"
+art_2 = "00de"
+art_3 = "00df"
+art_4 = "00e0"
+art_5 = "00e0"
+art_6 = "00e0"
+field_18 = "004b"
+field_19 = "0064"
+field_23 = "0054"
+field_26 = "0001"
+field_27 = "0054"
+field_28 = "20000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.004b]
+name = """
+グランバスタ−
+"""
+name_pointer = "2a7d70"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Robotic"
+gfx_somepattern = "PatternC"
+health = 215
+attack = 104
+defense = 98
+agility = 68
+field_7 = "0d1e"
+field_8 = "0392"
+field_9 = "0032"
+field_10 = "0002"
+field_11 = "0018"
+art_1 = "00da"
+art_2 = "00e1"
+art_3 = "00e2"
+art_4 = "00e3"
+art_5 = "00e3"
+art_6 = "00e3"
+field_18 = "0064"
+field_23 = "0068"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.004c]
+name = """
+ア−ミ−アイ
+"""
+name_pointer = "2a7d60"
+resistances = [
+    "Air",
+    "Lightning",
+]
+weaknesses = ["Fire"]
+type = "Robotic"
+gravito_immune = true
+gfx_float = "Hover"
+health = 9999
+attack = 120
+defense = 136
+agility = 60
+field_7 = "0002"
+art_1 = "00e4"
+art_2 = "00e5"
+art_3 = "00e6"
+art_4 = "00e6"
+art_5 = "00e6"
+art_6 = "00e6"
+field_18 = "0064"
+field_23 = "0078"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.004d]
+name = """
+トレ−サベ−ス
+"""
+name_pointer = "2a7d50"
+resistances = [
+    "Air",
+    "Lightning",
+]
+weaknesses = ["Fire"]
+type = "Robotic"
+gfx_float = "Hover"
+health = 261
+attack = 127
+defense = 104
+agility = 45
+field_7 = "06ed"
+field_8 = "0360"
+field_9 = "0046"
+field_10 = "0002"
+field_11 = "006f"
+art_1 = "00e4"
+art_2 = "00e7"
+art_3 = "00e8"
+art_4 = "00e8"
+art_5 = "00e8"
+art_6 = "00e8"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "007f"
+field_26 = "0001"
+field_27 = "007f"
+field_28 = "20000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.004e]
+name = """
+ポリンスペクタ−
+"""
+name_pointer = "2a7d38"
+resistances = [
+    "Air",
+    "Lightning",
+]
+weaknesses = ["Fire"]
+type = "Robotic"
+gfx_float = "Hover"
+health = 306
+attack = 157
+defense = 122
+agility = 70
+field_7 = "095b"
+field_8 = "007c"
+field_9 = "0014"
+field_10 = "0002"
+field_11 = "0064"
+art_1 = "00e4"
+art_2 = "00e9"
+art_3 = "00ea"
+art_4 = "00ea"
+art_5 = "00ea"
+art_6 = "00ea"
+field_18 = "0064"
+field_23 = "009d"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.004f]
+name = """
+ク−リ−６１
+"""
+name_pointer = "2a7d28"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Robotic"
+gfx_somepattern = "PatternB"
+health = 161
+attack = 91
+defense = 51
+agility = 63
+field_7 = "045e"
+field_8 = "00b0"
+field_9 = "003c"
+field_10 = "0004"
+field_11 = "0059"
+art_1 = "00eb"
+art_2 = "00ec"
+art_3 = "00ed"
+art_4 = "00ed"
+field_18 = "0064"
+field_23 = "005b"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0050]
+name = """
+サボキャップ
+"""
+name_pointer = "2a7d18"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Robotic"
+gfx_somepattern = "PatternB"
+health = 194
+attack = 106
+defense = 54
+agility = 73
+field_7 = "05c4"
+field_8 = "007c"
+field_9 = "0028"
+field_10 = "0004"
+field_11 = "0059"
+art_1 = "00eb"
+art_2 = "00ee"
+art_3 = "00ef"
+art_4 = "00ef"
+field_18 = "0064"
+field_23 = "006a"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0051]
+name = """
+ミネラロジスト
+"""
+name_pointer = "2a7d08"
+resistances = [
+    "Fire",
+    "Air",
+]
+weaknesses = ["Lightning"]
+type = "Robotic"
+gfx_somepattern = "PatternB"
+health = 216
+attack = 121
+defense = 56
+agility = 88
+field_7 = "07c2"
+field_8 = "00bd"
+field_9 = "001e"
+field_10 = "0002"
+field_11 = "001e"
+art_1 = "00eb"
+art_2 = "00f0"
+art_3 = "00f1"
+art_4 = "00f1"
+field_18 = "0064"
+field_23 = "0079"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0052]
+name = """
+バン
+"""
+name_pointer = "2da620"
+resistances = [
+    "Fire",
+    "Air",
+]
+type = "Robotic"
+health = 197
+attack = 93
+defense = 83
+agility = 55
+field_7 = "04eb"
+field_8 = "0254"
+field_9 = "000a"
+field_10 = "0002"
+field_11 = "0021"
+art_1 = "00f2"
+art_2 = "00f3"
+art_3 = "00f4"
+art_4 = "00f5"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "005d"
+field_26 = "0001"
+field_27 = "005d"
+field_28 = "20000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0053]
+name = """
+バンリ−ダ−
+"""
+name_pointer = "2a7cf8"
+resistances = [
+    "Fire",
+    "Air",
+]
+type = "Robotic"
+health = 239
+attack = 108
+defense = 95
+agility = 63
+field_7 = "0658"
+field_8 = "02eb"
+field_9 = "0014"
+field_10 = "0002"
+field_11 = "0022"
+art_1 = "00f2"
+art_2 = "00f6"
+art_3 = "00f7"
+art_4 = "00f8"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "006c"
+field_26 = "0001"
+field_27 = "006c"
+field_28 = "20000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0054]
+name = """
+アイレティ−ア
+"""
+name_pointer = "2a7ce8"
+resistances = [
+    "Fire",
+    "Air",
+]
+type = "Robotic"
+health = 360
+attack = 168
+defense = 144
+agility = 90
+field_7 = "0a95"
+field_8 = "0438"
+field_9 = "001e"
+field_10 = "0002"
+field_11 = "0023"
+art_1 = "00f2"
+art_2 = "00f9"
+art_3 = "00fa"
+art_4 = "00fb"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "00a8"
+field_26 = "0001"
+field_27 = "00a8"
+field_28 = "20000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0055]
+name = """
+ハングリ−エイプ
+"""
+name_pointer = "2a7cd0"
+resistances = ["Lightning"]
+weaknesses = [
+    "Fire",
+    "Ice",
+]
+type = "Biologic"
+health = 128
+attack = 94
+defense = 6
+agility = 98
+field_7 = "06f2"
+field_8 = "00c1"
+field_9 = "0050"
+field_10 = "0002"
+field_11 = "0098"
+art_1 = "00fc"
+art_2 = "00fd"
+art_3 = "00fe"
+art_4 = "00ff"
+art_5 = "00ff"
+art_6 = "00ff"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "005e"
+field_26 = "00ad"
+field_28 = "10000000"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0056]
+name = """
+ラスカルモンキ−
+"""
+name_pointer = "2a7cb8"
+resistances = ["Lightning"]
+weaknesses = [
+    "Fire",
+    "Ice",
+]
+type = "Biologic"
+health = 155
+attack = 98
+defense = 6
+agility = 103
+field_7 = "0882"
+field_8 = "00ef"
+field_9 = "0050"
+field_10 = "0002"
+field_11 = "0088"
+art_1 = "00fc"
+art_2 = "0100"
+art_3 = "0101"
+art_4 = "0102"
+art_5 = "0102"
+art_6 = "0102"
+field_18 = "0064"
+field_23 = "0062"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0057]
+name = """
+ドロ−ルモンキ−
+"""
+name_pointer = "2a7ca0"
+resistances = ["Lightning"]
+weaknesses = [
+    "Fire",
+    "Ice",
+]
+type = "Biologic"
+health = 191
+attack = 104
+defense = 6
+agility = 83
+field_7 = "0a7c"
+field_8 = "00fc"
+field_9 = "0050"
+field_10 = "0002"
+field_11 = "0087"
+art_1 = "00fc"
+art_2 = "0103"
+art_3 = "0104"
+art_4 = "0105"
+art_5 = "0105"
+art_6 = "0105"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "0068"
+field_27 = "0040"
+field_28 = "0108"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0058]
+name = """
+ネオマンモス
+"""
+name_pointer = "2a7c90"
+resistances = [
+    "Fire",
+    "Ice",
+]
+weaknesses = ["Lightning"]
+type = "Biologic"
+gfx_somepattern = "PatternC"
+health = 187
+attack = 137
+defense = 63
+agility = 43
+field_7 = "075f"
+field_8 = "0348"
+field_9 = "0050"
+field_10 = "0002"
+field_11 = "002a"
+art_1 = "0106"
+art_2 = "0107"
+art_3 = "0108"
+art_4 = "0108"
+field_18 = "0064"
+field_23 = "0089"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0059]
+name = """
+ネオビッグノ−ズ
+"""
+name_pointer = "2a7c78"
+resistances = [
+    "Fire",
+    "Ice",
+]
+weaknesses = ["Lightning"]
+type = "Biologic"
+gfx_somepattern = "PatternC"
+health = 187
+attack = 167
+defense = 69
+agility = 65
+field_7 = "0990"
+field_8 = "038b"
+field_9 = "0050"
+field_10 = "0002"
+field_11 = "002a"
+art_1 = "0106"
+art_2 = "0109"
+art_3 = "010a"
+art_4 = "010a"
+field_18 = "0064"
+field_23 = "00a7"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.005a]
+name = """
+デゾリアマンモス
+"""
+name_pointer = "2a7c60"
+resistances = [
+    "Fire",
+    "Ice",
+]
+weaknesses = ["Lightning"]
+type = "Biologic"
+gfx_somepattern = "PatternC"
+health = 187
+attack = 129
+defense = 62
+agility = 95
+field_7 = "0d3f"
+field_8 = "0396"
+field_9 = "0050"
+field_10 = "0003"
+field_11 = "002a"
+art_1 = "0106"
+art_2 = "010b"
+art_3 = "010c"
+art_4 = "010c"
+field_18 = "0064"
+field_23 = "0081"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.005b]
+name = """
+アウルデゾリア
+"""
+name_pointer = "2a7c50"
+weaknesses = ["Air"]
+type = "Biologic"
+health = 112
+attack = 105
+defense = 36
+agility = 40
+field_7 = "0728"
+field_8 = "0074"
+field_9 = "0050"
+field_10 = "000f"
+field_11 = "0095"
+art_1 = "010d"
+art_2 = "010e"
+art_3 = "010f"
+art_4 = "0110"
+art_5 = "0110"
+art_6 = "0110"
+field_18 = "0064"
+field_23 = "0069"
+field_24 = "10000000"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.005c]
+name = """
+スカイティア−ラ
+"""
+name_pointer = "2a7c38"
+weaknesses = ["Air"]
+type = "Biologic"
+health = 129
+attack = 129
+defense = 62
+agility = 68
+field_7 = "08eb"
+field_8 = "011f"
+field_9 = "0050"
+field_10 = "0002"
+field_11 = "0048"
+art_1 = "010d"
+art_2 = "0111"
+art_3 = "0112"
+art_4 = "0113"
+art_5 = "0113"
+art_6 = "0113"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "0081"
+field_24 = "10000000"
+field_28 = "000c"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.005d]
+name = """
+マレフィックアイ
+"""
+name_pointer = "2a7c20"
+weaknesses = ["Air"]
+type = "Biologic"
+health = 145
+attack = 141
+defense = 79
+agility = 93
+field_7 = "0a8d"
+field_8 = "018d"
+field_9 = "0050"
+field_10 = "0002"
+field_11 = "004f"
+art_1 = "010d"
+art_2 = "0114"
+art_3 = "0115"
+art_4 = "0116"
+art_5 = "0116"
+art_6 = "0116"
+field_18 = "0064"
+field_23 = "008d"
+field_24 = "10000000"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.005e]
+name = """
+ダ−ティアンゴラ
+"""
+name_pointer = "2a7c08"
+resistances = [
+    "Ice",
+    "Lightning",
+]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 153
+attack = 70
+defense = 6
+agility = 75
+field_7 = "06bc"
+field_8 = "010e"
+field_9 = "0028"
+field_10 = "0028"
+field_11 = "0090"
+art_1 = "0117"
+art_2 = "0118"
+art_3 = "0119"
+art_4 = "011a"
+art_5 = "011a"
+art_6 = "011a"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "0046"
+field_27 = "0023"
+field_28 = "10000001"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.005f]
+name = """
+スポイルラビット
+"""
+name_pointer = "2a7bf0"
+resistances = [
+    "Ice",
+    "Lightning",
+]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 167
+attack = 108
+defense = 10
+agility = 80
+field_7 = "08be"
+field_8 = "016c"
+field_9 = "0028"
+field_10 = "0008"
+field_11 = "008b"
+art_1 = "0117"
+art_2 = "011b"
+art_3 = "011c"
+art_4 = "011d"
+art_5 = "011d"
+art_6 = "011d"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "006c"
+field_27 = "0036"
+field_28 = "10000020"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0060]
+name = """
+スニフィラビット
+"""
+name_pointer = "2a7bd8"
+resistances = [
+    "Ice",
+    "Lightning",
+]
+weaknesses = ["Fire"]
+type = "Biologic"
+health = 203
+attack = 116
+defense = 16
+agility = 85
+field_7 = "0b04"
+field_8 = "01e0"
+field_9 = "0028"
+field_10 = "0004"
+field_11 = "008c"
+art_1 = "0117"
+art_2 = "011e"
+art_3 = "011f"
+art_4 = "0120"
+art_5 = "0120"
+art_6 = "0120"
+field_18 = "0064"
+field_23 = "0074"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0061]
+name = """
+ムソオル
+"""
+name_pointer = "2a7bc8"
+resistances = ["Ice"]
+weaknesses = ["Lightning"]
+type = "Biologic"
+health = 184
+attack = 90
+defense = 8
+agility = 58
+field_7 = "0b8b"
+field_8 = "007c"
+field_9 = "0050"
+field_10 = "0006"
+field_11 = "0059"
+art_1 = "0121"
+art_2 = "0122"
+art_3 = "0123"
+art_4 = "0124"
+art_5 = "0124"
+art_6 = "0124"
+field_18 = "005a"
+field_19 = "0064"
+field_23 = "005a"
+field_28 = "000a"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0062]
+name = """
+サコフ
+"""
+name_pointer = "2da618"
+resistances = ["Ice"]
+weaknesses = ["Lightning"]
+type = "Biologic"
+health = 198
+attack = 107
+defense = 15
+agility = 88
+field_7 = "0fe8"
+field_8 = "00a6"
+field_9 = "0050"
+field_10 = "0004"
+field_11 = "005a"
+art_1 = "0121"
+art_2 = "0125"
+art_3 = "0126"
+art_4 = "0127"
+art_5 = "0127"
+art_6 = "0127"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "006b"
+field_27 = "0035"
+field_28 = "0001"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0063]
+name = """
+モソロフ
+"""
+name_pointer = "2a7bb8"
+resistances = ["Ice"]
+weaknesses = ["Lightning"]
+type = "Biologic"
+health = 215
+attack = 120
+defense = 20
+agility = 103
+field_7 = "1281"
+field_8 = "00bd"
+field_9 = "0050"
+field_10 = "0004"
+field_11 = "005f"
+art_1 = "0121"
+art_2 = "0128"
+art_3 = "0129"
+art_4 = "012a"
+art_5 = "012a"
+art_6 = "012a"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "0078"
+field_28 = "000c"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0064]
+name = """
+リビングブレ−ド
+"""
+name_pointer = "2a7ba0"
+resistances = ["Ice"]
+weaknesses = ["Lightning"]
+type = "Demonic"
+gfx_somepattern = "PatternA"
+gfx_float = "Hover"
+health = 292
+attack = 209
+defense = 47
+agility = 90
+field_7 = "1833"
+field_8 = "00a8"
+field_9 = "000a"
+field_10 = "0004"
+field_11 = "000d"
+art_1 = "012b"
+art_2 = "012c"
+art_3 = "012d"
+art_4 = "012e"
+art_5 = "012e"
+art_6 = "012e"
+field_18 = "004b"
+field_19 = "0064"
+field_23 = "00d1"
+field_26 = "0001"
+field_27 = "0064"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0065]
+name = """
+クライブリンガ−
+"""
+name_pointer = "2a7b88"
+resistances = ["Ice"]
+weaknesses = ["Lightning"]
+type = "Demonic"
+gfx_somepattern = "PatternA"
+gfx_float = "Hover"
+health = 330
+attack = 229
+defense = 23
+agility = 113
+field_7 = "16dc"
+field_8 = "00ce"
+field_9 = "0014"
+field_10 = "0004"
+field_11 = "0010"
+art_1 = "012b"
+art_2 = "012f"
+art_3 = "0130"
+art_4 = "0131"
+art_5 = "0131"
+art_6 = "0131"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "00e5"
+field_27 = "0073"
+field_28 = "0020"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0066]
+name = """
+デスロウナ−
+"""
+name_pointer = "2a7b78"
+resistances = ["Ice"]
+weaknesses = ["Lightning"]
+type = "Demonic"
+gfx_somepattern = "PatternA"
+gfx_float = "Hover"
+health = 290
+attack = 192
+defense = 23
+agility = 128
+field_7 = "1af1"
+field_8 = "00e7"
+field_9 = "000a"
+field_10 = "0004"
+field_11 = "0012"
+art_1 = "012b"
+art_2 = "0132"
+art_3 = "0133"
+art_4 = "0134"
+art_5 = "0134"
+art_6 = "0134"
+field_18 = "0032"
+field_19 = "0046"
+field_20 = "005a"
+field_21 = "0064"
+field_23 = "00c0"
+field_26 = "0001"
+field_27 = "0064"
+field_31 = "0064"
+field_32 = "0020"
+field_34 = "00a1"
+field_36 = "20000000"
+
+[enemy.0067]
+name = """
+ダ−クサイド
+"""
+name_pointer = "2a7b68"
+resistances = [
+    "Fire",
+    "Ice",
+    "Lightning",
+]
+type = "Demonic"
+gfx_somepattern = "PatternA"
+health = 283
+attack = 154
+defense = 13
+agility = 85
+field_7 = "0f8a"
+field_8 = "00a2"
+field_9 = "000a"
+field_10 = "0002"
+field_11 = "007b"
+art_1 = "0135"
+art_2 = "0136"
+art_3 = "0137"
+art_4 = "0137"
+art_5 = "0137"
+art_6 = "0137"
+field_18 = "0064"
+field_23 = "009a"
+field_24 = "20000000"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0068]
+name = """
+デスインバ−タ−
+"""
+name_pointer = "2a7b50"
+resistances = [
+    "Fire",
+    "Ice",
+    "Lightning",
+]
+type = "Demonic"
+gfx_somepattern = "PatternA"
+health = 324
+attack = 174
+defense = 15
+agility = 108
+field_7 = "134e"
+field_8 = "00c5"
+field_9 = "000a"
+field_10 = "0004"
+field_11 = "007b"
+art_1 = "0135"
+art_2 = "0138"
+art_3 = "0139"
+art_4 = "0139"
+art_5 = "0139"
+art_6 = "0139"
+field_18 = "0064"
+field_23 = "00ae"
+field_24 = "20000000"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0069]
+name = """
+シェイドシフタ−
+"""
+name_pointer = "2a7b38"
+resistances = [
+    "Fire",
+    "Ice",
+    "Lightning",
+]
+type = "Demonic"
+gfx_somepattern = "PatternA"
+health = 365
+attack = 190
+defense = 17
+agility = 125
+field_7 = "1685"
+field_8 = "00e3"
+field_9 = "000a"
+field_10 = "0006"
+field_11 = "007b"
+art_1 = "0135"
+art_2 = "013a"
+art_3 = "013b"
+art_4 = "013b"
+art_5 = "013b"
+art_6 = "013b"
+field_18 = "0064"
+field_23 = "00be"
+field_24 = "20000000"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.006a]
+name = """
+カオスソ−サラ−
+"""
+name_pointer = "2a7b20"
+resistances = [
+    "Ice",
+    "Air",
+]
+type = "Biologic"
+health = 163
+attack = 92
+defense = 16
+agility = 63
+field_7 = "0d3e"
+field_8 = "0074"
+field_9 = "001e"
+field_10 = "0003"
+field_11 = "002f"
+art_1 = "013c"
+art_2 = "013d"
+art_3 = "013e"
+art_4 = "013f"
+art_5 = "013f"
+art_6 = "013f"
+field_18 = "0019"
+field_19 = "0032"
+field_20 = "004b"
+field_21 = "0064"
+field_23 = "005c"
+field_26 = "0082"
+field_28 = "20000000"
+field_30 = "00cf"
+field_32 = "10000000"
+field_34 = "00d0"
+field_36 = "20000000"
+
+[enemy.006b]
+name = """
+イリュジュニスト
+"""
+name_pointer = "2a7b08"
+resistances = [
+    "Ice",
+    "Air",
+]
+type = "Biologic"
+health = 204
+attack = 107
+defense = 18
+agility = 80
+field_7 = "1148"
+field_8 = "009b"
+field_9 = "0046"
+field_10 = "0005"
+field_11 = "0030"
+art_1 = "013c"
+art_2 = "0140"
+art_3 = "0141"
+art_4 = "0142"
+art_5 = "0142"
+art_6 = "0142"
+field_18 = "0019"
+field_19 = "0032"
+field_20 = "004b"
+field_21 = "0064"
+field_23 = "006b"
+field_26 = "0085"
+field_28 = "20000000"
+field_30 = "00ae"
+field_32 = "10000000"
+field_34 = "00ce"
+field_36 = "10000000"
+
+[enemy.006c]
+name = """
+イマジオメイジ
+"""
+name_pointer = "2a7af8"
+resistances = [
+    "Ice",
+    "Air",
+]
+type = "Biologic"
+health = 238
+attack = 177
+defense = 18
+agility = 123
+field_7 = "163e"
+field_8 = "00df"
+field_9 = "001e"
+field_10 = "0005"
+field_11 = "0031"
+art_1 = "013c"
+art_2 = "0143"
+art_3 = "0144"
+art_4 = "0145"
+art_5 = "0145"
+art_6 = "0145"
+field_18 = "0019"
+field_19 = "003c"
+field_20 = "004b"
+field_21 = "0064"
+field_23 = "006b"
+field_26 = "008b"
+field_30 = "008f"
+field_32 = "20000000"
+field_34 = "00ae"
+field_36 = "10000000"
+
+[enemy.006d]
+name = """
+ア−キドラゴン
+"""
+name_pointer = "2a7ae8"
+resistances = [
+    "Fire",
+    "Ice",
+]
+weaknesses = ["Air"]
+type = "Biologic"
+gfx_somepattern = "PatternC"
+health = 276
+attack = 254
+defense = 67
+agility = 100
+field_7 = "2570"
+field_8 = "009f"
+field_9 = "0032"
+field_10 = "0002"
+field_11 = "0091"
+art_1 = "0146"
+art_2 = "0147"
+art_3 = "0148"
+art_4 = "0148"
+art_5 = "0148"
+art_6 = "0148"
+field_18 = "0064"
+field_23 = "00fe"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.006e]
+name = """
+ドラゴンダウト
+"""
+name_pointer = "2a7ad8"
+resistances = [
+    "Fire",
+    "Ice",
+]
+weaknesses = ["Air"]
+type = "Biologic"
+gfx_somepattern = "PatternC"
+health = 262
+attack = 223
+defense = 63
+agility = 118
+field_7 = "20a3"
+field_8 = "00d6"
+field_9 = "0028"
+field_10 = "0002"
+field_11 = "0091"
+art_1 = "0146"
+art_2 = "0149"
+art_3 = "014a"
+art_4 = "014a"
+art_5 = "014a"
+art_6 = "014a"
+field_18 = "0064"
+field_23 = "00df"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.006f]
+name = """
+ドラゴンヘイト
+"""
+name_pointer = "2a7ac8"
+resistances = [
+    "Fire",
+    "Ice",
+]
+weaknesses = ["Air"]
+type = "Biologic"
+gfx_somepattern = "PatternC"
+health = 259
+attack = 213
+defense = 59
+agility = 108
+field_7 = "1a5b"
+field_8 = "00c5"
+field_9 = "003c"
+field_10 = "0002"
+field_11 = "0091"
+art_1 = "0146"
+art_2 = "014b"
+art_3 = "014c"
+art_4 = "014c"
+art_5 = "014c"
+art_6 = "014c"
+field_18 = "0064"
+field_23 = "00d5"
+field_26 = "ffffffff"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0070]
+name = """
+ファイアレムレス
+"""
+name_pointer = "2a7ab0"
+resistances = ["Fire"]
+weaknesses = ["Ice"]
+type = "Demonic"
+gfx_somepattern = "PatternA"
+health = 256
+attack = 195
+defense = 102
+agility = 98
+field_7 = "20fe"
+field_8 = "00b5"
+field_9 = "000a"
+field_10 = "0003"
+field_11 = "008f"
+art_1 = "014d"
+art_2 = "014e"
+art_3 = "014f"
+art_4 = "0150"
+art_5 = "0150"
+art_6 = "0150"
+field_18 = "0050"
+field_19 = "0064"
+field_23 = "00c3"
+field_26 = "0001"
+field_27 = "0064"
+field_28 = "20000000"
+field_29 = "0003"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0071]
+name = """
+スト−ムレムレス
+"""
+name_pointer = "2a7a98"
+resistances = ["Air"]
+weaknesses = ["Lightning"]
+type = "Demonic"
+gfx_somepattern = "PatternA"
+health = 296
+attack = 215
+defense = 118
+agility = 120
+field_7 = "2771"
+field_8 = "00da"
+field_9 = "0014"
+field_10 = "0003"
+field_11 = "008f"
+art_1 = "014d"
+art_2 = "0151"
+art_3 = "0152"
+art_4 = "0153"
+art_5 = "0153"
+art_6 = "0153"
+field_18 = "0046"
+field_19 = "0064"
+field_23 = "00d7"
+field_26 = "0001"
+field_27 = "006e"
+field_28 = "20000000"
+field_29 = "0003"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0072]
+name = """
+キングレムレス
+"""
+name_pointer = "2a7a88"
+resistances = [
+    "Ice",
+    "Lightning",
+]
+weaknesses = ["Air"]
+type = "Demonic"
+gfx_somepattern = "PatternA"
+health = 333
+attack = 248
+defense = 129
+agility = 135
+field_7 = "3678"
+field_8 = "00f5"
+field_9 = "003c"
+field_10 = "0003"
+field_11 = "008f"
+art_1 = "014d"
+art_2 = "0154"
+art_3 = "0155"
+art_4 = "0156"
+art_5 = "0156"
+art_6 = "0156"
+field_18 = "003c"
+field_19 = "0064"
+field_23 = "00f8"
+field_26 = "0001"
+field_27 = "008c"
+field_28 = "20000000"
+field_29 = "0003"
+field_30 = "ffffffff"
+field_34 = "ffffffff"
+
+[enemy.0073]
+name = """
+ダ・ケムル・ラ−
+"""
+name_pointer = "2a7a70"
+resistances = ["Fire"]
+type = "Demonic"
+gfx_somepattern = "PatternC"
+health = 352
+attack = 218
+defense = 8
+agility = 78
+field_7 = "264d"
+field_8 = "0097"
+field_9 = "001e"
+field_10 = "0002"
+field_11 = "0069"
+art_1 = "0157"
+art_2 = "0158"
+art_3 = "0159"
+art_4 = "015a"
+art_5 = "015a"
+art_6 = "015a"
+field_18 = "0032"
+field_19 = "004b"
+field_20 = "0055"
+field_21 = "0064"
+field_23 = "00da"
+field_26 = "0082"
+field_30 = "008b"
+field_32 = "20000000"
+field_34 = "00ae"
+field_36 = "10000000"
+
+[enemy.0074]
+name = """
+ルン・フィン・ガ
+"""
+name_pointer = "2a7a58"
+resistances = ["Air"]
+type = "Demonic"
+gfx_somepattern = "PatternC"
+health = 358
+attack = 256
+defense = 16
+agility = 90
+field_7 = "2c87"
+field_8 = "00ca"
+field_9 = "0028"
+field_10 = "0003"
+field_11 = "0069"
+art_1 = "0157"
+art_2 = "015b"
+art_3 = "015c"
+art_4 = "015d"
+art_5 = "015d"
+art_6 = "015d"
+field_18 = "0028"
+field_19 = "0041"
+field_20 = "0050"
+field_21 = "0064"
+field_23 = "0100"
+field_26 = "0085"
+field_30 = "008b"
+field_32 = "20000000"
+field_34 = "00ae"
+field_36 = "10000000"
+
+[enemy.0075]
+name = """
+ギ・ル・ザ−ク
+"""
+name_pointer = "2a7a48"
+resistances = ["Ice"]
+type = "Demonic"
+gfx_somepattern = "PatternC"
+health = 364
+attack = 274
+defense = 16
+agility = 90
+field_7 = "2fd8"
+field_8 = "00ec"
+field_9 = "001e"
+field_10 = "0005"
+field_11 = "0069"
+art_1 = "0157"
+art_2 = "015e"
+art_3 = "015f"
+art_4 = "0160"
+art_5 = "0160"
+art_6 = "0160"
+field_18 = "0019"
+field_19 = "0041"
+field_20 = "004b"
+field_21 = "0064"
+field_23 = "0112"
+field_26 = "0085"
+field_30 = "008c"
+field_32 = "20000000"
+field_34 = "00ae"
+field_36 = "10000000"
+
+[enemy.0076]
+name = """
+パ・ラッピ−
+"""
+name_pointer = "2a7a38"
+resistances = ["Air"]
+type = "Biologic"
+health = 146
+attack = 86
+defense = 18
+agility = 64
+field_7 = "07d0"
+field_8 = "00c8"
+field_9 = "000a"
+field_10 = "0064"
+field_11 = "008c"
+art_1 = "0161"
+art_2 = "0162"
+art_3 = "0163"
+art_4 = "0164"
+art_5 = "0164"
+art_6 = "0164"
+field_18 = "0032"
+field_19 = "0050"
+field_20 = "0055"
+field_21 = "0064"
+field_23 = "0056"
+field_26 = "00ae"
+field_27 = "000a"
+field_28 = "10000000"
+field_30 = "00a4"
+field_32 = "10000000"
+field_34 = "008a"
+
+[enemy.0077]
+name = """
+モ・ラッピ−
+"""
+name_pointer = "2a7a28"
+resistances = ["Fire"]
+type = "Biologic"
+health = 20
+attack = 6
+defense = 10
+agility = 20
+field_7 = "000a"
+field_8 = "0014"
+field_9 = "000a"
+field_10 = "00c8"
+field_11 = "008a"
+art_1 = "0161"
+art_2 = "0165"
+art_3 = "0166"
+art_4 = "0167"
+art_5 = "0167"
+art_6 = "0167"
+field_18 = "0032"
+field_19 = "0050"
+field_20 = "0055"
+field_21 = "0064"
+field_23 = "0006"
+field_26 = "00ad"
+field_27 = "000a"
+field_28 = "10000000"
+field_30 = "00a4"
+field_32 = "10000000"
+field_34 = "0087"
+
+[enemy.0078]
+name = """
+デ・ラッピ−
+"""
+name_pointer = "2a7a18"
+resistances = ["Ice"]
+type = "Biologic"
+health = 210
+attack = 100
+defense = 23
+agility = 72
+field_7 = "1388"
+field_8 = "00f0"
+field_9 = "000a"
+field_10 = "0032"
+field_11 = "008e"
+art_1 = "0161"
+art_2 = "0168"
+art_3 = "0169"
+art_4 = "016a"
+art_5 = "016a"
+art_6 = "016a"
+field_18 = "003c"
+field_19 = "0046"
+field_20 = "0050"
+field_21 = "0064"
+field_23 = "0064"
+field_26 = "00af"
+field_27 = "000a"
+field_28 = "10000000"
+field_30 = "00a4"
+field_32 = "10000000"
+field_34 = "0085"
+
+[enemy.0079]
+name = """
+ネイ・ファ−スト
+"""
+name_pointer = "2a7a00"
+type = "Biologic"
+gravito_immune = true
+gfx_somepattern = "PatternA"
+health = 1200
+attack = 178
+defense = 10
+agility = 68
+field_7 = "0457"
+field_8 = "0457"
+art_1 = "016b"
+art_2 = "016c"
+art_3 = "016d"
+art_4 = "016e"
+art_5 = "016f"
+art_6 = "016f"
+field_18 = "0032"
+field_19 = "0050"
+field_20 = "0064"
+field_23 = "009e"
+field_27 = "012c"
+field_28 = "10000000"
+field_29 = "0006"
+field_30 = "00ae"
+field_31 = "000a"
+field_32 = "10000000"
+field_34 = "ffffffff"
+
+[enemy.007a]
+name = """
+ダ−クファルス
+"""
+name_pointer = "2a79f0"
+type = "Demonic"
+gravito_immune = true
+super_boss = true
+gfx_somepattern = "PatternA"
+health = 11000
+attack = 720
+defense = 30
+field_7 = "08ae"
+art_1 = "0170"
+art_2 = "0171"
+art_3 = "0172"
+art_4 = "0173"
+art_5 = "0174"
+art_6 = "0175"
+field_18 = "001e"
+field_19 = "0046"
+field_20 = "005a"
+field_21 = "0064"
+field_23 = "026c"
+field_25 = "0006"
+field_26 = "0001"
+field_27 = "0190"
+field_32 = "10010000"
+field_34 = "008f"
+field_36 = "20000000"
+
+[enemy.007b]
+name = """
+マザ−ブレイン
+"""
+name_pointer = "2a79e0"
+type = "Robotic"
+gravito_immune = true
+super_boss = true
+gfx_somepattern = "PatternA"
+health = 7450
+attack = 728
+defense = 100
+art_1 = "0176"
+art_2 = "0177"
+art_3 = "0178"
+art_4 = "0179"
+art_5 = "017a"
+art_6 = "0178"
+field_18 = "0032"
+field_19 = "005a"
+field_20 = "0064"
+field_21 = "0064"
+field_23 = "033c"
+field_26 = "0001"
+field_27 = "01f4"
+field_29 = "0005"
+field_30 = "0092"
+field_35 = "0001"
+
+[enemy.007c]
+name = """
+ネイ・ファ−スト
+"""
+name_pointer = "2a7a00"
+type = "Biologic"
+gravito_immune = true
+gfx_somepattern = "PatternA"
+health = 1500
+attack = 188
+defense = 30
+agility = 68
+field_7 = "0457"
+field_8 = "0457"
+art_1 = "016b"
+art_2 = "016c"
+art_3 = "016d"
+art_4 = "016e"
+art_5 = "016f"
+art_6 = "016f"
+field_18 = "0032"
+field_19 = "0050"
+field_20 = "0061"
+field_21 = "0064"
+field_23 = "00b2"
+field_26 = "0001"
+field_27 = "012c"
+field_28 = "10000000"
+field_29 = "0006"
+field_30 = "00ae"
+field_31 = "000a"
+field_32 = "10000000"
+field_34 = "00af"
+field_35 = "000a"
+field_36 = "10000000"
+
+[end_credit.1]
+vertical_space = 60
+text = """
+「Ｄｅｄｉｃａｔｅｄ　ｔｏ　ｔｈｅ　ｐｌａｙｅｒ
+"""
+
+[end_credit.2]
+vertical_space = 10
+text = """
+　ａｎｄ　ｄｅｖｅｌｏｐｅｒ　ｏｆ　
+"""
+
+[end_credit.3]
+vertical_space = 10
+text = """
+　ｔｈｅ　ｏｒｉｇｉｎａｌ　ｇａｍｅ」
+"""
+
+[end_credit.4]
+vertical_space = 60
+text = """
+プロデューサー
+"""
+
+[end_credit.5]
+vertical_space = 20
+text = """
+　齋藤　大成
+"""
+
+[end_credit.6]
+vertical_space = 60
+text = """
+マーケティング
+"""
+
+[end_credit.7]
+vertical_space = 20
+text = """
+　参鍋　誠二郎
+"""
+
+[end_credit.8]
+vertical_space = 10
+text = """
+　下村　一誠
+"""
+
+[end_credit.9]
+vertical_space = 10
+text = """
+　森田　信尚
+"""
+
+[end_credit.10]
+vertical_space = 60
+text = """
+制作
+"""
+
+[end_credit.11]
+vertical_space = 20
+text = """
+　岡島　信幸
+"""
+
+[end_credit.12]
+vertical_space = 10
+text = """
+　高木　伸也
+"""
+
+[end_credit.13]
+vertical_space = 60
+text = """
+デザイン　アドバイザー
+"""
+
+[end_credit.14]
+vertical_space = 20
+text = """
+　酒井　智史（ソニックチームＤｉｖ）
+"""
+
+[end_credit.15]
+vertical_space = 60
+text = """
+パッケージ＆メインキャラクターデザイン
+"""
+
+[end_credit.16]
+vertical_space = 20
+text = """
+　水野　暁一（ソニックチームＤｉｖ）
+"""
+
+[end_credit.17]
+vertical_space = 60
+text = """
+ゲーム　制作
+"""
+
+[end_credit.18]
+vertical_space = 20
+text = """
+　株式会社日本アートメディア
+"""
+
+[end_credit.19]
+vertical_space = 20
+text = """
+　　高橋　充
+"""
+
+[end_credit.20]
+vertical_space = 10
+text = """
+　　鶴長　浩二
+"""
+
+[end_credit.21]
+vertical_space = 60
+text = """
+　ゲーム　グラフィック
+"""
+
+[end_credit.22]
+vertical_space = 20
+text = """
+　　伊東　大典
+"""
+
+[end_credit.23]
+vertical_space = 10
+text = """
+　　江良　奈緒美
+"""
+
+[end_credit.24]
+vertical_space = 10
+text = """
+　　田中　里佳
+"""
+
+[end_credit.25]
+vertical_space = 60
+text = """
+　グラフィック　サポート
+"""
+
+[end_credit.26]
+vertical_space = 20
+text = """
+　　小河　千恵
+"""
+
+[end_credit.27]
+vertical_space = 10
+text = """
+　　阿南　忠典
+"""
+
+[end_credit.28]
+vertical_space = 60
+text = """
+　ゲーム　プログラム
+"""
+
+[end_credit.29]
+vertical_space = 20
+text = """
+　　間中　哲也
+"""
+
+[end_credit.30]
+vertical_space = 10
+text = """
+　　米山　裕
+"""
+
+[end_credit.31]
+vertical_space = 60
+text = """
+　イベント背景製作
+"""
+
+[end_credit.32]
+vertical_space = 20
+text = """
+　　山崎　千尋
+"""
+
+[end_credit.33]
+vertical_space = 10
+text = """
+　　山下　はるみ
+"""
+
+[end_credit.34]
+vertical_space = 10
+text = """
+　　野尻　優子
+"""
+
+[end_credit.35]
+vertical_space = 10
+text = """
+　　長谷川　綾
+"""
+
+[end_credit.36]
+vertical_space = 60
+text = """
+イベントグラフィックス　制作
+"""
+
+[end_credit.37]
+vertical_space = 20
+text = """
+　有限会社スタジオたくらんけ
+"""
+
+[end_credit.38]
+vertical_space = 20
+text = """
+　　作画監督
+"""
+
+[end_credit.39]
+vertical_space = 20
+text = """
+　　　夏目　久仁彦
+"""
+
+[end_credit.40]
+vertical_space = 60
+text = """
+　原画
+"""
+
+[end_credit.41]
+vertical_space = 20
+text = """
+　　夏目　久仁彦
+"""
+
+[end_credit.42]
+vertical_space = 10
+text = """
+　　新城　真
+"""
+
+[end_credit.43]
+vertical_space = 60
+text = """
+　動画検査
+"""
+
+[end_credit.44]
+vertical_space = 20
+text = """
+　　江山　梨恵
+"""
+
+[end_credit.45]
+vertical_space = 60
+text = """
+　動画
+"""
+
+[end_credit.46]
+vertical_space = 20
+text = """
+　　たくらんけ
+"""
+
+[end_credit.47]
+vertical_space = 10
+text = """
+　　寺田久美子
+"""
+
+[end_credit.48]
+vertical_space = 10
+text = """
+　　伊藤かおり
+"""
+
+[end_credit.49]
+vertical_space = 10
+text = """
+　　田中　英美
+"""
+
+[end_credit.50]
+vertical_space = 10
+text = """
+　　稲田　俊子
+"""
+
+[end_credit.51]
+vertical_space = 10
+text = """
+　　蜷川　貴弘
+"""
+
+[end_credit.52]
+vertical_space = 10
+text = """
+　　小澤　理彦
+"""
+
+[end_credit.53]
+vertical_space = 10
+text = """
+　　森　　賢
+"""
+
+[end_credit.54]
+vertical_space = 10
+text = """
+　　赤井　俊文
+"""
+
+[end_credit.55]
+vertical_space = 60
+text = """
+　色彩設定
+"""
+
+[end_credit.56]
+vertical_space = 20
+text = """
+　　竹澤　聡
+"""
+
+[end_credit.57]
+vertical_space = 60
+text = """
+　着色仕上げ
+"""
+
+[end_credit.58]
+vertical_space = 20
+text = """
+　　ラグーン
+"""
+
+[end_credit.59]
+vertical_space = 10
+text = """
+　　高島　剛
+"""
+
+[end_credit.60]
+vertical_space = 10
+text = """
+　　中川　博文
+"""
+
+[end_credit.61]
+vertical_space = 10
+text = """
+　　西村　あづ沙
+"""
+
+[end_credit.62]
+vertical_space = 60
+text = """
+　作画制作進行
+"""
+
+[end_credit.63]
+vertical_space = 20
+text = """
+　　荒井　亮
+"""
+
+[end_credit.64]
+vertical_space = 60
+text = """
+　作画プロデューサー
+"""
+
+[end_credit.65]
+vertical_space = 20
+text = """
+　　近藤　康彦
+"""
+
+[end_credit.66]
+vertical_space = 60
+text = """
+ゲーム　サウンド
+"""
+
+[end_credit.67]
+vertical_space = 20
+text = """
+　　株式会社キューブ
+"""
+
+[end_credit.68]
+vertical_space = 20
+text = """
+　　長岡　忠治
+"""
+
+[end_credit.69]
+vertical_space = 10
+text = """
+　　窪寺　義明
+"""
+
+[end_credit.70]
+vertical_space = 10
+text = """
+　　いわたのぼる
+"""
+
+[end_credit.71]
+vertical_space = 10
+text = """
+　　谷上　純三
+"""
+
+[end_credit.72]
+vertical_space = 10
+text = """
+　　岩田　吉史
+"""
+
+[end_credit.73]
+vertical_space = 60
+text = """
+営業
+"""
+
+[end_credit.74]
+vertical_space = 20
+text = """
+　野本　章
+"""
+
+[end_credit.75]
+vertical_space = 10
+text = """
+　淡路　輝之
+"""
+
+[end_credit.76]
+vertical_space = 10
+text = """
+　飯塚　浩
+"""
+
+[end_credit.77]
+vertical_space = 10
+text = """
+　石田尾　友章
+"""
+
+[end_credit.78]
+vertical_space = 10
+text = """
+　今津　晴夫
+"""
+
+[end_credit.79]
+vertical_space = 10
+text = """
+　植村　幸司
+"""
+
+[end_credit.80]
+vertical_space = 10
+text = """
+　遠藤　好人
+"""
+
+[end_credit.81]
+vertical_space = 10
+text = """
+　田中　俊行
+"""
+
+[end_credit.82]
+vertical_space = 10
+text = """
+　田中　暢浩
+"""
+
+[end_credit.83]
+vertical_space = 10
+text = """
+　正廣　康伸
+"""
+
+[end_credit.84]
+vertical_space = 10
+text = """
+　目々沢　克利
+"""
+
+[end_credit.85]
+vertical_space = 10
+text = """
+　安田　勝史
+"""
+
+[end_credit.86]
+vertical_space = 10
+text = """
+　安田　徹
+"""
+
+[end_credit.87]
+vertical_space = 10
+text = """
+　渡辺　祐介
+"""
+
+[end_credit.88]
+vertical_space = 10
+text = """
+　市村　彰英
+"""
+
+[end_credit.89]
+vertical_space = 10
+text = """
+　吉田　壮宏
+"""
+
+[end_credit.90]
+vertical_space = 10
+text = """
+　小西　裕二
+"""
+
+[end_credit.91]
+vertical_space = 10
+text = """
+　森崎　桂
+"""
+
+[end_credit.92]
+vertical_space = 60
+text = """
+セールスサポート
+"""
+
+[end_credit.93]
+vertical_space = 20
+text = """
+　浅海　和宏
+"""
+
+[end_credit.94]
+vertical_space = 10
+text = """
+　深沢　洋子
+"""
+
+[end_credit.95]
+vertical_space = 10
+text = """
+　石坂　郁夫
+"""
+
+[end_credit.96]
+vertical_space = 10
+text = """
+　林　智彦
+"""
+
+[end_credit.97]
+vertical_space = 60
+text = """
+宣伝
+"""
+
+[end_credit.98]
+vertical_space = 20
+text = """
+　大内　孝悦
+"""
+
+[end_credit.99]
+vertical_space = 10
+text = """
+　飯高　慎也
+"""
+
+[end_credit.100]
+vertical_space = 60
+text = """
+宣伝
+"""
+
+[end_credit.101]
+vertical_space = 20
+text = """
+　竹崎　忠
+"""
+
+[end_credit.102]
+vertical_space = 10
+text = """
+　南雲　靖士
+"""
+
+[end_credit.103]
+vertical_space = 10
+text = """
+　佐藤　修
+"""
+
+[end_credit.104]
+vertical_space = 10
+text = """
+　児玉　守
+"""
+
+[end_credit.105]
+vertical_space = 10
+text = """
+　清野　朝実
+"""
+
+[end_credit.106]
+vertical_space = 10
+text = """
+　夏目　義嗣
+"""
+
+[end_credit.107]
+vertical_space = 10
+text = """
+　長澤　陽子
+"""
+
+[end_credit.108]
+vertical_space = 10
+text = """
+　橋本　賢一
+"""
+
+[end_credit.109]
+vertical_space = 10
+text = """
+　越知　幸子
+"""
+
+[end_credit.110]
+vertical_space = 10
+text = """
+　馬場　克美
+"""
+
+[end_credit.111]
+vertical_space = 10
+text = """
+　藤井　睦弘
+"""
+
+[end_credit.112]
+vertical_space = 10
+text = """
+　杉林　充章
+"""
+
+[end_credit.113]
+vertical_space = 10
+text = """
+　城田　雄一郎
+"""
+
+[end_credit.114]
+vertical_space = 10
+text = """
+　大池　香里
+"""
+
+[end_credit.115]
+vertical_space = 60
+text = """
+パッケージ
+"""
+
+[end_credit.116]
+vertical_space = 20
+text = """
+　字原　直似
+"""
+
+[end_credit.117]
+vertical_space = 10
+text = """
+　前田　桂代子
+"""
+
+[end_credit.118]
+vertical_space = 10
+text = """
+　播野　博子
+"""
+
+[end_credit.119]
+vertical_space = 60
+text = """
+パッケージ
+"""
+
+[end_credit.120]
+vertical_space = 20
+text = """
+　中　裕司（ソニックチームＤｉｖ）
+"""
+
+[end_credit.121]
+vertical_space = 10
+text = """
+　小玉　理恵子（セガワウＤｉｖ）
+"""
+
+[end_credit.122]
+vertical_space = 10
+text = """
+　吉田　徹（セガワウＤｉｖ）
+"""
+
+[end_credit.123]
+vertical_space = 10
+text = """
+　小嶋　正樹
+"""
+
+[end_credit.124]
+vertical_space = 10
+text = """
+　村山　浩一
+"""
+
+[end_credit.125]
+vertical_space = 10
+text = """
+　松木　靖則
+"""
+
+[end_credit.126]
+vertical_space = 10
+text = """
+　八木　絵里子
+"""
+
+[end_credit.127]
+vertical_space = 10
+text = """
+　小峰　克友
+"""
+
+[end_credit.128]
+vertical_space = 60
+text = """
+エグゼクティブ　アドバイザー
+"""
+
+[end_credit.129]
+vertical_space = 20
+text = """
+　前田　雅尚
+"""
+
+[end_credit.130]
+vertical_space = 60
+text = """
+エグゼクティブ　プロデューサー
+"""
+
+[end_credit.131]
+vertical_space = 20
+text = """
+　伊藤　裕二
+"""
+
+[end_credit.132]
+vertical_space = 120
+text = """
+　　　　　熙　ＳＥＧＡ　２００５
+"""
+
+[mapname.0000]
+pointer = "1890a0"
+text = """
+首都パセオ
+"""
+
+[mapname.0001]
+pointer = "189090"
+text = """
+アリマーヤの街
+"""
+
+[mapname.0002]
+pointer = "189080"
+text = """
+オプタノの街
+"""
+
+[mapname.0003]
+pointer = "189070"
+text = """
+ゼマの街
+"""
+
+[mapname.0004]
+pointer = "189060"
+text = """
+クエリスの街
+"""
+
+[mapname.0005]
+pointer = "189050"
+text = """
+ピアタの街
+"""
+
+[mapname.0006]
+pointer = "189040"
+text = """
+モタビア星
+"""
+
+[mapname.0007]
+pointer = "189028"
+text = """
+パセオの連絡通路
+"""
+
+[mapname.0008]
+pointer = "189008"
+text = """
+シュレーン工場跡地　１Ｆ
+"""
+
+[mapname.0009]
+pointer = "188fe8"
+text = """
+シュレーン工場跡地　２Ｆ
+"""
+
+[mapname.000a]
+pointer = "188fc8"
+text = """
+シュレーン工場跡地　３Ｆ
+"""
+
+[mapname.000b]
+pointer = "188fa8"
+text = """
+シュレーン工場跡地　４Ｆ
+"""
+
+[mapname.000c]
+pointer = "188f98"
+text = """
+ニドの塔　１Ｆ
+"""
+
+[mapname.000d]
+pointer = "188f88"
+text = """
+ニドの塔　２Ｆ
+"""
+
+[mapname.000e]
+pointer = "188f78"
+text = """
+ニドの塔　３Ｆ
+"""
+
+[mapname.000f]
+pointer = "188f68"
+text = """
+ニドの塔　４Ｆ
+"""
+
+[mapname.0010]
+pointer = "188f58"
+text = """
+ニドの塔　５Ｆ
+"""
+
+[mapname.0011]
+pointer = "188f48"
+text = """
+ニドの塔　６Ｆ
+"""
+
+[mapname.0012]
+pointer = "188f30"
+text = """
+バイオシステム　Ｂ１Ｆ
+"""
+
+[mapname.0013]
+pointer = "188f18"
+text = """
+バイオシステム　１Ｆ
+"""
+
+[mapname.0014]
+pointer = "188f00"
+text = """
+バイオシステム　２Ｆ
+"""
+
+[mapname.0015]
+pointer = "188ee8"
+text = """
+バイオシステム　３Ｆ
+"""
+
+[mapname.0016]
+pointer = "188ed0"
+text = """
+ロロン集積場　Ｂ３Ｆ
+"""
+
+[mapname.0017]
+pointer = "188eb8"
+text = """
+ロロン集積場　Ｂ２Ｆ
+"""
+
+[mapname.0018]
+pointer = "188ea0"
+text = """
+ロロン集積場　Ｂ１Ｆ
+"""
+
+[mapname.0019]
+pointer = "188e88"
+text = """
+ロロン集積場　１Ｆ
+"""
+
+[mapname.001a]
+pointer = "188e78"
+text = """
+ウーゾの島
+"""
+
+[mapname.001b]
+pointer = "1db220"
+text = """
+北の橋
+"""
+
+[mapname.001c]
+pointer = "1db218"
+text = """
+西の橋
+"""
+
+[mapname.001d]
+pointer = "188e68"
+text = """
+ゼマの連絡通路
+"""
+
+[mapname.001e]
+pointer = "188e50"
+text = """
+アメダス　Ｂ１Ｆ
+"""
+
+[mapname.001f]
+pointer = "188e40"
+text = """
+アメダス　１Ｆ
+"""
+
+[mapname.0020]
+pointer = "188e30"
+text = """
+アメダス　２Ｆ
+"""
+
+[mapname.0021]
+pointer = "188e20"
+text = """
+アメダス　３Ｆ
+"""
+
+[mapname.0022]
+pointer = "188e10"
+text = """
+アメダス　４Ｆ
+"""
+
+[mapname.0023]
+pointer = "188e00"
+text = """
+アメダス　５Ｆ
+"""
+
+[mapname.0024]
+pointer = "188df0"
+text = """
+アメダス　６Ｆ
+"""
+
+[mapname.0025]
+pointer = "188de0"
+text = """
+アメダス　７Ｆ
+"""
+
+[mapname.0026]
+pointer = "188dd0"
+text = """
+アメダス　８Ｆ
+"""
+
+[mapname.0027]
+pointer = "188db0"
+text = """
+コントロールタワー　１Ｆ
+"""
+
+[mapname.0028]
+pointer = "188d90"
+text = """
+コントロールタワー　２Ｆ
+"""
+
+[mapname.0029]
+pointer = "188d70"
+text = """
+コントロールタワー　３Ｆ
+"""
+
+[mapname.002a]
+pointer = "188d50"
+text = """
+コントロールタワー　４Ｆ
+"""
+
+[mapname.002b]
+pointer = "188d30"
+text = """
+コントロールタワー　５Ｆ
+"""
+
+[mapname.002c]
+pointer = "188d10"
+text = """
+コントロールタワー　６Ｆ
+"""
+
+[mapname.002d]
+pointer = "188cf8"
+text = """
+レッドダム　Ｂ１Ｆ
+"""
+
+[mapname.002e]
+pointer = "188ce0"
+text = """
+レッドダム　１Ｆ
+"""
+
+[mapname.002f]
+pointer = "188cc8"
+text = """
+レッドダム　２Ｆ
+"""
+
+[mapname.0030]
+pointer = "188cb0"
+text = """
+イエローダム　１Ｆ
+"""
+
+[mapname.0031]
+pointer = "188c98"
+text = """
+イエローダム　２Ｆ
+"""
+
+[mapname.0032]
+pointer = "188c80"
+text = """
+イエローダム　３Ｆ
+"""
+
+[mapname.0033]
+pointer = "188c68"
+text = """
+イエローダム　４Ｆ
+"""
+
+[mapname.0034]
+pointer = "188c50"
+text = """
+ブルーダム　１Ｆ
+"""
+
+[mapname.0035]
+pointer = "188c38"
+text = """
+ブルーダム　２Ｆ
+"""
+
+[mapname.0036]
+pointer = "188c20"
+text = """
+ブルーダム　３Ｆ
+"""
+
+[mapname.0037]
+pointer = "188c08"
+text = """
+ブルーダム　４Ｆ
+"""
+
+[mapname.0038]
+pointer = "188bf0"
+text = """
+ブルーダム　５Ｆ
+"""
+
+[mapname.0039]
+pointer = "188bd8"
+text = """
+グリーンダム　１Ｆ
+"""
+
+[mapname.003a]
+pointer = "188bc0"
+text = """
+グリーンダム　２Ｆ
+"""
+
+[mapname.003b]
+pointer = "188bb0"
+text = """
+人工衛星ガイラ
+"""
+
+[mapname.003c]
+pointer = "188b98"
+text = """
+スクレの地下道　Ｂ３Ｆ
+"""
+
+[mapname.003d]
+pointer = "188b80"
+text = """
+スクレの地下道　Ｂ２Ｆ
+"""
+
+[mapname.003e]
+pointer = "188b68"
+text = """
+スクレの地下道　Ｂ１Ｆ
+"""
+
+[mapname.003f]
+pointer = "188b50"
+text = """
+クレバス　Ｂ３Ｆ
+"""
+
+[mapname.0040]
+pointer = "188b38"
+text = """
+クレバス　Ｂ２Ｆ
+"""
+
+[mapname.0041]
+pointer = "188b20"
+text = """
+クレバス　Ｂ１Ｆ
+"""
+
+[mapname.0042]
+pointer = "188b08"
+text = """
+エスパーの館　Ｂ１Ｆ
+"""
+
+[mapname.0043]
+pointer = "188af0"
+text = """
+エスパーの館　１Ｆ
+"""
+
+[mapname.0044]
+pointer = "188ad8"
+text = """
+メノーブの塔　１Ｆ
+"""
+
+[mapname.0045]
+pointer = "188ac0"
+text = """
+メノーブの塔　２Ｆ
+"""
+
+[mapname.0046]
+pointer = "188aa8"
+text = """
+メノーブの塔　３Ｆ
+"""
+
+[mapname.0047]
+pointer = "188a90"
+text = """
+メノーブの塔　４Ｆ
+"""
+
+[mapname.0048]
+pointer = "188a78"
+text = """
+ナバールの塔　１Ｆ
+"""
+
+[mapname.0049]
+pointer = "188a60"
+text = """
+ナバールの塔　２Ｆ
+"""
+
+[mapname.004a]
+pointer = "188a48"
+text = """
+ナバールの塔　３Ｆ
+"""
+
+[mapname.004b]
+pointer = "188a30"
+text = """
+ナバールの塔　４Ｆ
+"""
+
+[mapname.004c]
+pointer = "188a18"
+text = """
+ナバールの塔　５Ｆ
+"""
+
+[mapname.004d]
+pointer = "188a00"
+text = """
+グアランの塔　１Ｆ
+"""
+
+[mapname.004e]
+pointer = "1889e8"
+text = """
+グアランの塔　２Ｆ
+"""
+
+[mapname.004f]
+pointer = "1889d0"
+text = """
+グアランの塔　３Ｆ
+"""
+
+[mapname.0050]
+pointer = "1889b8"
+text = """
+グアランの塔　４Ｆ
+"""
+
+[mapname.0051]
+pointer = "1889a0"
+text = """
+グアランの塔　５Ｆ
+"""
+
+[mapname.0052]
+pointer = "188988"
+text = """
+グアランの塔　６Ｆ
+"""
+
+[mapname.0053]
+pointer = "188970"
+text = """
+グアランの塔　７Ｆ
+"""
+
+[mapname.0054]
+pointer = "188958"
+text = """
+グアランの塔　８Ｆ
+"""
+
+[mapname.0055]
+pointer = "188940"
+text = """
+グアランの塔　９Ｆ
+"""
+
+[mapname.0056]
+pointer = "188928"
+text = """
+グアランの塔　１０Ｆ
+"""
+
+[mapname.0057]
+pointer = "188910"
+text = """
+グアランの塔　１１Ｆ
+"""
+
+[mapname.0058]
+pointer = "1888f8"
+text = """
+グアランの塔　１２Ｆ
+"""
+
+[mapname.0059]
+pointer = "1888e0"
+text = """
+グアランの塔　１３Ｆ
+"""
+
+[mapname.005a]
+pointer = "1888c8"
+text = """
+グアランの塔　１４Ｆ
+"""
+
+[mapname.005b]
+pointer = "1888b0"
+text = """
+グアランの塔　１５Ｆ
+"""
+
+[mapname.005c]
+pointer = "188898"
+text = """
+グアランの塔　１６Ｆ
+"""
+
+[mapname.005d]
+pointer = "188898"
+text = """
+グアランの塔　１６Ｆ
+"""
+
+[mapname.005e]
+pointer = "188880"
+text = """
+イクトーの墓場　Ｂ６Ｆ
+"""
+
+[mapname.005f]
+pointer = "188868"
+text = """
+イクトーの墓場　Ｂ５Ｆ
+"""
+
+[mapname.0060]
+pointer = "188850"
+text = """
+イクトーの墓場　Ｂ４Ｆ
+"""
+
+[mapname.0061]
+pointer = "188838"
+text = """
+イクトーの墓場　Ｂ３Ｆ
+"""
+
+[mapname.0062]
+pointer = "188820"
+text = """
+イクトーの墓場　Ｂ２Ｆ
+"""
+
+[mapname.0063]
+pointer = "188808"
+text = """
+イクトーの墓場　Ｂ１Ｆ
+"""
+
+[mapname.0064]
+pointer = "1887f0"
+text = """
+イクトーの墓場　　１Ｆ
+"""
+
+[mapname.0065]
+pointer = "1887d0"
+text = """
+恒星間軌道要塞ノア　１Ｆ
+"""
+
+[mapname.0066]
+pointer = "1887b0"
+text = """
+恒星間軌道要塞ノア　２Ｆ
+"""
+
+[mapname.0067]
+pointer = "1887a0"
+text = """
+デゾリス星
+"""
+
+[mapname.0068]
+pointer = "188790"
+text = """
+アウクバルの街
+"""
+
+[mapname.0069]
+pointer = "188780"
+text = """
+ゾーサの街
+"""
+
+[mapname.006a]
+pointer = "188770"
+text = """
+リュオンの街
+"""
+
+[menu_text.0000]
+pointer = "1a9dc0"
+text = """
+ユーシス
+"""
+
+[menu_text.0001]
+pointer = "1db798"
+text = """
+ネイ
+"""
+
+[menu_text.0002]
+pointer = "1a9db0"
+text = """
+ルドガー
+"""
+
+[menu_text.0003]
+pointer = "1db790"
+text = """
+アンヌ
+"""
+
+[menu_text.0004]
+pointer = "1a9da0"
+text = """
+ヒューイ
+"""
+
+[menu_text.0005]
+pointer = "1a9d90"
+text = """
+アーミア
+"""
+
+[menu_text.0006]
+pointer = "1a9d80"
+text = """
+カインズ
+"""
+
+[menu_text.0007]
+pointer = "1db788"
+text = """
+シルカ
+"""
+
+[menu_text.0008]
+pointer = "1db780"
+text = """
+攻撃
+"""
+
+[menu_text.0009]
+pointer = "1a9d70"
+text = """
+テクニック
+"""
+
+[menu_text.000a]
+pointer = "1db778"
+text = """
+防御
+"""
+
+[menu_text.000b]
+pointer = "1a9d60"
+text = """
+アイテム
+"""
+
+[menu_text.000c]
+pointer = "1db770"
+text = """
+ゲージ
+"""
+
+[menu_text.000d]
+pointer = "1a9d50"
+text = """
+武器変更
+"""
+
+[menu_text.000e]
+pointer = "1db768"
+text = """
+：
+"""
+
+[menu_text.000f]
+pointer = "1db760"
+text = """
+＞
+"""
+
+[menu_text.0010]
+pointer = "1db758"
+text = """
+０
+"""
+
+[menu_text.0011]
+pointer = "1db750"
+text = """
+１
+"""
+
+[menu_text.0012]
+pointer = "1db748"
+text = """
+２
+"""
+
+[menu_text.0013]
+pointer = "1db740"
+text = """
+３
+"""
+
+[menu_text.0014]
+pointer = "1db738"
+text = """
+４
+"""
+
+[menu_text.0015]
+pointer = "1db730"
+text = """
+５
+"""
+
+[menu_text.0016]
+pointer = "1db728"
+text = """
+６
+"""
+
+[menu_text.0017]
+pointer = "1db720"
+text = """
+７
+"""
+
+[menu_text.0018]
+pointer = "1db718"
+text = """
+８
+"""
+
+[menu_text.0019]
+pointer = "1db710"
+text = """
+９
+"""
+
+[menu_text.001a]
+pointer = "1a9d38"
+text = """
+ＴＰが足りません
+"""
+
+[menu_text.001b]
+pointer = "1db708"
+text = """
+装備中
+"""
+
+[menu_text.001c]
+pointer = "1db700"
+text = """
+右手
+"""
+
+[menu_text.001d]
+pointer = "1db6f8"
+text = """
+左手
+"""
+
+[menu_text.001e]
+pointer = "1db6f0"
+text = """
+両手
+"""
+
+[menu_text.001f]
+pointer = "1a9d28"
+text = """
+最大ＨＰ
+"""
+
+[menu_text.0020]
+pointer = "1a9d18"
+text = """
+最大ＴＰ
+"""
+
+[menu_text.0021]
+pointer = "1db6e8"
+text = """
+攻撃力
+"""
+
+[menu_text.0022]
+pointer = "1db6e0"
+text = """
+守備力
+"""
+
+[menu_text.0023]
+pointer = "1db6d8"
+text = """
+体力
+"""
+
+[menu_text.0024]
+pointer = "1db6d0"
+text = """
+精神力
+"""
+
+[menu_text.0025]
+pointer = "1db6c8"
+text = """
+素早さ
+"""
+
+[menu_text.0026]
+pointer = "1db6c0"
+text = """
+幸運
+"""
+
+[menu_text.0027]
+pointer = "1db6b8"
+text = """
+器用
+"""
+
+[menu_text.0028]
+pointer = "1a9d08"
+text = """
+消費ＴＰ
+"""
+
+[menu_text.0029]
+pointer = "1db6b0"
+text = """
+使用
+"""
+
+[menu_text.002a]
+pointer = "1db6a8"
+text = """
+装備
+"""
+
+[menu_text.002b]
+pointer = "1db6a0"
+text = """
+属性
+"""
+
+[menu_text.002c]
+pointer = "1db698"
+text = """
+火
+"""
+
+[menu_text.002d]
+pointer = "1db690"
+text = """
+水
+"""
+
+[menu_text.002e]
+pointer = "1db688"
+text = """
+雷
+"""
+
+[menu_text.002f]
+pointer = "1db680"
+text = """
+風
+"""
+
+[menu_text.0030]
+pointer = "1a9cf0"
+text = """
+逃げられなかった！
+"""
+
+[menu_text.0031]
+pointer = "1a9cd8"
+text = """
+なにも起こらなかった！
+"""
+
+[menu_text.0032]
+pointer = "1a9cb8"
+text = """
+プラズマリングをはめられた！
+"""
+
+[menu_text.0033]
+pointer = "1a9c98"
+text = """
+ネイソードが光を放った！
+"""
+
+[menu_text.0034]
+pointer = "1a9c78"
+text = """
+悪の　心が　流れていった！
+"""
+
+[menu_text.0035]
+pointer = "1a9c60"
+text = """
+の心は悪にそまった！
+"""
+
+[menu_text.0036]
+pointer = "1a9c48"
+text = """
+はなまけものになった。
+"""
+
+[menu_text.0037]
+pointer = "1a9c30"
+text = """
+すばやさ　ダウン！
+"""
+
+[menu_text.0038]
+pointer = "1a9c18"
+text = """
+は自信を失った！
+"""
+
+[menu_text.0039]
+pointer = "1a9bf8"
+text = """
+テクニックをつかえない。
+"""
+
+[menu_text.003a]
+pointer = "1a9be0"
+text = """
+は欲張りになった！
+"""
+
+[menu_text.003b]
+pointer = "1a9bc8"
+text = """
+荷物をあさっている！
+"""
+
+[menu_text.003c]
+pointer = "1a9ba8"
+text = """
+仲間を裏切ろうとしている！
+"""
+
+[menu_text.003d]
+pointer = "1a9b90"
+text = """
+は一人で　逃げ出した！
+"""
+
+[menu_text.003e]
+pointer = "1a9b78"
+text = """
+だが　逃げられない！
+"""
+
+[menu_text.003f]
+pointer = "1a9b60"
+text = """
+は疑い深くなった！
+"""
+
+[menu_text.0040]
+pointer = "1a9b40"
+text = """
+思わず　攻撃の　手がゆるむ！
+"""
+
+[menu_text.0041]
+pointer = "1a9b20"
+text = """
+は絶望に　打ちひしがれている！
+"""
+
+[menu_text.0042]
+pointer = "1a9b08"
+text = """
+敵の先制攻撃！！
+"""
+
+[menu_text.0043]
+pointer = "1a9af0"
+text = """
+味方の先制攻撃！！
+"""
+
+[menu_text.0044]
+pointer = "1aa268"
+text = """
+コマンドのみを使用　　　　　　　　　　　　　　　
+"""
+
+[menu_text.0045]
+pointer = "1aa230"
+text = """
+半分以上コマンドを使用　　　　　　　　　　　　　
+"""
+
+[menu_text.0046]
+pointer = "1aa1f8"
+text = """
+通常攻撃を使わない　　　　　　　　　　　　　　　
+"""
+
+[menu_text.0047]
+pointer = "1aa1c0"
+text = """
+通常攻撃はランク３のみ使用した　　　　　　　　　
+"""
+
+[menu_text.0048]
+pointer = "1aa188"
+text = """
+通常攻撃はランク２のみ使用した　　　　　　　　　
+"""
+
+[menu_text.0049]
+pointer = "1aa150"
+text = """
+通常攻撃はランク１のみ使用した　　　　　　　　　
+"""
+
+[menu_text.004a]
+pointer = "1aa118"
+text = """
+テクニックを使わない　　　　　　　　　　　　　　
+"""
+
+[menu_text.004b]
+pointer = "1aa0e0"
+text = """
+一瞬で戦闘が終わった　　　　　　　　　　　　　　
+"""
+
+[menu_text.004c]
+pointer = "1aa0a8"
+text = """
+短時間で戦闘が終わった　　　　　　　　　　　　　
+"""
+
+[menu_text.004d]
+pointer = "1aa070"
+text = """
+長時間、戦闘が続いた　　　　　　　　　　　　　　
+"""
+
+[menu_text.004e]
+pointer = "1aa038"
+text = """
+逃げるのに失敗した　　　　　　　　　　　　　　　
+"""
+
+[menu_text.004f]
+pointer = "1aa000"
+text = """
+何回も、逃げるのに失敗した　　　　　　　　　　　
+"""
+
+[menu_text.0050]
+pointer = "1a9fc8"
+text = """
+逃げるのをあきらめた　　　　　　　　　　　　　　
+"""
+
+[menu_text.0051]
+pointer = "1a9f90"
+text = """
+ガードを全て成功させた　　　　　　　　　　　　　
+"""
+
+[menu_text.0052]
+pointer = "1a9f58"
+text = """
+ガードを半分以上成功させた　　　　　　　　　　　
+"""
+
+[menu_text.0053]
+pointer = "1a9f20"
+text = """
+仲間のＨＰが０になった　　　　　　　　　　　　　
+"""
+
+[menu_text.0054]
+pointer = "1a9ee8"
+text = """
+２回以上、仲間のＨＰが０になった　　　　　　　　
+"""
+
+[menu_text.0055]
+pointer = "1a9eb0"
+text = """
+ネイの好感度ＵＰ！　　　　　　　　　　　　　　　
+"""
+
+[menu_text.0056]
+pointer = "1a9e78"
+text = """
+ネイの好感度ＤＯＷＮ！　　　　　　　　　　　　　
+"""
+
+[menu_text.0057]
+pointer = "1a9e40"
+text = """
+ランク３の攻撃以外使わない　　　　　　　　　＋＋
+"""
+
+[menu_text.0058]
+pointer = "1a9e08"
+text = """
+クリティカルが出なかった　　　　　　　　　　　＋
+"""
+
+[menu_text.0059]
+pointer = "1a9dd0"
+text = """
+逃げようとして失敗した　　　　　　　　　　　　−
+"""
+
+[menu_text.005a]
+pointer = "1db7a0"
+text = """
+ダミー
+"""
+
+[menu_text.005b]
+pointer = "1aae48"
+text = """
+火の属性を持つ攻撃技。　　　　　威力は小さいが攻撃は素早い。
+"""
+
+[menu_text.005c]
+pointer = "1aae08"
+text = """
+火の属性を持つ攻撃技。　　　　　中程度の威力が期待できる。
+"""
+
+[menu_text.005d]
+pointer = "1aadc0"
+text = """
+火の属性を持つ攻撃技。　　　　　攻撃は遅いが最大級の威力を誇る。
+"""
+
+[menu_text.005e]
+pointer = "1aad80"
+text = """
+氷の属性を持つ攻撃技。　　　　　威力は小さいが攻撃は素早い。
+"""
+
+[menu_text.005f]
+pointer = "1aad40"
+text = """
+氷の属性を持つ攻撃技。　　　　　中程度の威力が期待できる。
+"""
+
+[menu_text.0060]
+pointer = "1aacf8"
+text = """
+氷の属性を持つ攻撃技。　　　　　攻撃は遅いが最大級の威力を誇る。
+"""
+
+[menu_text.0061]
+pointer = "1aacb8"
+text = """
+雷の属性を持つ攻撃技。　　　　　威力は小さいが攻撃は素早い。
+"""
+
+[menu_text.0062]
+pointer = "1aac78"
+text = """
+雷の属性を持つ攻撃技。　　　　　中程度の威力が期待できる。
+"""
+
+[menu_text.0063]
+pointer = "1aac30"
+text = """
+雷の属性を持つ攻撃技。　　　　　攻撃は遅いが最大級の威力を誇る。
+"""
+
+[menu_text.0064]
+pointer = "1aabe8"
+text = """
+風の属性を持つ攻撃技。　　　　　威力は小さいが広範囲に攻撃する。
+"""
+
+[menu_text.0065]
+pointer = "1aaba0"
+text = """
+風の属性を持つ攻撃技。　　　　　中程度の威力で広範囲に攻撃する。
+"""
+
+[menu_text.0066]
+pointer = "1aab58"
+text = """
+風の属性を持つ攻撃技。　　　　　攻撃は遅いが最大級の威力を誇る。
+"""
+
+[menu_text.0067]
+pointer = "1aab18"
+text = """
+魔力結界を持つ攻撃技。　　　　　攻撃は遅いが広範囲に攻撃する。
+"""
+
+[menu_text.0068]
+pointer = "1aab18"
+text = """
+魔力結界を持つ攻撃技。　　　　　攻撃は遅いが広範囲に攻撃する。
+"""
+
+[menu_text.0069]
+pointer = "1aab18"
+text = """
+魔力結界を持つ攻撃技。　　　　　攻撃は遅いが広範囲に攻撃する。
+"""
+
+[menu_text.006a]
+pointer = "1aaad8"
+text = """
+高い発光エネルギーを持つ攻撃技。その威力は決して侮れない。
+"""
+
+[menu_text.006b]
+pointer = "1aaa98"
+text = """
+高い発光エネルギーを持つ攻撃技。かなりの威力が期待できる。
+"""
+
+[menu_text.006c]
+pointer = "1aaa60"
+text = """
+高い発光エネルギーを持つ攻撃技。最大級の威力を誇る。
+"""
+
+[menu_text.006d]
+pointer = "1aaa40"
+text = """
+自分一人の攻撃力を上昇できる。
+"""
+
+[menu_text.006e]
+pointer = "1aaa18"
+text = """
+敵のＨＰを奪い取ることができる。
+"""
+
+[menu_text.006f]
+pointer = "1aa9d0"
+text = """
+メカを破壊する攻撃技。　　　　　威力は小さいが広範囲に攻撃する。
+"""
+
+[menu_text.0070]
+pointer = "1aa990"
+text = """
+メカを破壊する攻撃技。　　　　　確実にメカを完全に破壊する。
+"""
+
+[menu_text.0071]
+pointer = "1aa950"
+text = """
+ダメージは与えられないが、　　　メカの特殊攻撃を封じる。
+"""
+
+[menu_text.0072]
+pointer = "1aa910"
+text = """
+ダメージは与えられないが、　　　生物の特殊攻撃を封じる。
+"""
+
+[menu_text.0073]
+pointer = "1aa8d0"
+text = """
+メカを破壊する攻撃技。　　　　　威力は小さいが攻撃は素早い。
+"""
+
+[menu_text.0074]
+pointer = "1aa890"
+text = """
+メカを破壊する攻撃技。　　　　　中程度の威力が期待できる。
+"""
+
+[menu_text.0075]
+pointer = "1aa848"
+text = """
+メカを破壊する攻撃技。　　　　　攻撃は遅いが最大級の威力を誇る。
+"""
+
+[menu_text.0076]
+pointer = "1aa9d0"
+text = """
+メカを破壊する攻撃技。　　　　　威力は小さいが広範囲に攻撃する。
+"""
+
+[menu_text.0077]
+pointer = "1aa800"
+text = """
+メカを破壊する攻撃技。　　　　　中程度の威力で広範囲に攻撃する。
+"""
+
+[menu_text.0078]
+pointer = "1aa848"
+text = """
+メカを破壊する攻撃技。　　　　　攻撃は遅いが最大級の威力を誇る。
+"""
+
+[menu_text.0079]
+pointer = "1aa7c0"
+text = """
+生物を老化させる攻撃技。　　　　威力は小さいが攻撃は素早い。
+"""
+
+[menu_text.007a]
+pointer = "1aa778"
+text = """
+生物を老化させる攻撃技。　　　　中程度の威力で広範囲に攻撃する。
+"""
+
+[menu_text.007b]
+pointer = "1aa738"
+text = """
+生物を即死させる攻撃技。　　　　確実に相手を死に至らしめる。
+"""
+
+[menu_text.007c]
+pointer = "1aa6f8"
+text = """
+生物を即死させる攻撃技。　　　　広範囲の相手を死に至らしめる。
+"""
+
+[menu_text.007d]
+pointer = "1aa6d8"
+text = """
+仲間一人の守備力を上昇できる。
+"""
+
+[menu_text.007e]
+pointer = "1aa6b8"
+text = """
+仲間全員の守備力を上昇できる。
+"""
+
+[menu_text.007f]
+pointer = "1aa678"
+text = """
+ダメージは与えられないが、　　　生物の攻撃命中率を低下させる。
+"""
+
+[menu_text.0080]
+pointer = "1aa638"
+text = """
+ダメージは与えられないが、　　　生物を麻痺させ動けなくさせる。
+"""
+
+[menu_text.0081]
+pointer = "1aa5f8"
+text = """
+ダメージは与えられないが、　　　生物を退散させることができる。
+"""
+
+[menu_text.0082]
+pointer = "1aa5b8"
+text = """
+ダメージは与えられないが、　　　メカの攻撃命中率を低下させる。
+"""
+
+[menu_text.0083]
+pointer = "1aa570"
+text = """
+ダメージは与えられないが、　　　メカを機能停止させ動けなくする。
+"""
+
+[menu_text.0084]
+pointer = "1aa548"
+text = """
+仲間全員を魔力結界バリアで守る。
+"""
+
+[menu_text.0085]
+pointer = "1aa528"
+text = """
+仲間一人の素早さを上昇できる。
+"""
+
+[menu_text.0086]
+pointer = "1aa508"
+text = """
+仲間全員の素早さを上昇できる。
+"""
+
+[menu_text.0087]
+pointer = "1aa4e0"
+text = """
+仲間一人のＨＰを２０回復できる。
+"""
+
+[menu_text.0088]
+pointer = "1aa4b8"
+text = """
+仲間一人のＨＰを６０回復できる。
+"""
+
+[menu_text.0089]
+pointer = "1aa498"
+text = """
+仲間一人のＨＰを全回復できる。
+"""
+
+[menu_text.008a]
+pointer = "1aa470"
+text = """
+仲間全員のＨＰを２０回復できる。
+"""
+
+[menu_text.008b]
+pointer = "1aa448"
+text = """
+仲間全員のＨＰを６０回復できる。
+"""
+
+[menu_text.008c]
+pointer = "1aa428"
+text = """
+仲間全員のＨＰを全回復できる。
+"""
+
+[menu_text.008d]
+pointer = "1aa3e8"
+text = """
+自分の命と引き換えに、　　　　　仲間一人のＨＰを全回復できる。
+"""
+
+[menu_text.008e]
+pointer = "1aa3a8"
+text = """
+自分の命と引き換えに、　　　　　仲間全員のＨＰを全回復できる。
+"""
+
+[menu_text.008f]
+pointer = "1aa388"
+text = """
+ステータス異常の毒を中和する。
+"""
+
+[menu_text.0090]
+pointer = "1aa350"
+text = """
+死亡した仲間を生き返らせる。　　ＨＰを３０回復できる。
+"""
+
+[menu_text.0091]
+pointer = "1aa318"
+text = """
+最後に利用したデータメモリーまで瞬間移動できる。
+"""
+
+[menu_text.0092]
+pointer = "1aa2f0"
+text = """
+ダンジョン等から緊急脱出できる。
+"""
+
+[menu_text.0093]
+pointer = "1aa2e0"
+text = """
+詳細不明…
+"""
+
+[menu_text.0094]
+pointer = "1aa2a0"
+text = """
+ケタ違いの破壊力を持つ攻撃技。　その威力は、味方にもおよぶ。
+"""
+
+[item_description.0000]
+pointer = "1aa2e0"
+text = """
+詳細不明…
+"""
+
+[item_description.0001]
+pointer = "1aa2e0"
+text = """
+詳細不明…
+"""
+
+[item_description.0002]
+pointer = "1aa2e0"
+text = """
+詳細不明…
+"""
+
+[item_description.0003]
+pointer = "1aa2e0"
+text = """
+詳細不明…
+"""
+
+[item_description.0004]
+pointer = "1aa2e0"
+text = """
+詳細不明…
+"""
+
+[item_description.0005]
+pointer = "1aa2e0"
+text = """
+詳細不明…
+"""
+
+[item_description.0006]
+pointer = "1aa2e0"
+text = """
+詳細不明…
+"""
+
+[item_description.0007]
+pointer = "1aa2e0"
+text = """
+詳細不明…
+"""
+
+[item_description.0008]
+pointer = "1db7a0"
+text = """
+ダミー
+"""
+
+[item_description.0009]
+pointer = "1ad7c8"
+text = """
+初心者向けのナイフ。　　　　　　小型で扱いやすいのが特徴。
+"""
+
+[item_description.000a]
+pointer = "1ad788"
+text = """
+セラミック製のナイフ。　　　　　小型で扱いやすく、軽くて丈夫。
+"""
+
+[item_description.000b]
+pointer = "1ad758"
+text = """
+レーザー粒子を放つナイフ。　　　詳細不明…
+"""
+
+[item_description.000c]
+pointer = "1ad718"
+text = """
+銀で装飾された護身用ナイフ。　　切れ味も鋭く、女性用の高級品。
+"""
+
+[item_description.000d]
+pointer = "1ad6d8"
+text = """
+護身用の万能型短剣。　　　　　　身が軽く、防御にも使える。
+"""
+
+[item_description.000e]
+pointer = "1ad690"
+text = """
+セラミック製の短剣。　　　　　　盗賊が好んで使用することで有名。
+"""
+
+[item_description.000f]
+pointer = "1ad650"
+text = """
+風の属性を持つ短剣。　　　　　　気まぐれな短剣とも呼ばれる。
+"""
+
+[item_description.0010]
+pointer = "1ad620"
+text = """
+ラコニア製で最強の短剣。　　　　詳細不明…
+"""
+
+[item_description.0011]
+pointer = "1ad5e0"
+text = """
+医療用のメス。　　　　　　　　　慣れるまで扱いは難しい。
+"""
+
+[item_description.0012]
+pointer = "1ad5a0"
+text = """
+医療用のレーザーメス。　　　　　武器として改造したもの。
+"""
+
+[item_description.0013]
+pointer = "1ad558"
+text = """
+丈夫な両刃の長剣。　　　　　　　攻撃力はあるが少し重いのが難点。
+"""
+
+[item_description.0014]
+pointer = "1ad520"
+text = """
+セラミック製の長剣。　　　　　　軽くて扱いやすい珍品。
+"""
+
+[item_description.0015]
+pointer = "1ad4e0"
+text = """
+火の属性を持つ長剣。　　　　　　フォイエの効果を発揮する。
+"""
+
+[item_description.0016]
+pointer = "1ad4a0"
+text = """
+高レーザー粒子を放つ長剣。　　　高い攻撃力で豪快に焼き斬る。
+"""
+
+[item_description.0017]
+pointer = "1ad460"
+text = """
+別名、降魔の利剣。　　　　　　　日本刀を意識したデザイン。
+"""
+
+[item_description.0018]
+pointer = "1ad418"
+text = """
+プラズマ電磁波を放つ長剣。　　　軽量で扱いやすく、切れ味もよい。
+"""
+
+[item_description.0019]
+pointer = "1ad3e8"
+text = """
+ラコニア製で最強の長剣。　　　　詳細不明…
+"""
+
+[item_description.001a]
+pointer = "1ad3b8"
+text = """
+両刃に複雑な小刃を加工した大剣。詳細不明…
+"""
+
+[item_description.001b]
+pointer = "1ad388"
+text = """
+ネイシリーズの大剣。　　　　　　詳細不明…
+"""
+
+[item_description.001c]
+pointer = "1ad340"
+text = """
+麻酔銃（殺傷能力はない）　　　　敵一体を麻痺させることができる。
+"""
+
+[item_description.001d]
+pointer = "1ad2f8"
+text = """
+毒液銃。　　　　　　　　　　　　敵一体に毒を与えることができる。
+"""
+
+[item_description.001e]
+pointer = "1ad2b0"
+text = """
+強酸液銃。　　　　　　　　　　　軽量で扱いやすく、攻撃力もある。
+"""
+
+[item_description.001f]
+pointer = "1ad268"
+text = """
+高レーザー粒子弾砲。　　　　　　攻撃力は高いが取り扱いが難しい。
+"""
+
+[item_description.0020]
+pointer = "1ad238"
+text = """
+火の属性を持つ焼夷弾砲。　　　　詳細不明…
+"""
+
+[item_description.0021]
+pointer = "1ad208"
+text = """
+ネイシリーズの銃器。　　　　　　詳細不明…
+"""
+
+[item_description.0022]
+pointer = "1ad1c0"
+text = """
+護身用の銃器。　　　　　　　　　操作が簡単な初心者向けの普及品。
+"""
+
+[item_description.0023]
+pointer = "1ad190"
+text = """
+ソニックガンを改造した銃器。　　詳細不明…
+"""
+
+[item_description.0024]
+pointer = "1ad150"
+text = """
+戦闘用の散弾銃。　　　　　　　　敵数体を同時攻撃できる。
+"""
+
+[item_description.0025]
+pointer = "1ad110"
+text = """
+六連装回転式機関砲。　　　　　　敵数体を連続攻撃できる。
+"""
+
+[item_description.0026]
+pointer = "1ad0d0"
+text = """
+高レーザー粒子回転式機関砲。　　敵数体を連続攻撃できる。
+"""
+
+[item_description.0027]
+pointer = "1ad090"
+text = """
+電子パルス回転式機関砲。　　　　敵数体を連続攻撃できる。
+"""
+
+[item_description.0028]
+pointer = "1ad058"
+text = """
+大口径高射砲。　　　　　　　　　高出力で中級者向け。
+"""
+
+[item_description.0029]
+pointer = "1ad020"
+text = """
+高レーザー粒子高射砲。　　　　　発射速度が速く高出力。
+"""
+
+[item_description.002a]
+pointer = "1acfe0"
+text = """
+電子パルス波高射砲。　　　　　　扱いは難しいが攻撃力は高い。
+"""
+
+[item_description.002b]
+pointer = "1acfb0"
+text = """
+大型プラズマ電磁波高射砲。　　　詳細不明…
+"""
+
+[item_description.002c]
+pointer = "1acf70"
+text = """
+英雄タイロンの短銃（レプリカ）　初心者向けの普及型短銃。
+"""
+
+[item_description.002d]
+pointer = "1acf30"
+text = """
+戦闘用の投具。　　　　　　　　　敵全体を同時攻撃できる。
+"""
+
+[item_description.002e]
+pointer = "1acef0"
+text = """
+戦闘用の投てき武器。　　　　　　敵全体を同時攻撃できる。
+"""
+
+[item_description.002f]
+pointer = "1aceb0"
+text = """
+チタン合金製の投てき武器。　　　敵全体を同時攻撃できる。
+"""
+
+[item_description.0030]
+pointer = "1ace70"
+text = """
+光の刃を持つ投てき武器。　　　　敵全体を同時攻撃できる。
+"""
+
+[item_description.0031]
+pointer = "1ace30"
+text = """
+火の属性を持つ投てき武器。　　　敵全体を同時攻撃できる。
+"""
+
+[item_description.0032]
+pointer = "1acdf0"
+text = """
+氷の属性を持つ投てき武器。　　　敵全体を同時攻撃できる。
+"""
+
+[item_description.0033]
+pointer = "1acdc0"
+text = """
+ラコニア製で最強の投てき武器。　詳細不明…
+"""
+
+[item_description.0034]
+pointer = "1acd90"
+text = """
+ネイシリーズの投てき武器。　　　詳細不明…
+"""
+
+[item_description.0035]
+pointer = "1acd50"
+text = """
+皮製の紐状武器。　　　　　　　　扱いは難しいが攻撃力は高い。
+"""
+
+[item_description.0036]
+pointer = "1acd10"
+text = """
+雷の属性を持つ紐状武器。　　　　ゾンデの効果を発揮する。
+"""
+
+[item_description.0037]
+pointer = "1accd0"
+text = """
+火の属性を持つ棒状武器。　　　　フォイエの効果を発揮する。
+"""
+
+[item_description.0038]
+pointer = "1acc90"
+text = """
+氷の属性を持つ棒状武器。　　　　バータの効果を発揮する。
+"""
+
+[item_description.0039]
+pointer = "1acc58"
+text = """
+風の属性を持つ棒状武器。　　　　ザンの効果を発揮する。
+"""
+
+[item_description.003a]
+pointer = "1acc20"
+text = """
+鋼鉄製の棒状打撃武器。　　　　　本来は工具の一種。
+"""
+
+[item_description.003b]
+pointer = "1acbe0"
+text = """
+セラミック製の棒状打撃武器。　　うろこ状の表面で強度が高い。
+"""
+
+[item_description.003c]
+pointer = "1acbb0"
+text = """
+ラコニア製で最強の棒状打撃武器。詳細不明…
+"""
+
+[item_description.003d]
+pointer = "1acb68"
+text = """
+鋼鉄製の刃を持つ爪状の武器。　　軽くて動きやすく、攻撃力も高い。
+"""
+
+[item_description.003e]
+pointer = "1acb20"
+text = """
+鋭利な刃を持つ爪状の武器。　　　扱いやすく、切れ味も優れている。
+"""
+
+[item_description.003f]
+pointer = "1acae0"
+text = """
+セラミック製の刃を持つ爪状の武器。丈夫で軽く、攻撃力も高い。
+"""
+
+[item_description.0040]
+pointer = "1acab0"
+text = """
+光の刃を持つ爪状の武器。　　　　詳細不明…
+"""
+
+[item_description.0041]
+pointer = "1aca70"
+text = """
+魔力を秘めた爪状の武器。　　　　ボルトの効果を発揮する。
+"""
+
+[item_description.0042]
+pointer = "1aca40"
+text = """
+伝説の英雄ミャウの爪（レプリカ）詳細不明…
+"""
+
+[item_description.0043]
+pointer = "1aca08"
+text = """
+皮製の帽子。　　　　　　　　　　初心者向けの普及品。
+"""
+
+[item_description.0044]
+pointer = "1ac9c8"
+text = """
+グラスウール製の帽子。　　　　　防熱性が高く、電気も通さない。
+"""
+
+[item_description.0045]
+pointer = "1ac980"
+text = """
+チタン合金製の帽子。　　　　　　軽く、耐食性・強度に優れている。
+"""
+
+[item_description.0046]
+pointer = "1ac940"
+text = """
+魔力結界を持つ帽子。　　　　　　ギレスタの効果を発揮する。
+"""
+
+[item_description.0047]
+pointer = "1ac900"
+text = """
+魔力結界を持つ帽子。　　　　　　ギザンの効果を発揮する。
+"""
+
+[item_description.0048]
+pointer = "1ac8b8"
+text = """
+セラミック製の帽子。　　　　　　軽くて扱いやすく、防御力も高い。
+"""
+
+[item_description.0049]
+pointer = "1ac888"
+text = """
+ラコニア製で最強の帽子。　　　　詳細不明…
+"""
+
+[item_description.004a]
+pointer = "1ac848"
+text = """
+布製の装身具。　　　　　　　　　ファッション性の高い織物。
+"""
+
+[item_description.004b]
+pointer = "1ac810"
+text = """
+銀で装飾された装身具。　　　　　可愛い女性専用の織物。
+"""
+
+[item_description.004c]
+pointer = "1ac7e0"
+text = """
+宝石で装飾された装身具。　　　　詳細不明…
+"""
+
+[item_description.004d]
+pointer = "1ac7b0"
+text = """
+銀で装飾されたかんむり。　　　　詳細不明…
+"""
+
+[item_description.004e]
+pointer = "1ac780"
+text = """
+宝石で装飾されたかんむり。　　　詳細不明…
+"""
+
+[item_description.004f]
+pointer = "1ac740"
+text = """
+白銀色に輝くかんむり。　　　　　デバンドの効果を発揮する。
+"""
+
+[item_description.0050]
+pointer = "1ac700"
+text = """
+黄金色に輝くかんむり。　　　　　ゾンデの効果を発揮する。
+"""
+
+[item_description.0051]
+pointer = "1ac6d0"
+text = """
+ネイシリーズの王冠。　　　　　　詳細不明…
+"""
+
+[item_description.0052]
+pointer = "1ac688"
+text = """
+チタン合金製のかぶと。　　　　　軽く、耐食性・強度に優れている。
+"""
+
+[item_description.0053]
+pointer = "1ac658"
+text = """
+ラコニア製で最強のかぶと。　　　詳細不明…
+"""
+
+[item_description.0054]
+pointer = "1ac628"
+text = """
+ネイシリーズのかぶと。　　　　　詳細不明…
+"""
+
+[item_description.0055]
+pointer = "1ac5f0"
+text = """
+花染織のハンカチーフ。　　　　　ザンの効果を発揮する。
+"""
+
+[item_description.0056]
+pointer = "1ac5b0"
+text = """
+サラサ模様のハンカチーフ。　　　シュネラの効果を発揮する。
+"""
+
+[item_description.0057]
+pointer = "1ac570"
+text = """
+シャム染めのハンカチーフ。　　　シュネラの効果を発揮する。
+"""
+
+[item_description.0058]
+pointer = "1ac528"
+text = """
+翻訳能力が身に付く帽子。　　　　ジャコウネコ語が分かるようになる。
+"""
+
+[item_description.0059]
+pointer = "1ac4e0"
+text = """
+翻訳能力が身に付く帽子。　　　　デゾリアン語が分かるようになる。
+"""
+
+[item_description.005a]
+pointer = "1ac4a0"
+text = """
+カーボンファイバー製の防護服。　炭素繊維で織り込んだ普及品。
+"""
+
+[item_description.005b]
+pointer = "1ac468"
+text = """
+カーボンファイバー製の胴着。　　炭素繊維のカットソー。
+"""
+
+[item_description.005c]
+pointer = "1ac428"
+text = """
+グラスウール製の胴着。　　　　　防熱性の高いノースリーブ。
+"""
+
+[item_description.005d]
+pointer = "1ac3e8"
+text = """
+グラスウール製の上着。　　　　　防熱性が高く、電気も通さない。
+"""
+
+[item_description.005e]
+pointer = "1ac3a8"
+text = """
+グラスウール製の外衣。　　　　　防熱性が高く、電気も通さない。
+"""
+
+[item_description.005f]
+pointer = "1ac378"
+text = """
+英雄のエスパーが身にまとった外衣。詳細不明…
+"""
+
+[item_description.0060]
+pointer = "1ac330"
+text = """
+チタン合金製の胸甲。　　　　　　軽く、耐食性・強度に優れている。
+"""
+
+[item_description.0061]
+pointer = "1ac2e8"
+text = """
+セラミック製の胸甲。　　　　　　軽くて動きやすく、防御力も高い。
+"""
+
+[item_description.0062]
+pointer = "1ac2b8"
+text = """
+ジルコニウム合金製の胸甲。　　　詳細不明…
+"""
+
+[item_description.0063]
+pointer = "1ac278"
+text = """
+魔力結界を持つ胸甲。　　　　　　グラプトの効果を発揮する。
+"""
+
+[item_description.0064]
+pointer = "1ac248"
+text = """
+ラコニア製で最強の胸甲。　　　　詳細不明…
+"""
+
+[item_description.0065]
+pointer = "1ac200"
+text = """
+チタン合金製の鎧。　　　　　　　軽く、耐食性・強度に優れている。
+"""
+
+[item_description.0066]
+pointer = "1ac1b8"
+text = """
+セラミック製の鎧。　　　　　　　軽くて動きやすく、防御力も高い。
+"""
+
+[item_description.0067]
+pointer = "1ac188"
+text = """
+ジルコニウム合金製の鎧。　　　　詳細不明…
+"""
+
+[item_description.0068]
+pointer = "1ac148"
+text = """
+シルク繊維のドレス。　　　　　　動きやすく、初心者向け。
+"""
+
+[item_description.0069]
+pointer = "1ac108"
+text = """
+チタン合金製のドレス。　　　　　新素材チタン繊維の逸品。
+"""
+
+[item_description.006a]
+pointer = "1ac0c0"
+text = """
+セラミック製のドレス。　　　　　軽くて動きやすく、防御力も高い。
+"""
+
+[item_description.006b]
+pointer = "1ac090"
+text = """
+ラコニア製で最強のドレス。　　　詳細不明…
+"""
+
+[item_description.006c]
+pointer = "1ac050"
+text = """
+チタン合金製のローブ。　　　　　新素材チタン繊維の珍品。
+"""
+
+[item_description.006d]
+pointer = "1ac010"
+text = """
+魔力結界を持つローブ。　　　　　グラプトの効果を発揮する。
+"""
+
+[item_description.006e]
+pointer = "1abfe0"
+text = """
+ラコニア製で最強のローブ。　　　詳細不明…
+"""
+
+[item_description.006f]
+pointer = "1abfb0"
+text = """
+ネイシリーズのローブ。　　　　　詳細不明…
+"""
+
+[item_description.0070]
+pointer = "1abf70"
+text = """
+魔力結界を持つ法衣。　　　　　　グラプトの効果を発揮する。
+"""
+
+[item_description.0071]
+pointer = "1abf40"
+text = """
+プラズマ磁場を持つ法衣。　　　　詳細不明…
+"""
+
+[item_description.0072]
+pointer = "1abf10"
+text = """
+ネイシリーズの法衣。　　　　　　詳細不明…
+"""
+
+[item_description.0073]
+pointer = "1abed0"
+text = """
+琥珀織りの法衣。　　　　　　　　ギレスタの効果を発揮する。
+"""
+
+[item_description.0074]
+pointer = "1abe98"
+text = """
+囚人用の防護服。　　　　　　　　着ていないよりはマシ。
+"""
+
+[item_description.0075]
+pointer = "1abe58"
+text = """
+カーボン製の盾。　　　　　　　　軽くて丈夫なので初心者向け。
+"""
+
+[item_description.0076]
+pointer = "1abe18"
+text = """
+グラスウール製の盾。　　　　　　防熱性が高く、電気も通さない。
+"""
+
+[item_description.0077]
+pointer = "1abdd0"
+text = """
+チタン合金製の盾。　　　　　　　軽く、耐食性・強度に優れている。
+"""
+
+[item_description.0078]
+pointer = "1abda0"
+text = """
+鏡面加工された盾。　　　　　　　詳細不明…
+"""
+
+[item_description.0079]
+pointer = "1abd58"
+text = """
+セラミック製の盾。　　　　　　　軽くて扱いやすく、防御力も高い。
+"""
+
+[item_description.007a]
+pointer = "1abd18"
+text = """
+世界平和を予感させる盾。　　　　ギレスタの効果を発揮する。
+"""
+
+[item_description.007b]
+pointer = "1abcd0"
+text = """
+光の壁で結界を作る盾。　　　　　優れた防御力を持つ数少ない珍品。
+"""
+
+[item_description.007c]
+pointer = "1abca0"
+text = """
+ラコニア製で最強の盾。　　　　　詳細不明…
+"""
+
+[item_description.007d]
+pointer = "1abc70"
+text = """
+ネイシリーズの盾。　　　　　　　詳細不明…
+"""
+
+[item_description.007e]
+pointer = "1abc30"
+text = """
+カーボン製の腕鎧。　　　　　　　軽くて丈夫な素材で女性向け。
+"""
+
+[item_description.007f]
+pointer = "1abbf0"
+text = """
+グラスウール製の腕鎧。　　　　　防熱性が高く、電気も通さない。
+"""
+
+[item_description.0080]
+pointer = "1abba8"
+text = """
+チタン合金製の腕鎧。　　　　　　軽く、耐食性・強度に優れている。
+"""
+
+[item_description.0081]
+pointer = "1abb78"
+text = """
+鏡面加工された腕鎧。　　　　　　詳細不明…
+"""
+
+[item_description.0082]
+pointer = "1abb38"
+text = """
+セラミック製の腕鎧。　　　　　　動きやすく軽量かつ丈夫。
+"""
+
+[item_description.0083]
+pointer = "1abaf8"
+text = """
+魔力を秘めた腕鎧。　　　　　　　ファンビアの効果を発揮する。
+"""
+
+[item_description.0084]
+pointer = "1abac8"
+text = """
+ラコニア製で最強の腕鎧。　　　　詳細不明…
+"""
+
+[item_description.0085]
+pointer = "1aba98"
+text = """
+ネイシリーズの腕鎧。　　　　　　詳細不明…
+"""
+
+[item_description.0086]
+pointer = "1aba58"
+text = """
+動きやすいコットン素材の腕鎧。　シンパロの効果を発揮する。
+"""
+
+[item_description.0087]
+pointer = "1aba18"
+text = """
+グラスウール製の腕鎧。　　　　　ギレスタの効果を発揮する。
+"""
+
+[item_description.0088]
+pointer = "1ab9d8"
+text = """
+薄皮製の靴。　　　　　　　　　　軽くて動きやすい普及品。
+"""
+
+[item_description.0089]
+pointer = "1ab998"
+text = """
+おしゃれなソールの靴。　　　　　ネイのオーダーメイド品。
+"""
+
+[item_description.008a]
+pointer = "1ab960"
+text = """
+厚手の皮製ブーツ。　　　　　　　スタンダードな一品。
+"""
+
+[item_description.008b]
+pointer = "1ab920"
+text = """
+刃物が隠してあるブーツ。　　　　武器としても使える優れもの。
+"""
+
+[item_description.008c]
+pointer = "1ab8e0"
+text = """
+ファッショナブルなブーツ。　　　美しいフォルムが女性に人気。
+"""
+
+[item_description.008d]
+pointer = "1ab8a0"
+text = """
+軽くて丈夫！　　　　　　　　　　女性向けのカジュアルブーツ。
+"""
+
+[item_description.008e]
+pointer = "1ab860"
+text = """
+素早さが最大の売り！　　　　　　シュネラの効果も期待できる。
+"""
+
+[item_description.008f]
+pointer = "1ab818"
+text = """
+漆黒のブーツ。　　　　　　　　　頑丈なわりに敏捷性も高いタイプ。
+"""
+
+[item_description.0090]
+pointer = "1ab7d0"
+text = """
+白のロングブーツ。　　　　　　　動きやすくデザイン性も高い逸品。
+"""
+
+[item_description.0091]
+pointer = "1ab790"
+text = """
+頑丈に作られたブーツ。　　　　　高い防御力と機動力を併せ持つ。
+"""
+
+[item_description.0092]
+pointer = "1ab758"
+text = """
+体力回復の薬。　　　　　　　　　ＨＰを２０回復できる。
+"""
+
+[item_description.0093]
+pointer = "1ab720"
+text = """
+体力回復の薬。　　　　　　　　　ＨＰを６０回復できる。
+"""
+
+[item_description.0094]
+pointer = "1ab6e8"
+text = """
+体力回復の薬。　　　　　　　　　ＨＰを全回復できる。
+"""
+
+[item_description.0095]
+pointer = "1ab6b0"
+text = """
+テクニック回復の薬。　　　　　　ＴＰを１０回復できる。
+"""
+
+[item_description.0096]
+pointer = "1ab678"
+text = """
+テクニック回復の薬。　　　　　　ＴＰを５０回復できる。
+"""
+
+[item_description.0097]
+pointer = "1ab638"
+text = """
+テクニック回復の薬。　　　　　　ＴＰを１００回復できる。
+"""
+
+[item_description.0098]
+pointer = "1ab5f8"
+text = """
+体調改善の薬。　　　　　　　　　ステータス異常の毒を中和する。
+"""
+
+[item_description.0099]
+pointer = "1ab5a0"
+text = """
+蘇生の薬。　　　　　　　　　　　死亡した仲間を生き返らせる。　　ＨＰも全回復できる。
+"""
+
+[item_description.009a]
+pointer = "1ab560"
+text = """
+体力回復の薬。　　　　　　　　　仲間全員のＨＰを全回復できる。
+"""
+
+[item_description.009b]
+pointer = "1ab518"
+text = """
+体調改善の薬。　　　　　　　　　仲間全員のステータス異常を治す。
+"""
+
+[item_description.009c]
+pointer = "1aa318"
+text = """
+最後に利用したデータメモリーまで瞬間移動できる。
+"""
+
+[item_description.009d]
+pointer = "1aa2f0"
+text = """
+ダンジョン等から緊急脱出できる。
+"""
+
+[item_description.009e]
+pointer = "1ab4f0"
+text = """
+一定時間、敵との遭遇率を下げる。
+"""
+
+[item_description.009f]
+pointer = "1ab4d0"
+text = """
+戦闘から緊急脱出できる。
+"""
+
+[item_description.00a0]
+pointer = "1ab498"
+text = """
+とても甘いショートケーキ。　　　ＨＰを８０回復できる。
+"""
+
+[item_description.00a1]
+pointer = "1ab460"
+text = """
+さっぱりして、とても美味しい。　ＨＰを全回復できる。
+"""
+
+[item_description.00a2]
+pointer = "1ab420"
+text = """
+季節の果物をふんだんに使った逸品。ＴＰを８０回復できる。
+"""
+
+[item_description.00a3]
+pointer = "1ab3e8"
+text = """
+ふわふわクリームたっぷりのケーキ。ＴＰを全回復できる。
+"""
+
+[item_description.00a4]
+pointer = "1ab3a8"
+text = """
+名店の味を再現したショートケーキ。ＨＰとＴＰを全回復できる。
+"""
+
+[item_description.00a5]
+pointer = "1ab368"
+text = """
+陸上専用車両。　　　　　　　　　陸の上を高速移動できる。
+"""
+
+[item_description.00a6]
+pointer = "1ab328"
+text = """
+海上専用車両。　　　　　　　　　海の上を高速移動できる。
+"""
+
+[item_description.00a7]
+pointer = "1ab2e8"
+text = """
+氷上専用車両。　　　　　　　　　氷の上を高速移動できる。
+"""
+
+[item_description.00a8]
+pointer = "1ab2c8"
+text = """
+強力な破壊力を持った爆破薬。
+"""
+
+[item_description.00a9]
+pointer = "1ab2b0"
+text = """
+ミニマップ表示。
+"""
+
+[item_description.00aa]
+pointer = "1ab298"
+text = """
+ラスカルズの脅迫状
+"""
+
+[item_description.00ab]
+pointer = "1ab278"
+text = """
+バイオシステムの記録装置。
+"""
+
+[item_description.00ac]
+pointer = "1ab238"
+text = """
+マルエラツリーの葉っぱ。　　　　マルエラガムの材料になる。
+"""
+
+[item_description.00ad]
+pointer = "1ab1f0"
+text = """
+マルエラリーブのチューインガム。水中でも呼吸ができるようになる。
+"""
+
+[item_description.00ae]
+pointer = "1ab1c8"
+text = """
+幻の建物を投影することができる。
+"""
+
+[item_description.00af]
+pointer = "1ab1b0"
+text = """
+囚人捕縛用装置。
+"""
+
+[item_description.00b0]
+pointer = "1ab170"
+text = """
+癒しの指輪。　　　　　　　　　　歩くごとにＨＰが回復する。
+"""
+
+[item_description.00b1]
+pointer = "1ab148"
+text = """
+ちから・もりもりんを作動させる石。
+"""
+
+[item_description.00b2]
+pointer = "1ab108"
+text = """
+人間の力を倍増させる装置。　　　軽量、小型化され携帯可能に！
+"""
+
+[item_description.00b3]
+pointer = "1ab0e0"
+text = """
+キーボードを使用することができる。
+"""
+
+[item_description.00b4]
+pointer = "1ab0b8"
+text = """
+キーボードを演奏することができる。
+"""
+
+[item_description.00b5]
+pointer = "1ab070"
+text = """
+翻訳能力が身に付く指輪。　　　　モタビアン語が分かるようになる。
+"""
+
+[item_description.00b6]
+pointer = "1ab040"
+text = """
+マルエラツリーの実。　　　　　　詳細不明…
+"""
+
+[item_description.00b7]
+pointer = "1ab020"
+text = """
+ナネットのお母さんの指輪。
+"""
+
+[item_description.00b8]
+pointer = "1aafd8"
+text = """
+携帯用無線通信端末。　　　　　　データメモリーにアクセスできる。
+"""
+
+[item_description.00b9]
+pointer = "1aafb8"
+text = """
+レッドダムのカードキー。
+"""
+
+[item_description.00ba]
+pointer = "1aaf98"
+text = """
+イエローダムのカードキー。
+"""
+
+[item_description.00bb]
+pointer = "1aaf78"
+text = """
+ブルーダムのカードキー。
+"""
+
+[item_description.00bc]
+pointer = "1aaf58"
+text = """
+グリーンダムのカードキー。
+"""
+
+[item_description.00bd]
+pointer = "1aaf30"
+text = """
+コンテナを開けることのできるカギ。
+"""
+
+[item_description.00be]
+pointer = "1aaf10"
+text = """
+西の橋で必要な通行許可証。
+"""
+
+[item_description.00bf]
+pointer = "1aaed0"
+text = """
+化学薬品。　　　　　　　　　　　ラコニア以外の金属を溶かす。
+"""
+
+[item_description.00c0]
+pointer = "1aaeb0"
+text = """
+ルドガーがネイに贈った首飾り。
+"""
+
+[item_description.00c1]
+pointer = "1aae88"
+text = """
+ナネットからイーノスに宛てた手紙。
+"""
+
+[item_description.00c2]
+pointer = "1b1840"
+text = """
+アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホ・−マミムメモヤユヨラリルレロワヲンガギグゲゴザジズゼゾダヂヅデドッバビブベボパピプペポァィゥェォャュョ０１２３４５６７８９ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ　○×△□＋？
+"""
+
+[misc_string.0000]
+pointer = "18d8f8"
+text = """
+ユーシス
+"""
+
+[misc_string.0001]
+pointer = "1db428"
+text = """
+ネイ
+"""
+
+[misc_string.0002]
+pointer = "18d8e8"
+text = """
+ルドガー
+"""
+
+[misc_string.0003]
+pointer = "1db420"
+text = """
+アンヌ
+"""
+
+[misc_string.0004]
+pointer = "18d8d8"
+text = """
+ヒューイ
+"""
+
+[misc_string.0005]
+pointer = "18d8c8"
+text = """
+アーミア
+"""
+
+[misc_string.0006]
+pointer = "18d8b8"
+text = """
+カインズ
+"""
+
+[misc_string.0007]
+pointer = "1db418"
+text = """
+シルカ
+"""
+
+[misc_string.0008]
+pointer = "18d8a8"
+text = """
+最大ＨＰ
+"""
+
+[misc_string.0009]
+pointer = "18d898"
+text = """
+最大ＴＰ
+"""
+
+[misc_string.000a]
+pointer = "1db410"
+text = """
+攻撃力
+"""
+
+[misc_string.000b]
+pointer = "1db408"
+text = """
+守備力
+"""
+
+[misc_string.000c]
+pointer = "1db400"
+text = """
+体力
+"""
+
+[misc_string.000d]
+pointer = "1db3f8"
+text = """
+精神力
+"""
+
+[misc_string.000e]
+pointer = "1db3f0"
+text = """
+素早さ
+"""
+
+[misc_string.000f]
+pointer = "1db3e8"
+text = """
+幸運
+"""
+
+[misc_string.0010]
+pointer = "1db3e0"
+text = """
+器用
+"""
+
+[misc_string.0011]
+pointer = "1db3d8"
+text = """
+武具１
+"""
+
+[misc_string.0012]
+pointer = "1db3d0"
+text = """
+武具２
+"""
+
+[misc_string.0013]
+pointer = "18d870"
+text = """
+セットする属性を選択してください。
+"""
+
+[misc_string.0014]
+pointer = "1db3c8"
+text = """
+火
+"""
+
+[misc_string.0015]
+pointer = "1db3c0"
+text = """
+水
+"""
+
+[misc_string.0016]
+pointer = "1db3b8"
+text = """
+雷
+"""
+
+[misc_string.0017]
+pointer = "1db3b0"
+text = """
+風
+"""
+
+[misc_string.0018]
+pointer = "1db3a8"
+text = """
+　
+"""
+
+[misc_string.0019]
+pointer = "1db3a8"
+text = """
+　
+"""
+
+[misc_string.001a]
+pointer = "1db3a0"
+text = """
+解除
+"""
+
+[misc_string.001b]
+pointer = "18d860"
+text = """
+モタビアの歴史
+"""
+
+[misc_string.001c]
+pointer = "18d848"
+text = """
+バイオシステムとは
+"""
+
+[misc_string.001d]
+pointer = "18d830"
+text = """
+アメダスについて
+"""
+
+[misc_string.001e]
+pointer = "18d820"
+text = """
+ダムについて
+"""
+
+[misc_string.001f]
+pointer = "18d808"
+text = """
+マザーブレインとは
+"""
+
+[misc_string.0020]
+pointer = "18d7f8"
+text = """
+首都パセオ
+"""
+
+[misc_string.0021]
+pointer = "18d7e8"
+text = """
+アリマーヤの街
+"""
+
+[misc_string.0022]
+pointer = "18d7d8"
+text = """
+オプタノの街
+"""
+
+[misc_string.0023]
+pointer = "18d7c8"
+text = """
+ゼマの街
+"""
+
+[misc_string.0024]
+pointer = "18d7b8"
+text = """
+クエリスの街
+"""
+
+[misc_string.0025]
+pointer = "18d7a8"
+text = """
+ピアタの街
+"""
+
+[misc_string.0026]
+pointer = "18d798"
+text = """
+アウクバルの街
+"""
+
+[misc_string.0027]
+pointer = "18d788"
+text = """
+ゾーサの街
+"""
+
+[misc_string.0028]
+pointer = "18d778"
+text = """
+リュオンの街
+"""
+
+[misc_string.0029]
+pointer = "18d768"
+text = """
+スクレの地下道
+"""
+
+[misc_string.002a]
+pointer = "1db398"
+text = """
+はい
+"""
+
+[misc_string.002b]
+pointer = "1db390"
+text = """
+いいえ
+"""
+
+[misc_string.002c]
+pointer = "18d758"
+text = """
+傷の治療
+"""
+
+[misc_string.002d]
+pointer = "18d748"
+text = """
+毒の治療
+"""
+
+[misc_string.002e]
+pointer = "18d718"
+text = """
+これ以上アイテムを持つことはできません。
+"""
+
+[misc_string.002f]
+pointer = "18d6e8"
+text = """
+これ以上アイテムを倉庫に移動できません。
+"""
+
+[misc_string.0030]
+pointer = "18d6d0"
+text = """
+〜を買いますか？
+"""
+
+[misc_string.0031]
+pointer = "1db388"
+text = """
+使う
+"""
+
+[misc_string.0032]
+pointer = "1db380"
+text = """
+捨てる
+"""
+
+[misc_string.0033]
+pointer = "18d6c0"
+text = """
+サウンド
+"""
+
+[misc_string.0034]
+pointer = "18d6b0"
+text = """
+戦闘背景
+"""
+
+[misc_string.0035]
+pointer = "18d6a0"
+text = """
+パイプの表示
+"""
+
+[misc_string.0036]
+pointer = "18d690"
+text = """
+メッセージ速度
+"""
+
+[misc_string.0037]
+pointer = "1db378"
+text = """
+振動
+"""
+
+[misc_string.0038]
+pointer = "1db370"
+text = """
+中断
+"""
+
+[misc_string.0039]
+pointer = "18d680"
+text = """
+タイトルに戻る
+"""
+
+[misc_string.003a]
+pointer = "18d670"
+text = """
+ステレオ
+"""
+
+[misc_string.003b]
+pointer = "18d660"
+text = """
+モノラル
+"""
+
+[misc_string.003c]
+pointer = "18d650"
+text = """
+アレンジ
+"""
+
+[misc_string.003d]
+pointer = "18d640"
+text = """
+オリジナル
+"""
+
+[misc_string.003e]
+pointer = "1db368"
+text = """
+ＯＮ
+"""
+
+[misc_string.003f]
+pointer = "1db360"
+text = """
+ＯＦＦ
+"""
+
+[misc_string.0040]
+pointer = "1db358"
+text = """
+早い
+"""
+
+[misc_string.0041]
+pointer = "1db350"
+text = """
+普通
+"""
+
+[misc_string.0042]
+pointer = "1db348"
+text = """
+遅い
+"""
+
+[misc_string.0043]
+pointer = "18d620"
+text = """
+上書きしてよろしいですか？
+"""
+
+[misc_string.0044]
+pointer = "18d608"
+text = """
+セーブが終了しました。
+"""
+
+[misc_string.0045]
+pointer = "18d5e0"
+text = """
+中断データを上書きしてよろしいですか？
+"""
+
+[misc_string.0046]
+pointer = "18d5a8"
+text = """
+中断データをセーブしました。タイトルに戻ります。
+"""
+
+[misc_string.0047]
+pointer = "1db340"
+text = """
+作製
+"""
+
+[misc_string.0048]
+pointer = "1db338"
+text = """
+訓練
+"""
+
+[misc_string.0049]
+pointer = "18d590"
+text = """
+何も起きなかった。
+"""
+
+[misc_string.004a]
+pointer = "18d9c0"
+text = """
+ファンタシースプレイト
+"""
+
+[misc_string.004b]
+pointer = "18d9b0"
+text = """
+オープニング
+"""
+
+[misc_string.004c]
+pointer = "1db480"
+text = """
+街１
+"""
+
+[misc_string.004d]
+pointer = "18d998"
+text = """
+セントラルタワー
+"""
+
+[misc_string.004e]
+pointer = "18d988"
+text = """
+主人公の家
+"""
+
+[misc_string.004f]
+pointer = "1db478"
+text = """
+建物１
+"""
+
+[misc_string.0050]
+pointer = "1db470"
+text = """
+建物２
+"""
+
+[misc_string.0051]
+pointer = "18d978"
+text = """
+街の外１
+"""
+
+[misc_string.0052]
+pointer = "1db468"
+text = """
+戦闘１
+"""
+
+[misc_string.0053]
+pointer = "18d968"
+text = """
+戦闘　勝利
+"""
+
+[misc_string.0054]
+pointer = "18d958"
+text = """
+ゲームオーバー
+"""
+
+[misc_string.0055]
+pointer = "18d948"
+text = """
+ダンジョン１
+"""
+
+[misc_string.0056]
+pointer = "18d938"
+text = """
+ダンジョン２
+"""
+
+[misc_string.0057]
+pointer = "1db460"
+text = """
+戦闘２
+"""
+
+[misc_string.0058]
+pointer = "1db458"
+text = """
+セリフ
+"""
+
+[misc_string.0059]
+pointer = "18d928"
+text = """
+ダンジョン３
+"""
+
+[misc_string.005a]
+pointer = "1db450"
+text = """
+ムシカ
+"""
+
+[misc_string.005b]
+pointer = "18d918"
+text = """
+街の外２
+"""
+
+[misc_string.005c]
+pointer = "1db448"
+text = """
+街２
+"""
+
+[misc_string.005d]
+pointer = "1db440"
+text = """
+ルツ
+"""
+
+[misc_string.005e]
+pointer = "1db438"
+text = """
+ノア
+"""
+
+[misc_string.005f]
+pointer = "18d908"
+text = """
+地球人類
+"""
+
+[misc_string.0060]
+pointer = "1db430"
+text = """
+ＥＮＤ
+"""

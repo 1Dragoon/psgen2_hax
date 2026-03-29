@@ -1,11 +1,14 @@
 use crate::{
-    events::{DialogString, codec::decode_psg2_string},
+    events::{
+        DialogItem, codec::decode_psg2_string, deserialize_dialog_items, serialize_dialog_items,
+    },
     helpers::{
         deserialize_u8_hex, deserialize_u16_hex, deserialize_u32_hex, is_default, is_u16_max,
         max_u16, serialize_u8_hex, serialize_u16_hex, serialize_u32_hex,
     },
-    slpm_patcher::POINTER_OFFSET,
+    slpm_patcher::{Hexu32, POINTER_OFFSET},
 };
+use alloc::collections::BTreeMap;
 use core::mem::size_of;
 use serde::{Deserialize, Serialize};
 use std::io;
@@ -49,16 +52,15 @@ enum Character {
 #[derive(Serialize, Deserialize)]
 pub struct ItemInfo {
     #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
+        deserialize_with = "deserialize_dialog_items",
+        serialize_with = "serialize_dialog_items"
     )]
-    item_number: u32,
+    name: Vec<DialogItem>,
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
     )]
     name_pointer: u32,
-    name: DialogString,
     #[serde(default, skip_serializing_if = "is_default")]
     equip_slot: ItemEquipSlot,
     #[serde(
@@ -127,14 +129,14 @@ pub struct ItemInfo {
 #[inline]
 pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-) -> Result<Vec<ItemInfo>, io::Error> {
+) -> Result<BTreeMap<Hexu32, ItemInfo>, io::Error> {
     reader
         .seek(SeekFrom::Start(ITEM_STRUCTS_START as u64))
         .await
         .unwrap();
     let mut field_bytes = [0u8; 4];
     let mut field_vec = Vec::with_capacity(ITEM_STRUCT_FIELDS);
-    let mut items = Vec::with_capacity(ITEM_STRUCT_COUNT);
+    let mut items = BTreeMap::new();
     for item_no in 0..ITEM_STRUCT_COUNT {
         for _field_no in 0..ITEM_STRUCT_FIELDS {
             reader.read_exact(&mut field_bytes).await?;
@@ -180,8 +182,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         }
 
         let item = ItemInfo {
-            item_number: u32::try_from(item_no + 1).unwrap(),
-            name: DialogString::default(),
+            name: Vec::new(),
             name_pointer,
             equip_slot,
             field_1,
@@ -198,14 +199,14 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             luck,
             field_7,
         };
-        items.push(item);
+        items.insert(Hexu32(u32::try_from(item_no + 1).unwrap()), item);
     }
     // use crate::slpm_patcher::Hexu32;
     // use alloc::collections::BTreeMap;
     // use crate::helpers::{save_binary_file, encode_hex};
     // use std::path::PathBuf;
     // let mut item_pointers = BTreeMap::new();
-    for item in &mut items {
+    for item in items.values_mut() {
         reader
             .seek(SeekFrom::Start(
                 u64::from(item.name_pointer) - POINTER_OFFSET as u64,
@@ -218,7 +219,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         {
             string_bytes.push(byte);
         }
-        let engrish_str = decode_psg2_string(string_bytes);
+        let engrish_str = decode_psg2_string(string_bytes).text;
         item.name = engrish_str;
         // item_pointers.insert(
         //     Hexu32(item.name_pointer - 0xff000),
@@ -232,21 +233,20 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     //     .unwrap()
     //     .into_bytes();
     // save_binary_file(&PathBuf::from("eng_item_pointers.json"), &bytes).await?;
-    items.shrink_to_fit();
     Ok(items)
 }
 
 #[inline]
 pub async fn patch(
     exec_writer: &mut BufWriter<fs::File>,
-    items: Box<[ItemInfo]>,
+    items: BTreeMap<Hexu32, ItemInfo>,
 ) -> Result<(), io::Error> {
     exec_writer
         .seek(SeekFrom::Start(ITEM_STRUCTS_START.try_into().unwrap()))
         .await
         .unwrap();
     assert_eq!(ITEM_STRUCT_COUNT, items.len(), "Item count MUST be exact!");
-    for item in items {
+    for (_, item) in items {
         let mut equip_byte = 0;
         for character in item.can_equip {
             equip_byte |= character as u8;

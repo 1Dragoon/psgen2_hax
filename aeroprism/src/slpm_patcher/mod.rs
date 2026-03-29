@@ -3,13 +3,14 @@ pub mod end_credits;
 pub mod enemies;
 pub mod items;
 use crate::{
-    EXEC_JUMPLIST_STRINGS_FILENAME, EXEC_STRUCTURES_FILENAME,
-    events::{codec::decode_psg2_string, load_exec_jumplist_patch, load_exec_struct_patch},
+    EXEC_STRUCTURES_FILENAME,
+    events::{DialogItem, codec::decode_psg2_string, load_exec_struct_patch},
     helpers::{is_default, save_binary_file, unset_readonly},
     slpm_patcher::{end_credits::EndCreditItem, enemies::EnemyInfo, items::ItemInfo},
 };
 use alloc::collections::BTreeMap;
 // use indexmap::IndexMap;
+use crate::events::{deserialize_dialog_items, serialize_dialog_items};
 use log::{Level, info, log_enabled};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -70,11 +71,10 @@ static MEMCARD_STRUCT_FIELDS: usize = 2;
 #[derive(Serialize, Deserialize)]
 pub struct Song {
     #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
+        deserialize_with = "deserialize_dialog_items",
+        serialize_with = "serialize_dialog_items"
     )]
-    number: u32,
-    name: DialogString,
+    name: Vec<DialogItem>,
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
@@ -90,11 +90,10 @@ pub struct Song {
 #[derive(Serialize, Deserialize)]
 pub struct MemcardOpt {
     #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
+        deserialize_with = "deserialize_dialog_items",
+        serialize_with = "serialize_dialog_items"
     )]
-    number: u32,
-    name: DialogString,
+    name: Vec<DialogItem>,
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
@@ -110,11 +109,10 @@ pub struct MemcardOpt {
 #[derive(Serialize, Deserialize)]
 pub struct Technique {
     #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
+        deserialize_with = "deserialize_dialog_items",
+        serialize_with = "serialize_dialog_items"
     )]
-    tech_number: u32,
-    name: DialogString,
+    name: Vec<DialogItem>,
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
@@ -256,12 +254,12 @@ pub struct Technique {
 
 pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-) -> Result<Box<[Song]>, io::Error> {
+) -> Result<BTreeMap<Hexu32, Song>, io::Error> {
     reader
         .seek(SeekFrom::Start(MUSIC_STRUCT_START as u64))
         .await?;
     let mut field_bytes = [0u8; 4];
-    let mut songs = Vec::with_capacity(MUSIC_STRUCT_COUNT);
+    let mut songs = BTreeMap::new();
     for i in 0..MUSIC_STRUCT_COUNT {
         let mut fields = Vec::with_capacity(MUSIC_STRUCT_FIELDS);
         for _ in 0..MUSIC_STRUCT_FIELDS {
@@ -269,17 +267,16 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
             fields.push(field_bytes);
         }
         let song = Song {
-            number: u32::try_from(i).unwrap(),
-            name: DialogString::default(),
+            name: Vec::new(),
             name_pointer: u32::from_le_bytes(fields.pop().unwrap()),
             field_1: u32::from_le_bytes(fields.pop().unwrap()),
         };
-        songs.push(song);
+        songs.insert(Hexu32(u32::try_from(i).unwrap()), song);
     }
 
     // let mut name_pointers = BTreeMap::new();
 
-    for song in &mut songs {
+    for song in songs.values_mut() {
         reader
             .seek(SeekFrom::Start(
                 u64::from(song.name_pointer) - POINTER_OFFSET as u64,
@@ -291,7 +288,7 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
         {
             string_bytes.push(byte);
         }
-        song.name = decode_psg2_string(string_bytes);
+        song.name = decode_psg2_string(string_bytes).text;
         // name_pointers.insert(
         //     Hexu32(song.name_pointer - 0xff000),
         //     (
@@ -305,17 +302,17 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
     //     .into_bytes();
     // save_binary_file(&PathBuf::from("jap_song_pointers.json"), &bytes).await?;
 
-    Ok(songs.into_boxed_slice())
+    Ok(songs)
 }
 
 pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-) -> Result<Box<[MemcardOpt]>, io::Error> {
+) -> Result<BTreeMap<Hexu32, MemcardOpt>, io::Error> {
     reader
         .seek(SeekFrom::Start(MEMCARD_STRUCT_START as u64))
         .await?;
     let mut field_bytes = [0u8; 4];
-    let mut memcard_opts = Vec::with_capacity(MEMCARD_STRUCT_COUNT);
+    let mut memcard_opts = BTreeMap::new();
     for i in 0..MEMCARD_STRUCT_COUNT {
         let mut fields = Vec::with_capacity(MEMCARD_STRUCT_FIELDS);
         for _ in 0..MEMCARD_STRUCT_FIELDS {
@@ -323,17 +320,16 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
             fields.push(field_bytes);
         }
         let memcard_opt = MemcardOpt {
-            number: u32::try_from(i).unwrap(),
-            name: DialogString::default(),
+            name: Vec::new(),
             name_pointer: u32::from_le_bytes(fields.pop().unwrap()),
             field_1: u32::from_le_bytes(fields.pop().unwrap()),
         };
-        memcard_opts.push(memcard_opt);
+        memcard_opts.insert(Hexu32(u32::try_from(i).unwrap()), memcard_opt);
     }
 
     // let mut name_pointers = BTreeMap::new();
 
-    for memcard_opt in &mut memcard_opts {
+    for memcard_opt in memcard_opts.values_mut() {
         reader
             .seek(SeekFrom::Start(
                 u64::from(memcard_opt.name_pointer) - POINTER_OFFSET as u64,
@@ -345,7 +341,7 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
         {
             string_bytes.push(byte);
         }
-        memcard_opt.name = decode_psg2_string(string_bytes);
+        memcard_opt.name = decode_psg2_string(string_bytes).text;
         // name_pointers.insert(
         //     Hexu32(memcard_opt.name_pointer - 0xff000),
         //     (
@@ -359,17 +355,17 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
     //     .into_bytes();
     // save_binary_file(&PathBuf::from("jap_mc_pointers.json"), &bytes).await?;
 
-    Ok(memcard_opts.into_boxed_slice())
+    Ok(memcard_opts)
 }
 
 pub async fn parse_techniques<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-) -> Result<Box<[Technique]>, io::Error> {
+) -> Result<BTreeMap<Hexu32, Technique>, io::Error> {
     reader
         .seek(SeekFrom::Start(TECHNIQUE_STRUCT_START as u64))
         .await?;
     let mut field_bytes = [0u8; 4];
-    let mut techniques = Vec::with_capacity(TECHNIQUE_STRUCT_COUNT);
+    let mut techniques = BTreeMap::new();
     for i in 0..TECHNIQUE_STRUCT_COUNT {
         let mut fields = Vec::with_capacity(TECHNIQUE_STRUCT_FIELDS);
         for _ in 0..TECHNIQUE_STRUCT_FIELDS {
@@ -378,8 +374,7 @@ pub async fn parse_techniques<R: AsyncBufRead + AsyncSeek + Unpin>(
         }
         fields.reverse();
         let technique = Technique {
-            tech_number: u32::try_from(i).unwrap(),
-            name: DialogString::default(),
+            name: Vec::new(),
             name_pointer: u32::from_le_bytes(fields.pop().unwrap()),
             field_1: u32::from_le_bytes(fields.pop().unwrap()),
             field_2: u32::from_le_bytes(fields.pop().unwrap()),
@@ -396,12 +391,12 @@ pub async fn parse_techniques<R: AsyncBufRead + AsyncSeek + Unpin>(
             field_13: u32::from_le_bytes(fields.pop().unwrap()),
         };
 
-        techniques.push(technique);
+        techniques.insert(Hexu32(u32::try_from(i).unwrap()), technique);
     }
 
     // let mut tech_pointers = BTreeMap::new();
 
-    for technique in &mut techniques {
+    for technique in techniques.values_mut() {
         reader
             .seek(SeekFrom::Start(
                 u64::from(technique.name_pointer) - POINTER_OFFSET as u64,
@@ -413,7 +408,7 @@ pub async fn parse_techniques<R: AsyncBufRead + AsyncSeek + Unpin>(
         {
             string_bytes.push(byte);
         }
-        technique.name = decode_psg2_string(string_bytes);
+        technique.name = decode_psg2_string(string_bytes).text;
         // tech_pointers.insert(
         //     Hexu32(technique.name_pointer - 0xff000),
         //     (
@@ -427,26 +422,31 @@ pub async fn parse_techniques<R: AsyncBufRead + AsyncSeek + Unpin>(
     //     .into_bytes();
     // save_binary_file(&PathBuf::from("jap_tech_pointers.json"), &bytes).await?;
 
-    Ok(techniques.into_boxed_slice())
+    Ok(techniques)
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct ExecStructures {
     // pub dunno_struct: indexmap::IndexMap<Hexu32, (DialogString, Vec<Hexu32>)>,
-    pub memcard_opts: Box<[MemcardOpt]>,
-    pub techniques: Box<[Technique]>,
-    pub songs: Box<[Song]>,
-    pub items: Box<[ItemInfo]>,
-    pub enemies: Box<[EnemyInfo]>,
-    pub end_credits: Box<[EndCreditItem]>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct ExecJumplistStrings {
-    pub mapnames: BTreeMap<Hexu32, DialogString>,
-    pub menu_text: BTreeMap<Hexu32, DialogString>,
-    pub item_descriptions: BTreeMap<Hexu32, DialogString>,
-    pub misc_strings: BTreeMap<Hexu32, DialogString>,
+    #[serde(rename = "memcard_opt")]
+    pub memcard_opts: BTreeMap<Hexu32, MemcardOpt>,
+    #[serde(rename = "technique")]
+    pub techniques: BTreeMap<Hexu32, Technique>,
+    #[serde(rename = "song")]
+    pub songs: BTreeMap<Hexu32, Song>,
+    #[serde(rename = "item")]
+    pub items: BTreeMap<Hexu32, ItemInfo>,
+    #[serde(rename = "enemy")]
+    pub enemies: BTreeMap<Hexu32, EnemyInfo>,
+    #[serde(rename = "end_credit")]
+    pub end_credits: BTreeMap<usize, EndCreditItem>,
+    #[serde(rename = "mapname")]
+    pub mapnames: BTreeMap<Hexu32, JumplistString>,
+    pub menu_text: BTreeMap<Hexu32, JumplistString>,
+    #[serde(rename = "item_description")]
+    pub item_descriptions: BTreeMap<Hexu32, JumplistString>,
+    #[serde(rename = "misc_string")]
+    pub misc_strings: BTreeMap<Hexu32, JumplistString>,
     // pub dunno: BTreeMap<Hexu32, DialogString>,
 }
 
@@ -466,7 +466,7 @@ pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
 ) -> Result<(), io::Error> {
     let elf_file = fs::File::open(elf_exec).await?;
     let mut elf_reader = BufReader::new(elf_file);
-    let exec_jumplist_strings = ExecJumplistStrings {
+    let exec_structures = ExecStructures {
         mapnames: parse_jumplist_strings(
             &mut elf_reader,
             MAPNAMES_JUMPLIST_START,
@@ -493,27 +493,12 @@ pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
         .await?,
         // dunno: parse_jumplist_strings(&mut elf_reader, DUNNO_JUMPLIST_START, DUNNO_JUMPLIST_FIELDS)
         //     .await?,
-    };
-    let exec_jumplist_strings_path = PathBuf::with_capacity(128)
-        .join(out_dir)
-        .join(EXEC_JUMPLIST_STRINGS_FILENAME);
-    save_binary_file(
-        &exec_jumplist_strings_path,
-        toml::to_string_pretty(&exec_jumplist_strings)
-            .unwrap()
-            .as_bytes(),
-    )
-    .await?;
-
-    let exec_structures = ExecStructures {
         memcard_opts: parse_memcard_opts(&mut elf_reader).await?,
         techniques: parse_techniques(&mut elf_reader).await?,
         songs: parse_songs(&mut elf_reader).await?,
-        items: items::parse(&mut elf_reader).await?.into_boxed_slice(),
-        enemies: enemies::parse(&mut elf_reader).await?.into_boxed_slice(),
-        end_credits: end_credits::parse(&mut elf_reader)
-            .await?
-            .into_boxed_slice(),
+        items: items::parse(&mut elf_reader).await?,
+        enemies: enemies::parse(&mut elf_reader).await?,
+        end_credits: end_credits::parse(&mut elf_reader).await?,
         // dunno_struct: parse_structs(
         //     &mut elf_reader,
         //     DUNNO_STRUCT_START,
@@ -528,50 +513,38 @@ pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
         .join(EXEC_STRUCTURES_FILENAME);
     save_binary_file(
         &exec_structures_path,
-        serde_json::to_string_pretty(&exec_structures)
-            .unwrap()
-            .as_bytes(),
+        toml::to_string_pretty(&exec_structures).unwrap().as_bytes(),
     )
     .await?;
     Ok(())
 }
 
 #[inline]
-pub async fn patch_exec(
-    dest: &PathBuf,
-    exec_data_path: Option<PathBuf>,
-    exec_jumplist_path: Option<PathBuf>,
-) -> Result<(), io::Error> {
+pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), io::Error> {
     if log_enabled!(Level::Info) {
         info!("Patching '{}'", dest.to_string_lossy());
     }
-    if let Some(path) = exec_jumplist_path {
-        let ExecJumplistStrings {
-            mapnames: _a,
-            menu_text: _b,
-            item_descriptions: _c,
-            misc_strings: _d,
-            // dunno: _e,
-        } = load_exec_jumplist_patch(path)?;
-    }
-    if let Some(path) = exec_data_path {
-        let ExecStructures {
-            // dunno_struct: _e,
-            techniques: _f,
-            songs: _g,
-            memcard_opts: _h,
-            items,
-            enemies,
-            end_credits,
-        } = load_exec_struct_patch(path)?;
-        unset_readonly(dest).await?;
-        let elf_binary = OpenOptions::new().write(true).open(dest).await?;
-        let mut bw = BufWriter::new(elf_binary);
-        items::patch(&mut bw, items).await?;
-        enemies::patch(&mut bw, enemies).await?;
-        end_credits::patch(&mut bw, end_credits).await?;
-        bw.flush().await?;
-    }
+    let ExecStructures {
+        mapnames: _a,
+        menu_text: _b,
+        item_descriptions: _c,
+        misc_strings: _d,
+        // dunno: _e,
+        // dunno_struct: _e,
+        techniques: _f,
+        songs: _g,
+        memcard_opts: _h,
+        items,
+        enemies,
+        end_credits,
+    } = load_exec_struct_patch(exec_data_path)?;
+    unset_readonly(dest).await?;
+    let elf_binary = OpenOptions::new().write(true).open(dest).await?;
+    let mut bw = BufWriter::new(elf_binary);
+    items::patch(&mut bw, items).await?;
+    enemies::patch(&mut bw, enemies).await?;
+    end_credits::patch(&mut bw, end_credits).await?;
+    bw.flush().await?;
 
     Ok(())
 }
@@ -589,25 +562,32 @@ pub struct Hexu32(
 use crate::events::DialogString;
 use tokio::io::{AsyncBufRead, AsyncBufReadExt, AsyncReadExt, AsyncSeek, AsyncSeekExt, SeekFrom};
 
+#[derive(Serialize, Deserialize)]
+pub struct JumplistString {
+    pointer: Hexu32,
+    #[serde(flatten)]
+    string: DialogString,
+}
+
 pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
     location: usize,
     count: usize,
-) -> Result<BTreeMap<Hexu32, DialogString>, io::Error> {
+) -> Result<BTreeMap<Hexu32, JumplistString>, io::Error> {
     reader.seek(SeekFrom::Start(location as u64)).await?;
     let mut pointer_bytes = [0u8; 4];
     let mut pointer_vec = Vec::with_capacity(count);
     let mut strings = BTreeMap::new();
-    for _ in 0..count {
+    for i in 0..count {
         reader.read_exact(&mut pointer_bytes).await?;
-        pointer_vec.push(u32::from_le_bytes(pointer_bytes));
+        pointer_vec.push((i, u32::from_le_bytes(pointer_bytes)));
     }
     assert_eq!(
         pointer_vec.len(),
         count,
         "Number of string items must be EXACT!"
     );
-    for pointer in pointer_vec {
+    for (number, pointer) in pointer_vec {
         reader
             .seek(SeekFrom::Start(u64::from(pointer) - POINTER_OFFSET as u64))
             .await?;
@@ -622,8 +602,11 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
         }
         let engrish_str = decode_psg2_string(engrish_bytes);
         strings.insert(
-            Hexu32(pointer - u32::try_from(POINTER_OFFSET).unwrap()),
-            engrish_str,
+            Hexu32(u32::try_from(number).unwrap()),
+            JumplistString {
+                pointer: Hexu32(pointer - u32::try_from(POINTER_OFFSET).unwrap()),
+                string: engrish_str,
+            },
         );
     }
     Ok(strings)

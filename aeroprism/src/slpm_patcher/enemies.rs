@@ -1,9 +1,12 @@
 #![allow(clippy::arbitrary_source_item_ordering, reason = "not needed")]
 use crate::{
-    events::{DialogString, codec::decode_psg2_string},
+    events::{
+        DialogItem, codec::decode_psg2_string, deserialize_dialog_items, serialize_dialog_items,
+    },
     helpers::{deserialize_u32_hex, is_default, serialize_u32_hex},
-    slpm_patcher::{Elemental, POINTER_OFFSET},
+    slpm_patcher::{Elemental, Hexu32, POINTER_OFFSET},
 };
+use alloc::collections::BTreeMap;
 use core::mem::size_of;
 use log::warn;
 use serde::{Deserialize, Serialize};
@@ -175,8 +178,11 @@ impl From<&EnemyAttributes> for u32 {
 
 #[derive(Serialize, Deserialize)]
 pub struct EnemyInfo {
-    enemy_number: usize,
-    name: DialogString,
+    #[serde(
+        deserialize_with = "deserialize_dialog_items",
+        serialize_with = "serialize_dialog_items"
+    )]
+    name: Vec<DialogItem>,
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
@@ -413,14 +419,14 @@ pub struct EnemyInfo {
 #[inline]
 pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-) -> Result<Vec<EnemyInfo>, io::Error> {
+) -> Result<BTreeMap<Hexu32, EnemyInfo>, io::Error> {
     reader
         .seek(SeekFrom::Start(ENEMY_STRUCTS_START as u64))
         .await
         .unwrap();
     let mut field_bytes = [0u8; 4];
     let mut field_vec = Vec::with_capacity(ENEMY_STRUCT_FIELDS);
-    let mut enemies = Vec::with_capacity(ENEMY_STRUCT_COUNT);
+    let mut enemies = BTreeMap::new();
     for enemy_no in 0..ENEMY_STRUCT_COUNT {
         for _field_no in 0..ENEMY_STRUCT_FIELDS {
             reader.read_exact(&mut field_bytes).await?;
@@ -428,8 +434,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         }
         field_vec.reverse();
         let enemy = EnemyInfo {
-            enemy_number: enemy_no + 1usize,
-            name: DialogString::default(),
+            name: Vec::new(),
             name_pointer: u32::from_le_bytes(field_vec.pop().unwrap()),
             attributes: EnemyAttributes::from(field_vec.pop().unwrap()),
             health: u32::from_le_bytes(field_vec.pop().unwrap()),
@@ -468,7 +473,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             field_36: u32::from_le_bytes(field_vec.pop().unwrap()),
             field_37: u32::from_le_bytes(field_vec.pop().unwrap()),
         };
-        enemies.push(enemy);
+        enemies.insert(Hexu32(u32::try_from(enemy_no + 1usize).unwrap()), enemy);
     }
     // use crate::slpm_patcher::Hexu32;
     // use alloc::collections::BTreeMap;
@@ -476,7 +481,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     // use std::path::PathBuf;
     // let mut enemy_pointers = BTreeMap::new();
     // Fill in the enemy names
-    for enemy in &mut enemies {
+    for enemy in enemies.values_mut() {
         reader
             .seek(SeekFrom::Start(
                 u64::from(enemy.name_pointer) - POINTER_OFFSET as u64,
@@ -489,7 +494,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         {
             string_bytes.push(byte);
         }
-        enemy.name = decode_psg2_string(string_bytes);
+        enemy.name = decode_psg2_string(string_bytes).text;
         // enemy_pointers.insert(
         //     Hexu32(enemy.name_pointer - 0xff000),
         //     (
@@ -502,14 +507,13 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     //     .unwrap()
     //     .into_bytes();
     // save_binary_file(&PathBuf::from("eng_enemy_pointers.json"), &bytes).await?;
-    enemies.shrink_to_fit();
     Ok(enemies)
 }
 
 #[inline]
 pub async fn patch(
     exec_writer: &mut BufWriter<fs::File>,
-    enemies: Box<[EnemyInfo]>,
+    enemies: BTreeMap<Hexu32, EnemyInfo>,
 ) -> Result<(), io::Error> {
     exec_writer
         .seek(SeekFrom::Start(ENEMY_STRUCTS_START.try_into().unwrap()))
@@ -520,7 +524,7 @@ pub async fn patch(
         enemies.len(),
         "Enemy count MUST be exact!"
     );
-    for enemy_info in enemies {
+    for (_, enemy_info) in enemies {
         exec_writer
             .write_all(&enemy_info.name_pointer.to_le_bytes())
             .await?;
