@@ -1,71 +1,81 @@
 [memcard_opt.0000]
-name = """
+text = """
 フォーマットされていないメモリーカード（ＰＳ２）です。
 """
-name_pointer = "28cf18"
+name_pointer = "18df18"
+name_vma_pointer = "18cf2800"
 field_1 = "fffffffe"
 
 [memcard_opt.0001]
-name = """
+text = """
 空き容量不足のため書き込み出来ません。
 """
-name_pointer = "28cf50"
+name_pointer = "18df50"
+name_vma_pointer = "50cf2800"
 field_1 = "fffffffd"
 
 [memcard_opt.0002]
-name = """
+text = """
 メモリーカード（ＰＳ２）の読み込みに失敗しました。
 """
-name_pointer = "28cf78"
+name_pointer = "18df78"
+name_vma_pointer = "78cf2800"
 field_1 = "fffffffc"
 
 [memcard_opt.0003]
-name = """
+text = """
 メモリーカード（ＰＳ２）の書き込みに失敗しました。
 """
-name_pointer = "28cfb0"
+name_pointer = "18dfb0"
+name_vma_pointer = "b0cf2800"
 field_1 = "fffffffb"
 
 [memcard_opt.0004]
-name = """
+text = """
 メモリーカード（ＰＳ２）が正しく差されていません。
 """
-name_pointer = "28cfe8"
+name_pointer = "18dfe8"
+name_vma_pointer = "e8cf2800"
 field_1 = "fffffff6"
 
 [memcard_opt.0005]
-name = """
+text = """
 セーブデータがありません。
 """
-name_pointer = "28d020"
+name_pointer = "18e020"
+name_vma_pointer = "20d02800"
 field_1 = "ffffff9c"
 
 [memcard_opt.0006]
-name = """
+text = """
 データが壊れている可能性があります。
 """
-name_pointer = "28d040"
+name_pointer = "18e040"
+name_vma_pointer = "40d02800"
 field_1 = "ffffff9b"
 
 [memcard_opt.0007]
-name = """
+text = """
 メモリーカード（ＰＳ２）の空き容量が不足しています。
 """
-name_pointer = "28d068"
+name_pointer = "18e068"
+name_vma_pointer = "68d02800"
 field_1 = "ffffff9a"
 
 [memcard_opt.0008]
-name = """
+text = """
 メモリーカード（ＰＳ２）の読み込みに失敗しました。
 """
-name_pointer = "28cf78"
+name_pointer = "18df78"
+name_vma_pointer = "78cf2800"
 field_1 = "0000"
 
 [technique.0000]
 name = """
 ダミー
 """
-name_pointer = "2da610"
+name_pointer = "1db610"
+name_vma_pointer = "10a62d00"
 field_1 = "0400"
 field_3 = "0002"
 field_5 = "000a"
@@ -74,7 +84,8 @@ field_5 = "000a"
 name = """
 フォイエ
 """
-name_pointer = "2a2f08"
+name_pointer = "1a3f08"
+name_vma_pointer = "082f2a00"
 field_1 = "1401"
 field_3 = "0002"
 field_5 = "000f"
@@ -89,7 +100,8 @@ field_13 = "0001"
 name = """
 ギフォイエ
 """
-name_pointer = "2a2ef8"
+name_pointer = "1a3ef8"
+name_vma_pointer = "f82e2a00"
 field_1 = "0401"
 field_3 = "0006"
 field_5 = "0028"
@@ -101,7 +113,8 @@ field_13 = "0016"
 name = """
 ナフォイエ
 """
-name_pointer = "2a2ee8"
+name_pointer = "1a3ee8"
+name_vma_pointer = "e82e2a00"
 field_1 = "2401"
 field_3 = "000c"
 field_5 = "0078"
@@ -111,7 +124,8 @@ field_6 = "0015"
 name = """
 バータ
 """
-name_pointer = "2da608"
+name_pointer = "1db608"
+name_vma_pointer = "08a62d00"
 field_1 = "1402"
 field_3 = "0003"
 field_5 = "0011"
@@ -122,7 +136,8 @@ field_10 = "0006"
 name = """
 ギバータ
 """
-name_pointer = "2a2ed8"
+name_pointer = "1a3ed8"
+name_vma_pointer = "d82e2a00"
 field_1 = "0402"
 field_3 = "0007"
 field_5 = "002d"
@@ -133,7 +148,8 @@ field_10 = "000f"
 name = """
 ギサバータ
 """
-name_pointer = "2a2ec8"
+name_pointer = "1a3ec8"
+name_vma_pointer = "c82e2a00"
 field_1 = "2402"
 field_3 = "000c"
 field_4 = "0001"
@@ -144,7 +160,8 @@ field_10 = "001e"
 name = """
 ゾンデ
 """
-name_pointer = "2da600"
+name_pointer = "1db600"
+name_vma_pointer = "a62d00"
 field_1 = "1408"
 field_3 = "0002"
 field_5 = "000f"
@@ -155,7 +172,8 @@ field_12 = "0009"
 name = """
 ギゾンデ
 """
-name_pointer = "2a2eb8"
+name_pointer = "1a3eb8"
+name_vma_pointer = "b82e2a00"
 field_1 = "0408"
 field_3 = "0006"
 field_5 = "0028"
@@ -166,7 +184,8 @@ field_12 = "0012"
 name = """
 ギサゾンデ
 """
-name_pointer = "2a2ea8"
+name_pointer = "1a3ea8"
+name_vma_pointer = "a82e2a00"
 field_1 = "2408"
 field_3 = "000e"
 field_4 = "0005"
@@ -177,7 +196,8 @@ field_12 = "001e"
 name = """
 ザン
 """
-name_pointer = "2da5f8"
+name_pointer = "1db5f8"
+name_vma_pointer = "f8a52d00"
 field_1 = "0404"
 field_3 = "0004"
 field_4 = "0001"
@@ -192,7 +212,8 @@ field_13 = "001b"
 name = """
 ギザン
 """
-name_pointer = "2da5f0"
+name_pointer = "1db5f0"
+name_vma_pointer = "f0a52d00"
 field_1 = "0404"
 field_3 = "0007"
 field_4 = "0001"
@@ -206,7 +227,8 @@ field_13 = "0028"
 name = """
 ナザン
 """
-name_pointer = "2da5e8"
+name_pointer = "1db5e8"
+name_vma_pointer = "e8a52d00"
 field_1 = "2404"
 field_3 = "000b"
 field_4 = "0001"
@@ -218,7 +240,8 @@ field_13 = "0031"
 name = """
 グラブト
 """
-name_pointer = "2a2e98"
+name_pointer = "1a3e98"
+name_vma_pointer = "982e2a00"
 field_1 = "2440"
 field_3 = "0008"
 field_4 = "0005"
@@ -233,7 +256,8 @@ field_13 = "0024"
 name = """
 ギグラブト
 """
-name_pointer = "2a2e88"
+name_pointer = "1a3e88"
+name_vma_pointer = "882e2a00"
 field_1 = "2440"
 field_3 = "000c"
 field_4 = "0005"
@@ -247,7 +271,8 @@ field_13 = "0036"
 name = """
 ナグラブト
 """
-name_pointer = "2a2e78"
+name_pointer = "1a3e78"
+name_vma_pointer = "782e2a00"
 field_1 = "2440"
 field_3 = "0014"
 field_4 = "0005"
@@ -258,7 +283,8 @@ field_13 = "0043"
 name = """
 グランツ
 """
-name_pointer = "2a2e68"
+name_pointer = "1a3e68"
+name_vma_pointer = "682e2a00"
 field_1 = "0400"
 field_3 = "0006"
 field_5 = "003c"
@@ -268,7 +294,8 @@ field_6 = "0007"
 name = """
 ギグランツ
 """
-name_pointer = "2a2e58"
+name_pointer = "1a3e58"
+name_vma_pointer = "582e2a00"
 field_1 = "0400"
 field_3 = "000d"
 field_5 = "0050"
@@ -278,7 +305,8 @@ field_6 = "0010"
 name = """
 ナグランツ
 """
-name_pointer = "2a2e48"
+name_pointer = "1a3e48"
+name_vma_pointer = "482e2a00"
 field_1 = "0400"
 field_3 = "0014"
 field_5 = "00b4"
@@ -288,7 +316,8 @@ field_6 = "001e"
 name = """
 シフタ
 """
-name_pointer = "2da5e0"
+name_pointer = "1db5e0"
+name_vma_pointer = "e0a52d00"
 field_1 = "1100"
 field_2 = "108000"
 field_3 = "0005"
@@ -301,7 +330,8 @@ field_11 = "000c"
 name = """
 ファンビア
 """
-name_pointer = "2a2e38"
+name_pointer = "1a3e38"
+name_vma_pointer = "382e2a00"
 field_1 = "0400"
 field_2 = "2000"
 field_3 = "0002"
@@ -312,7 +342,8 @@ field_11 = "0018"
 name = """
 エイジア
 """
-name_pointer = "2a2e28"
+name_pointer = "1a3e28"
+name_vma_pointer = "282e2a00"
 field_1 = "0420"
 field_3 = "0004"
 field_4 = "0001"
@@ -323,7 +354,8 @@ field_12 = "0006"
 name = """
 プロセダン
 """
-name_pointer = "2a2e18"
+name_pointer = "1a3e18"
+name_vma_pointer = "182e2a00"
 field_1 = "0460"
 field_2 = "1000"
 field_3 = "0008"
@@ -334,7 +366,8 @@ field_12 = "0025"
 name = """
 コンテル
 """
-name_pointer = "2a2e08"
+name_pointer = "1a3e08"
+name_vma_pointer = "082e2a00"
 field_1 = "0460"
 field_2 = "01008000"
 field_3 = "0006"
@@ -344,7 +377,8 @@ field_12 = "000d"
 name = """
 シーザス
 """
-name_pointer = "2a2df8"
+name_pointer = "1a3df8"
+name_vma_pointer = "f82d2a00"
 field_1 = "0450"
 field_2 = "01008000"
 field_3 = "0006"
@@ -354,7 +388,8 @@ field_10 = "0009"
 name = """
 ガージ
 """
-name_pointer = "2da5d8"
+name_pointer = "1db5d8"
+name_vma_pointer = "d8a52d00"
 field_1 = "1420"
 field_3 = "0001"
 field_5 = "0014"
@@ -364,7 +399,8 @@ field_12 = "000a"
 name = """
 ギガージ
 """
-name_pointer = "2a2de8"
+name_pointer = "1a3de8"
+name_vma_pointer = "e82d2a00"
 field_1 = "0420"
 field_3 = "0005"
 field_5 = "003c"
@@ -374,7 +410,8 @@ field_12 = "000f"
 name = """
 ナガージ
 """
-name_pointer = "2a2dd8"
+name_pointer = "1a3dd8"
+name_vma_pointer = "d82d2a00"
 field_1 = "2420"
 field_3 = "000f"
 field_5 = "0096"
@@ -384,7 +421,8 @@ field_12 = "0019"
 name = """
 サガージ
 """
-name_pointer = "2a2dc8"
+name_pointer = "1a3dc8"
+name_vma_pointer = "c82d2a00"
 field_1 = "0420"
 field_3 = "0003"
 field_4 = "0005"
@@ -395,7 +433,8 @@ field_12 = "0013"
 name = """
 ギサガージ
 """
-name_pointer = "2a2db8"
+name_pointer = "1a3db8"
+name_vma_pointer = "b82d2a00"
 field_1 = "0420"
 field_3 = "000f"
 field_4 = "0005"
@@ -406,7 +445,8 @@ field_12 = "001f"
 name = """
 ナサガージ
 """
-name_pointer = "2a2da8"
+name_pointer = "1a3da8"
+name_vma_pointer = "a82d2a00"
 field_1 = "2420"
 field_3 = "001b"
 field_4 = "0005"
@@ -417,7 +457,8 @@ field_12 = "002a"
 name = """
 ジェネラ
 """
-name_pointer = "2a2d98"
+name_pointer = "1a3d98"
+name_vma_pointer = "982d2a00"
 field_1 = "1410"
 field_3 = "0001"
 field_5 = "0014"
@@ -427,7 +468,8 @@ field_10 = "0004"
 name = """
 サジェネラ
 """
-name_pointer = "2a2d88"
+name_pointer = "1a3d88"
+name_vma_pointer = "882d2a00"
 field_1 = "0410"
 field_3 = "0003"
 field_4 = "0005"
@@ -438,7 +480,8 @@ field_10 = "0007"
 name = """
 ボルト
 """
-name_pointer = "2da5d0"
+name_pointer = "1db5d0"
+name_vma_pointer = "d0a52d00"
 field_1 = "0450"
 field_2 = "1000"
 field_3 = "0008"
@@ -449,7 +492,8 @@ field_10 = "0016"
 name = """
 サボルト
 """
-name_pointer = "2a2d78"
+name_pointer = "1a3d78"
+name_vma_pointer = "782d2a00"
 field_1 = "0450"
 field_2 = "1000"
 field_3 = "0010"
@@ -461,7 +505,8 @@ field_10 = "0024"
 name = """
 シューツ
 """
-name_pointer = "2a2d68"
+name_pointer = "1a3d68"
+name_vma_pointer = "682d2a00"
 field_1 = "1200"
 field_2 = "208000"
 field_3 = "0003"
@@ -472,7 +517,8 @@ field_9 = "0003"
 name = """
 サシューツ
 """
-name_pointer = "2a2d58"
+name_pointer = "1a3d58"
+name_vma_pointer = "582d2a00"
 field_1 = "0200"
 field_2 = "208000"
 field_3 = "0008"
@@ -484,7 +530,8 @@ field_9 = "0016"
 name = """
 ドランク
 """
-name_pointer = "2a2d48"
+name_pointer = "1a3d48"
+name_vma_pointer = "482d2a00"
 field_1 = "0010"
 field_2 = "04008000"
 field_3 = "0002"
@@ -494,7 +541,8 @@ field_10 = "0004"
 name = """
 リミタ
 """
-name_pointer = "2da5c8"
+name_pointer = "1db5c8"
+name_vma_pointer = "c8a52d00"
 field_1 = "0010"
 field_2 = "02008000"
 field_3 = "0003"
@@ -504,7 +552,8 @@ field_10 = "0003"
 name = """
 シンパロ
 """
-name_pointer = "2a2d38"
+name_pointer = "1a3d38"
+name_vma_pointer = "382d2a00"
 field_1 = "1010"
 field_2 = "8000"
 field_3 = "0004"
@@ -515,7 +564,8 @@ field_10 = "0007"
 name = """
 フォルサ
 """
-name_pointer = "2a2d28"
+name_pointer = "1a3d28"
+name_vma_pointer = "282d2a00"
 field_1 = "0020"
 field_2 = "04008000"
 field_3 = "0002"
@@ -526,7 +576,8 @@ field_12 = "0001"
 name = """
 リミテ
 """
-name_pointer = "2da5c0"
+name_pointer = "1db5c0"
+name_vma_pointer = "c0a52d00"
 field_1 = "0020"
 field_2 = "02008000"
 field_3 = "0003"
@@ -536,7 +587,8 @@ field_12 = "000a"
 name = """
 デバンド
 """
-name_pointer = "2a2d18"
+name_pointer = "1a3d18"
+name_vma_pointer = "182d2a00"
 field_1 = "1200"
 field_2 = "8000"
 field_3 = "0004"
@@ -548,7 +600,8 @@ field_9 = "0006"
 name = """
 シュネラ
 """
-name_pointer = "2a2d08"
+name_pointer = "1a3d08"
+name_vma_pointer = "082d2a00"
 field_1 = "0200"
 field_2 = "408000"
 field_3 = "0002"
@@ -559,7 +612,8 @@ field_11 = "0009"
 name = """
 サシュネラ
 """
-name_pointer = "2a2cf8"
+name_pointer = "1a3cf8"
+name_vma_pointer = "f82c2a00"
 field_1 = "0200"
 field_2 = "408000"
 field_3 = "0006"
@@ -571,7 +625,8 @@ field_9 = "0024"
 name = """
 レスタ
 """
-name_pointer = "2da5b8"
+name_pointer = "1db5b8"
+name_vma_pointer = "b8a52d00"
 field_1 = "80001200"
 field_2 = "808000"
 field_3 = "0003"
@@ -587,7 +642,8 @@ field_13 = "0012"
 name = """
 ギレスタ
 """
-name_pointer = "2a2ce8"
+name_pointer = "1a3ce8"
+name_vma_pointer = "e82c2a00"
 field_1 = "80001200"
 field_2 = "808000"
 field_3 = "0007"
@@ -602,7 +658,8 @@ field_13 = "002d"
 name = """
 ナレスタ
 """
-name_pointer = "2a2cd8"
+name_pointer = "1a3cd8"
+name_vma_pointer = "d82c2a00"
 field_1 = "80000200"
 field_2 = "808000"
 field_3 = "000d"
@@ -615,7 +672,8 @@ field_9 = "0016"
 name = """
 サレスタ
 """
-name_pointer = "2a2cc8"
+name_pointer = "1a3cc8"
+name_vma_pointer = "c82c2a00"
 field_1 = "80001200"
 field_2 = "808000"
 field_3 = "000d"
@@ -627,7 +685,8 @@ field_9 = "000d"
 name = """
 ギサレスタ
 """
-name_pointer = "2a2cb8"
+name_pointer = "1a3cb8"
+name_vma_pointer = "b82c2a00"
 field_1 = "80001200"
 field_2 = "808000"
 field_3 = "001d"
@@ -639,7 +698,8 @@ field_9 = "0028"
 name = """
 ナサレスタ
 """
-name_pointer = "2a2ca8"
+name_pointer = "1a3ca8"
+name_vma_pointer = "a82c2a00"
 field_1 = "80000200"
 field_2 = "808000"
 field_3 = "0035"
@@ -652,7 +712,8 @@ field_9 = "002d"
 name = """
 サークラ
 """
-name_pointer = "2a2c98"
+name_pointer = "1a3c98"
+name_vma_pointer = "982c2a00"
 field_1 = "80001200"
 field_2 = "808000"
 field_3 = "0001"
@@ -665,7 +726,8 @@ field_9 = "000f"
 name = """
 ナサークラ
 """
-name_pointer = "2a2c88"
+name_pointer = "1a3c88"
+name_vma_pointer = "882c2a00"
 field_1 = "80001200"
 field_2 = "808000"
 field_3 = "0001"
@@ -678,7 +740,8 @@ field_9 = "0012"
 name = """
 アンティ
 """
-name_pointer = "2a2c78"
+name_pointer = "1a3c78"
+name_vma_pointer = "782c2a00"
 field_1 = "c0000200"
 field_2 = "8000"
 field_3 = "0002"
@@ -690,7 +753,8 @@ field_9 = "0007"
 name = """
 リバーサー
 """
-name_pointer = "2a2c68"
+name_pointer = "1a3c68"
+name_vma_pointer = "682c2a00"
 field_1 = "c0000200"
 field_2 = "08008000"
 field_3 = "001e"
@@ -703,7 +767,8 @@ field_9 = "0024"
 name = """
 リューカー
 """
-name_pointer = "2a2c58"
+name_pointer = "1a3c58"
+name_vma_pointer = "582c2a00"
 field_1 = "c0000200"
 field_2 = "8000"
 field_3 = "0008"
@@ -715,7 +780,8 @@ field_13 = "0009"
 name = """
 ヒーナス
 """
-name_pointer = "2a2c48"
+name_pointer = "1a3c48"
+name_vma_pointer = "482c2a00"
 field_1 = "c0000200"
 field_2 = "8000"
 field_3 = "0004"
@@ -727,7 +793,8 @@ field_13 = "000d"
 name = """
 ムシカ
 """
-name_pointer = "2da5b0"
+name_pointer = "1db5b0"
+name_vma_pointer = "b0a52d00"
 field_1 = "c0000200"
 field_2 = "8000"
 field_3 = "0003"
@@ -737,7 +804,8 @@ field_4 = "fffffffd"
 name = """
 メギド
 """
-name_pointer = "2da5a8"
+name_pointer = "1db5a8"
+name_vma_pointer = "a8a52d00"
 field_1 = "0600"
 field_2 = "4000"
 field_3 = "0037"
@@ -749,7 +817,8 @@ field_6 = "0034"
 name = """
 ミワクノオカリナ
 """
-name_pointer = "2a2c30"
+name_pointer = "1a3c30"
+name_vma_pointer = "302c2a00"
 field_1 = "0200"
 field_2 = "8000"
 field_4 = "fffffffd"
@@ -758,7 +827,8 @@ field_4 = "fffffffd"
 name = """
 モノメイト
 """
-name_pointer = "2a2c20"
+name_pointer = "1a3c20"
+name_vma_pointer = "202c2a00"
 field_1 = "0200"
 field_2 = "808000"
 field_4 = "fffffffe"
@@ -768,7 +838,8 @@ field_5 = "0014"
 name = """
 ディメイト
 """
-name_pointer = "2a2c10"
+name_pointer = "1a3c10"
+name_vma_pointer = "102c2a00"
 field_1 = "0200"
 field_2 = "808000"
 field_4 = "fffffffe"
@@ -778,7 +849,8 @@ field_5 = "003c"
 name = """
 トリメイト
 """
-name_pointer = "2a2c00"
+name_pointer = "1a3c00"
+name_vma_pointer = "2c2a00"
 field_1 = "0200"
 field_2 = "808000"
 field_4 = "fffffffe"
@@ -788,7 +860,8 @@ field_5 = "270f"
 name = """
 モノフルイド
 """
-name_pointer = "2a2bf0"
+name_pointer = "1a3bf0"
+name_vma_pointer = "f02b2a00"
 field_1 = "0200"
 field_2 = "028000"
 field_4 = "fffffffe"
@@ -798,7 +871,8 @@ field_5 = "000a"
 name = """
 ディフルイド
 """
-name_pointer = "2a2be0"
+name_pointer = "1a3be0"
+name_vma_pointer = "e02b2a00"
 field_1 = "0200"
 field_2 = "028000"
 field_4 = "fffffffe"
@@ -808,7 +882,8 @@ field_5 = "0032"
 name = """
 トリフルイド
 """
-name_pointer = "2a2bd0"
+name_pointer = "1a3bd0"
+name_vma_pointer = "d02b2a00"
 field_1 = "0200"
 field_2 = "028000"
 field_4 = "fffffffe"
@@ -818,7 +893,8 @@ field_5 = "0064"
 name = """
 アンティポイズン
 """
-name_pointer = "2a2bb8"
+name_pointer = "1a3bb8"
+name_vma_pointer = "b82b2a00"
 field_1 = "0200"
 field_2 = "018000"
 field_4 = "fffffffe"
@@ -827,7 +903,8 @@ field_4 = "fffffffe"
 name = """
 ムーンアトマイザー
 """
-name_pointer = "2a2ba0"
+name_pointer = "1a3ba0"
+name_vma_pointer = "a02b2a00"
 field_1 = "0200"
 field_2 = "08008000"
 field_4 = "fffffffb"
@@ -837,7 +914,8 @@ field_5 = "270f"
 name = """
 スターアトマイザー
 """
-name_pointer = "2a2b88"
+name_pointer = "1a3b88"
+name_vma_pointer = "882b2a00"
 field_1 = "0200"
 field_2 = "808000"
 field_4 = "fffffffd"
@@ -847,7 +925,8 @@ field_5 = "270f"
 name = """
 ソルアトマイザー
 """
-name_pointer = "2a2b70"
+name_pointer = "1a3b70"
+name_vma_pointer = "702b2a00"
 field_1 = "0200"
 field_2 = "20008000"
 field_4 = "fffffffd"
@@ -856,7 +935,8 @@ field_4 = "fffffffd"
 name = """
 ロイヤルガード
 """
-name_pointer = "2a2b60"
+name_pointer = "1a3b60"
+name_vma_pointer = "602b2a00"
 field_1 = "1200"
 field_2 = "8000"
 field_4 = "fffffffd"
@@ -865,7 +945,8 @@ field_4 = "fffffffd"
 name = """
 ラストフォース
 """
-name_pointer = "2a2b50"
+name_pointer = "1a3b50"
+name_vma_pointer = "502b2a00"
 field_1 = "0200"
 field_2 = "028000"
 field_4 = "fffffffe"
@@ -875,7 +956,8 @@ field_5 = "270f"
 name = """
 リベンジ
 """
-name_pointer = "2a2b40"
+name_pointer = "1a3b40"
+name_vma_pointer = "402b2a00"
 field_1 = "2400"
 field_5 = "01bc"
 
@@ -883,7 +965,8 @@ field_5 = "01bc"
 name = """
 ナリバーサー
 """
-name_pointer = "2a2b30"
+name_pointer = "1a3b30"
+name_vma_pointer = "302b2a00"
 field_1 = "1200"
 field_2 = "08008000"
 field_4 = "fffffffb"
@@ -893,7 +976,8 @@ field_5 = "270f"
 name = """
 サルファー
 """
-name_pointer = "2a2b20"
+name_pointer = "1a3b20"
+name_vma_pointer = "202b2a00"
 field_1 = "0400"
 field_2 = "02000000"
 field_4 = "0005"
@@ -903,7 +987,8 @@ field_5 = "0078"
 name = """
 メディカルトリート
 """
-name_pointer = "2a2b08"
+name_pointer = "1a3b08"
+name_vma_pointer = "082b2a00"
 field_1 = "2200"
 field_2 = "20008000"
 field_4 = "fffffffd"
@@ -912,7 +997,8 @@ field_4 = "fffffffd"
 name = """
 バーストタッチ
 """
-name_pointer = "2a2af8"
+name_pointer = "1a3af8"
+name_vma_pointer = "f82a2a00"
 field_1 = "0420"
 field_4 = "0005"
 field_5 = "00f0"
@@ -921,7 +1007,8 @@ field_5 = "00f0"
 name = """
 トルネード
 """
-name_pointer = "2a2ae8"
+name_pointer = "1a3ae8"
+name_vma_pointer = "e82a2a00"
 field_1 = "0404"
 field_4 = "0005"
 field_5 = "008c"
@@ -930,7 +1017,8 @@ field_5 = "008c"
 name = """
 スリープ
 """
-name_pointer = "2a2ad8"
+name_pointer = "1a3ad8"
+name_vma_pointer = "d82a2a00"
 field_1 = "0400"
 field_2 = "8010"
 
@@ -938,7 +1026,8 @@ field_2 = "8010"
 name = """
 ジェルン
 """
-name_pointer = "2a2ac8"
+name_pointer = "1a3ac8"
+name_vma_pointer = "c82a2a00"
 field_1 = "0400"
 field_2 = "8100"
 
@@ -946,7 +1035,8 @@ field_2 = "8100"
 name = """
 ザルア
 """
-name_pointer = "2da5a0"
+name_pointer = "1db5a0"
+name_vma_pointer = "a0a52d00"
 field_1 = "0400"
 field_2 = "8200"
 
@@ -954,7 +1044,8 @@ field_2 = "8200"
 name = """
 ドランク
 """
-name_pointer = "2a2d48"
+name_pointer = "1a3d48"
+name_vma_pointer = "482d2a00"
 field_1 = "0400"
 field_2 = "8400"
 
@@ -962,7 +1053,8 @@ field_2 = "8400"
 name = """
 ドク
 """
-name_pointer = "2da598"
+name_pointer = "1db598"
+name_vma_pointer = "98a52d00"
 field_1 = "0400"
 field_2 = "088000"
 
@@ -970,140 +1062,160 @@ field_2 = "088000"
 name = """
 ファンタシー　スプレイト
 """
-name_pointer = "288670"
+name_pointer = "189670"
+name_vma_pointer = "70862800"
 field_1 = "0000"
 
 [song.0001]
 name = """
 レストレイション
 """
-name_pointer = "288658"
+name_pointer = "189658"
+name_vma_pointer = "58862800"
 field_1 = "0007"
 
 [song.0002]
 name = """
 プレジャー　ストーム
 """
-name_pointer = "288640"
+name_pointer = "189640"
+name_vma_pointer = "40862800"
 field_1 = "0002"
 
 [song.0003]
 name = """
 アドバンスト　ポジション
 """
-name_pointer = "288620"
+name_pointer = "189620"
+name_vma_pointer = "20862800"
 field_1 = "000b"
 
 [song.0004]
 name = """
 ステップアップ
 """
-name_pointer = "288610"
+name_pointer = "189610"
+name_vma_pointer = "10862800"
 field_1 = "0005"
 
 [song.0005]
 name = """
 ブラッキー　ニュース
 """
-name_pointer = "2885f8"
+name_pointer = "1895f8"
+name_vma_pointer = "f8852800"
 field_1 = "0006"
 
 [song.0006]
 name = """
 マイ　ホーム
 """
-name_pointer = "2885e8"
+name_pointer = "1895e8"
+name_vma_pointer = "e8852800"
 field_1 = "0004"
 
 [song.0007]
 name = """
 プレッシャー
 """
-name_pointer = "2885d8"
+name_pointer = "1895d8"
+name_vma_pointer = "d8852800"
 field_1 = "0003"
 
 [song.0008]
 name = """
 プロローグ
 """
-name_pointer = "2885c8"
+name_pointer = "1895c8"
+name_vma_pointer = "c8852800"
 field_1 = "0001"
 
 [song.0009]
 name = """
 ライズ　オア　フォール
 """
-name_pointer = "2885b0"
+name_pointer = "1895b0"
+name_vma_pointer = "b0852800"
 field_1 = "0008"
 
 [song.000a]
 name = """
 ムーブメント
 """
-name_pointer = "2885a0"
+name_pointer = "1895a0"
+name_vma_pointer = "a0852800"
 field_1 = "0009"
 
 [song.000b]
 name = """
 オーヴァー
 """
-name_pointer = "288590"
+name_pointer = "189590"
+name_vma_pointer = "90852800"
 field_1 = "000a"
 
 [song.000c]
 name = """
 シークレット　ウェイズ
 """
-name_pointer = "288578"
+name_pointer = "189578"
+name_vma_pointer = "78852800"
 field_1 = "000c"
 
 [song.000d]
 name = """
 プロマイズド　ミステリー
 """
-name_pointer = "288558"
+name_pointer = "189558"
+name_vma_pointer = "58852800"
 field_1 = "000f"
 
 [song.000e]
 name = """
 ザ　プレイス　オブ　デス
 """
-name_pointer = "288538"
+name_pointer = "189538"
+name_vma_pointer = "38852800"
 field_1 = "000d"
 
 [song.000f]
 name = """
 サイレント　ゾーン
 """
-name_pointer = "288520"
+name_pointer = "189520"
+name_vma_pointer = "20852800"
 field_1 = "0011"
 
 [song.0010]
 name = """
 エキサイティング　タウン
 """
-name_pointer = "288500"
+name_pointer = "189500"
+name_vma_pointer = "852800"
 field_1 = "0012"
 
 [song.0011]
 name = """
 バイオレイション
 """
-name_pointer = "2884e8"
+name_pointer = "1894e8"
+name_vma_pointer = "e8842800"
 field_1 = "0013"
 
 [song.0012]
 name = """
 パワー
 """
-name_pointer = "2da228"
+name_pointer = "1db228"
+name_vma_pointer = "28a22d00"
 field_1 = "000e"
 
 [item.0001]
 name = """
 ナイフ
 """
-name_pointer = "2da328"
+name_pointer = "1db328"
+name_vma_pointer = "28a32d00"
 equip_slot = "OneHand"
 field_3 = "0064"
 field_4 = "0032"
@@ -1122,7 +1234,8 @@ attack = 5
 name = """
 セラミックナイフ
 """
-name_pointer = "28c578"
+name_pointer = "18d578"
+name_vma_pointer = "78c52800"
 equip_slot = "OneHand"
 field_3 = "0af0"
 field_4 = "0578"
@@ -1142,7 +1255,8 @@ defense = 3
 name = """
 レーザーナイフ
 """
-name_pointer = "28c568"
+name_pointer = "18d568"
+name_vma_pointer = "68c52800"
 equip_slot = "OneHand"
 field_3 = "1130"
 field_4 = "0898"
@@ -1162,7 +1276,8 @@ defense = 5
 name = """
 シルバーナイフ
 """
-name_pointer = "28c558"
+name_pointer = "18d558"
+name_vma_pointer = "58c52800"
 equip_slot = "OneHand"
 field_3 = "2710"
 field_4 = "1388"
@@ -1181,7 +1296,8 @@ luck = 2
 name = """
 ダガー
 """
-name_pointer = "2da320"
+name_pointer = "1db320"
+name_vma_pointer = "20a32d00"
 equip_slot = "OneHand"
 field_3 = "00c8"
 field_4 = "0064"
@@ -1198,7 +1314,8 @@ defense = 1
 name = """
 セラミックダガー
 """
-name_pointer = "28c540"
+name_pointer = "18d540"
+name_vma_pointer = "40c52800"
 equip_slot = "OneHand"
 field_3 = "32c8"
 field_4 = "1964"
@@ -1212,7 +1329,8 @@ luck = 2
 name = """
 ウィンドダガー
 """
-name_pointer = "28c530"
+name_pointer = "18d530"
+name_vma_pointer = "30c52800"
 equip_slot = "OneHand"
 field_3 = "3e80"
 field_4 = "1f40"
@@ -1228,7 +1346,8 @@ luck = 6
 name = """
 ラコニアダガー
 """
-name_pointer = "28c520"
+name_pointer = "18d520"
+name_vma_pointer = "20c52800"
 equip_slot = "OneHand"
 field_3 = "47e0"
 field_4 = "23f0"
@@ -1240,7 +1359,8 @@ defense = 7
 name = """
 メス
 """
-name_pointer = "2da318"
+name_pointer = "1db318"
+name_vma_pointer = "18a32d00"
 equip_slot = "OneHand"
 field_3 = "00b4"
 field_4 = "005a"
@@ -1254,7 +1374,8 @@ attack = 7
 name = """
 レーザーメス
 """
-name_pointer = "28c510"
+name_pointer = "18d510"
+name_vma_pointer = "10c52800"
 equip_slot = "OneHand"
 field_3 = "3cf0"
 field_4 = "1e78"
@@ -1271,7 +1392,8 @@ luck = 1
 name = """
 ソード
 """
-name_pointer = "2da310"
+name_pointer = "1db310"
+name_vma_pointer = "10a32d00"
 equip_slot = "TwoHand"
 field_3 = "04b0"
 field_4 = "0258"
@@ -1283,7 +1405,8 @@ defense = 8
 name = """
 セラミックソード
 """
-name_pointer = "28c4f8"
+name_pointer = "18d4f8"
+name_vma_pointer = "f8c42800"
 equip_slot = "TwoHand"
 field_3 = "0c80"
 field_4 = "0640"
@@ -1295,7 +1418,8 @@ defense = 10
 name = """
 フレイムソード
 """
-name_pointer = "28c4e8"
+name_pointer = "18d4e8"
+name_vma_pointer = "e8c42800"
 equip_slot = "TwoHand"
 field_3 = "3e80"
 field_4 = "1f40"
@@ -1310,7 +1434,8 @@ luck = 8
 name = """
 レーザーソード
 """
-name_pointer = "28c4d8"
+name_pointer = "18d4d8"
+name_vma_pointer = "d8c42800"
 equip_slot = "TwoHand"
 field_3 = "1518"
 field_4 = "0a8c"
@@ -1322,7 +1447,8 @@ defense = 18
 name = """
 怒りの剣
 """
-name_pointer = "28c4c8"
+name_pointer = "18d4c8"
+name_vma_pointer = "c8c42800"
 equip_slot = "TwoHand"
 field_3 = "36b0"
 field_4 = "008c"
@@ -1333,7 +1459,8 @@ attack = 116
 name = """
 プラズマソード
 """
-name_pointer = "28c4b8"
+name_pointer = "18d4b8"
+name_vma_pointer = "b8c42800"
 equip_slot = "TwoHand"
 field_3 = "47e0"
 field_4 = "23f0"
@@ -1347,7 +1474,8 @@ luck = 12
 name = """
 ラコニアソード
 """
-name_pointer = "28c4a8"
+name_pointer = "18d4a8"
+name_vma_pointer = "a8c42800"
 equip_slot = "TwoHand"
 field_3 = "55f0"
 field_4 = "2af8"
@@ -1359,7 +1487,8 @@ defense = 14
 name = """
 チェインソード
 """
-name_pointer = "28c498"
+name_pointer = "18d498"
+name_vma_pointer = "98c42800"
 equip_slot = "TwoHand"
 field_3 = "4c90"
 field_4 = "2648"
@@ -1373,7 +1502,8 @@ luck = 10
 name = """
 ネイソード
 """
-name_pointer = "28c488"
+name_pointer = "18d488"
+name_vma_pointer = "88c42800"
 equip_slot = "TwoHand"
 field_3 = "4e20"
 can_equip = ["Eusis"]
@@ -1385,7 +1515,8 @@ defense = 48
 name = """
 サイレントショット
 """
-name_pointer = "28c470"
+name_pointer = "18d470"
+name_vma_pointer = "70c42800"
 equip_slot = "TwoHand"
 field_3 = "0398"
 field_4 = "01cc"
@@ -1397,7 +1528,8 @@ attack = 20
 name = """
 ポイズンショット
 """
-name_pointer = "28c458"
+name_pointer = "18d458"
+name_vma_pointer = "58c42800"
 equip_slot = "OneHand"
 field_3 = "06a4"
 field_4 = "0352"
@@ -1411,7 +1543,8 @@ attack = 15
 name = """
 アシドショット
 """
-name_pointer = "28c448"
+name_pointer = "18d448"
+name_vma_pointer = "48c42800"
 equip_slot = "OneHand"
 field_3 = "12c0"
 field_4 = "0960"
@@ -1425,7 +1558,8 @@ attack = 25
 name = """
 レーザーショット
 """
-name_pointer = "28c430"
+name_pointer = "18d430"
+name_vma_pointer = "30c42800"
 equip_slot = "TwoHand"
 field_3 = "1838"
 field_4 = "0c1c"
@@ -1439,7 +1573,8 @@ attack = 40
 name = """
 ナパームショット
 """
-name_pointer = "28c418"
+name_pointer = "18d418"
+name_vma_pointer = "18c42800"
 equip_slot = "TwoHand"
 field_3 = "3520"
 field_4 = "1a90"
@@ -1456,7 +1591,8 @@ luck = 2
 name = """
 ネイショット
 """
-name_pointer = "28c408"
+name_pointer = "18d408"
+name_vma_pointer = "08c42800"
 equip_slot = "TwoHand"
 field_3 = "4e20"
 can_equip = ["Rudger"]
@@ -1467,7 +1603,8 @@ attack = 120
 name = """
 ソニックガン
 """
-name_pointer = "28c3f8"
+name_pointer = "18d3f8"
+name_vma_pointer = "f8c32800"
 equip_slot = "OneHand"
 field_3 = "0280"
 field_4 = "0140"
@@ -1484,7 +1621,8 @@ attack = 17
 name = """
 ウェーブガン
 """
-name_pointer = "28c3e8"
+name_pointer = "18d3e8"
+name_vma_pointer = "e8c32800"
 equip_slot = "OneHand"
 field_3 = "4010"
 field_4 = "2008"
@@ -1502,7 +1640,8 @@ luck = 4
 name = """
 ショットガン
 """
-name_pointer = "28c3d8"
+name_pointer = "18d3d8"
+name_vma_pointer = "d8c32800"
 equip_slot = "TwoHand"
 field_3 = "0320"
 field_4 = "0190"
@@ -1516,7 +1655,8 @@ attack = 20
 name = """
 バルカン
 """
-name_pointer = "28c3c8"
+name_pointer = "18d3c8"
+name_vma_pointer = "c8c32800"
 equip_slot = "TwoHand"
 field_3 = "3138"
 field_4 = "189c"
@@ -1527,7 +1667,8 @@ attack = 56
 name = """
 レーザーバルカン
 """
-name_pointer = "28c3b0"
+name_pointer = "18d3b0"
+name_vma_pointer = "b0c32800"
 equip_slot = "TwoHand"
 field_3 = "7b70"
 field_4 = "3db8"
@@ -1540,7 +1681,8 @@ luck = 12
 name = """
 パルスバルカン
 """
-name_pointer = "28c3a0"
+name_pointer = "18d3a0"
+name_vma_pointer = "a0c32800"
 equip_slot = "TwoHand"
 field_3 = "bb80"
 field_4 = "5dc0"
@@ -1551,7 +1693,8 @@ attack = 76
 name = """
 カノン
 """
-name_pointer = "2da308"
+name_pointer = "1db308"
+name_vma_pointer = "08a32d00"
 equip_slot = "TwoHand"
 field_3 = "0898"
 field_4 = "044c"
@@ -1565,7 +1708,8 @@ attack = 36
 name = """
 レーザーカノン
 """
-name_pointer = "28c390"
+name_pointer = "18d390"
+name_vma_pointer = "90c32800"
 equip_slot = "TwoHand"
 field_3 = "4e20"
 field_4 = "2710"
@@ -1576,7 +1720,8 @@ attack = 60
 name = """
 パルスカノン
 """
-name_pointer = "28c380"
+name_pointer = "18d380"
+name_vma_pointer = "80c32800"
 equip_slot = "TwoHand"
 field_3 = "7d00"
 field_4 = "3e80"
@@ -1587,7 +1732,8 @@ attack = 70
 name = """
 プラズマカノン
 """
-name_pointer = "28c370"
+name_pointer = "18d370"
+name_vma_pointer = "70c32800"
 equip_slot = "TwoHand"
 field_3 = "9ab0"
 field_4 = "4d58"
@@ -1600,7 +1746,8 @@ luck = 8
 name = """
 ニードルガン
 """
-name_pointer = "28c360"
+name_pointer = "18d360"
+name_vma_pointer = "60c32800"
 equip_slot = "OneHand"
 field_3 = "012c"
 field_4 = "0096"
@@ -1616,7 +1763,8 @@ attack = 10
 name = """
 ブーメラン
 """
-name_pointer = "28c350"
+name_pointer = "18d350"
+name_vma_pointer = "50c32800"
 equip_slot = "OneHand"
 field_3 = "01e0"
 field_4 = "00f0"
@@ -1627,7 +1775,8 @@ attack = 12
 name = """
 スライサー
 """
-name_pointer = "28c340"
+name_pointer = "18d340"
+name_vma_pointer = "40c32800"
 equip_slot = "OneHand"
 field_3 = "07d0"
 field_4 = "03e8"
@@ -1638,7 +1787,8 @@ attack = 17
 name = """
 チタンスライサー
 """
-name_pointer = "28c328"
+name_pointer = "18d328"
+name_vma_pointer = "28c32800"
 equip_slot = "OneHand"
 field_3 = "2580"
 field_4 = "12c0"
@@ -1651,7 +1801,8 @@ luck = 8
 name = """
 レーザースライサー
 """
-name_pointer = "28c310"
+name_pointer = "18d310"
+name_vma_pointer = "10c32800"
 equip_slot = "OneHand"
 field_3 = "1a2c"
 field_4 = "0d16"
@@ -1662,7 +1813,8 @@ attack = 30
 name = """
 ファイアスライサー
 """
-name_pointer = "28c2f8"
+name_pointer = "18d2f8"
+name_vma_pointer = "f8c22800"
 equip_slot = "OneHand"
 field_3 = "4268"
 field_4 = "00aa"
@@ -1674,7 +1826,8 @@ attack = 36
 name = """
 アイススライサー
 """
-name_pointer = "28c2e0"
+name_pointer = "18d2e0"
+name_vma_pointer = "e0c22800"
 equip_slot = "OneHand"
 field_3 = "3520"
 field_4 = "1a90"
@@ -1687,7 +1840,8 @@ luck = 16
 name = """
 ラコニアスライサー
 """
-name_pointer = "28c2c8"
+name_pointer = "18d2c8"
+name_vma_pointer = "c8c22800"
 equip_slot = "OneHand"
 field_3 = "5dc0"
 field_4 = "2ee0"
@@ -1698,7 +1852,8 @@ attack = 42
 name = """
 ネイスライサー
 """
-name_pointer = "28c2b8"
+name_pointer = "18d2b8"
+name_vma_pointer = "b8c22800"
 equip_slot = "OneHand"
 field_3 = "4e20"
 can_equip = ["Amia"]
@@ -1709,7 +1864,8 @@ attack = 60
 name = """
 ムチ
 """
-name_pointer = "2da300"
+name_pointer = "1db300"
+name_vma_pointer = "a32d00"
 equip_slot = "OneHand"
 field_3 = "0578"
 field_4 = "02bc"
@@ -1721,7 +1877,8 @@ defense = 2
 name = """
 電光のムチ
 """
-name_pointer = "28c2a8"
+name_pointer = "18d2a8"
+name_vma_pointer = "a8c22800"
 equip_slot = "OneHand"
 field_3 = "3520"
 field_4 = "1a90"
@@ -1736,7 +1893,8 @@ luck = 4
 name = """
 火炎の杖
 """
-name_pointer = "28c298"
+name_pointer = "18d298"
+name_vma_pointer = "98c22800"
 equip_slot = "OneHand"
 field_3 = "82dc"
 field_4 = "014f"
@@ -1749,7 +1907,8 @@ defense = 11
 name = """
 氷結の杖
 """
-name_pointer = "28c288"
+name_pointer = "18d288"
+name_vma_pointer = "88c22800"
 equip_slot = "OneHand"
 field_3 = "4010"
 field_4 = "2008"
@@ -1764,7 +1923,8 @@ luck = 8
 name = """
 風刃の杖
 """
-name_pointer = "28c278"
+name_pointer = "18d278"
+name_vma_pointer = "78c22800"
 equip_slot = "OneHand"
 field_3 = "4c90"
 field_4 = "2648"
@@ -1779,7 +1939,8 @@ luck = 10
 name = """
 スチールスケール
 """
-name_pointer = "28c260"
+name_pointer = "18d260"
+name_vma_pointer = "60c22800"
 equip_slot = "OneHand"
 field_3 = "15e0"
 field_4 = "0af0"
@@ -1796,7 +1957,8 @@ luck = 6
 name = """
 セラミックスケール
 """
-name_pointer = "28c248"
+name_pointer = "18d248"
+name_vma_pointer = "48c22800"
 equip_slot = "OneHand"
 field_3 = "1900"
 field_4 = "0c80"
@@ -1813,7 +1975,8 @@ luck = 12
 name = """
 ラコニアスケール
 """
-name_pointer = "28c230"
+name_pointer = "18d230"
+name_vma_pointer = "30c22800"
 equip_slot = "OneHand"
 field_3 = "41a0"
 field_4 = "20d0"
@@ -1828,7 +1991,8 @@ defense = 8
 name = """
 スチールクロー
 """
-name_pointer = "28c220"
+name_pointer = "18d220"
+name_vma_pointer = "20c22800"
 equip_slot = "OneHand"
 field_3 = "0050"
 field_4 = "0028"
@@ -1840,7 +2004,8 @@ defense = 2
 name = """
 サーベルクロー
 """
-name_pointer = "28c210"
+name_pointer = "18d210"
+name_vma_pointer = "10c22800"
 equip_slot = "OneHand"
 field_3 = "0960"
 field_4 = "04b0"
@@ -1854,7 +2019,8 @@ luck = 10
 name = """
 セラミッククロー
 """
-name_pointer = "28c1f8"
+name_pointer = "18d1f8"
+name_vma_pointer = "f8c12800"
 equip_slot = "OneHand"
 field_3 = "04b0"
 field_4 = "0258"
@@ -1866,7 +2032,8 @@ defense = 2
 name = """
 レーザークロー
 """
-name_pointer = "28c1e8"
+name_pointer = "18d1e8"
+name_vma_pointer = "e8c12800"
 equip_slot = "OneHand"
 field_3 = "0c1c"
 field_4 = "060e"
@@ -1878,7 +2045,8 @@ defense = 3
 name = """
 サイレントクロー
 """
-name_pointer = "28c1d0"
+name_pointer = "18d1d0"
+name_vma_pointer = "d0c12800"
 equip_slot = "OneHand"
 field_3 = "20d0"
 field_4 = "1068"
@@ -1892,7 +2060,8 @@ luck = 18
 name = """
 アニマルクロー
 """
-name_pointer = "28c1c0"
+name_pointer = "18d1c0"
+name_vma_pointer = "c0c12800"
 equip_slot = "OneHand"
 field_3 = "3200"
 can_equip = ["Nei"]
@@ -1904,7 +2073,8 @@ defense = 48
 name = """
 ヘッドギア
 """
-name_pointer = "28c1b0"
+name_pointer = "18d1b0"
+name_vma_pointer = "b0c12800"
 equip_slot = "Head"
 field_3 = "0078"
 field_4 = "003c"
@@ -1923,7 +2093,8 @@ defense = 3
 name = """
 グラスギア
 """
-name_pointer = "28c1a0"
+name_pointer = "18d1a0"
+name_vma_pointer = "a0c12800"
 equip_slot = "Head"
 field_3 = "01ae"
 field_4 = "00d7"
@@ -1942,7 +2113,8 @@ defense = 8
 name = """
 チタンギア
 """
-name_pointer = "28c190"
+name_pointer = "18d190"
+name_vma_pointer = "90c12800"
 equip_slot = "Head"
 field_3 = "0578"
 field_4 = "02bc"
@@ -1961,7 +2133,8 @@ defense = 14
 name = """
 クレセントギア
 """
-name_pointer = "28c180"
+name_pointer = "18d180"
+name_vma_pointer = "80c12800"
 equip_slot = "Head"
 field_4 = "008c"
 can_equip = ["Rudger"]
@@ -1971,7 +2144,8 @@ defense = 14
 name = """
 ストームギア
 """
-name_pointer = "28c170"
+name_pointer = "18d170"
+name_vma_pointer = "70c12800"
 equip_slot = "Head"
 field_4 = "013b"
 can_equip = ["Keinz"]
@@ -1981,7 +2155,8 @@ defense = 17
 name = """
 セラミックギア
 """
-name_pointer = "28c160"
+name_pointer = "18d160"
+name_vma_pointer = "60c12800"
 equip_slot = "Head"
 field_4 = "12c0"
 can_equip = [
@@ -1996,7 +2171,8 @@ luck = 6
 name = """
 ラコニアギア
 """
-name_pointer = "28c150"
+name_pointer = "18d150"
+name_vma_pointer = "50c12800"
 equip_slot = "Head"
 field_3 = "6d60"
 field_4 = "36b0"
@@ -2010,7 +2186,8 @@ defense = 27
 name = """
 リボン
 """
-name_pointer = "2da2f8"
+name_pointer = "1db2f8"
+name_vma_pointer = "f8a22d00"
 equip_slot = "Head"
 field_3 = "0050"
 field_4 = "0028"
@@ -2021,7 +2198,8 @@ defense = 3
 name = """
 シルバーリボン
 """
-name_pointer = "28c140"
+name_pointer = "18d140"
+name_vma_pointer = "40c12800"
 equip_slot = "Head"
 field_3 = "017c"
 field_4 = "00be"
@@ -2032,7 +2210,8 @@ defense = 12
 name = """
 ジュエルリボン
 """
-name_pointer = "28c130"
+name_pointer = "18d130"
+name_vma_pointer = "30c12800"
 equip_slot = "Head"
 field_3 = "125c"
 field_4 = "092e"
@@ -2043,7 +2222,8 @@ defense = 21
 name = """
 シルバークラウン
 """
-name_pointer = "28c118"
+name_pointer = "18d118"
+name_vma_pointer = "18c12800"
 equip_slot = "Head"
 field_3 = "01d6"
 field_4 = "00eb"
@@ -2058,7 +2238,8 @@ defense = 14
 name = """
 ジュエルクラウン
 """
-name_pointer = "28c100"
+name_pointer = "18d100"
+name_vma_pointer = "c12800"
 equip_slot = "Head"
 field_3 = "11f8"
 field_4 = "08fc"
@@ -2073,7 +2254,8 @@ defense = 17
 name = """
 雪の冠
 """
-name_pointer = "2da2f0"
+name_pointer = "1db2f0"
+name_vma_pointer = "f0a22d00"
 equip_slot = "Head"
 field_4 = "00f5"
 can_equip = [
@@ -2086,7 +2268,8 @@ defense = 21
 name = """
 雷の冠
 """
-name_pointer = "2da2e8"
+name_pointer = "1db2e8"
+name_vma_pointer = "e8a22d00"
 equip_slot = "Head"
 field_4 = "1e78"
 can_equip = [
@@ -2101,7 +2284,8 @@ luck = 12
 name = """
 ネイクラウン
 """
-name_pointer = "28c0f0"
+name_pointer = "18d0f0"
+name_vma_pointer = "f0c02800"
 equip_slot = "Head"
 can_equip = [
     "Nei",
@@ -2114,7 +2298,8 @@ defense = 48
 name = """
 チタンメット
 """
-name_pointer = "28c0e0"
+name_pointer = "18d0e0"
+name_vma_pointer = "e0c02800"
 equip_slot = "Head"
 field_3 = "0e74"
 field_4 = "073a"
@@ -2128,7 +2313,8 @@ defense = 16
 name = """
 ラコニアメット
 """
-name_pointer = "28c0d0"
+name_pointer = "18d0d0"
+name_vma_pointer = "d0c02800"
 equip_slot = "Head"
 field_3 = "7148"
 field_4 = "38a4"
@@ -2142,7 +2328,8 @@ defense = 29
 name = """
 ネイメット
 """
-name_pointer = "28c0c0"
+name_pointer = "18d0c0"
+name_vma_pointer = "c0c02800"
 equip_slot = "Head"
 can_equip = [
     "Eusis",
@@ -2155,7 +2342,8 @@ defense = 50
 name = """
 風のバンダナ
 """
-name_pointer = "28c0b0"
+name_pointer = "18d0b0"
+name_vma_pointer = "b0c02800"
 equip_slot = "Head"
 field_4 = "003c"
 can_equip = ["Silka"]
@@ -2165,7 +2353,8 @@ defense = 17
 name = """
 虹のバンダナ
 """
-name_pointer = "28c0a0"
+name_pointer = "18d0a0"
+name_vma_pointer = "a0c02800"
 equip_slot = "Head"
 field_4 = "0041"
 can_equip = ["Amia"]
@@ -2175,7 +2364,8 @@ defense = 17
 name = """
 疾風のバンダナ
 """
-name_pointer = "28c090"
+name_pointer = "18d090"
+name_vma_pointer = "90c02800"
 equip_slot = "Head"
 field_4 = "2648"
 can_equip = ["Silka"]
@@ -2188,7 +2378,8 @@ luck = 8
 name = """
 マジックハット
 """
-name_pointer = "28c080"
+name_pointer = "18d080"
+name_vma_pointer = "80c02800"
 equip_slot = "Head"
 can_equip = ["Eusis"]
 field_6 = "4000"
@@ -2199,7 +2390,8 @@ luck = 10
 name = """
 モジックハット
 """
-name_pointer = "28c070"
+name_pointer = "18d070"
+name_vma_pointer = "70c02800"
 equip_slot = "Head"
 can_equip = ["Eusis"]
 field_6 = "4000"
@@ -2210,7 +2402,8 @@ luck = 10
 name = """
 カーボンスーツ
 """
-name_pointer = "28c060"
+name_pointer = "18d060"
+name_vma_pointer = "60c02800"
 equip_slot = "Torso"
 field_3 = "0080"
 field_4 = "0040"
@@ -2229,7 +2422,8 @@ defense = 4
 name = """
 カーボンベスト
 """
-name_pointer = "28c050"
+name_pointer = "18d050"
+name_vma_pointer = "50c02800"
 equip_slot = "Torso"
 field_3 = "0078"
 field_4 = "003c"
@@ -2240,7 +2434,8 @@ defense = 4
 name = """
 グラスベスト
 """
-name_pointer = "28c040"
+name_pointer = "18d040"
+name_vma_pointer = "40c02800"
 equip_slot = "Torso"
 field_3 = "0118"
 field_4 = "008c"
@@ -2251,7 +2446,8 @@ defense = 6
 name = """
 グラスコート
 """
-name_pointer = "28c030"
+name_pointer = "18d030"
+name_vma_pointer = "30c02800"
 equip_slot = "Torso"
 field_3 = "012c"
 field_4 = "0096"
@@ -2267,7 +2463,8 @@ defense = 8
 name = """
 グラスマント
 """
-name_pointer = "28c020"
+name_pointer = "18d020"
+name_vma_pointer = "20c02800"
 equip_slot = "Torso"
 field_3 = "01a4"
 field_4 = "00d2"
@@ -2282,7 +2479,8 @@ defense = 8
 name = """
 ホワイトマント
 """
-name_pointer = "28c010"
+name_pointer = "18d010"
+name_vma_pointer = "10c02800"
 equip_slot = "Torso"
 field_4 = "0708"
 can_equip = ["Huey"]
@@ -2294,7 +2492,8 @@ luck = 6
 name = """
 チタンチェスト
 """
-name_pointer = "28c000"
+name_pointer = "18d000"
+name_vma_pointer = "c02800"
 equip_slot = "Torso"
 field_3 = "1518"
 field_4 = "0a8c"
@@ -2308,7 +2507,8 @@ defense = 21
 name = """
 セラミックチェスト
 """
-name_pointer = "28bfe8"
+name_pointer = "18cfe8"
+name_vma_pointer = "e8bf2800"
 equip_slot = "Torso"
 field_3 = "2710"
 field_4 = "1388"
@@ -2322,7 +2522,8 @@ defense = 46
 name = """
 ジルコニウムチェスト
 """
-name_pointer = "28bfd0"
+name_pointer = "18cfd0"
+name_vma_pointer = "d0bf2800"
 equip_slot = "Torso"
 field_4 = "0c80"
 can_equip = [
@@ -2337,7 +2538,8 @@ luck = 12
 name = """
 クリスタチェスト
 """
-name_pointer = "28bfb8"
+name_pointer = "18cfb8"
+name_vma_pointer = "b8bf2800"
 equip_slot = "Torso"
 field_4 = "014f"
 can_equip = ["Eusis"]
@@ -2347,7 +2549,8 @@ defense = 60
 name = """
 ラコニアチェスト
 """
-name_pointer = "28bfa0"
+name_pointer = "18cfa0"
+name_vma_pointer = "a0bf2800"
 equip_slot = "Torso"
 field_3 = "6d60"
 field_4 = "36b0"
@@ -2358,7 +2561,8 @@ defense = 80
 name = """
 チタンアーマー
 """
-name_pointer = "28bf90"
+name_pointer = "18cf90"
+name_vma_pointer = "90bf2800"
 equip_slot = "Torso"
 field_3 = "15e0"
 field_4 = "0af0"
@@ -2372,7 +2576,8 @@ defense = 24
 name = """
 セラミックアーマー
 """
-name_pointer = "28bf78"
+name_pointer = "18cf78"
+name_vma_pointer = "78bf2800"
 equip_slot = "Torso"
 field_3 = "2db4"
 field_4 = "16da"
@@ -2386,7 +2591,8 @@ defense = 48
 name = """
 ジルコニウムアーマー
 """
-name_pointer = "28bf60"
+name_pointer = "18cf60"
+name_vma_pointer = "60bf2800"
 equip_slot = "Torso"
 field_4 = "23f0"
 can_equip = [
@@ -2401,7 +2607,8 @@ luck = 16
 name = """
 フィブリラ
 """
-name_pointer = "28bf50"
+name_pointer = "18cf50"
+name_vma_pointer = "50bf2800"
 equip_slot = "Torso"
 field_4 = "16a8"
 can_equip = [
@@ -2416,7 +2623,8 @@ luck = 8
 name = """
 チタンフィブリラ
 """
-name_pointer = "28bf38"
+name_pointer = "18cf38"
+name_vma_pointer = "38bf2800"
 equip_slot = "Torso"
 field_3 = "189c"
 field_4 = "0c4e"
@@ -2430,7 +2638,8 @@ defense = 28
 name = """
 セラミックフィブリラ
 """
-name_pointer = "28bf20"
+name_pointer = "18cf20"
+name_vma_pointer = "20bf2800"
 equip_slot = "Torso"
 field_3 = "3070"
 field_4 = "1838"
@@ -2445,7 +2654,8 @@ defense = 56
 name = """
 ラコニアフィブリラ
 """
-name_pointer = "28bf08"
+name_pointer = "18cf08"
+name_vma_pointer = "08bf2800"
 equip_slot = "Torso"
 field_3 = "8ca0"
 field_4 = "4650"
@@ -2456,7 +2666,8 @@ defense = 70
 name = """
 チタンハーニッシュ
 """
-name_pointer = "28bef0"
+name_pointer = "18cef0"
+name_vma_pointer = "f0be2800"
 equip_slot = "Torso"
 field_4 = "3200"
 can_equip = [
@@ -2471,7 +2682,8 @@ luck = 14
 name = """
 クリスタハーニッシュ
 """
-name_pointer = "28bed8"
+name_pointer = "18ced8"
+name_vma_pointer = "d8be2800"
 equip_slot = "Torso"
 field_4 = "013b"
 can_equip = [
@@ -2484,7 +2696,8 @@ defense = 60
 name = """
 ラコニアハーニッシュ
 """
-name_pointer = "28bec0"
+name_pointer = "18cec0"
+name_vma_pointer = "c0be2800"
 equip_slot = "Torso"
 field_3 = "88b8"
 field_4 = "445c"
@@ -2498,7 +2711,8 @@ defense = 65
 name = """
 ネイハーニッシュ
 """
-name_pointer = "28bea8"
+name_pointer = "18cea8"
+name_vma_pointer = "a8be2800"
 equip_slot = "Torso"
 can_equip = [
     "Rudger",
@@ -2511,7 +2725,8 @@ defense = 95
 name = """
 クリスタフィールド
 """
-name_pointer = "28be90"
+name_pointer = "18ce90"
+name_vma_pointer = "90be2800"
 equip_slot = "Torso"
 field_4 = "01a4"
 can_equip = [
@@ -2526,7 +2741,8 @@ defense = 62
 name = """
 プラズマフィールド
 """
-name_pointer = "28be78"
+name_pointer = "18ce78"
+name_vma_pointer = "78be2800"
 equip_slot = "Torso"
 field_4 = "41a0"
 can_equip = [
@@ -2543,7 +2759,8 @@ luck = 18
 name = """
 ネイフィールド
 """
-name_pointer = "28be68"
+name_pointer = "18ce68"
+name_vma_pointer = "68be2800"
 equip_slot = "Torso"
 can_equip = [
     "Nei",
@@ -2557,7 +2774,8 @@ defense = 88
 name = """
 琥珀の法衣
 """
-name_pointer = "28be58"
+name_pointer = "18ce58"
+name_vma_pointer = "58be2800"
 equip_slot = "Torso"
 field_4 = "0055"
 can_equip = ["Huey"]
@@ -2567,7 +2785,8 @@ defense = 20
 name = """
 囚人服
 """
-name_pointer = "2da2e0"
+name_pointer = "1db2e0"
+name_vma_pointer = "e0a22d00"
 equip_slot = "Torso"
 can_equip = [
     "Eusis",
@@ -2585,7 +2804,8 @@ defense = 2
 name = """
 カーボンシールド
 """
-name_pointer = "28be40"
+name_pointer = "18ce40"
+name_vma_pointer = "40be2800"
 equip_slot = "Shield"
 field_3 = "021c"
 field_4 = "010e"
@@ -2601,7 +2821,8 @@ defense = 8
 name = """
 グラスシールド
 """
-name_pointer = "28be30"
+name_pointer = "18ce30"
+name_vma_pointer = "30be2800"
 equip_slot = "Shield"
 field_3 = "04b0"
 field_4 = "0258"
@@ -2617,7 +2838,8 @@ defense = 15
 name = """
 チタンシールド
 """
-name_pointer = "28be20"
+name_pointer = "18ce20"
+name_vma_pointer = "20be2800"
 equip_slot = "Shield"
 field_4 = "1a90"
 can_equip = [
@@ -2634,7 +2856,8 @@ luck = 7
 name = """
 ミラーシールド
 """
-name_pointer = "28be10"
+name_pointer = "18ce10"
+name_vma_pointer = "10be2800"
 equip_slot = "Shield"
 field_3 = "12c0"
 field_4 = "0960"
@@ -2650,7 +2873,8 @@ defense = 32
 name = """
 セラミックシールド
 """
-name_pointer = "28bdf8"
+name_pointer = "18cdf8"
+name_vma_pointer = "f8bd2800"
 equip_slot = "Shield"
 field_3 = "206c"
 field_4 = "1036"
@@ -2666,7 +2890,8 @@ defense = 39
 name = """
 静謐の盾
 """
-name_pointer = "28bde8"
+name_pointer = "18cde8"
+name_vma_pointer = "e8bd2800"
 equip_slot = "Shield"
 field_4 = "0258"
 can_equip = [
@@ -2679,7 +2904,8 @@ defense = 32
 name = """
 レーザーシールド
 """
-name_pointer = "28bdd0"
+name_pointer = "18cdd0"
+name_vma_pointer = "d0bd2800"
 equip_slot = "Shield"
 field_4 = "2648"
 can_equip = [
@@ -2694,7 +2920,8 @@ luck = 9
 name = """
 ラコニアシールド
 """
-name_pointer = "28bdb8"
+name_pointer = "18cdb8"
+name_vma_pointer = "b8bd2800"
 equip_slot = "Shield"
 field_3 = "32c8"
 field_4 = "1964"
@@ -2709,7 +2936,8 @@ defense = 85
 name = """
 ネイシールド
 """
-name_pointer = "28bda8"
+name_pointer = "18cda8"
+name_vma_pointer = "a8bd2800"
 equip_slot = "Shield"
 can_equip = [
     "Huey",
@@ -2722,7 +2950,8 @@ defense = 95
 name = """
 カーボンエーメル
 """
-name_pointer = "28bd90"
+name_pointer = "18cd90"
+name_vma_pointer = "90bd2800"
 equip_slot = "Shield"
 field_3 = "01a4"
 field_4 = "00d2"
@@ -2737,7 +2966,8 @@ defense = 7
 name = """
 グラスエーメル
 """
-name_pointer = "28bd80"
+name_pointer = "18cd80"
+name_vma_pointer = "80bd2800"
 equip_slot = "Shield"
 field_3 = "0550"
 field_4 = "02a8"
@@ -2752,7 +2982,8 @@ defense = 17
 name = """
 チタンエーメル
 """
-name_pointer = "28bd70"
+name_pointer = "18cd70"
+name_vma_pointer = "70bd2800"
 equip_slot = "Shield"
 field_4 = "1838"
 can_equip = [
@@ -2768,7 +2999,8 @@ luck = 11
 name = """
 ミラーエーメル
 """
-name_pointer = "28bd60"
+name_pointer = "18cd60"
+name_vma_pointer = "60bd2800"
 equip_slot = "Shield"
 field_3 = "1400"
 field_4 = "0a00"
@@ -2783,7 +3015,8 @@ defense = 30
 name = """
 セラミックエーメル
 """
-name_pointer = "28bd48"
+name_pointer = "18cd48"
+name_vma_pointer = "48bd2800"
 equip_slot = "Shield"
 field_3 = "25e4"
 field_4 = "12f2"
@@ -2798,7 +3031,8 @@ defense = 40
 name = """
 ルミナスエーメル
 """
-name_pointer = "28bd30"
+name_pointer = "18cd30"
+name_vma_pointer = "30bd2800"
 equip_slot = "Shield"
 field_4 = "1e78"
 can_equip = [
@@ -2813,7 +3047,8 @@ luck = 13
 name = """
 ラコニアエーメル
 """
-name_pointer = "28bd18"
+name_pointer = "18cd18"
+name_vma_pointer = "18bd2800"
 equip_slot = "Shield"
 field_3 = "2ee0"
 field_4 = "1770"
@@ -2827,7 +3062,8 @@ defense = 68
 name = """
 ネイエーメル
 """
-name_pointer = "28bd08"
+name_pointer = "18cd08"
+name_vma_pointer = "08bd2800"
 equip_slot = "Shield"
 can_equip = [
     "Amia",
@@ -2840,7 +3076,8 @@ defense = 118
 name = """
 グリーンスリーブ
 """
-name_pointer = "28bcf0"
+name_pointer = "18ccf0"
+name_vma_pointer = "f0bc2800"
 equip_slot = "Shield"
 field_4 = "01a4"
 can_equip = ["Amia"]
@@ -2850,7 +3087,8 @@ defense = 63
 name = """
 誠意の袖
 """
-name_pointer = "28bce0"
+name_pointer = "18cce0"
+name_vma_pointer = "e0bc2800"
 equip_slot = "Shield"
 field_4 = "0168"
 can_equip = ["Silka"]
@@ -2860,7 +3098,8 @@ defense = 59
 name = """
 レザーシューズ
 """
-name_pointer = "28bcd0"
+name_pointer = "18ccd0"
+name_vma_pointer = "d0bc2800"
 equip_slot = "Feet"
 field_3 = "00f0"
 field_4 = "0078"
@@ -2880,7 +3119,8 @@ agility = 2
 name = """
 エスパドリュー
 """
-name_pointer = "28bcc0"
+name_pointer = "18ccc0"
+name_vma_pointer = "c0bc2800"
 equip_slot = "Feet"
 field_3 = "00b4"
 field_4 = "005a"
@@ -2892,7 +3132,8 @@ agility = 3
 name = """
 レザーブーツ
 """
-name_pointer = "28bcb0"
+name_pointer = "18ccb0"
+name_vma_pointer = "b0bc2800"
 equip_slot = "Feet"
 field_3 = "03e8"
 field_4 = "01f4"
@@ -2912,7 +3153,8 @@ agility = 3
 name = """
 ナイフブーツ
 """
-name_pointer = "28bca0"
+name_pointer = "18cca0"
+name_vma_pointer = "a0bc2800"
 equip_slot = "Feet"
 field_3 = "1068"
 field_4 = "0834"
@@ -2928,7 +3170,8 @@ agility = 5
 name = """
 ロングブーツ
 """
-name_pointer = "28bc90"
+name_pointer = "18cc90"
+name_vma_pointer = "90bc2800"
 equip_slot = "Feet"
 field_3 = "1a90"
 field_4 = "0d48"
@@ -2941,7 +3184,8 @@ agility = 7
 name = """
 ハイルザムブーツ
 """
-name_pointer = "28bc78"
+name_pointer = "18cc78"
+name_vma_pointer = "78bc2800"
 equip_slot = "Feet"
 field_3 = "2648"
 field_4 = "1324"
@@ -2956,7 +3200,8 @@ agility = 7
 name = """
 シュネラブーツ
 """
-name_pointer = "28bc68"
+name_pointer = "18cc68"
+name_vma_pointer = "68bc2800"
 equip_slot = "Feet"
 field_3 = "1d4c"
 field_4 = "0ea6"
@@ -2971,7 +3216,8 @@ agility = 10
 name = """
 ブラックブーツ
 """
-name_pointer = "28bc58"
+name_pointer = "18cc58"
+name_vma_pointer = "58bc2800"
 equip_slot = "Feet"
 field_4 = "3200"
 can_equip = [
@@ -2990,7 +3236,8 @@ luck = 4
 name = """
 ホワイトブーツ
 """
-name_pointer = "28bc48"
+name_pointer = "18cc48"
+name_vma_pointer = "48bc2800"
 equip_slot = "Feet"
 field_4 = "39d0"
 can_equip = [
@@ -3008,7 +3255,8 @@ luck = 7
 name = """
 ガーダブーツ
 """
-name_pointer = "28bc38"
+name_pointer = "18cc38"
+name_vma_pointer = "38bc2800"
 equip_slot = "Feet"
 field_3 = "3070"
 field_4 = "1838"
@@ -3025,7 +3273,8 @@ agility = 8
 name = """
 モノメイト
 """
-name_pointer = "28bc28"
+name_pointer = "18cc28"
+name_vma_pointer = "28bc2800"
 field_3 = "0014"
 field_4 = "000a"
 
@@ -3033,7 +3282,8 @@ field_4 = "000a"
 name = """
 ディメイト
 """
-name_pointer = "28bc18"
+name_pointer = "18cc18"
+name_vma_pointer = "18bc2800"
 field_3 = "003c"
 field_4 = "001e"
 
@@ -3041,7 +3291,8 @@ field_4 = "001e"
 name = """
 トリメイト
 """
-name_pointer = "28bc08"
+name_pointer = "18cc08"
+name_vma_pointer = "08bc2800"
 field_3 = "00a0"
 field_4 = "0050"
 
@@ -3049,7 +3300,8 @@ field_4 = "0050"
 name = """
 モノフルイド
 """
-name_pointer = "28bbf8"
+name_pointer = "18cbf8"
+name_vma_pointer = "f8bb2800"
 field_3 = "0190"
 field_4 = "00c8"
 
@@ -3057,7 +3309,8 @@ field_4 = "00c8"
 name = """
 ディフルイド
 """
-name_pointer = "28bbe8"
+name_pointer = "18cbe8"
+name_vma_pointer = "e8bb2800"
 field_3 = "02ee"
 field_4 = "0226"
 
@@ -3065,7 +3318,8 @@ field_4 = "0226"
 name = """
 トリフルイド
 """
-name_pointer = "28bbd8"
+name_pointer = "18cbd8"
+name_vma_pointer = "d8bb2800"
 field_3 = "03e8"
 field_4 = "02ee"
 
@@ -3073,7 +3327,8 @@ field_4 = "02ee"
 name = """
 アンティポイズン
 """
-name_pointer = "28bbc0"
+name_pointer = "18cbc0"
+name_vma_pointer = "c0bb2800"
 field_3 = "000a"
 field_4 = "0005"
 
@@ -3081,7 +3336,8 @@ field_4 = "0005"
 name = """
 ムーンアトマイザー
 """
-name_pointer = "28bba8"
+name_pointer = "18cba8"
+name_vma_pointer = "a8bb2800"
 field_3 = "2ee0"
 field_4 = "1770"
 
@@ -3089,7 +3345,8 @@ field_4 = "1770"
 name = """
 スターアトマイザー
 """
-name_pointer = "28bb90"
+name_pointer = "18cb90"
+name_vma_pointer = "90bb2800"
 field_3 = "03e8"
 field_4 = "01f4"
 
@@ -3097,7 +3354,8 @@ field_4 = "01f4"
 name = """
 ソルアトマイザー
 """
-name_pointer = "28bb78"
+name_pointer = "18cb78"
+name_vma_pointer = "78bb2800"
 field_3 = "00fa"
 field_4 = "007d"
 
@@ -3105,7 +3363,8 @@ field_4 = "007d"
 name = """
 旅のオカリナ
 """
-name_pointer = "28bb68"
+name_pointer = "18cb68"
+name_vma_pointer = "68bb2800"
 field_3 = "0082"
 field_4 = "0041"
 
@@ -3113,7 +3372,8 @@ field_4 = "0041"
 name = """
 迷いのオカリナ
 """
-name_pointer = "28bb58"
+name_pointer = "18cb58"
+name_vma_pointer = "58bb2800"
 field_3 = "0046"
 field_4 = "0023"
 
@@ -3121,7 +3381,8 @@ field_4 = "0023"
 name = """
 忍びのオカリナ
 """
-name_pointer = "28bb48"
+name_pointer = "18cb48"
+name_vma_pointer = "48bb2800"
 field_3 = "0118"
 field_4 = "008c"
 
@@ -3129,7 +3390,8 @@ field_4 = "008c"
 name = """
 魅惑のオカリナ
 """
-name_pointer = "28bb38"
+name_pointer = "18cb38"
+name_vma_pointer = "38bb2800"
 field_3 = "01f4"
 field_4 = "00fa"
 
@@ -3137,42 +3399,48 @@ field_4 = "00fa"
 name = """
 ショートケーキ
 """
-name_pointer = "28bb28"
+name_pointer = "18cb28"
+name_vma_pointer = "28bb2800"
 field_4 = "04b0"
 
 [item.0099]
 name = """
 モンブランケーキ
 """
-name_pointer = "28bb10"
+name_pointer = "18cb10"
+name_vma_pointer = "10bb2800"
 field_4 = "0708"
 
 [item.009a]
 name = """
 フルーツタルト
 """
-name_pointer = "28bb00"
+name_pointer = "18cb00"
+name_vma_pointer = "bb2800"
 field_4 = "0640"
 
 [item.009b]
 name = """
 シフォンケーキ
 """
-name_pointer = "28baf0"
+name_pointer = "18caf0"
+name_vma_pointer = "f0ba2800"
 field_4 = "0898"
 
 [item.009c]
 name = """
 Ｓケーキ・ナウラ風
 """
-name_pointer = "28bad8"
+name_pointer = "18cad8"
+name_vma_pointer = "d8ba2800"
 field_4 = "12c0"
 
 [item.009d]
 name = """
 ランドマスター
 """
-name_pointer = "28bac8"
+name_pointer = "18cac8"
+name_vma_pointer = "c8ba2800"
 field_3 = "53fc"
 field_4 = "01f4"
 
@@ -3180,14 +3448,16 @@ field_4 = "01f4"
 name = """
 ジェットスクーター
 """
-name_pointer = "28bab0"
+name_pointer = "18cab0"
+name_vma_pointer = "b0ba2800"
 field_6 = "4000"
 
 [item.009f]
 name = """
 アイスデッカー
 """
-name_pointer = "28baa0"
+name_pointer = "18caa0"
+name_vma_pointer = "a0ba2800"
 field_3 = "db88"
 field_4 = "03e8"
 
@@ -3195,14 +3465,16 @@ field_4 = "03e8"
 name = """
 ダイナマイト
 """
-name_pointer = "28ba90"
+name_pointer = "18ca90"
+name_vma_pointer = "90ba2800"
 field_6 = "4000"
 
 [item.00a1]
 name = """
 アトラス
 """
-name_pointer = "28ba80"
+name_pointer = "18ca80"
+name_vma_pointer = "80ba2800"
 field_3 = "03d4"
 field_6 = "4000"
 
@@ -3210,175 +3482,200 @@ field_6 = "4000"
 name = """
 脅迫状
 """
-name_pointer = "2da2d8"
+name_pointer = "1db2d8"
+name_vma_pointer = "d8a22d00"
 field_6 = "4000"
 
 [item.00a3]
 name = """
 システムレコーダー
 """
-name_pointer = "28ba68"
+name_pointer = "18ca68"
+name_vma_pointer = "68ba2800"
 field_6 = "4000"
 
 [item.00a4]
 name = """
 マルエラリーブ
 """
-name_pointer = "28ba58"
+name_pointer = "18ca58"
+name_vma_pointer = "58ba2800"
 field_6 = "4000"
 
 [item.00a5]
 name = """
 マルエラガム
 """
-name_pointer = "28ba48"
+name_pointer = "18ca48"
+name_vma_pointer = "48ba2800"
 field_6 = "4000"
 
 [item.00a6]
 name = """
 エアロプリズム
 """
-name_pointer = "28ba38"
+name_pointer = "18ca38"
+name_vma_pointer = "38ba2800"
 field_6 = "4000"
 
 [item.00a7]
 name = """
 プラズマリング
 """
-name_pointer = "28ba28"
+name_pointer = "18ca28"
+name_vma_pointer = "28ba2800"
 field_6 = "4000"
 
 [item.00a8]
 name = """
 ヒールリング
 """
-name_pointer = "28ba18"
+name_pointer = "18ca18"
+name_vma_pointer = "18ba2800"
 field_6 = "4000"
 
 [item.00a9]
 name = """
 黄金の石
 """
-name_pointer = "28ba08"
+name_pointer = "18ca08"
+name_vma_pointer = "08ba2800"
 field_6 = "4000"
 
 [item.00aa]
 name = """
 ちから・もりもりん
 """
-name_pointer = "28b9f0"
+name_pointer = "18c9f0"
+name_vma_pointer = "f0b92800"
 field_6 = "4000"
 
 [item.00ab]
 name = """
 メインキー
 """
-name_pointer = "28b9e0"
+name_pointer = "18c9e0"
+name_vma_pointer = "e0b92800"
 field_6 = "4000"
 
 [item.00ac]
 name = """
 電子楽譜
 """
-name_pointer = "28b9d0"
+name_pointer = "18c9d0"
+name_vma_pointer = "d0b92800"
 field_6 = "4000"
 
 [item.00ad]
 name = """
 モタビアンリング
 """
-name_pointer = "28b9b8"
+name_pointer = "18c9b8"
+name_vma_pointer = "b8b92800"
 field_6 = "4000"
 
 [item.00ae]
 name = """
 マルエラベリー
 """
-name_pointer = "28b9a8"
+name_pointer = "18c9a8"
+name_vma_pointer = "a8b92800"
 field_6 = "4000"
 
 [item.00af]
 name = """
 幸福の指輪
 """
-name_pointer = "28b998"
+name_pointer = "18c998"
+name_vma_pointer = "98b92800"
 field_6 = "4000"
 
 [item.00b0]
 name = """
 ビジフォン
 """
-name_pointer = "28b988"
+name_pointer = "18c988"
+name_vma_pointer = "88b92800"
 field_4 = "05dc"
 
 [item.00b1]
 name = """
 レッドカード
 """
-name_pointer = "28b978"
+name_pointer = "18c978"
+name_vma_pointer = "78b92800"
 field_6 = "4000"
 
 [item.00b2]
 name = """
 イエローカード
 """
-name_pointer = "28b968"
+name_pointer = "18c968"
+name_vma_pointer = "68b92800"
 field_6 = "4000"
 
 [item.00b3]
 name = """
 ブルーカード
 """
-name_pointer = "28b958"
+name_pointer = "18c958"
+name_vma_pointer = "58b92800"
 field_6 = "4000"
 
 [item.00b4]
 name = """
 グリーンカード
 """
-name_pointer = "28b948"
+name_pointer = "18c948"
+name_vma_pointer = "48b92800"
 field_6 = "4000"
 
 [item.00b5]
 name = """
 コンテナのカギ
 """
-name_pointer = "28b938"
+name_pointer = "18c938"
+name_vma_pointer = "38b92800"
 field_6 = "4000"
 
 [item.00b6]
 name = """
 チューブキー
 """
-name_pointer = "28b928"
+name_pointer = "18c928"
+name_vma_pointer = "28b92800"
 field_6 = "4000"
 
 [item.00b7]
 name = """
 ポリメテラール
 """
-name_pointer = "28b918"
+name_pointer = "18c918"
+name_vma_pointer = "18b92800"
 field_6 = "4000"
 
 [item.00b8]
 name = """
 銀の弾丸ネックレス
 """
-name_pointer = "28b900"
+name_pointer = "18c900"
+name_vma_pointer = "b92800"
 field_6 = "4000"
 
 [item.00b9]
 name = """
 ナネットの手紙
 """
-name_pointer = "28b8f0"
+name_pointer = "18c8f0"
+name_vma_pointer = "f0b82800"
 field_6 = "4000"
 
 [enemy.0001]
 name = """
 バイテングアント
 """
-name_pointer = "2a8288"
+name_pointer = "1a9288"
+name_vma_pointer = "88822a00"
 resistances = ["Air"]
 weaknesses = ["Fire"]
 type = "Biologic"
@@ -3406,7 +3703,8 @@ field_34 = "ffffffff"
 name = """
 ア−ムドアント
 """
-name_pointer = "2a8278"
+name_pointer = "1a9278"
+name_vma_pointer = "78822a00"
 resistances = ["Air"]
 weaknesses = ["Fire"]
 type = "Biologic"
@@ -3433,7 +3731,8 @@ field_34 = "ffffffff"
 name = """
 パンツァアント
 """
-name_pointer = "2a8268"
+name_pointer = "1a9268"
+name_vma_pointer = "68822a00"
 resistances = ["Air"]
 weaknesses = ["Fire"]
 type = "Biologic"
@@ -3461,7 +3760,8 @@ field_34 = "ffffffff"
 name = """
 モスキ−ト
 """
-name_pointer = "2a8258"
+name_pointer = "1a9258"
+name_vma_pointer = "58822a00"
 weaknesses = [
     "Fire",
     "Air",
@@ -3492,7 +3792,8 @@ field_34 = "ffffffff"
 name = """
 ギガモスキ−ト
 """
-name_pointer = "2a8248"
+name_pointer = "1a9248"
+name_vma_pointer = "48822a00"
 weaknesses = [
     "Fire",
     "Air",
@@ -3523,7 +3824,8 @@ field_34 = "ffffffff"
 name = """
 グランモスキ−ト
 """
-name_pointer = "2a8230"
+name_pointer = "1a9230"
+name_vma_pointer = "30822a00"
 weaknesses = [
     "Fire",
     "Air",
@@ -3554,7 +3856,8 @@ field_34 = "ffffffff"
 name = """
 スピニンスフィア
 """
-name_pointer = "2a8218"
+name_pointer = "1a9218"
+name_vma_pointer = "18822a00"
 resistances = [
     "Fire",
     "Air",
@@ -3586,7 +3889,8 @@ field_34 = "ffffffff"
 name = """
 ファンシスフィア
 """
-name_pointer = "2a8200"
+name_pointer = "1a9200"
+name_vma_pointer = "822a00"
 resistances = [
     "Fire",
     "Air",
@@ -3619,7 +3923,8 @@ field_34 = "ffffffff"
 name = """
 ビジョンスフィア
 """
-name_pointer = "2a81e8"
+name_pointer = "1a91e8"
+name_vma_pointer = "e8812a00"
 resistances = [
     "Fire",
     "Air",
@@ -3653,7 +3958,8 @@ field_34 = "ffffffff"
 name = """
 フェンサ−
 """
-name_pointer = "2a81d8"
+name_pointer = "1a91d8"
+name_vma_pointer = "d8812a00"
 weaknesses = [
     "Fire",
     "Air",
@@ -3683,7 +3989,8 @@ field_34 = "ffffffff"
 name = """
 マスタフェンサ−
 """
-name_pointer = "2a81c0"
+name_pointer = "1a91c0"
+name_vma_pointer = "c0812a00"
 weaknesses = [
     "Fire",
     "Air",
@@ -3713,7 +4020,8 @@ field_34 = "ffffffff"
 name = """
 エムゴフェンサ−
 """
-name_pointer = "2a81a8"
+name_pointer = "1a91a8"
+name_vma_pointer = "a8812a00"
 weaknesses = [
     "Fire",
     "Air",
@@ -3743,7 +4051,8 @@ field_34 = "ffffffff"
 name = """
 ポイズナ−
 """
-name_pointer = "2a8198"
+name_pointer = "1a9198"
+name_vma_pointer = "98812a00"
 weaknesses = ["Ice"]
 type = "Biologic"
 health = 12
@@ -3771,7 +4080,8 @@ field_34 = "ffffffff"
 name = """
 ポイズンドアロ−
 """
-name_pointer = "2a8180"
+name_pointer = "1a9180"
+name_vma_pointer = "80812a00"
 weaknesses = ["Ice"]
 type = "Biologic"
 health = 21
@@ -3798,7 +4108,8 @@ field_34 = "ffffffff"
 name = """
 ポイズンファング
 """
-name_pointer = "2a8168"
+name_pointer = "1a9168"
+name_vma_pointer = "68812a00"
 weaknesses = ["Ice"]
 type = "Biologic"
 health = 66
@@ -3825,7 +4136,8 @@ field_34 = "ffffffff"
 name = """
 フライングペドラ
 """
-name_pointer = "2a8150"
+name_pointer = "1a9150"
+name_vma_pointer = "50812a00"
 resistances = ["Fire"]
 weaknesses = ["Lightning"]
 type = "Biologic"
@@ -3853,7 +4165,8 @@ field_34 = "ffffffff"
 name = """
 センチペドラ
 """
-name_pointer = "2a8140"
+name_pointer = "1a9140"
+name_vma_pointer = "40812a00"
 resistances = ["Fire"]
 weaknesses = ["Lightning"]
 type = "Biologic"
@@ -3884,7 +4197,8 @@ field_34 = "ffffffff"
 name = """
 グリディペドラ
 """
-name_pointer = "2a8130"
+name_pointer = "1a9130"
+name_vma_pointer = "30812a00"
 resistances = ["Fire"]
 weaknesses = ["Lightning"]
 type = "Biologic"
@@ -3915,7 +4229,8 @@ field_34 = "ffffffff"
 name = """
 リッカ−
 """
-name_pointer = "2a8120"
+name_pointer = "1a9120"
+name_vma_pointer = "20812a00"
 resistances = [
     "Fire",
     "Air",
@@ -3951,7 +4266,8 @@ field_34 = "ffffffff"
 name = """
 フェイスリッカ−
 """
-name_pointer = "2a8108"
+name_pointer = "1a9108"
+name_vma_pointer = "08812a00"
 resistances = [
     "Fire",
     "Air",
@@ -3986,7 +4302,8 @@ field_34 = "ffffffff"
 name = """
 スカルリッカ−
 """
-name_pointer = "2a80f8"
+name_pointer = "1a90f8"
+name_vma_pointer = "f8802a00"
 resistances = [
     "Fire",
     "Air",
@@ -4021,7 +4338,8 @@ field_34 = "ffffffff"
 name = """
 キャリア
 """
-name_pointer = "2a80e8"
+name_pointer = "1a90e8"
+name_vma_pointer = "e8802a00"
 resistances = [
     "Fire",
     "Air",
@@ -4051,7 +4369,8 @@ field_34 = "ffffffff"
 name = """
 チョ−キンロット
 """
-name_pointer = "2a80d0"
+name_pointer = "1a90d0"
+name_vma_pointer = "d0802a00"
 resistances = [
     "Ice",
     "Air",
@@ -4081,7 +4400,8 @@ field_34 = "ffffffff"
 name = """
 ラストロット
 """
-name_pointer = "2a80c0"
+name_pointer = "1a90c0"
+name_vma_pointer = "c0802a00"
 resistances = ["Air"]
 type = "Biologic"
 health = 95
@@ -4107,7 +4427,8 @@ field_34 = "ffffffff"
 name = """
 グラスキラ−
 """
-name_pointer = "2a80b0"
+name_pointer = "1a90b0"
+name_vma_pointer = "b0802a00"
 weaknesses = ["Fire"]
 type = "Biologic"
 gfx_somepattern = "PatternB"
@@ -4134,7 +4455,8 @@ field_34 = "ffffffff"
 name = """
 グラスアサッシン
 """
-name_pointer = "2a8098"
+name_pointer = "1a9098"
+name_vma_pointer = "98802a00"
 weaknesses = ["Fire"]
 type = "Biologic"
 gfx_somepattern = "PatternB"
@@ -4161,7 +4483,8 @@ field_34 = "ffffffff"
 name = """
 グラススロ−タラ
 """
-name_pointer = "2a8080"
+name_pointer = "1a9080"
+name_vma_pointer = "80802a00"
 weaknesses = ["Fire"]
 type = "Biologic"
 gfx_somepattern = "PatternB"
@@ -4188,7 +4511,8 @@ field_34 = "ffffffff"
 name = """
 アメボイデ
 """
-name_pointer = "2a8070"
+name_pointer = "1a9070"
+name_vma_pointer = "70802a00"
 resistances = ["Air"]
 weaknesses = ["Fire"]
 type = "Biologic"
@@ -4219,7 +4543,8 @@ field_34 = "ffffffff"
 name = """
 シュライムゼレ
 """
-name_pointer = "2a8060"
+name_pointer = "1a9060"
+name_vma_pointer = "60802a00"
 resistances = ["Air"]
 weaknesses = ["Fire"]
 type = "Biologic"
@@ -4250,7 +4575,8 @@ field_34 = "ffffffff"
 name = """
 ミキサメ−ベ
 """
-name_pointer = "2a8050"
+name_pointer = "1a9050"
+name_vma_pointer = "50802a00"
 resistances = ["Air"]
 weaknesses = ["Fire"]
 type = "Biologic"
@@ -4284,7 +4610,8 @@ field_34 = "ffffffff"
 name = """
 ヒルド
 """
-name_pointer = "2da630"
+name_pointer = "1db630"
+name_vma_pointer = "30a62d00"
 resistances = [
     "Air",
     "Lightning",
@@ -4314,7 +4641,8 @@ field_34 = "ffffffff"
 name = """
 ベリッチリ−チ
 """
-name_pointer = "2a8040"
+name_pointer = "1a9040"
+name_vma_pointer = "40802a00"
 resistances = [
     "Air",
     "Lightning",
@@ -4344,7 +4672,8 @@ field_34 = "ffffffff"
 name = """
 ボミテングリ−チ
 """
-name_pointer = "2a8028"
+name_pointer = "1a9028"
+name_vma_pointer = "28802a00"
 resistances = [
     "Air",
     "Lightning",
@@ -4377,7 +4706,8 @@ field_34 = "ffffffff"
 name = """
 バスカバ−
 """
-name_pointer = "2a8018"
+name_pointer = "1a9018"
+name_vma_pointer = "18802a00"
 resistances = ["Fire"]
 weaknesses = [
     "Ice",
@@ -4410,7 +4740,8 @@ field_34 = "ffffffff"
 name = """
 マンカバ−
 """
-name_pointer = "2a8008"
+name_pointer = "1a9008"
+name_vma_pointer = "08802a00"
 resistances = ["Fire"]
 weaknesses = [
     "Ice",
@@ -4445,7 +4776,8 @@ field_34 = "ffffffff"
 name = """
 プラネットカバ−
 """
-name_pointer = "2a7ff0"
+name_pointer = "1a8ff0"
+name_vma_pointer = "f07f2a00"
 resistances = ["Fire"]
 weaknesses = [
     "Ice",
@@ -4482,7 +4814,8 @@ field_34 = "ffffffff"
 name = """
 デッドウッド
 """
-name_pointer = "2a7fe0"
+name_pointer = "1a8fe0"
+name_vma_pointer = "e07f2a00"
 resistances = [
     "Air",
     "Lightning",
@@ -4512,7 +4845,8 @@ field_34 = "ffffffff"
 name = """
 ブロックヘッド
 """
-name_pointer = "2a7fd0"
+name_pointer = "1a8fd0"
+name_vma_pointer = "d07f2a00"
 resistances = [
     "Air",
     "Lightning",
@@ -4542,7 +4876,8 @@ field_34 = "ffffffff"
 name = """
 フェイリア
 """
-name_pointer = "2a7fc0"
+name_pointer = "1a8fc0"
+name_vma_pointer = "c07f2a00"
 resistances = [
     "Air",
     "Lightning",
@@ -4572,7 +4907,8 @@ field_34 = "ffffffff"
 name = """
 ブリザ−ダ
 """
-name_pointer = "2a7fb0"
+name_pointer = "1a8fb0"
+name_vma_pointer = "b07f2a00"
 resistances = [
     "Ice",
     "Air",
@@ -4605,7 +4941,8 @@ field_34 = "ffffffff"
 name = """
 バ−ンウルフ
 """
-name_pointer = "2a7fa0"
+name_pointer = "1a8fa0"
+name_vma_pointer = "a07f2a00"
 resistances = [
     "Fire",
     "Air",
@@ -4638,7 +4975,8 @@ field_34 = "ffffffff"
 name = """
 フレアウルフ
 """
-name_pointer = "2a7f90"
+name_pointer = "1a8f90"
+name_vma_pointer = "907f2a00"
 resistances = [
     "Fire",
     "Air",
@@ -4672,7 +5010,8 @@ field_34 = "ffffffff"
 name = """
 シ−シザ−ス
 """
-name_pointer = "2a7f80"
+name_pointer = "1a8f80"
+name_vma_pointer = "807f2a00"
 resistances = [
     "Fire",
     "Air",
@@ -4703,7 +5042,8 @@ field_34 = "ffffffff"
 name = """
 シ−シア
 """
-name_pointer = "2a7f70"
+name_pointer = "1a8f70"
+name_vma_pointer = "707f2a00"
 resistances = [
     "Fire",
     "Air",
@@ -4735,7 +5075,8 @@ field_34 = "ffffffff"
 name = """
 シ−シアロ−ド
 """
-name_pointer = "2a7f60"
+name_pointer = "1a8f60"
+name_vma_pointer = "607f2a00"
 resistances = [
     "Fire",
     "Air",
@@ -4766,7 +5107,8 @@ field_34 = "ffffffff"
 name = """
 カイトカインド
 """
-name_pointer = "2a7f50"
+name_pointer = "1a8f50"
+name_vma_pointer = "507f2a00"
 resistances = ["Fire"]
 weaknesses = [
     "Air",
@@ -4800,7 +5142,8 @@ field_34 = "ffffffff"
 name = """
 レプタイルカイト
 """
-name_pointer = "2a7f38"
+name_pointer = "1a8f38"
+name_vma_pointer = "387f2a00"
 resistances = ["Fire"]
 weaknesses = [
     "Air",
@@ -4834,7 +5177,8 @@ field_34 = "ffffffff"
 name = """
 カイトドラゴン
 """
-name_pointer = "2a7f28"
+name_pointer = "1a8f28"
+name_vma_pointer = "287f2a00"
 resistances = ["Fire"]
 weaknesses = [
     "Air",
@@ -4868,7 +5212,8 @@ field_34 = "ffffffff"
 name = """
 ネオカイトニア
 """
-name_pointer = "2a7f18"
+name_pointer = "1a8f18"
+name_vma_pointer = "187f2a00"
 resistances = [
     "Air",
     "Lightning",
@@ -4905,7 +5250,8 @@ field_34 = "ffffffff"
 name = """
 ネオニルソニア
 """
-name_pointer = "2a7f08"
+name_pointer = "1a8f08"
+name_vma_pointer = "087f2a00"
 resistances = [
     "Air",
     "Lightning",
@@ -4942,7 +5288,8 @@ field_34 = "ffffffff"
 name = """
 ネオベネティテス
 """
-name_pointer = "2a7ef0"
+name_pointer = "1a8ef0"
+name_vma_pointer = "f07e2a00"
 resistances = [
     "Air",
     "Lightning",
@@ -4979,7 +5326,8 @@ field_34 = "ffffffff"
 name = """
 アイル−ロス
 """
-name_pointer = "2a7ee0"
+name_pointer = "1a8ee0"
+name_vma_pointer = "e07e2a00"
 weaknesses = ["Lightning"]
 type = "Biologic"
 health = 67
@@ -5005,7 +5353,8 @@ field_34 = "ffffffff"
 name = """
 リュンクス
 """
-name_pointer = "2a7ed0"
+name_pointer = "1a8ed0"
+name_vma_pointer = "d07e2a00"
 weaknesses = ["Lightning"]
 type = "Biologic"
 health = 132
@@ -5031,7 +5380,8 @@ field_34 = "ffffffff"
 name = """
 パンテ−ラ
 """
-name_pointer = "2a7ec0"
+name_pointer = "1a8ec0"
+name_vma_pointer = "c07e2a00"
 weaknesses = ["Lightning"]
 type = "Biologic"
 health = 182
@@ -5057,7 +5407,8 @@ field_34 = "ffffffff"
 name = """
 ホイッスル
 """
-name_pointer = "2a7eb0"
+name_pointer = "1a8eb0"
+name_vma_pointer = "b07e2a00"
 resistances = ["Air"]
 weaknesses = ["Fire"]
 type = "Robotic"
@@ -5086,7 +5437,8 @@ field_34 = "ffffffff"
 name = """
 インフォ−マ−
 """
-name_pointer = "2a7ea0"
+name_pointer = "1a8ea0"
+name_vma_pointer = "a07e2a00"
 resistances = ["Air"]
 weaknesses = ["Fire"]
 type = "Robotic"
@@ -5117,7 +5469,8 @@ field_34 = "ffffffff"
 name = """
 トレ−サ−
 """
-name_pointer = "2a7e90"
+name_pointer = "1a8e90"
+name_vma_pointer = "907e2a00"
 resistances = ["Air"]
 weaknesses = ["Fire"]
 type = "Robotic"
@@ -5144,7 +5497,8 @@ field_34 = "ffffffff"
 name = """
 ポリツァイ
 """
-name_pointer = "2a7e80"
+name_pointer = "1a8e80"
+name_vma_pointer = "807e2a00"
 type = "Robotic"
 health = 85
 attack = 50
@@ -5171,7 +5525,8 @@ field_34 = "ffffffff"
 name = """
 ポリツァイＡＸ
 """
-name_pointer = "2a7e70"
+name_pointer = "1a8e70"
+name_vma_pointer = "707e2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5205,7 +5560,8 @@ field_34 = "ffffffff"
 name = """
 ポリツァイＳＳ
 """
-name_pointer = "2a7e60"
+name_pointer = "1a8e60"
+name_vma_pointer = "607e2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5236,7 +5592,8 @@ field_34 = "ffffffff"
 name = """
 デホ
 """
-name_pointer = "2da628"
+name_pointer = "1db628"
+name_vma_pointer = "28a62d00"
 resistances = [
     "Fire",
     "Air",
@@ -5266,7 +5623,8 @@ field_34 = "ffffffff"
 name = """
 ホズイトデホ
 """
-name_pointer = "2a7e50"
+name_pointer = "1a8e50"
+name_vma_pointer = "507e2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5296,7 +5654,8 @@ field_34 = "ffffffff"
 name = """
 イッポデホ
 """
-name_pointer = "2a7e40"
+name_pointer = "1a8e40"
+name_vma_pointer = "407e2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5326,7 +5685,8 @@ field_34 = "ffffffff"
 name = """
 サットマン
 """
-name_pointer = "2a7e30"
+name_pointer = "1a8e30"
+name_vma_pointer = "307e2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5360,7 +5720,8 @@ field_34 = "ffffffff"
 name = """
 サットボ−イ
 """
-name_pointer = "2a7e20"
+name_pointer = "1a8e20"
+name_vma_pointer = "207e2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5394,7 +5755,8 @@ field_34 = "ffffffff"
 name = """
 サットサット
 """
-name_pointer = "2a7e10"
+name_pointer = "1a8e10"
+name_vma_pointer = "107e2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5428,7 +5790,8 @@ field_34 = "ffffffff"
 name = """
 ミゾランガンマ
 """
-name_pointer = "2a7e00"
+name_pointer = "1a8e00"
+name_vma_pointer = "7e2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5460,7 +5823,8 @@ field_34 = "ffffffff"
 name = """
 ミゾランシグマ
 """
-name_pointer = "2a7df0"
+name_pointer = "1a8df0"
+name_vma_pointer = "f07d2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5492,7 +5856,8 @@ field_34 = "ffffffff"
 name = """
 ミゾランオメガ
 """
-name_pointer = "2a7de0"
+name_pointer = "1a8de0"
+name_vma_pointer = "e07d2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5524,7 +5889,8 @@ field_34 = "ffffffff"
 name = """
 バンブ−
 """
-name_pointer = "2a7dd0"
+name_pointer = "1a8dd0"
+name_vma_pointer = "d07d2a00"
 resistances = [
     "Air",
     "Lightning",
@@ -5559,7 +5925,8 @@ field_34 = "ffffffff"
 name = """
 バンブ−トウィグ
 """
-name_pointer = "2a7db8"
+name_pointer = "1a8db8"
+name_vma_pointer = "b87d2a00"
 resistances = [
     "Air",
     "Lightning",
@@ -5591,7 +5958,8 @@ field_34 = "ffffffff"
 name = """
 バンブ−ド−ル
 """
-name_pointer = "2a7da8"
+name_pointer = "1a8da8"
+name_vma_pointer = "a87d2a00"
 resistances = [
     "Air",
     "Lightning",
@@ -5626,7 +5994,8 @@ field_34 = "ffffffff"
 name = """
 アイソ−ル
 """
-name_pointer = "2a7d98"
+name_pointer = "1a8d98"
+name_vma_pointer = "987d2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5662,7 +6031,8 @@ field_34 = "ffffffff"
 name = """
 ヘビ−ソルジャ−
 """
-name_pointer = "2a7d80"
+name_pointer = "1a8d80"
+name_vma_pointer = "807d2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5698,7 +6068,8 @@ field_34 = "ffffffff"
 name = """
 グランバスタ−
 """
-name_pointer = "2a7d70"
+name_pointer = "1a8d70"
+name_vma_pointer = "707d2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5731,7 +6102,8 @@ field_34 = "ffffffff"
 name = """
 ア−ミ−アイ
 """
-name_pointer = "2a7d60"
+name_pointer = "1a8d60"
+name_vma_pointer = "607d2a00"
 resistances = [
     "Air",
     "Lightning",
@@ -5761,7 +6133,8 @@ field_34 = "ffffffff"
 name = """
 トレ−サベ−ス
 """
-name_pointer = "2a7d50"
+name_pointer = "1a8d50"
+name_vma_pointer = "507d2a00"
 resistances = [
     "Air",
     "Lightning",
@@ -5797,7 +6170,8 @@ field_34 = "ffffffff"
 name = """
 ポリンスペクタ−
 """
-name_pointer = "2a7d38"
+name_pointer = "1a8d38"
+name_vma_pointer = "387d2a00"
 resistances = [
     "Air",
     "Lightning",
@@ -5830,7 +6204,8 @@ field_34 = "ffffffff"
 name = """
 ク−リ−６１
 """
-name_pointer = "2a7d28"
+name_pointer = "1a8d28"
+name_vma_pointer = "287d2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5861,7 +6236,8 @@ field_34 = "ffffffff"
 name = """
 サボキャップ
 """
-name_pointer = "2a7d18"
+name_pointer = "1a8d18"
+name_vma_pointer = "187d2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5892,7 +6268,8 @@ field_34 = "ffffffff"
 name = """
 ミネラロジスト
 """
-name_pointer = "2a7d08"
+name_pointer = "1a8d08"
+name_vma_pointer = "087d2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5923,7 +6300,8 @@ field_34 = "ffffffff"
 name = """
 バン
 """
-name_pointer = "2da620"
+name_pointer = "1db620"
+name_vma_pointer = "20a62d00"
 resistances = [
     "Fire",
     "Air",
@@ -5955,7 +6333,8 @@ field_34 = "ffffffff"
 name = """
 バンリ−ダ−
 """
-name_pointer = "2a7cf8"
+name_pointer = "1a8cf8"
+name_vma_pointer = "f87c2a00"
 resistances = [
     "Fire",
     "Air",
@@ -5987,7 +6366,8 @@ field_34 = "ffffffff"
 name = """
 アイレティ−ア
 """
-name_pointer = "2a7ce8"
+name_pointer = "1a8ce8"
+name_vma_pointer = "e87c2a00"
 resistances = [
     "Fire",
     "Air",
@@ -6019,7 +6399,8 @@ field_34 = "ffffffff"
 name = """
 ハングリ−エイプ
 """
-name_pointer = "2a7cd0"
+name_pointer = "1a8cd0"
+name_vma_pointer = "d07c2a00"
 resistances = ["Lightning"]
 weaknesses = [
     "Fire",
@@ -6053,7 +6434,8 @@ field_34 = "ffffffff"
 name = """
 ラスカルモンキ−
 """
-name_pointer = "2a7cb8"
+name_pointer = "1a8cb8"
+name_vma_pointer = "b87c2a00"
 resistances = ["Lightning"]
 weaknesses = [
     "Fire",
@@ -6085,7 +6467,8 @@ field_34 = "ffffffff"
 name = """
 ドロ−ルモンキ−
 """
-name_pointer = "2a7ca0"
+name_pointer = "1a8ca0"
+name_vma_pointer = "a07c2a00"
 resistances = ["Lightning"]
 weaknesses = [
     "Fire",
@@ -6119,7 +6502,8 @@ field_34 = "ffffffff"
 name = """
 ネオマンモス
 """
-name_pointer = "2a7c90"
+name_pointer = "1a8c90"
+name_vma_pointer = "907c2a00"
 resistances = [
     "Fire",
     "Ice",
@@ -6150,7 +6534,8 @@ field_34 = "ffffffff"
 name = """
 ネオビッグノ−ズ
 """
-name_pointer = "2a7c78"
+name_pointer = "1a8c78"
+name_vma_pointer = "787c2a00"
 resistances = [
     "Fire",
     "Ice",
@@ -6181,7 +6566,8 @@ field_34 = "ffffffff"
 name = """
 デゾリアマンモス
 """
-name_pointer = "2a7c60"
+name_pointer = "1a8c60"
+name_vma_pointer = "607c2a00"
 resistances = [
     "Fire",
     "Ice",
@@ -6212,7 +6598,8 @@ field_34 = "ffffffff"
 name = """
 アウルデゾリア
 """
-name_pointer = "2a7c50"
+name_pointer = "1a8c50"
+name_vma_pointer = "507c2a00"
 weaknesses = ["Air"]
 type = "Biologic"
 health = 112
@@ -6241,7 +6628,8 @@ field_34 = "ffffffff"
 name = """
 スカイティア−ラ
 """
-name_pointer = "2a7c38"
+name_pointer = "1a8c38"
+name_vma_pointer = "387c2a00"
 weaknesses = ["Air"]
 type = "Biologic"
 health = 129
@@ -6271,7 +6659,8 @@ field_34 = "ffffffff"
 name = """
 マレフィックアイ
 """
-name_pointer = "2a7c20"
+name_pointer = "1a8c20"
+name_vma_pointer = "207c2a00"
 weaknesses = ["Air"]
 type = "Biologic"
 health = 145
@@ -6300,7 +6689,8 @@ field_34 = "ffffffff"
 name = """
 ダ−ティアンゴラ
 """
-name_pointer = "2a7c08"
+name_pointer = "1a8c08"
+name_vma_pointer = "087c2a00"
 resistances = [
     "Ice",
     "Lightning",
@@ -6334,7 +6724,8 @@ field_34 = "ffffffff"
 name = """
 スポイルラビット
 """
-name_pointer = "2a7bf0"
+name_pointer = "1a8bf0"
+name_vma_pointer = "f07b2a00"
 resistances = [
     "Ice",
     "Lightning",
@@ -6368,7 +6759,8 @@ field_34 = "ffffffff"
 name = """
 スニフィラビット
 """
-name_pointer = "2a7bd8"
+name_pointer = "1a8bd8"
+name_vma_pointer = "d87b2a00"
 resistances = [
     "Ice",
     "Lightning",
@@ -6400,7 +6792,8 @@ field_34 = "ffffffff"
 name = """
 ムソオル
 """
-name_pointer = "2a7bc8"
+name_pointer = "1a8bc8"
+name_vma_pointer = "c87b2a00"
 resistances = ["Ice"]
 weaknesses = ["Lightning"]
 type = "Biologic"
@@ -6430,7 +6823,8 @@ field_34 = "ffffffff"
 name = """
 サコフ
 """
-name_pointer = "2da618"
+name_pointer = "1db618"
+name_vma_pointer = "18a62d00"
 resistances = ["Ice"]
 weaknesses = ["Lightning"]
 type = "Biologic"
@@ -6461,7 +6855,8 @@ field_34 = "ffffffff"
 name = """
 モソロフ
 """
-name_pointer = "2a7bb8"
+name_pointer = "1a8bb8"
+name_vma_pointer = "b87b2a00"
 resistances = ["Ice"]
 weaknesses = ["Lightning"]
 type = "Biologic"
@@ -6491,7 +6886,8 @@ field_34 = "ffffffff"
 name = """
 リビングブレ−ド
 """
-name_pointer = "2a7ba0"
+name_pointer = "1a8ba0"
+name_vma_pointer = "a07b2a00"
 resistances = ["Ice"]
 weaknesses = ["Lightning"]
 type = "Demonic"
@@ -6524,7 +6920,8 @@ field_34 = "ffffffff"
 name = """
 クライブリンガ−
 """
-name_pointer = "2a7b88"
+name_pointer = "1a8b88"
+name_vma_pointer = "887b2a00"
 resistances = ["Ice"]
 weaknesses = ["Lightning"]
 type = "Demonic"
@@ -6557,7 +6954,8 @@ field_34 = "ffffffff"
 name = """
 デスロウナ−
 """
-name_pointer = "2a7b78"
+name_pointer = "1a8b78"
+name_vma_pointer = "787b2a00"
 resistances = ["Ice"]
 weaknesses = ["Lightning"]
 type = "Demonic"
@@ -6594,7 +6992,8 @@ field_36 = "20000000"
 name = """
 ダ−クサイド
 """
-name_pointer = "2a7b68"
+name_pointer = "1a8b68"
+name_vma_pointer = "687b2a00"
 resistances = [
     "Fire",
     "Ice",
@@ -6628,7 +7027,8 @@ field_34 = "ffffffff"
 name = """
 デスインバ−タ−
 """
-name_pointer = "2a7b50"
+name_pointer = "1a8b50"
+name_vma_pointer = "507b2a00"
 resistances = [
     "Fire",
     "Ice",
@@ -6662,7 +7062,8 @@ field_34 = "ffffffff"
 name = """
 シェイドシフタ−
 """
-name_pointer = "2a7b38"
+name_pointer = "1a8b38"
+name_vma_pointer = "387b2a00"
 resistances = [
     "Fire",
     "Ice",
@@ -6696,7 +7097,8 @@ field_34 = "ffffffff"
 name = """
 カオスソ−サラ−
 """
-name_pointer = "2a7b20"
+name_pointer = "1a8b20"
+name_vma_pointer = "207b2a00"
 resistances = [
     "Ice",
     "Air",
@@ -6733,7 +7135,8 @@ field_36 = "20000000"
 name = """
 イリュジュニスト
 """
-name_pointer = "2a7b08"
+name_pointer = "1a8b08"
+name_vma_pointer = "087b2a00"
 resistances = [
     "Ice",
     "Air",
@@ -6770,7 +7173,8 @@ field_36 = "10000000"
 name = """
 イマジオメイジ
 """
-name_pointer = "2a7af8"
+name_pointer = "1a8af8"
+name_vma_pointer = "f87a2a00"
 resistances = [
     "Ice",
     "Air",
@@ -6806,7 +7210,8 @@ field_36 = "10000000"
 name = """
 ア−キドラゴン
 """
-name_pointer = "2a7ae8"
+name_pointer = "1a8ae8"
+name_vma_pointer = "e87a2a00"
 resistances = [
     "Fire",
     "Ice",
@@ -6839,7 +7244,8 @@ field_34 = "ffffffff"
 name = """
 ドラゴンダウト
 """
-name_pointer = "2a7ad8"
+name_pointer = "1a8ad8"
+name_vma_pointer = "d87a2a00"
 resistances = [
     "Fire",
     "Ice",
@@ -6872,7 +7278,8 @@ field_34 = "ffffffff"
 name = """
 ドラゴンヘイト
 """
-name_pointer = "2a7ac8"
+name_pointer = "1a8ac8"
+name_vma_pointer = "c87a2a00"
 resistances = [
     "Fire",
     "Ice",
@@ -6905,7 +7312,8 @@ field_34 = "ffffffff"
 name = """
 ファイアレムレス
 """
-name_pointer = "2a7ab0"
+name_pointer = "1a8ab0"
+name_vma_pointer = "b07a2a00"
 resistances = ["Fire"]
 weaknesses = ["Ice"]
 type = "Demonic"
@@ -6939,7 +7347,8 @@ field_34 = "ffffffff"
 name = """
 スト−ムレムレス
 """
-name_pointer = "2a7a98"
+name_pointer = "1a8a98"
+name_vma_pointer = "987a2a00"
 resistances = ["Air"]
 weaknesses = ["Lightning"]
 type = "Demonic"
@@ -6973,7 +7382,8 @@ field_34 = "ffffffff"
 name = """
 キングレムレス
 """
-name_pointer = "2a7a88"
+name_pointer = "1a8a88"
+name_vma_pointer = "887a2a00"
 resistances = [
     "Ice",
     "Lightning",
@@ -7010,7 +7420,8 @@ field_34 = "ffffffff"
 name = """
 ダ・ケムル・ラ−
 """
-name_pointer = "2a7a70"
+name_pointer = "1a8a70"
+name_vma_pointer = "707a2a00"
 resistances = ["Fire"]
 type = "Demonic"
 gfx_somepattern = "PatternC"
@@ -7044,7 +7455,8 @@ field_36 = "10000000"
 name = """
 ルン・フィン・ガ
 """
-name_pointer = "2a7a58"
+name_pointer = "1a8a58"
+name_vma_pointer = "587a2a00"
 resistances = ["Air"]
 type = "Demonic"
 gfx_somepattern = "PatternC"
@@ -7078,7 +7490,8 @@ field_36 = "10000000"
 name = """
 ギ・ル・ザ−ク
 """
-name_pointer = "2a7a48"
+name_pointer = "1a8a48"
+name_vma_pointer = "487a2a00"
 resistances = ["Ice"]
 type = "Demonic"
 gfx_somepattern = "PatternC"
@@ -7112,7 +7525,8 @@ field_36 = "10000000"
 name = """
 パ・ラッピ−
 """
-name_pointer = "2a7a38"
+name_pointer = "1a8a38"
+name_vma_pointer = "387a2a00"
 resistances = ["Air"]
 type = "Biologic"
 health = 146
@@ -7146,7 +7560,8 @@ field_34 = "008a"
 name = """
 モ・ラッピ−
 """
-name_pointer = "2a7a28"
+name_pointer = "1a8a28"
+name_vma_pointer = "287a2a00"
 resistances = ["Fire"]
 type = "Biologic"
 health = 20
@@ -7180,7 +7595,8 @@ field_34 = "0087"
 name = """
 デ・ラッピ−
 """
-name_pointer = "2a7a18"
+name_pointer = "1a8a18"
+name_vma_pointer = "187a2a00"
 resistances = ["Ice"]
 type = "Biologic"
 health = 210
@@ -7214,7 +7630,8 @@ field_34 = "0085"
 name = """
 ネイ・ファ−スト
 """
-name_pointer = "2a7a00"
+name_pointer = "1a8a00"
+name_vma_pointer = "7a2a00"
 type = "Biologic"
 gravito_immune = true
 gfx_somepattern = "PatternA"
@@ -7246,7 +7663,8 @@ field_34 = "ffffffff"
 name = """
 ダ−クファルス
 """
-name_pointer = "2a79f0"
+name_pointer = "1a89f0"
+name_vma_pointer = "f0792a00"
 type = "Demonic"
 gravito_immune = true
 super_boss = true
@@ -7277,7 +7695,8 @@ field_36 = "20000000"
 name = """
 マザ−ブレイン
 """
-name_pointer = "2a79e0"
+name_pointer = "1a89e0"
+name_vma_pointer = "e0792a00"
 type = "Robotic"
 gravito_immune = true
 super_boss = true
@@ -7306,7 +7725,8 @@ field_35 = "0001"
 name = """
 ネイ・ファ−スト
 """
-name_pointer = "2a7a00"
+name_pointer = "1a8a00"
+name_vma_pointer = "7a2a00"
 type = "Biologic"
 gravito_immune = true
 gfx_somepattern = "PatternA"
@@ -8131,3289 +8551,3837 @@ text = """
 """
 
 [mapname.0000]
-pointer = "1890a0"
 text = """
 首都パセオ
 """
+text_pointer = "1890a0"
+text_vma_pointer = "a0802800"
 
 [mapname.0001]
-pointer = "189090"
 text = """
 アリマーヤの街
 """
+text_pointer = "189090"
+text_vma_pointer = "90802800"
 
 [mapname.0002]
-pointer = "189080"
 text = """
 オプタノの街
 """
+text_pointer = "189080"
+text_vma_pointer = "80802800"
 
 [mapname.0003]
-pointer = "189070"
 text = """
 ゼマの街
 """
+text_pointer = "189070"
+text_vma_pointer = "70802800"
 
 [mapname.0004]
-pointer = "189060"
 text = """
 クエリスの街
 """
+text_pointer = "189060"
+text_vma_pointer = "60802800"
 
 [mapname.0005]
-pointer = "189050"
 text = """
 ピアタの街
 """
+text_pointer = "189050"
+text_vma_pointer = "50802800"
 
 [mapname.0006]
-pointer = "189040"
 text = """
 モタビア星
 """
+text_pointer = "189040"
+text_vma_pointer = "40802800"
 
 [mapname.0007]
-pointer = "189028"
 text = """
 パセオの連絡通路
 """
+text_pointer = "189028"
+text_vma_pointer = "28802800"
 
 [mapname.0008]
-pointer = "189008"
 text = """
 シュレーン工場跡地　１Ｆ
 """
+text_pointer = "189008"
+text_vma_pointer = "08802800"
 
 [mapname.0009]
-pointer = "188fe8"
 text = """
 シュレーン工場跡地　２Ｆ
 """
+text_pointer = "188fe8"
+text_vma_pointer = "e87f2800"
 
 [mapname.000a]
-pointer = "188fc8"
 text = """
 シュレーン工場跡地　３Ｆ
 """
+text_pointer = "188fc8"
+text_vma_pointer = "c87f2800"
 
 [mapname.000b]
-pointer = "188fa8"
 text = """
 シュレーン工場跡地　４Ｆ
 """
+text_pointer = "188fa8"
+text_vma_pointer = "a87f2800"
 
 [mapname.000c]
-pointer = "188f98"
 text = """
 ニドの塔　１Ｆ
 """
+text_pointer = "188f98"
+text_vma_pointer = "987f2800"
 
 [mapname.000d]
-pointer = "188f88"
 text = """
 ニドの塔　２Ｆ
 """
+text_pointer = "188f88"
+text_vma_pointer = "887f2800"
 
 [mapname.000e]
-pointer = "188f78"
 text = """
 ニドの塔　３Ｆ
 """
+text_pointer = "188f78"
+text_vma_pointer = "787f2800"
 
 [mapname.000f]
-pointer = "188f68"
 text = """
 ニドの塔　４Ｆ
 """
+text_pointer = "188f68"
+text_vma_pointer = "687f2800"
 
 [mapname.0010]
-pointer = "188f58"
 text = """
 ニドの塔　５Ｆ
 """
+text_pointer = "188f58"
+text_vma_pointer = "587f2800"
 
 [mapname.0011]
-pointer = "188f48"
 text = """
 ニドの塔　６Ｆ
 """
+text_pointer = "188f48"
+text_vma_pointer = "487f2800"
 
 [mapname.0012]
-pointer = "188f30"
 text = """
 バイオシステム　Ｂ１Ｆ
 """
+text_pointer = "188f30"
+text_vma_pointer = "307f2800"
 
 [mapname.0013]
-pointer = "188f18"
 text = """
 バイオシステム　１Ｆ
 """
+text_pointer = "188f18"
+text_vma_pointer = "187f2800"
 
 [mapname.0014]
-pointer = "188f00"
 text = """
 バイオシステム　２Ｆ
 """
+text_pointer = "188f00"
+text_vma_pointer = "7f2800"
 
 [mapname.0015]
-pointer = "188ee8"
 text = """
 バイオシステム　３Ｆ
 """
+text_pointer = "188ee8"
+text_vma_pointer = "e87e2800"
 
 [mapname.0016]
-pointer = "188ed0"
 text = """
 ロロン集積場　Ｂ３Ｆ
 """
+text_pointer = "188ed0"
+text_vma_pointer = "d07e2800"
 
 [mapname.0017]
-pointer = "188eb8"
 text = """
 ロロン集積場　Ｂ２Ｆ
 """
+text_pointer = "188eb8"
+text_vma_pointer = "b87e2800"
 
 [mapname.0018]
-pointer = "188ea0"
 text = """
 ロロン集積場　Ｂ１Ｆ
 """
+text_pointer = "188ea0"
+text_vma_pointer = "a07e2800"
 
 [mapname.0019]
-pointer = "188e88"
 text = """
 ロロン集積場　１Ｆ
 """
+text_pointer = "188e88"
+text_vma_pointer = "887e2800"
 
 [mapname.001a]
-pointer = "188e78"
 text = """
 ウーゾの島
 """
+text_pointer = "188e78"
+text_vma_pointer = "787e2800"
 
 [mapname.001b]
-pointer = "1db220"
 text = """
 北の橋
 """
+text_pointer = "1db220"
+text_vma_pointer = "20a22d00"
 
 [mapname.001c]
-pointer = "1db218"
 text = """
 西の橋
 """
+text_pointer = "1db218"
+text_vma_pointer = "18a22d00"
 
 [mapname.001d]
-pointer = "188e68"
 text = """
 ゼマの連絡通路
 """
+text_pointer = "188e68"
+text_vma_pointer = "687e2800"
 
 [mapname.001e]
-pointer = "188e50"
 text = """
 アメダス　Ｂ１Ｆ
 """
+text_pointer = "188e50"
+text_vma_pointer = "507e2800"
 
 [mapname.001f]
-pointer = "188e40"
 text = """
 アメダス　１Ｆ
 """
+text_pointer = "188e40"
+text_vma_pointer = "407e2800"
 
 [mapname.0020]
-pointer = "188e30"
 text = """
 アメダス　２Ｆ
 """
+text_pointer = "188e30"
+text_vma_pointer = "307e2800"
 
 [mapname.0021]
-pointer = "188e20"
 text = """
 アメダス　３Ｆ
 """
+text_pointer = "188e20"
+text_vma_pointer = "207e2800"
 
 [mapname.0022]
-pointer = "188e10"
 text = """
 アメダス　４Ｆ
 """
+text_pointer = "188e10"
+text_vma_pointer = "107e2800"
 
 [mapname.0023]
-pointer = "188e00"
 text = """
 アメダス　５Ｆ
 """
+text_pointer = "188e00"
+text_vma_pointer = "7e2800"
 
 [mapname.0024]
-pointer = "188df0"
 text = """
 アメダス　６Ｆ
 """
+text_pointer = "188df0"
+text_vma_pointer = "f07d2800"
 
 [mapname.0025]
-pointer = "188de0"
 text = """
 アメダス　７Ｆ
 """
+text_pointer = "188de0"
+text_vma_pointer = "e07d2800"
 
 [mapname.0026]
-pointer = "188dd0"
 text = """
 アメダス　８Ｆ
 """
+text_pointer = "188dd0"
+text_vma_pointer = "d07d2800"
 
 [mapname.0027]
-pointer = "188db0"
 text = """
 コントロールタワー　１Ｆ
 """
+text_pointer = "188db0"
+text_vma_pointer = "b07d2800"
 
 [mapname.0028]
-pointer = "188d90"
 text = """
 コントロールタワー　２Ｆ
 """
+text_pointer = "188d90"
+text_vma_pointer = "907d2800"
 
 [mapname.0029]
-pointer = "188d70"
 text = """
 コントロールタワー　３Ｆ
 """
+text_pointer = "188d70"
+text_vma_pointer = "707d2800"
 
 [mapname.002a]
-pointer = "188d50"
 text = """
 コントロールタワー　４Ｆ
 """
+text_pointer = "188d50"
+text_vma_pointer = "507d2800"
 
 [mapname.002b]
-pointer = "188d30"
 text = """
 コントロールタワー　５Ｆ
 """
+text_pointer = "188d30"
+text_vma_pointer = "307d2800"
 
 [mapname.002c]
-pointer = "188d10"
 text = """
 コントロールタワー　６Ｆ
 """
+text_pointer = "188d10"
+text_vma_pointer = "107d2800"
 
 [mapname.002d]
-pointer = "188cf8"
 text = """
 レッドダム　Ｂ１Ｆ
 """
+text_pointer = "188cf8"
+text_vma_pointer = "f87c2800"
 
 [mapname.002e]
-pointer = "188ce0"
 text = """
 レッドダム　１Ｆ
 """
+text_pointer = "188ce0"
+text_vma_pointer = "e07c2800"
 
 [mapname.002f]
-pointer = "188cc8"
 text = """
 レッドダム　２Ｆ
 """
+text_pointer = "188cc8"
+text_vma_pointer = "c87c2800"
 
 [mapname.0030]
-pointer = "188cb0"
 text = """
 イエローダム　１Ｆ
 """
+text_pointer = "188cb0"
+text_vma_pointer = "b07c2800"
 
 [mapname.0031]
-pointer = "188c98"
 text = """
 イエローダム　２Ｆ
 """
+text_pointer = "188c98"
+text_vma_pointer = "987c2800"
 
 [mapname.0032]
-pointer = "188c80"
 text = """
 イエローダム　３Ｆ
 """
+text_pointer = "188c80"
+text_vma_pointer = "807c2800"
 
 [mapname.0033]
-pointer = "188c68"
 text = """
 イエローダム　４Ｆ
 """
+text_pointer = "188c68"
+text_vma_pointer = "687c2800"
 
 [mapname.0034]
-pointer = "188c50"
 text = """
 ブルーダム　１Ｆ
 """
+text_pointer = "188c50"
+text_vma_pointer = "507c2800"
 
 [mapname.0035]
-pointer = "188c38"
 text = """
 ブルーダム　２Ｆ
 """
+text_pointer = "188c38"
+text_vma_pointer = "387c2800"
 
 [mapname.0036]
-pointer = "188c20"
 text = """
 ブルーダム　３Ｆ
 """
+text_pointer = "188c20"
+text_vma_pointer = "207c2800"
 
 [mapname.0037]
-pointer = "188c08"
 text = """
 ブルーダム　４Ｆ
 """
+text_pointer = "188c08"
+text_vma_pointer = "087c2800"
 
 [mapname.0038]
-pointer = "188bf0"
 text = """
 ブルーダム　５Ｆ
 """
+text_pointer = "188bf0"
+text_vma_pointer = "f07b2800"
 
 [mapname.0039]
-pointer = "188bd8"
 text = """
 グリーンダム　１Ｆ
 """
+text_pointer = "188bd8"
+text_vma_pointer = "d87b2800"
 
 [mapname.003a]
-pointer = "188bc0"
 text = """
 グリーンダム　２Ｆ
 """
+text_pointer = "188bc0"
+text_vma_pointer = "c07b2800"
 
 [mapname.003b]
-pointer = "188bb0"
 text = """
 人工衛星ガイラ
 """
+text_pointer = "188bb0"
+text_vma_pointer = "b07b2800"
 
 [mapname.003c]
-pointer = "188b98"
 text = """
 スクレの地下道　Ｂ３Ｆ
 """
+text_pointer = "188b98"
+text_vma_pointer = "987b2800"
 
 [mapname.003d]
-pointer = "188b80"
 text = """
 スクレの地下道　Ｂ２Ｆ
 """
+text_pointer = "188b80"
+text_vma_pointer = "807b2800"
 
 [mapname.003e]
-pointer = "188b68"
 text = """
 スクレの地下道　Ｂ１Ｆ
 """
+text_pointer = "188b68"
+text_vma_pointer = "687b2800"
 
 [mapname.003f]
-pointer = "188b50"
 text = """
 クレバス　Ｂ３Ｆ
 """
+text_pointer = "188b50"
+text_vma_pointer = "507b2800"
 
 [mapname.0040]
-pointer = "188b38"
 text = """
 クレバス　Ｂ２Ｆ
 """
+text_pointer = "188b38"
+text_vma_pointer = "387b2800"
 
 [mapname.0041]
-pointer = "188b20"
 text = """
 クレバス　Ｂ１Ｆ
 """
+text_pointer = "188b20"
+text_vma_pointer = "207b2800"
 
 [mapname.0042]
-pointer = "188b08"
 text = """
 エスパーの館　Ｂ１Ｆ
 """
+text_pointer = "188b08"
+text_vma_pointer = "087b2800"
 
 [mapname.0043]
-pointer = "188af0"
 text = """
 エスパーの館　１Ｆ
 """
+text_pointer = "188af0"
+text_vma_pointer = "f07a2800"
 
 [mapname.0044]
-pointer = "188ad8"
 text = """
 メノーブの塔　１Ｆ
 """
+text_pointer = "188ad8"
+text_vma_pointer = "d87a2800"
 
 [mapname.0045]
-pointer = "188ac0"
 text = """
 メノーブの塔　２Ｆ
 """
+text_pointer = "188ac0"
+text_vma_pointer = "c07a2800"
 
 [mapname.0046]
-pointer = "188aa8"
 text = """
 メノーブの塔　３Ｆ
 """
+text_pointer = "188aa8"
+text_vma_pointer = "a87a2800"
 
 [mapname.0047]
-pointer = "188a90"
 text = """
 メノーブの塔　４Ｆ
 """
+text_pointer = "188a90"
+text_vma_pointer = "907a2800"
 
 [mapname.0048]
-pointer = "188a78"
 text = """
 ナバールの塔　１Ｆ
 """
+text_pointer = "188a78"
+text_vma_pointer = "787a2800"
 
 [mapname.0049]
-pointer = "188a60"
 text = """
 ナバールの塔　２Ｆ
 """
+text_pointer = "188a60"
+text_vma_pointer = "607a2800"
 
 [mapname.004a]
-pointer = "188a48"
 text = """
 ナバールの塔　３Ｆ
 """
+text_pointer = "188a48"
+text_vma_pointer = "487a2800"
 
 [mapname.004b]
-pointer = "188a30"
 text = """
 ナバールの塔　４Ｆ
 """
+text_pointer = "188a30"
+text_vma_pointer = "307a2800"
 
 [mapname.004c]
-pointer = "188a18"
 text = """
 ナバールの塔　５Ｆ
 """
+text_pointer = "188a18"
+text_vma_pointer = "187a2800"
 
 [mapname.004d]
-pointer = "188a00"
 text = """
 グアランの塔　１Ｆ
 """
+text_pointer = "188a00"
+text_vma_pointer = "7a2800"
 
 [mapname.004e]
-pointer = "1889e8"
 text = """
 グアランの塔　２Ｆ
 """
+text_pointer = "1889e8"
+text_vma_pointer = "e8792800"
 
 [mapname.004f]
-pointer = "1889d0"
 text = """
 グアランの塔　３Ｆ
 """
+text_pointer = "1889d0"
+text_vma_pointer = "d0792800"
 
 [mapname.0050]
-pointer = "1889b8"
 text = """
 グアランの塔　４Ｆ
 """
+text_pointer = "1889b8"
+text_vma_pointer = "b8792800"
 
 [mapname.0051]
-pointer = "1889a0"
 text = """
 グアランの塔　５Ｆ
 """
+text_pointer = "1889a0"
+text_vma_pointer = "a0792800"
 
 [mapname.0052]
-pointer = "188988"
 text = """
 グアランの塔　６Ｆ
 """
+text_pointer = "188988"
+text_vma_pointer = "88792800"
 
 [mapname.0053]
-pointer = "188970"
 text = """
 グアランの塔　７Ｆ
 """
+text_pointer = "188970"
+text_vma_pointer = "70792800"
 
 [mapname.0054]
-pointer = "188958"
 text = """
 グアランの塔　８Ｆ
 """
+text_pointer = "188958"
+text_vma_pointer = "58792800"
 
 [mapname.0055]
-pointer = "188940"
 text = """
 グアランの塔　９Ｆ
 """
+text_pointer = "188940"
+text_vma_pointer = "40792800"
 
 [mapname.0056]
-pointer = "188928"
 text = """
 グアランの塔　１０Ｆ
 """
+text_pointer = "188928"
+text_vma_pointer = "28792800"
 
 [mapname.0057]
-pointer = "188910"
 text = """
 グアランの塔　１１Ｆ
 """
+text_pointer = "188910"
+text_vma_pointer = "10792800"
 
 [mapname.0058]
-pointer = "1888f8"
 text = """
 グアランの塔　１２Ｆ
 """
+text_pointer = "1888f8"
+text_vma_pointer = "f8782800"
 
 [mapname.0059]
-pointer = "1888e0"
 text = """
 グアランの塔　１３Ｆ
 """
+text_pointer = "1888e0"
+text_vma_pointer = "e0782800"
 
 [mapname.005a]
-pointer = "1888c8"
 text = """
 グアランの塔　１４Ｆ
 """
+text_pointer = "1888c8"
+text_vma_pointer = "c8782800"
 
 [mapname.005b]
-pointer = "1888b0"
 text = """
 グアランの塔　１５Ｆ
 """
+text_pointer = "1888b0"
+text_vma_pointer = "b0782800"
 
 [mapname.005c]
-pointer = "188898"
 text = """
 グアランの塔　１６Ｆ
 """
+text_pointer = "188898"
+text_vma_pointer = "98782800"
 
 [mapname.005d]
-pointer = "188898"
 text = """
 グアランの塔　１６Ｆ
 """
+text_pointer = "188898"
+text_vma_pointer = "98782800"
 
 [mapname.005e]
-pointer = "188880"
 text = """
 イクトーの墓場　Ｂ６Ｆ
 """
+text_pointer = "188880"
+text_vma_pointer = "80782800"
 
 [mapname.005f]
-pointer = "188868"
 text = """
 イクトーの墓場　Ｂ５Ｆ
 """
+text_pointer = "188868"
+text_vma_pointer = "68782800"
 
 [mapname.0060]
-pointer = "188850"
 text = """
 イクトーの墓場　Ｂ４Ｆ
 """
+text_pointer = "188850"
+text_vma_pointer = "50782800"
 
 [mapname.0061]
-pointer = "188838"
 text = """
 イクトーの墓場　Ｂ３Ｆ
 """
+text_pointer = "188838"
+text_vma_pointer = "38782800"
 
 [mapname.0062]
-pointer = "188820"
 text = """
 イクトーの墓場　Ｂ２Ｆ
 """
+text_pointer = "188820"
+text_vma_pointer = "20782800"
 
 [mapname.0063]
-pointer = "188808"
 text = """
 イクトーの墓場　Ｂ１Ｆ
 """
+text_pointer = "188808"
+text_vma_pointer = "08782800"
 
 [mapname.0064]
-pointer = "1887f0"
 text = """
 イクトーの墓場　　１Ｆ
 """
+text_pointer = "1887f0"
+text_vma_pointer = "f0772800"
 
 [mapname.0065]
-pointer = "1887d0"
 text = """
 恒星間軌道要塞ノア　１Ｆ
 """
+text_pointer = "1887d0"
+text_vma_pointer = "d0772800"
 
 [mapname.0066]
-pointer = "1887b0"
 text = """
 恒星間軌道要塞ノア　２Ｆ
 """
+text_pointer = "1887b0"
+text_vma_pointer = "b0772800"
 
 [mapname.0067]
-pointer = "1887a0"
 text = """
 デゾリス星
 """
+text_pointer = "1887a0"
+text_vma_pointer = "a0772800"
 
 [mapname.0068]
-pointer = "188790"
 text = """
 アウクバルの街
 """
+text_pointer = "188790"
+text_vma_pointer = "90772800"
 
 [mapname.0069]
-pointer = "188780"
 text = """
 ゾーサの街
 """
+text_pointer = "188780"
+text_vma_pointer = "80772800"
 
 [mapname.006a]
-pointer = "188770"
 text = """
 リュオンの街
 """
+text_pointer = "188770"
+text_vma_pointer = "70772800"
 
 [menu_text.0000]
-pointer = "1a9dc0"
 text = """
 ユーシス
 """
+text_pointer = "1a9dc0"
+text_vma_pointer = "c08d2a00"
 
 [menu_text.0001]
-pointer = "1db798"
 text = """
 ネイ
 """
+text_pointer = "1db798"
+text_vma_pointer = "98a72d00"
 
 [menu_text.0002]
-pointer = "1a9db0"
 text = """
 ルドガー
 """
+text_pointer = "1a9db0"
+text_vma_pointer = "b08d2a00"
 
 [menu_text.0003]
-pointer = "1db790"
 text = """
 アンヌ
 """
+text_pointer = "1db790"
+text_vma_pointer = "90a72d00"
 
 [menu_text.0004]
-pointer = "1a9da0"
 text = """
 ヒューイ
 """
+text_pointer = "1a9da0"
+text_vma_pointer = "a08d2a00"
 
 [menu_text.0005]
-pointer = "1a9d90"
 text = """
 アーミア
 """
+text_pointer = "1a9d90"
+text_vma_pointer = "908d2a00"
 
 [menu_text.0006]
-pointer = "1a9d80"
 text = """
 カインズ
 """
+text_pointer = "1a9d80"
+text_vma_pointer = "808d2a00"
 
 [menu_text.0007]
-pointer = "1db788"
 text = """
 シルカ
 """
+text_pointer = "1db788"
+text_vma_pointer = "88a72d00"
 
 [menu_text.0008]
-pointer = "1db780"
 text = """
 攻撃
 """
+text_pointer = "1db780"
+text_vma_pointer = "80a72d00"
 
 [menu_text.0009]
-pointer = "1a9d70"
 text = """
 テクニック
 """
+text_pointer = "1a9d70"
+text_vma_pointer = "708d2a00"
 
 [menu_text.000a]
-pointer = "1db778"
 text = """
 防御
 """
+text_pointer = "1db778"
+text_vma_pointer = "78a72d00"
 
 [menu_text.000b]
-pointer = "1a9d60"
 text = """
 アイテム
 """
+text_pointer = "1a9d60"
+text_vma_pointer = "608d2a00"
 
 [menu_text.000c]
-pointer = "1db770"
 text = """
 ゲージ
 """
+text_pointer = "1db770"
+text_vma_pointer = "70a72d00"
 
 [menu_text.000d]
-pointer = "1a9d50"
 text = """
 武器変更
 """
+text_pointer = "1a9d50"
+text_vma_pointer = "508d2a00"
 
 [menu_text.000e]
-pointer = "1db768"
 text = """
 ：
 """
+text_pointer = "1db768"
+text_vma_pointer = "68a72d00"
 
 [menu_text.000f]
-pointer = "1db760"
 text = """
 ＞
 """
+text_pointer = "1db760"
+text_vma_pointer = "60a72d00"
 
 [menu_text.0010]
-pointer = "1db758"
 text = """
 ０
 """
+text_pointer = "1db758"
+text_vma_pointer = "58a72d00"
 
 [menu_text.0011]
-pointer = "1db750"
 text = """
 １
 """
+text_pointer = "1db750"
+text_vma_pointer = "50a72d00"
 
 [menu_text.0012]
-pointer = "1db748"
 text = """
 ２
 """
+text_pointer = "1db748"
+text_vma_pointer = "48a72d00"
 
 [menu_text.0013]
-pointer = "1db740"
 text = """
 ３
 """
+text_pointer = "1db740"
+text_vma_pointer = "40a72d00"
 
 [menu_text.0014]
-pointer = "1db738"
 text = """
 ４
 """
+text_pointer = "1db738"
+text_vma_pointer = "38a72d00"
 
 [menu_text.0015]
-pointer = "1db730"
 text = """
 ５
 """
+text_pointer = "1db730"
+text_vma_pointer = "30a72d00"
 
 [menu_text.0016]
-pointer = "1db728"
 text = """
 ６
 """
+text_pointer = "1db728"
+text_vma_pointer = "28a72d00"
 
 [menu_text.0017]
-pointer = "1db720"
 text = """
 ７
 """
+text_pointer = "1db720"
+text_vma_pointer = "20a72d00"
 
 [menu_text.0018]
-pointer = "1db718"
 text = """
 ８
 """
+text_pointer = "1db718"
+text_vma_pointer = "18a72d00"
 
 [menu_text.0019]
-pointer = "1db710"
 text = """
 ９
 """
+text_pointer = "1db710"
+text_vma_pointer = "10a72d00"
 
 [menu_text.001a]
-pointer = "1a9d38"
 text = """
 ＴＰが足りません
 """
+text_pointer = "1a9d38"
+text_vma_pointer = "388d2a00"
 
 [menu_text.001b]
-pointer = "1db708"
 text = """
 装備中
 """
+text_pointer = "1db708"
+text_vma_pointer = "08a72d00"
 
 [menu_text.001c]
-pointer = "1db700"
 text = """
 右手
 """
+text_pointer = "1db700"
+text_vma_pointer = "a72d00"
 
 [menu_text.001d]
-pointer = "1db6f8"
 text = """
 左手
 """
+text_pointer = "1db6f8"
+text_vma_pointer = "f8a62d00"
 
 [menu_text.001e]
-pointer = "1db6f0"
 text = """
 両手
 """
+text_pointer = "1db6f0"
+text_vma_pointer = "f0a62d00"
 
 [menu_text.001f]
-pointer = "1a9d28"
 text = """
 最大ＨＰ
 """
+text_pointer = "1a9d28"
+text_vma_pointer = "288d2a00"
 
 [menu_text.0020]
-pointer = "1a9d18"
 text = """
 最大ＴＰ
 """
+text_pointer = "1a9d18"
+text_vma_pointer = "188d2a00"
 
 [menu_text.0021]
-pointer = "1db6e8"
 text = """
 攻撃力
 """
+text_pointer = "1db6e8"
+text_vma_pointer = "e8a62d00"
 
 [menu_text.0022]
-pointer = "1db6e0"
 text = """
 守備力
 """
+text_pointer = "1db6e0"
+text_vma_pointer = "e0a62d00"
 
 [menu_text.0023]
-pointer = "1db6d8"
 text = """
 体力
 """
+text_pointer = "1db6d8"
+text_vma_pointer = "d8a62d00"
 
 [menu_text.0024]
-pointer = "1db6d0"
 text = """
 精神力
 """
+text_pointer = "1db6d0"
+text_vma_pointer = "d0a62d00"
 
 [menu_text.0025]
-pointer = "1db6c8"
 text = """
 素早さ
 """
+text_pointer = "1db6c8"
+text_vma_pointer = "c8a62d00"
 
 [menu_text.0026]
-pointer = "1db6c0"
 text = """
 幸運
 """
+text_pointer = "1db6c0"
+text_vma_pointer = "c0a62d00"
 
 [menu_text.0027]
-pointer = "1db6b8"
 text = """
 器用
 """
+text_pointer = "1db6b8"
+text_vma_pointer = "b8a62d00"
 
 [menu_text.0028]
-pointer = "1a9d08"
 text = """
 消費ＴＰ
 """
+text_pointer = "1a9d08"
+text_vma_pointer = "088d2a00"
 
 [menu_text.0029]
-pointer = "1db6b0"
 text = """
 使用
 """
+text_pointer = "1db6b0"
+text_vma_pointer = "b0a62d00"
 
 [menu_text.002a]
-pointer = "1db6a8"
 text = """
 装備
 """
+text_pointer = "1db6a8"
+text_vma_pointer = "a8a62d00"
 
 [menu_text.002b]
-pointer = "1db6a0"
 text = """
 属性
 """
+text_pointer = "1db6a0"
+text_vma_pointer = "a0a62d00"
 
 [menu_text.002c]
-pointer = "1db698"
 text = """
 火
 """
+text_pointer = "1db698"
+text_vma_pointer = "98a62d00"
 
 [menu_text.002d]
-pointer = "1db690"
 text = """
 水
 """
+text_pointer = "1db690"
+text_vma_pointer = "90a62d00"
 
 [menu_text.002e]
-pointer = "1db688"
 text = """
 雷
 """
+text_pointer = "1db688"
+text_vma_pointer = "88a62d00"
 
 [menu_text.002f]
-pointer = "1db680"
 text = """
 風
 """
+text_pointer = "1db680"
+text_vma_pointer = "80a62d00"
 
 [menu_text.0030]
-pointer = "1a9cf0"
 text = """
 逃げられなかった！
 """
+text_pointer = "1a9cf0"
+text_vma_pointer = "f08c2a00"
 
 [menu_text.0031]
-pointer = "1a9cd8"
 text = """
 なにも起こらなかった！
 """
+text_pointer = "1a9cd8"
+text_vma_pointer = "d88c2a00"
 
 [menu_text.0032]
-pointer = "1a9cb8"
 text = """
 プラズマリングをはめられた！
 """
+text_pointer = "1a9cb8"
+text_vma_pointer = "b88c2a00"
 
 [menu_text.0033]
-pointer = "1a9c98"
 text = """
 ネイソードが光を放った！
 """
+text_pointer = "1a9c98"
+text_vma_pointer = "988c2a00"
 
 [menu_text.0034]
-pointer = "1a9c78"
 text = """
 悪の　心が　流れていった！
 """
+text_pointer = "1a9c78"
+text_vma_pointer = "788c2a00"
 
 [menu_text.0035]
-pointer = "1a9c60"
 text = """
 の心は悪にそまった！
 """
+text_pointer = "1a9c60"
+text_vma_pointer = "608c2a00"
 
 [menu_text.0036]
-pointer = "1a9c48"
 text = """
 はなまけものになった。
 """
+text_pointer = "1a9c48"
+text_vma_pointer = "488c2a00"
 
 [menu_text.0037]
-pointer = "1a9c30"
 text = """
 すばやさ　ダウン！
 """
+text_pointer = "1a9c30"
+text_vma_pointer = "308c2a00"
 
 [menu_text.0038]
-pointer = "1a9c18"
 text = """
 は自信を失った！
 """
+text_pointer = "1a9c18"
+text_vma_pointer = "188c2a00"
 
 [menu_text.0039]
-pointer = "1a9bf8"
 text = """
 テクニックをつかえない。
 """
+text_pointer = "1a9bf8"
+text_vma_pointer = "f88b2a00"
 
 [menu_text.003a]
-pointer = "1a9be0"
 text = """
 は欲張りになった！
 """
+text_pointer = "1a9be0"
+text_vma_pointer = "e08b2a00"
 
 [menu_text.003b]
-pointer = "1a9bc8"
 text = """
 荷物をあさっている！
 """
+text_pointer = "1a9bc8"
+text_vma_pointer = "c88b2a00"
 
 [menu_text.003c]
-pointer = "1a9ba8"
 text = """
 仲間を裏切ろうとしている！
 """
+text_pointer = "1a9ba8"
+text_vma_pointer = "a88b2a00"
 
 [menu_text.003d]
-pointer = "1a9b90"
 text = """
 は一人で　逃げ出した！
 """
+text_pointer = "1a9b90"
+text_vma_pointer = "908b2a00"
 
 [menu_text.003e]
-pointer = "1a9b78"
 text = """
 だが　逃げられない！
 """
+text_pointer = "1a9b78"
+text_vma_pointer = "788b2a00"
 
 [menu_text.003f]
-pointer = "1a9b60"
 text = """
 は疑い深くなった！
 """
+text_pointer = "1a9b60"
+text_vma_pointer = "608b2a00"
 
 [menu_text.0040]
-pointer = "1a9b40"
 text = """
 思わず　攻撃の　手がゆるむ！
 """
+text_pointer = "1a9b40"
+text_vma_pointer = "408b2a00"
 
 [menu_text.0041]
-pointer = "1a9b20"
 text = """
 は絶望に　打ちひしがれている！
 """
+text_pointer = "1a9b20"
+text_vma_pointer = "208b2a00"
 
 [menu_text.0042]
-pointer = "1a9b08"
 text = """
 敵の先制攻撃！！
 """
+text_pointer = "1a9b08"
+text_vma_pointer = "088b2a00"
 
 [menu_text.0043]
-pointer = "1a9af0"
 text = """
 味方の先制攻撃！！
 """
+text_pointer = "1a9af0"
+text_vma_pointer = "f08a2a00"
 
 [menu_text.0044]
-pointer = "1aa268"
 text = """
 コマンドのみを使用　　　　　　　　　　　　　　　
 """
+text_pointer = "1aa268"
+text_vma_pointer = "68922a00"
 
 [menu_text.0045]
-pointer = "1aa230"
 text = """
 半分以上コマンドを使用　　　　　　　　　　　　　
 """
+text_pointer = "1aa230"
+text_vma_pointer = "30922a00"
 
 [menu_text.0046]
-pointer = "1aa1f8"
 text = """
 通常攻撃を使わない　　　　　　　　　　　　　　　
 """
+text_pointer = "1aa1f8"
+text_vma_pointer = "f8912a00"
 
 [menu_text.0047]
-pointer = "1aa1c0"
 text = """
 通常攻撃はランク３のみ使用した　　　　　　　　　
 """
+text_pointer = "1aa1c0"
+text_vma_pointer = "c0912a00"
 
 [menu_text.0048]
-pointer = "1aa188"
 text = """
 通常攻撃はランク２のみ使用した　　　　　　　　　
 """
+text_pointer = "1aa188"
+text_vma_pointer = "88912a00"
 
 [menu_text.0049]
-pointer = "1aa150"
 text = """
 通常攻撃はランク１のみ使用した　　　　　　　　　
 """
+text_pointer = "1aa150"
+text_vma_pointer = "50912a00"
 
 [menu_text.004a]
-pointer = "1aa118"
 text = """
 テクニックを使わない　　　　　　　　　　　　　　
 """
+text_pointer = "1aa118"
+text_vma_pointer = "18912a00"
 
 [menu_text.004b]
-pointer = "1aa0e0"
 text = """
 一瞬で戦闘が終わった　　　　　　　　　　　　　　
 """
+text_pointer = "1aa0e0"
+text_vma_pointer = "e0902a00"
 
 [menu_text.004c]
-pointer = "1aa0a8"
 text = """
 短時間で戦闘が終わった　　　　　　　　　　　　　
 """
+text_pointer = "1aa0a8"
+text_vma_pointer = "a8902a00"
 
 [menu_text.004d]
-pointer = "1aa070"
 text = """
 長時間、戦闘が続いた　　　　　　　　　　　　　　
 """
+text_pointer = "1aa070"
+text_vma_pointer = "70902a00"
 
 [menu_text.004e]
-pointer = "1aa038"
 text = """
 逃げるのに失敗した　　　　　　　　　　　　　　　
 """
+text_pointer = "1aa038"
+text_vma_pointer = "38902a00"
 
 [menu_text.004f]
-pointer = "1aa000"
 text = """
 何回も、逃げるのに失敗した　　　　　　　　　　　
 """
+text_pointer = "1aa000"
+text_vma_pointer = "902a00"
 
 [menu_text.0050]
-pointer = "1a9fc8"
 text = """
 逃げるのをあきらめた　　　　　　　　　　　　　　
 """
+text_pointer = "1a9fc8"
+text_vma_pointer = "c88f2a00"
 
 [menu_text.0051]
-pointer = "1a9f90"
 text = """
 ガードを全て成功させた　　　　　　　　　　　　　
 """
+text_pointer = "1a9f90"
+text_vma_pointer = "908f2a00"
 
 [menu_text.0052]
-pointer = "1a9f58"
 text = """
 ガードを半分以上成功させた　　　　　　　　　　　
 """
+text_pointer = "1a9f58"
+text_vma_pointer = "588f2a00"
 
 [menu_text.0053]
-pointer = "1a9f20"
 text = """
 仲間のＨＰが０になった　　　　　　　　　　　　　
 """
+text_pointer = "1a9f20"
+text_vma_pointer = "208f2a00"
 
 [menu_text.0054]
-pointer = "1a9ee8"
 text = """
 ２回以上、仲間のＨＰが０になった　　　　　　　　
 """
+text_pointer = "1a9ee8"
+text_vma_pointer = "e88e2a00"
 
 [menu_text.0055]
-pointer = "1a9eb0"
 text = """
 ネイの好感度ＵＰ！　　　　　　　　　　　　　　　
 """
+text_pointer = "1a9eb0"
+text_vma_pointer = "b08e2a00"
 
 [menu_text.0056]
-pointer = "1a9e78"
 text = """
 ネイの好感度ＤＯＷＮ！　　　　　　　　　　　　　
 """
+text_pointer = "1a9e78"
+text_vma_pointer = "788e2a00"
 
 [menu_text.0057]
-pointer = "1a9e40"
 text = """
 ランク３の攻撃以外使わない　　　　　　　　　＋＋
 """
+text_pointer = "1a9e40"
+text_vma_pointer = "408e2a00"
 
 [menu_text.0058]
-pointer = "1a9e08"
 text = """
 クリティカルが出なかった　　　　　　　　　　　＋
 """
+text_pointer = "1a9e08"
+text_vma_pointer = "088e2a00"
 
 [menu_text.0059]
-pointer = "1a9dd0"
 text = """
 逃げようとして失敗した　　　　　　　　　　　　−
 """
+text_pointer = "1a9dd0"
+text_vma_pointer = "d08d2a00"
 
 [menu_text.005a]
-pointer = "1db7a0"
 text = """
 ダミー
 """
+text_pointer = "1db7a0"
+text_vma_pointer = "a0a72d00"
 
 [menu_text.005b]
-pointer = "1aae48"
 text = """
 火の属性を持つ攻撃技。　　　　　威力は小さいが攻撃は素早い。
 """
+text_pointer = "1aae48"
+text_vma_pointer = "489e2a00"
 
 [menu_text.005c]
-pointer = "1aae08"
 text = """
 火の属性を持つ攻撃技。　　　　　中程度の威力が期待できる。
 """
+text_pointer = "1aae08"
+text_vma_pointer = "089e2a00"
 
 [menu_text.005d]
-pointer = "1aadc0"
 text = """
 火の属性を持つ攻撃技。　　　　　攻撃は遅いが最大級の威力を誇る。
 """
+text_pointer = "1aadc0"
+text_vma_pointer = "c09d2a00"
 
 [menu_text.005e]
-pointer = "1aad80"
 text = """
 氷の属性を持つ攻撃技。　　　　　威力は小さいが攻撃は素早い。
 """
+text_pointer = "1aad80"
+text_vma_pointer = "809d2a00"
 
 [menu_text.005f]
-pointer = "1aad40"
 text = """
 氷の属性を持つ攻撃技。　　　　　中程度の威力が期待できる。
 """
+text_pointer = "1aad40"
+text_vma_pointer = "409d2a00"
 
 [menu_text.0060]
-pointer = "1aacf8"
 text = """
 氷の属性を持つ攻撃技。　　　　　攻撃は遅いが最大級の威力を誇る。
 """
+text_pointer = "1aacf8"
+text_vma_pointer = "f89c2a00"
 
 [menu_text.0061]
-pointer = "1aacb8"
 text = """
 雷の属性を持つ攻撃技。　　　　　威力は小さいが攻撃は素早い。
 """
+text_pointer = "1aacb8"
+text_vma_pointer = "b89c2a00"
 
 [menu_text.0062]
-pointer = "1aac78"
 text = """
 雷の属性を持つ攻撃技。　　　　　中程度の威力が期待できる。
 """
+text_pointer = "1aac78"
+text_vma_pointer = "789c2a00"
 
 [menu_text.0063]
-pointer = "1aac30"
 text = """
 雷の属性を持つ攻撃技。　　　　　攻撃は遅いが最大級の威力を誇る。
 """
+text_pointer = "1aac30"
+text_vma_pointer = "309c2a00"
 
 [menu_text.0064]
-pointer = "1aabe8"
 text = """
 風の属性を持つ攻撃技。　　　　　威力は小さいが広範囲に攻撃する。
 """
+text_pointer = "1aabe8"
+text_vma_pointer = "e89b2a00"
 
 [menu_text.0065]
-pointer = "1aaba0"
 text = """
 風の属性を持つ攻撃技。　　　　　中程度の威力で広範囲に攻撃する。
 """
+text_pointer = "1aaba0"
+text_vma_pointer = "a09b2a00"
 
 [menu_text.0066]
-pointer = "1aab58"
 text = """
 風の属性を持つ攻撃技。　　　　　攻撃は遅いが最大級の威力を誇る。
 """
+text_pointer = "1aab58"
+text_vma_pointer = "589b2a00"
 
 [menu_text.0067]
-pointer = "1aab18"
 text = """
 魔力結界を持つ攻撃技。　　　　　攻撃は遅いが広範囲に攻撃する。
 """
+text_pointer = "1aab18"
+text_vma_pointer = "189b2a00"
 
 [menu_text.0068]
-pointer = "1aab18"
 text = """
 魔力結界を持つ攻撃技。　　　　　攻撃は遅いが広範囲に攻撃する。
 """
+text_pointer = "1aab18"
+text_vma_pointer = "189b2a00"
 
 [menu_text.0069]
-pointer = "1aab18"
 text = """
 魔力結界を持つ攻撃技。　　　　　攻撃は遅いが広範囲に攻撃する。
 """
+text_pointer = "1aab18"
+text_vma_pointer = "189b2a00"
 
 [menu_text.006a]
-pointer = "1aaad8"
 text = """
 高い発光エネルギーを持つ攻撃技。その威力は決して侮れない。
 """
+text_pointer = "1aaad8"
+text_vma_pointer = "d89a2a00"
 
 [menu_text.006b]
-pointer = "1aaa98"
 text = """
 高い発光エネルギーを持つ攻撃技。かなりの威力が期待できる。
 """
+text_pointer = "1aaa98"
+text_vma_pointer = "989a2a00"
 
 [menu_text.006c]
-pointer = "1aaa60"
 text = """
 高い発光エネルギーを持つ攻撃技。最大級の威力を誇る。
 """
+text_pointer = "1aaa60"
+text_vma_pointer = "609a2a00"
 
 [menu_text.006d]
-pointer = "1aaa40"
 text = """
 自分一人の攻撃力を上昇できる。
 """
+text_pointer = "1aaa40"
+text_vma_pointer = "409a2a00"
 
 [menu_text.006e]
-pointer = "1aaa18"
 text = """
 敵のＨＰを奪い取ることができる。
 """
+text_pointer = "1aaa18"
+text_vma_pointer = "189a2a00"
 
 [menu_text.006f]
-pointer = "1aa9d0"
 text = """
 メカを破壊する攻撃技。　　　　　威力は小さいが広範囲に攻撃する。
 """
+text_pointer = "1aa9d0"
+text_vma_pointer = "d0992a00"
 
 [menu_text.0070]
-pointer = "1aa990"
 text = """
 メカを破壊する攻撃技。　　　　　確実にメカを完全に破壊する。
 """
+text_pointer = "1aa990"
+text_vma_pointer = "90992a00"
 
 [menu_text.0071]
-pointer = "1aa950"
 text = """
 ダメージは与えられないが、　　　メカの特殊攻撃を封じる。
 """
+text_pointer = "1aa950"
+text_vma_pointer = "50992a00"
 
 [menu_text.0072]
-pointer = "1aa910"
 text = """
 ダメージは与えられないが、　　　生物の特殊攻撃を封じる。
 """
+text_pointer = "1aa910"
+text_vma_pointer = "10992a00"
 
 [menu_text.0073]
-pointer = "1aa8d0"
 text = """
 メカを破壊する攻撃技。　　　　　威力は小さいが攻撃は素早い。
 """
+text_pointer = "1aa8d0"
+text_vma_pointer = "d0982a00"
 
 [menu_text.0074]
-pointer = "1aa890"
 text = """
 メカを破壊する攻撃技。　　　　　中程度の威力が期待できる。
 """
+text_pointer = "1aa890"
+text_vma_pointer = "90982a00"
 
 [menu_text.0075]
-pointer = "1aa848"
 text = """
 メカを破壊する攻撃技。　　　　　攻撃は遅いが最大級の威力を誇る。
 """
+text_pointer = "1aa848"
+text_vma_pointer = "48982a00"
 
 [menu_text.0076]
-pointer = "1aa9d0"
 text = """
 メカを破壊する攻撃技。　　　　　威力は小さいが広範囲に攻撃する。
 """
+text_pointer = "1aa9d0"
+text_vma_pointer = "d0992a00"
 
 [menu_text.0077]
-pointer = "1aa800"
 text = """
 メカを破壊する攻撃技。　　　　　中程度の威力で広範囲に攻撃する。
 """
+text_pointer = "1aa800"
+text_vma_pointer = "982a00"
 
 [menu_text.0078]
-pointer = "1aa848"
 text = """
 メカを破壊する攻撃技。　　　　　攻撃は遅いが最大級の威力を誇る。
 """
+text_pointer = "1aa848"
+text_vma_pointer = "48982a00"
 
 [menu_text.0079]
-pointer = "1aa7c0"
 text = """
 生物を老化させる攻撃技。　　　　威力は小さいが攻撃は素早い。
 """
+text_pointer = "1aa7c0"
+text_vma_pointer = "c0972a00"
 
 [menu_text.007a]
-pointer = "1aa778"
 text = """
 生物を老化させる攻撃技。　　　　中程度の威力で広範囲に攻撃する。
 """
+text_pointer = "1aa778"
+text_vma_pointer = "78972a00"
 
 [menu_text.007b]
-pointer = "1aa738"
 text = """
 生物を即死させる攻撃技。　　　　確実に相手を死に至らしめる。
 """
+text_pointer = "1aa738"
+text_vma_pointer = "38972a00"
 
 [menu_text.007c]
-pointer = "1aa6f8"
 text = """
 生物を即死させる攻撃技。　　　　広範囲の相手を死に至らしめる。
 """
+text_pointer = "1aa6f8"
+text_vma_pointer = "f8962a00"
 
 [menu_text.007d]
-pointer = "1aa6d8"
 text = """
 仲間一人の守備力を上昇できる。
 """
+text_pointer = "1aa6d8"
+text_vma_pointer = "d8962a00"
 
 [menu_text.007e]
-pointer = "1aa6b8"
 text = """
 仲間全員の守備力を上昇できる。
 """
+text_pointer = "1aa6b8"
+text_vma_pointer = "b8962a00"
 
 [menu_text.007f]
-pointer = "1aa678"
 text = """
 ダメージは与えられないが、　　　生物の攻撃命中率を低下させる。
 """
+text_pointer = "1aa678"
+text_vma_pointer = "78962a00"
 
 [menu_text.0080]
-pointer = "1aa638"
 text = """
 ダメージは与えられないが、　　　生物を麻痺させ動けなくさせる。
 """
+text_pointer = "1aa638"
+text_vma_pointer = "38962a00"
 
 [menu_text.0081]
-pointer = "1aa5f8"
 text = """
 ダメージは与えられないが、　　　生物を退散させることができる。
 """
+text_pointer = "1aa5f8"
+text_vma_pointer = "f8952a00"
 
 [menu_text.0082]
-pointer = "1aa5b8"
 text = """
 ダメージは与えられないが、　　　メカの攻撃命中率を低下させる。
 """
+text_pointer = "1aa5b8"
+text_vma_pointer = "b8952a00"
 
 [menu_text.0083]
-pointer = "1aa570"
 text = """
 ダメージは与えられないが、　　　メカを機能停止させ動けなくする。
 """
+text_pointer = "1aa570"
+text_vma_pointer = "70952a00"
 
 [menu_text.0084]
-pointer = "1aa548"
 text = """
 仲間全員を魔力結界バリアで守る。
 """
+text_pointer = "1aa548"
+text_vma_pointer = "48952a00"
 
 [menu_text.0085]
-pointer = "1aa528"
 text = """
 仲間一人の素早さを上昇できる。
 """
+text_pointer = "1aa528"
+text_vma_pointer = "28952a00"
 
 [menu_text.0086]
-pointer = "1aa508"
 text = """
 仲間全員の素早さを上昇できる。
 """
+text_pointer = "1aa508"
+text_vma_pointer = "08952a00"
 
 [menu_text.0087]
-pointer = "1aa4e0"
 text = """
 仲間一人のＨＰを２０回復できる。
 """
+text_pointer = "1aa4e0"
+text_vma_pointer = "e0942a00"
 
 [menu_text.0088]
-pointer = "1aa4b8"
 text = """
 仲間一人のＨＰを６０回復できる。
 """
+text_pointer = "1aa4b8"
+text_vma_pointer = "b8942a00"
 
 [menu_text.0089]
-pointer = "1aa498"
 text = """
 仲間一人のＨＰを全回復できる。
 """
+text_pointer = "1aa498"
+text_vma_pointer = "98942a00"
 
 [menu_text.008a]
-pointer = "1aa470"
 text = """
 仲間全員のＨＰを２０回復できる。
 """
+text_pointer = "1aa470"
+text_vma_pointer = "70942a00"
 
 [menu_text.008b]
-pointer = "1aa448"
 text = """
 仲間全員のＨＰを６０回復できる。
 """
+text_pointer = "1aa448"
+text_vma_pointer = "48942a00"
 
 [menu_text.008c]
-pointer = "1aa428"
 text = """
 仲間全員のＨＰを全回復できる。
 """
+text_pointer = "1aa428"
+text_vma_pointer = "28942a00"
 
 [menu_text.008d]
-pointer = "1aa3e8"
 text = """
 自分の命と引き換えに、　　　　　仲間一人のＨＰを全回復できる。
 """
+text_pointer = "1aa3e8"
+text_vma_pointer = "e8932a00"
 
 [menu_text.008e]
-pointer = "1aa3a8"
 text = """
 自分の命と引き換えに、　　　　　仲間全員のＨＰを全回復できる。
 """
+text_pointer = "1aa3a8"
+text_vma_pointer = "a8932a00"
 
 [menu_text.008f]
-pointer = "1aa388"
 text = """
 ステータス異常の毒を中和する。
 """
+text_pointer = "1aa388"
+text_vma_pointer = "88932a00"
 
 [menu_text.0090]
-pointer = "1aa350"
 text = """
 死亡した仲間を生き返らせる。　　ＨＰを３０回復できる。
 """
+text_pointer = "1aa350"
+text_vma_pointer = "50932a00"
 
 [menu_text.0091]
-pointer = "1aa318"
 text = """
 最後に利用したデータメモリーまで瞬間移動できる。
 """
+text_pointer = "1aa318"
+text_vma_pointer = "18932a00"
 
 [menu_text.0092]
-pointer = "1aa2f0"
 text = """
 ダンジョン等から緊急脱出できる。
 """
+text_pointer = "1aa2f0"
+text_vma_pointer = "f0922a00"
 
 [menu_text.0093]
-pointer = "1aa2e0"
 text = """
 詳細不明…
 """
+text_pointer = "1aa2e0"
+text_vma_pointer = "e0922a00"
 
 [menu_text.0094]
-pointer = "1aa2a0"
 text = """
 ケタ違いの破壊力を持つ攻撃技。　その威力は、味方にもおよぶ。
 """
+text_pointer = "1aa2a0"
+text_vma_pointer = "a0922a00"
 
 [item_description.0000]
-pointer = "1aa2e0"
 text = """
 詳細不明…
 """
+text_pointer = "1aa2e0"
+text_vma_pointer = "e0922a00"
 
 [item_description.0001]
-pointer = "1aa2e0"
 text = """
 詳細不明…
 """
+text_pointer = "1aa2e0"
+text_vma_pointer = "e0922a00"
 
 [item_description.0002]
-pointer = "1aa2e0"
 text = """
 詳細不明…
 """
+text_pointer = "1aa2e0"
+text_vma_pointer = "e0922a00"
 
 [item_description.0003]
-pointer = "1aa2e0"
 text = """
 詳細不明…
 """
+text_pointer = "1aa2e0"
+text_vma_pointer = "e0922a00"
 
 [item_description.0004]
-pointer = "1aa2e0"
 text = """
 詳細不明…
 """
+text_pointer = "1aa2e0"
+text_vma_pointer = "e0922a00"
 
 [item_description.0005]
-pointer = "1aa2e0"
 text = """
 詳細不明…
 """
+text_pointer = "1aa2e0"
+text_vma_pointer = "e0922a00"
 
 [item_description.0006]
-pointer = "1aa2e0"
 text = """
 詳細不明…
 """
+text_pointer = "1aa2e0"
+text_vma_pointer = "e0922a00"
 
 [item_description.0007]
-pointer = "1aa2e0"
 text = """
 詳細不明…
 """
+text_pointer = "1aa2e0"
+text_vma_pointer = "e0922a00"
 
 [item_description.0008]
-pointer = "1db7a0"
 text = """
 ダミー
 """
+text_pointer = "1db7a0"
+text_vma_pointer = "a0a72d00"
 
 [item_description.0009]
-pointer = "1ad7c8"
 text = """
 初心者向けのナイフ。　　　　　　小型で扱いやすいのが特徴。
 """
+text_pointer = "1ad7c8"
+text_vma_pointer = "c8c72a00"
 
 [item_description.000a]
-pointer = "1ad788"
 text = """
 セラミック製のナイフ。　　　　　小型で扱いやすく、軽くて丈夫。
 """
+text_pointer = "1ad788"
+text_vma_pointer = "88c72a00"
 
 [item_description.000b]
-pointer = "1ad758"
 text = """
 レーザー粒子を放つナイフ。　　　詳細不明…
 """
+text_pointer = "1ad758"
+text_vma_pointer = "58c72a00"
 
 [item_description.000c]
-pointer = "1ad718"
 text = """
 銀で装飾された護身用ナイフ。　　切れ味も鋭く、女性用の高級品。
 """
+text_pointer = "1ad718"
+text_vma_pointer = "18c72a00"
 
 [item_description.000d]
-pointer = "1ad6d8"
 text = """
 護身用の万能型短剣。　　　　　　身が軽く、防御にも使える。
 """
+text_pointer = "1ad6d8"
+text_vma_pointer = "d8c62a00"
 
 [item_description.000e]
-pointer = "1ad690"
 text = """
 セラミック製の短剣。　　　　　　盗賊が好んで使用することで有名。
 """
+text_pointer = "1ad690"
+text_vma_pointer = "90c62a00"
 
 [item_description.000f]
-pointer = "1ad650"
 text = """
 風の属性を持つ短剣。　　　　　　気まぐれな短剣とも呼ばれる。
 """
+text_pointer = "1ad650"
+text_vma_pointer = "50c62a00"
 
 [item_description.0010]
-pointer = "1ad620"
 text = """
 ラコニア製で最強の短剣。　　　　詳細不明…
 """
+text_pointer = "1ad620"
+text_vma_pointer = "20c62a00"
 
 [item_description.0011]
-pointer = "1ad5e0"
 text = """
 医療用のメス。　　　　　　　　　慣れるまで扱いは難しい。
 """
+text_pointer = "1ad5e0"
+text_vma_pointer = "e0c52a00"
 
 [item_description.0012]
-pointer = "1ad5a0"
 text = """
 医療用のレーザーメス。　　　　　武器として改造したもの。
 """
+text_pointer = "1ad5a0"
+text_vma_pointer = "a0c52a00"
 
 [item_description.0013]
-pointer = "1ad558"
 text = """
 丈夫な両刃の長剣。　　　　　　　攻撃力はあるが少し重いのが難点。
 """
+text_pointer = "1ad558"
+text_vma_pointer = "58c52a00"
 
 [item_description.0014]
-pointer = "1ad520"
 text = """
 セラミック製の長剣。　　　　　　軽くて扱いやすい珍品。
 """
+text_pointer = "1ad520"
+text_vma_pointer = "20c52a00"
 
 [item_description.0015]
-pointer = "1ad4e0"
 text = """
 火の属性を持つ長剣。　　　　　　フォイエの効果を発揮する。
 """
+text_pointer = "1ad4e0"
+text_vma_pointer = "e0c42a00"
 
 [item_description.0016]
-pointer = "1ad4a0"
 text = """
 高レーザー粒子を放つ長剣。　　　高い攻撃力で豪快に焼き斬る。
 """
+text_pointer = "1ad4a0"
+text_vma_pointer = "a0c42a00"
 
 [item_description.0017]
-pointer = "1ad460"
 text = """
 別名、降魔の利剣。　　　　　　　日本刀を意識したデザイン。
 """
+text_pointer = "1ad460"
+text_vma_pointer = "60c42a00"
 
 [item_description.0018]
-pointer = "1ad418"
 text = """
 プラズマ電磁波を放つ長剣。　　　軽量で扱いやすく、切れ味もよい。
 """
+text_pointer = "1ad418"
+text_vma_pointer = "18c42a00"
 
 [item_description.0019]
-pointer = "1ad3e8"
 text = """
 ラコニア製で最強の長剣。　　　　詳細不明…
 """
+text_pointer = "1ad3e8"
+text_vma_pointer = "e8c32a00"
 
 [item_description.001a]
-pointer = "1ad3b8"
 text = """
 両刃に複雑な小刃を加工した大剣。詳細不明…
 """
+text_pointer = "1ad3b8"
+text_vma_pointer = "b8c32a00"
 
 [item_description.001b]
-pointer = "1ad388"
 text = """
 ネイシリーズの大剣。　　　　　　詳細不明…
 """
+text_pointer = "1ad388"
+text_vma_pointer = "88c32a00"
 
 [item_description.001c]
-pointer = "1ad340"
 text = """
 麻酔銃（殺傷能力はない）　　　　敵一体を麻痺させることができる。
 """
+text_pointer = "1ad340"
+text_vma_pointer = "40c32a00"
 
 [item_description.001d]
-pointer = "1ad2f8"
 text = """
 毒液銃。　　　　　　　　　　　　敵一体に毒を与えることができる。
 """
+text_pointer = "1ad2f8"
+text_vma_pointer = "f8c22a00"
 
 [item_description.001e]
-pointer = "1ad2b0"
 text = """
 強酸液銃。　　　　　　　　　　　軽量で扱いやすく、攻撃力もある。
 """
+text_pointer = "1ad2b0"
+text_vma_pointer = "b0c22a00"
 
 [item_description.001f]
-pointer = "1ad268"
 text = """
 高レーザー粒子弾砲。　　　　　　攻撃力は高いが取り扱いが難しい。
 """
+text_pointer = "1ad268"
+text_vma_pointer = "68c22a00"
 
 [item_description.0020]
-pointer = "1ad238"
 text = """
 火の属性を持つ焼夷弾砲。　　　　詳細不明…
 """
+text_pointer = "1ad238"
+text_vma_pointer = "38c22a00"
 
 [item_description.0021]
-pointer = "1ad208"
 text = """
 ネイシリーズの銃器。　　　　　　詳細不明…
 """
+text_pointer = "1ad208"
+text_vma_pointer = "08c22a00"
 
 [item_description.0022]
-pointer = "1ad1c0"
 text = """
 護身用の銃器。　　　　　　　　　操作が簡単な初心者向けの普及品。
 """
+text_pointer = "1ad1c0"
+text_vma_pointer = "c0c12a00"
 
 [item_description.0023]
-pointer = "1ad190"
 text = """
 ソニックガンを改造した銃器。　　詳細不明…
 """
+text_pointer = "1ad190"
+text_vma_pointer = "90c12a00"
 
 [item_description.0024]
-pointer = "1ad150"
 text = """
 戦闘用の散弾銃。　　　　　　　　敵数体を同時攻撃できる。
 """
+text_pointer = "1ad150"
+text_vma_pointer = "50c12a00"
 
 [item_description.0025]
-pointer = "1ad110"
 text = """
 六連装回転式機関砲。　　　　　　敵数体を連続攻撃できる。
 """
+text_pointer = "1ad110"
+text_vma_pointer = "10c12a00"
 
 [item_description.0026]
-pointer = "1ad0d0"
 text = """
 高レーザー粒子回転式機関砲。　　敵数体を連続攻撃できる。
 """
+text_pointer = "1ad0d0"
+text_vma_pointer = "d0c02a00"
 
 [item_description.0027]
-pointer = "1ad090"
 text = """
 電子パルス回転式機関砲。　　　　敵数体を連続攻撃できる。
 """
+text_pointer = "1ad090"
+text_vma_pointer = "90c02a00"
 
 [item_description.0028]
-pointer = "1ad058"
 text = """
 大口径高射砲。　　　　　　　　　高出力で中級者向け。
 """
+text_pointer = "1ad058"
+text_vma_pointer = "58c02a00"
 
 [item_description.0029]
-pointer = "1ad020"
 text = """
 高レーザー粒子高射砲。　　　　　発射速度が速く高出力。
 """
+text_pointer = "1ad020"
+text_vma_pointer = "20c02a00"
 
 [item_description.002a]
-pointer = "1acfe0"
 text = """
 電子パルス波高射砲。　　　　　　扱いは難しいが攻撃力は高い。
 """
+text_pointer = "1acfe0"
+text_vma_pointer = "e0bf2a00"
 
 [item_description.002b]
-pointer = "1acfb0"
 text = """
 大型プラズマ電磁波高射砲。　　　詳細不明…
 """
+text_pointer = "1acfb0"
+text_vma_pointer = "b0bf2a00"
 
 [item_description.002c]
-pointer = "1acf70"
 text = """
 英雄タイロンの短銃（レプリカ）　初心者向けの普及型短銃。
 """
+text_pointer = "1acf70"
+text_vma_pointer = "70bf2a00"
 
 [item_description.002d]
-pointer = "1acf30"
 text = """
 戦闘用の投具。　　　　　　　　　敵全体を同時攻撃できる。
 """
+text_pointer = "1acf30"
+text_vma_pointer = "30bf2a00"
 
 [item_description.002e]
-pointer = "1acef0"
 text = """
 戦闘用の投てき武器。　　　　　　敵全体を同時攻撃できる。
 """
+text_pointer = "1acef0"
+text_vma_pointer = "f0be2a00"
 
 [item_description.002f]
-pointer = "1aceb0"
 text = """
 チタン合金製の投てき武器。　　　敵全体を同時攻撃できる。
 """
+text_pointer = "1aceb0"
+text_vma_pointer = "b0be2a00"
 
 [item_description.0030]
-pointer = "1ace70"
 text = """
 光の刃を持つ投てき武器。　　　　敵全体を同時攻撃できる。
 """
+text_pointer = "1ace70"
+text_vma_pointer = "70be2a00"
 
 [item_description.0031]
-pointer = "1ace30"
 text = """
 火の属性を持つ投てき武器。　　　敵全体を同時攻撃できる。
 """
+text_pointer = "1ace30"
+text_vma_pointer = "30be2a00"
 
 [item_description.0032]
-pointer = "1acdf0"
 text = """
 氷の属性を持つ投てき武器。　　　敵全体を同時攻撃できる。
 """
+text_pointer = "1acdf0"
+text_vma_pointer = "f0bd2a00"
 
 [item_description.0033]
-pointer = "1acdc0"
 text = """
 ラコニア製で最強の投てき武器。　詳細不明…
 """
+text_pointer = "1acdc0"
+text_vma_pointer = "c0bd2a00"
 
 [item_description.0034]
-pointer = "1acd90"
 text = """
 ネイシリーズの投てき武器。　　　詳細不明…
 """
+text_pointer = "1acd90"
+text_vma_pointer = "90bd2a00"
 
 [item_description.0035]
-pointer = "1acd50"
 text = """
 皮製の紐状武器。　　　　　　　　扱いは難しいが攻撃力は高い。
 """
+text_pointer = "1acd50"
+text_vma_pointer = "50bd2a00"
 
 [item_description.0036]
-pointer = "1acd10"
 text = """
 雷の属性を持つ紐状武器。　　　　ゾンデの効果を発揮する。
 """
+text_pointer = "1acd10"
+text_vma_pointer = "10bd2a00"
 
 [item_description.0037]
-pointer = "1accd0"
 text = """
 火の属性を持つ棒状武器。　　　　フォイエの効果を発揮する。
 """
+text_pointer = "1accd0"
+text_vma_pointer = "d0bc2a00"
 
 [item_description.0038]
-pointer = "1acc90"
 text = """
 氷の属性を持つ棒状武器。　　　　バータの効果を発揮する。
 """
+text_pointer = "1acc90"
+text_vma_pointer = "90bc2a00"
 
 [item_description.0039]
-pointer = "1acc58"
 text = """
 風の属性を持つ棒状武器。　　　　ザンの効果を発揮する。
 """
+text_pointer = "1acc58"
+text_vma_pointer = "58bc2a00"
 
 [item_description.003a]
-pointer = "1acc20"
 text = """
 鋼鉄製の棒状打撃武器。　　　　　本来は工具の一種。
 """
+text_pointer = "1acc20"
+text_vma_pointer = "20bc2a00"
 
 [item_description.003b]
-pointer = "1acbe0"
 text = """
 セラミック製の棒状打撃武器。　　うろこ状の表面で強度が高い。
 """
+text_pointer = "1acbe0"
+text_vma_pointer = "e0bb2a00"
 
 [item_description.003c]
-pointer = "1acbb0"
 text = """
 ラコニア製で最強の棒状打撃武器。詳細不明…
 """
+text_pointer = "1acbb0"
+text_vma_pointer = "b0bb2a00"
 
 [item_description.003d]
-pointer = "1acb68"
 text = """
 鋼鉄製の刃を持つ爪状の武器。　　軽くて動きやすく、攻撃力も高い。
 """
+text_pointer = "1acb68"
+text_vma_pointer = "68bb2a00"
 
 [item_description.003e]
-pointer = "1acb20"
 text = """
 鋭利な刃を持つ爪状の武器。　　　扱いやすく、切れ味も優れている。
 """
+text_pointer = "1acb20"
+text_vma_pointer = "20bb2a00"
 
 [item_description.003f]
-pointer = "1acae0"
 text = """
 セラミック製の刃を持つ爪状の武器。丈夫で軽く、攻撃力も高い。
 """
+text_pointer = "1acae0"
+text_vma_pointer = "e0ba2a00"
 
 [item_description.0040]
-pointer = "1acab0"
 text = """
 光の刃を持つ爪状の武器。　　　　詳細不明…
 """
+text_pointer = "1acab0"
+text_vma_pointer = "b0ba2a00"
 
 [item_description.0041]
-pointer = "1aca70"
 text = """
 魔力を秘めた爪状の武器。　　　　ボルトの効果を発揮する。
 """
+text_pointer = "1aca70"
+text_vma_pointer = "70ba2a00"
 
 [item_description.0042]
-pointer = "1aca40"
 text = """
 伝説の英雄ミャウの爪（レプリカ）詳細不明…
 """
+text_pointer = "1aca40"
+text_vma_pointer = "40ba2a00"
 
 [item_description.0043]
-pointer = "1aca08"
 text = """
 皮製の帽子。　　　　　　　　　　初心者向けの普及品。
 """
+text_pointer = "1aca08"
+text_vma_pointer = "08ba2a00"
 
 [item_description.0044]
-pointer = "1ac9c8"
 text = """
 グラスウール製の帽子。　　　　　防熱性が高く、電気も通さない。
 """
+text_pointer = "1ac9c8"
+text_vma_pointer = "c8b92a00"
 
 [item_description.0045]
-pointer = "1ac980"
 text = """
 チタン合金製の帽子。　　　　　　軽く、耐食性・強度に優れている。
 """
+text_pointer = "1ac980"
+text_vma_pointer = "80b92a00"
 
 [item_description.0046]
-pointer = "1ac940"
 text = """
 魔力結界を持つ帽子。　　　　　　ギレスタの効果を発揮する。
 """
+text_pointer = "1ac940"
+text_vma_pointer = "40b92a00"
 
 [item_description.0047]
-pointer = "1ac900"
 text = """
 魔力結界を持つ帽子。　　　　　　ギザンの効果を発揮する。
 """
+text_pointer = "1ac900"
+text_vma_pointer = "b92a00"
 
 [item_description.0048]
-pointer = "1ac8b8"
 text = """
 セラミック製の帽子。　　　　　　軽くて扱いやすく、防御力も高い。
 """
+text_pointer = "1ac8b8"
+text_vma_pointer = "b8b82a00"
 
 [item_description.0049]
-pointer = "1ac888"
 text = """
 ラコニア製で最強の帽子。　　　　詳細不明…
 """
+text_pointer = "1ac888"
+text_vma_pointer = "88b82a00"
 
 [item_description.004a]
-pointer = "1ac848"
 text = """
 布製の装身具。　　　　　　　　　ファッション性の高い織物。
 """
+text_pointer = "1ac848"
+text_vma_pointer = "48b82a00"
 
 [item_description.004b]
-pointer = "1ac810"
 text = """
 銀で装飾された装身具。　　　　　可愛い女性専用の織物。
 """
+text_pointer = "1ac810"
+text_vma_pointer = "10b82a00"
 
 [item_description.004c]
-pointer = "1ac7e0"
 text = """
 宝石で装飾された装身具。　　　　詳細不明…
 """
+text_pointer = "1ac7e0"
+text_vma_pointer = "e0b72a00"
 
 [item_description.004d]
-pointer = "1ac7b0"
 text = """
 銀で装飾されたかんむり。　　　　詳細不明…
 """
+text_pointer = "1ac7b0"
+text_vma_pointer = "b0b72a00"
 
 [item_description.004e]
-pointer = "1ac780"
 text = """
 宝石で装飾されたかんむり。　　　詳細不明…
 """
+text_pointer = "1ac780"
+text_vma_pointer = "80b72a00"
 
 [item_description.004f]
-pointer = "1ac740"
 text = """
 白銀色に輝くかんむり。　　　　　デバンドの効果を発揮する。
 """
+text_pointer = "1ac740"
+text_vma_pointer = "40b72a00"
 
 [item_description.0050]
-pointer = "1ac700"
 text = """
 黄金色に輝くかんむり。　　　　　ゾンデの効果を発揮する。
 """
+text_pointer = "1ac700"
+text_vma_pointer = "b72a00"
 
 [item_description.0051]
-pointer = "1ac6d0"
 text = """
 ネイシリーズの王冠。　　　　　　詳細不明…
 """
+text_pointer = "1ac6d0"
+text_vma_pointer = "d0b62a00"
 
 [item_description.0052]
-pointer = "1ac688"
 text = """
 チタン合金製のかぶと。　　　　　軽く、耐食性・強度に優れている。
 """
+text_pointer = "1ac688"
+text_vma_pointer = "88b62a00"
 
 [item_description.0053]
-pointer = "1ac658"
 text = """
 ラコニア製で最強のかぶと。　　　詳細不明…
 """
+text_pointer = "1ac658"
+text_vma_pointer = "58b62a00"
 
 [item_description.0054]
-pointer = "1ac628"
 text = """
 ネイシリーズのかぶと。　　　　　詳細不明…
 """
+text_pointer = "1ac628"
+text_vma_pointer = "28b62a00"
 
 [item_description.0055]
-pointer = "1ac5f0"
 text = """
 花染織のハンカチーフ。　　　　　ザンの効果を発揮する。
 """
+text_pointer = "1ac5f0"
+text_vma_pointer = "f0b52a00"
 
 [item_description.0056]
-pointer = "1ac5b0"
 text = """
 サラサ模様のハンカチーフ。　　　シュネラの効果を発揮する。
 """
+text_pointer = "1ac5b0"
+text_vma_pointer = "b0b52a00"
 
 [item_description.0057]
-pointer = "1ac570"
 text = """
 シャム染めのハンカチーフ。　　　シュネラの効果を発揮する。
 """
+text_pointer = "1ac570"
+text_vma_pointer = "70b52a00"
 
 [item_description.0058]
-pointer = "1ac528"
 text = """
 翻訳能力が身に付く帽子。　　　　ジャコウネコ語が分かるようになる。
 """
+text_pointer = "1ac528"
+text_vma_pointer = "28b52a00"
 
 [item_description.0059]
-pointer = "1ac4e0"
 text = """
 翻訳能力が身に付く帽子。　　　　デゾリアン語が分かるようになる。
 """
+text_pointer = "1ac4e0"
+text_vma_pointer = "e0b42a00"
 
 [item_description.005a]
-pointer = "1ac4a0"
 text = """
 カーボンファイバー製の防護服。　炭素繊維で織り込んだ普及品。
 """
+text_pointer = "1ac4a0"
+text_vma_pointer = "a0b42a00"
 
 [item_description.005b]
-pointer = "1ac468"
 text = """
 カーボンファイバー製の胴着。　　炭素繊維のカットソー。
 """
+text_pointer = "1ac468"
+text_vma_pointer = "68b42a00"
 
 [item_description.005c]
-pointer = "1ac428"
 text = """
 グラスウール製の胴着。　　　　　防熱性の高いノースリーブ。
 """
+text_pointer = "1ac428"
+text_vma_pointer = "28b42a00"
 
 [item_description.005d]
-pointer = "1ac3e8"
 text = """
 グラスウール製の上着。　　　　　防熱性が高く、電気も通さない。
 """
+text_pointer = "1ac3e8"
+text_vma_pointer = "e8b32a00"
 
 [item_description.005e]
-pointer = "1ac3a8"
 text = """
 グラスウール製の外衣。　　　　　防熱性が高く、電気も通さない。
 """
+text_pointer = "1ac3a8"
+text_vma_pointer = "a8b32a00"
 
 [item_description.005f]
-pointer = "1ac378"
 text = """
 英雄のエスパーが身にまとった外衣。詳細不明…
 """
+text_pointer = "1ac378"
+text_vma_pointer = "78b32a00"
 
 [item_description.0060]
-pointer = "1ac330"
 text = """
 チタン合金製の胸甲。　　　　　　軽く、耐食性・強度に優れている。
 """
+text_pointer = "1ac330"
+text_vma_pointer = "30b32a00"
 
 [item_description.0061]
-pointer = "1ac2e8"
 text = """
 セラミック製の胸甲。　　　　　　軽くて動きやすく、防御力も高い。
 """
+text_pointer = "1ac2e8"
+text_vma_pointer = "e8b22a00"
 
 [item_description.0062]
-pointer = "1ac2b8"
 text = """
 ジルコニウム合金製の胸甲。　　　詳細不明…
 """
+text_pointer = "1ac2b8"
+text_vma_pointer = "b8b22a00"
 
 [item_description.0063]
-pointer = "1ac278"
 text = """
 魔力結界を持つ胸甲。　　　　　　グラプトの効果を発揮する。
 """
+text_pointer = "1ac278"
+text_vma_pointer = "78b22a00"
 
 [item_description.0064]
-pointer = "1ac248"
 text = """
 ラコニア製で最強の胸甲。　　　　詳細不明…
 """
+text_pointer = "1ac248"
+text_vma_pointer = "48b22a00"
 
 [item_description.0065]
-pointer = "1ac200"
 text = """
 チタン合金製の鎧。　　　　　　　軽く、耐食性・強度に優れている。
 """
+text_pointer = "1ac200"
+text_vma_pointer = "b22a00"
 
 [item_description.0066]
-pointer = "1ac1b8"
 text = """
 セラミック製の鎧。　　　　　　　軽くて動きやすく、防御力も高い。
 """
+text_pointer = "1ac1b8"
+text_vma_pointer = "b8b12a00"
 
 [item_description.0067]
-pointer = "1ac188"
 text = """
 ジルコニウム合金製の鎧。　　　　詳細不明…
 """
+text_pointer = "1ac188"
+text_vma_pointer = "88b12a00"
 
 [item_description.0068]
-pointer = "1ac148"
 text = """
 シルク繊維のドレス。　　　　　　動きやすく、初心者向け。
 """
+text_pointer = "1ac148"
+text_vma_pointer = "48b12a00"
 
 [item_description.0069]
-pointer = "1ac108"
 text = """
 チタン合金製のドレス。　　　　　新素材チタン繊維の逸品。
 """
+text_pointer = "1ac108"
+text_vma_pointer = "08b12a00"
 
 [item_description.006a]
-pointer = "1ac0c0"
 text = """
 セラミック製のドレス。　　　　　軽くて動きやすく、防御力も高い。
 """
+text_pointer = "1ac0c0"
+text_vma_pointer = "c0b02a00"
 
 [item_description.006b]
-pointer = "1ac090"
 text = """
 ラコニア製で最強のドレス。　　　詳細不明…
 """
+text_pointer = "1ac090"
+text_vma_pointer = "90b02a00"
 
 [item_description.006c]
-pointer = "1ac050"
 text = """
 チタン合金製のローブ。　　　　　新素材チタン繊維の珍品。
 """
+text_pointer = "1ac050"
+text_vma_pointer = "50b02a00"
 
 [item_description.006d]
-pointer = "1ac010"
 text = """
 魔力結界を持つローブ。　　　　　グラプトの効果を発揮する。
 """
+text_pointer = "1ac010"
+text_vma_pointer = "10b02a00"
 
 [item_description.006e]
-pointer = "1abfe0"
 text = """
 ラコニア製で最強のローブ。　　　詳細不明…
 """
+text_pointer = "1abfe0"
+text_vma_pointer = "e0af2a00"
 
 [item_description.006f]
-pointer = "1abfb0"
 text = """
 ネイシリーズのローブ。　　　　　詳細不明…
 """
+text_pointer = "1abfb0"
+text_vma_pointer = "b0af2a00"
 
 [item_description.0070]
-pointer = "1abf70"
 text = """
 魔力結界を持つ法衣。　　　　　　グラプトの効果を発揮する。
 """
+text_pointer = "1abf70"
+text_vma_pointer = "70af2a00"
 
 [item_description.0071]
-pointer = "1abf40"
 text = """
 プラズマ磁場を持つ法衣。　　　　詳細不明…
 """
+text_pointer = "1abf40"
+text_vma_pointer = "40af2a00"
 
 [item_description.0072]
-pointer = "1abf10"
 text = """
 ネイシリーズの法衣。　　　　　　詳細不明…
 """
+text_pointer = "1abf10"
+text_vma_pointer = "10af2a00"
 
 [item_description.0073]
-pointer = "1abed0"
 text = """
 琥珀織りの法衣。　　　　　　　　ギレスタの効果を発揮する。
 """
+text_pointer = "1abed0"
+text_vma_pointer = "d0ae2a00"
 
 [item_description.0074]
-pointer = "1abe98"
 text = """
 囚人用の防護服。　　　　　　　　着ていないよりはマシ。
 """
+text_pointer = "1abe98"
+text_vma_pointer = "98ae2a00"
 
 [item_description.0075]
-pointer = "1abe58"
 text = """
 カーボン製の盾。　　　　　　　　軽くて丈夫なので初心者向け。
 """
+text_pointer = "1abe58"
+text_vma_pointer = "58ae2a00"
 
 [item_description.0076]
-pointer = "1abe18"
 text = """
 グラスウール製の盾。　　　　　　防熱性が高く、電気も通さない。
 """
+text_pointer = "1abe18"
+text_vma_pointer = "18ae2a00"
 
 [item_description.0077]
-pointer = "1abdd0"
 text = """
 チタン合金製の盾。　　　　　　　軽く、耐食性・強度に優れている。
 """
+text_pointer = "1abdd0"
+text_vma_pointer = "d0ad2a00"
 
 [item_description.0078]
-pointer = "1abda0"
 text = """
 鏡面加工された盾。　　　　　　　詳細不明…
 """
+text_pointer = "1abda0"
+text_vma_pointer = "a0ad2a00"
 
 [item_description.0079]
-pointer = "1abd58"
 text = """
 セラミック製の盾。　　　　　　　軽くて扱いやすく、防御力も高い。
 """
+text_pointer = "1abd58"
+text_vma_pointer = "58ad2a00"
 
 [item_description.007a]
-pointer = "1abd18"
 text = """
 世界平和を予感させる盾。　　　　ギレスタの効果を発揮する。
 """
+text_pointer = "1abd18"
+text_vma_pointer = "18ad2a00"
 
 [item_description.007b]
-pointer = "1abcd0"
 text = """
 光の壁で結界を作る盾。　　　　　優れた防御力を持つ数少ない珍品。
 """
+text_pointer = "1abcd0"
+text_vma_pointer = "d0ac2a00"
 
 [item_description.007c]
-pointer = "1abca0"
 text = """
 ラコニア製で最強の盾。　　　　　詳細不明…
 """
+text_pointer = "1abca0"
+text_vma_pointer = "a0ac2a00"
 
 [item_description.007d]
-pointer = "1abc70"
 text = """
 ネイシリーズの盾。　　　　　　　詳細不明…
 """
+text_pointer = "1abc70"
+text_vma_pointer = "70ac2a00"
 
 [item_description.007e]
-pointer = "1abc30"
 text = """
 カーボン製の腕鎧。　　　　　　　軽くて丈夫な素材で女性向け。
 """
+text_pointer = "1abc30"
+text_vma_pointer = "30ac2a00"
 
 [item_description.007f]
-pointer = "1abbf0"
 text = """
 グラスウール製の腕鎧。　　　　　防熱性が高く、電気も通さない。
 """
+text_pointer = "1abbf0"
+text_vma_pointer = "f0ab2a00"
 
 [item_description.0080]
-pointer = "1abba8"
 text = """
 チタン合金製の腕鎧。　　　　　　軽く、耐食性・強度に優れている。
 """
+text_pointer = "1abba8"
+text_vma_pointer = "a8ab2a00"
 
 [item_description.0081]
-pointer = "1abb78"
 text = """
 鏡面加工された腕鎧。　　　　　　詳細不明…
 """
+text_pointer = "1abb78"
+text_vma_pointer = "78ab2a00"
 
 [item_description.0082]
-pointer = "1abb38"
 text = """
 セラミック製の腕鎧。　　　　　　動きやすく軽量かつ丈夫。
 """
+text_pointer = "1abb38"
+text_vma_pointer = "38ab2a00"
 
 [item_description.0083]
-pointer = "1abaf8"
 text = """
 魔力を秘めた腕鎧。　　　　　　　ファンビアの効果を発揮する。
 """
+text_pointer = "1abaf8"
+text_vma_pointer = "f8aa2a00"
 
 [item_description.0084]
-pointer = "1abac8"
 text = """
 ラコニア製で最強の腕鎧。　　　　詳細不明…
 """
+text_pointer = "1abac8"
+text_vma_pointer = "c8aa2a00"
 
 [item_description.0085]
-pointer = "1aba98"
 text = """
 ネイシリーズの腕鎧。　　　　　　詳細不明…
 """
+text_pointer = "1aba98"
+text_vma_pointer = "98aa2a00"
 
 [item_description.0086]
-pointer = "1aba58"
 text = """
 動きやすいコットン素材の腕鎧。　シンパロの効果を発揮する。
 """
+text_pointer = "1aba58"
+text_vma_pointer = "58aa2a00"
 
 [item_description.0087]
-pointer = "1aba18"
 text = """
 グラスウール製の腕鎧。　　　　　ギレスタの効果を発揮する。
 """
+text_pointer = "1aba18"
+text_vma_pointer = "18aa2a00"
 
 [item_description.0088]
-pointer = "1ab9d8"
 text = """
 薄皮製の靴。　　　　　　　　　　軽くて動きやすい普及品。
 """
+text_pointer = "1ab9d8"
+text_vma_pointer = "d8a92a00"
 
 [item_description.0089]
-pointer = "1ab998"
 text = """
 おしゃれなソールの靴。　　　　　ネイのオーダーメイド品。
 """
+text_pointer = "1ab998"
+text_vma_pointer = "98a92a00"
 
 [item_description.008a]
-pointer = "1ab960"
 text = """
 厚手の皮製ブーツ。　　　　　　　スタンダードな一品。
 """
+text_pointer = "1ab960"
+text_vma_pointer = "60a92a00"
 
 [item_description.008b]
-pointer = "1ab920"
 text = """
 刃物が隠してあるブーツ。　　　　武器としても使える優れもの。
 """
+text_pointer = "1ab920"
+text_vma_pointer = "20a92a00"
 
 [item_description.008c]
-pointer = "1ab8e0"
 text = """
 ファッショナブルなブーツ。　　　美しいフォルムが女性に人気。
 """
+text_pointer = "1ab8e0"
+text_vma_pointer = "e0a82a00"
 
 [item_description.008d]
-pointer = "1ab8a0"
 text = """
 軽くて丈夫！　　　　　　　　　　女性向けのカジュアルブーツ。
 """
+text_pointer = "1ab8a0"
+text_vma_pointer = "a0a82a00"
 
 [item_description.008e]
-pointer = "1ab860"
 text = """
 素早さが最大の売り！　　　　　　シュネラの効果も期待できる。
 """
+text_pointer = "1ab860"
+text_vma_pointer = "60a82a00"
 
 [item_description.008f]
-pointer = "1ab818"
 text = """
 漆黒のブーツ。　　　　　　　　　頑丈なわりに敏捷性も高いタイプ。
 """
+text_pointer = "1ab818"
+text_vma_pointer = "18a82a00"
 
 [item_description.0090]
-pointer = "1ab7d0"
 text = """
 白のロングブーツ。　　　　　　　動きやすくデザイン性も高い逸品。
 """
+text_pointer = "1ab7d0"
+text_vma_pointer = "d0a72a00"
 
 [item_description.0091]
-pointer = "1ab790"
 text = """
 頑丈に作られたブーツ。　　　　　高い防御力と機動力を併せ持つ。
 """
+text_pointer = "1ab790"
+text_vma_pointer = "90a72a00"
 
 [item_description.0092]
-pointer = "1ab758"
 text = """
 体力回復の薬。　　　　　　　　　ＨＰを２０回復できる。
 """
+text_pointer = "1ab758"
+text_vma_pointer = "58a72a00"
 
 [item_description.0093]
-pointer = "1ab720"
 text = """
 体力回復の薬。　　　　　　　　　ＨＰを６０回復できる。
 """
+text_pointer = "1ab720"
+text_vma_pointer = "20a72a00"
 
 [item_description.0094]
-pointer = "1ab6e8"
 text = """
 体力回復の薬。　　　　　　　　　ＨＰを全回復できる。
 """
+text_pointer = "1ab6e8"
+text_vma_pointer = "e8a62a00"
 
 [item_description.0095]
-pointer = "1ab6b0"
 text = """
 テクニック回復の薬。　　　　　　ＴＰを１０回復できる。
 """
+text_pointer = "1ab6b0"
+text_vma_pointer = "b0a62a00"
 
 [item_description.0096]
-pointer = "1ab678"
 text = """
 テクニック回復の薬。　　　　　　ＴＰを５０回復できる。
 """
+text_pointer = "1ab678"
+text_vma_pointer = "78a62a00"
 
 [item_description.0097]
-pointer = "1ab638"
 text = """
 テクニック回復の薬。　　　　　　ＴＰを１００回復できる。
 """
+text_pointer = "1ab638"
+text_vma_pointer = "38a62a00"
 
 [item_description.0098]
-pointer = "1ab5f8"
 text = """
 体調改善の薬。　　　　　　　　　ステータス異常の毒を中和する。
 """
+text_pointer = "1ab5f8"
+text_vma_pointer = "f8a52a00"
 
 [item_description.0099]
-pointer = "1ab5a0"
 text = """
 蘇生の薬。　　　　　　　　　　　死亡した仲間を生き返らせる。　　ＨＰも全回復できる。
 """
+text_pointer = "1ab5a0"
+text_vma_pointer = "a0a52a00"
 
 [item_description.009a]
-pointer = "1ab560"
 text = """
 体力回復の薬。　　　　　　　　　仲間全員のＨＰを全回復できる。
 """
+text_pointer = "1ab560"
+text_vma_pointer = "60a52a00"
 
 [item_description.009b]
-pointer = "1ab518"
 text = """
 体調改善の薬。　　　　　　　　　仲間全員のステータス異常を治す。
 """
+text_pointer = "1ab518"
+text_vma_pointer = "18a52a00"
 
 [item_description.009c]
-pointer = "1aa318"
 text = """
 最後に利用したデータメモリーまで瞬間移動できる。
 """
+text_pointer = "1aa318"
+text_vma_pointer = "18932a00"
 
 [item_description.009d]
-pointer = "1aa2f0"
 text = """
 ダンジョン等から緊急脱出できる。
 """
+text_pointer = "1aa2f0"
+text_vma_pointer = "f0922a00"
 
 [item_description.009e]
-pointer = "1ab4f0"
 text = """
 一定時間、敵との遭遇率を下げる。
 """
+text_pointer = "1ab4f0"
+text_vma_pointer = "f0a42a00"
 
 [item_description.009f]
-pointer = "1ab4d0"
 text = """
 戦闘から緊急脱出できる。
 """
+text_pointer = "1ab4d0"
+text_vma_pointer = "d0a42a00"
 
 [item_description.00a0]
-pointer = "1ab498"
 text = """
 とても甘いショートケーキ。　　　ＨＰを８０回復できる。
 """
+text_pointer = "1ab498"
+text_vma_pointer = "98a42a00"
 
 [item_description.00a1]
-pointer = "1ab460"
 text = """
 さっぱりして、とても美味しい。　ＨＰを全回復できる。
 """
+text_pointer = "1ab460"
+text_vma_pointer = "60a42a00"
 
 [item_description.00a2]
-pointer = "1ab420"
 text = """
 季節の果物をふんだんに使った逸品。ＴＰを８０回復できる。
 """
+text_pointer = "1ab420"
+text_vma_pointer = "20a42a00"
 
 [item_description.00a3]
-pointer = "1ab3e8"
 text = """
 ふわふわクリームたっぷりのケーキ。ＴＰを全回復できる。
 """
+text_pointer = "1ab3e8"
+text_vma_pointer = "e8a32a00"
 
 [item_description.00a4]
-pointer = "1ab3a8"
 text = """
 名店の味を再現したショートケーキ。ＨＰとＴＰを全回復できる。
 """
+text_pointer = "1ab3a8"
+text_vma_pointer = "a8a32a00"
 
 [item_description.00a5]
-pointer = "1ab368"
 text = """
 陸上専用車両。　　　　　　　　　陸の上を高速移動できる。
 """
+text_pointer = "1ab368"
+text_vma_pointer = "68a32a00"
 
 [item_description.00a6]
-pointer = "1ab328"
 text = """
 海上専用車両。　　　　　　　　　海の上を高速移動できる。
 """
+text_pointer = "1ab328"
+text_vma_pointer = "28a32a00"
 
 [item_description.00a7]
-pointer = "1ab2e8"
 text = """
 氷上専用車両。　　　　　　　　　氷の上を高速移動できる。
 """
+text_pointer = "1ab2e8"
+text_vma_pointer = "e8a22a00"
 
 [item_description.00a8]
-pointer = "1ab2c8"
 text = """
 強力な破壊力を持った爆破薬。
 """
+text_pointer = "1ab2c8"
+text_vma_pointer = "c8a22a00"
 
 [item_description.00a9]
-pointer = "1ab2b0"
 text = """
 ミニマップ表示。
 """
+text_pointer = "1ab2b0"
+text_vma_pointer = "b0a22a00"
 
 [item_description.00aa]
-pointer = "1ab298"
 text = """
 ラスカルズの脅迫状
 """
+text_pointer = "1ab298"
+text_vma_pointer = "98a22a00"
 
 [item_description.00ab]
-pointer = "1ab278"
 text = """
 バイオシステムの記録装置。
 """
+text_pointer = "1ab278"
+text_vma_pointer = "78a22a00"
 
 [item_description.00ac]
-pointer = "1ab238"
 text = """
 マルエラツリーの葉っぱ。　　　　マルエラガムの材料になる。
 """
+text_pointer = "1ab238"
+text_vma_pointer = "38a22a00"
 
 [item_description.00ad]
-pointer = "1ab1f0"
 text = """
 マルエラリーブのチューインガム。水中でも呼吸ができるようになる。
 """
+text_pointer = "1ab1f0"
+text_vma_pointer = "f0a12a00"
 
 [item_description.00ae]
-pointer = "1ab1c8"
 text = """
 幻の建物を投影することができる。
 """
+text_pointer = "1ab1c8"
+text_vma_pointer = "c8a12a00"
 
 [item_description.00af]
-pointer = "1ab1b0"
 text = """
 囚人捕縛用装置。
 """
+text_pointer = "1ab1b0"
+text_vma_pointer = "b0a12a00"
 
 [item_description.00b0]
-pointer = "1ab170"
 text = """
 癒しの指輪。　　　　　　　　　　歩くごとにＨＰが回復する。
 """
+text_pointer = "1ab170"
+text_vma_pointer = "70a12a00"
 
 [item_description.00b1]
-pointer = "1ab148"
 text = """
 ちから・もりもりんを作動させる石。
 """
+text_pointer = "1ab148"
+text_vma_pointer = "48a12a00"
 
 [item_description.00b2]
-pointer = "1ab108"
 text = """
 人間の力を倍増させる装置。　　　軽量、小型化され携帯可能に！
 """
+text_pointer = "1ab108"
+text_vma_pointer = "08a12a00"
 
 [item_description.00b3]
-pointer = "1ab0e0"
 text = """
 キーボードを使用することができる。
 """
+text_pointer = "1ab0e0"
+text_vma_pointer = "e0a02a00"
 
 [item_description.00b4]
-pointer = "1ab0b8"
 text = """
 キーボードを演奏することができる。
 """
+text_pointer = "1ab0b8"
+text_vma_pointer = "b8a02a00"
 
 [item_description.00b5]
-pointer = "1ab070"
 text = """
 翻訳能力が身に付く指輪。　　　　モタビアン語が分かるようになる。
 """
+text_pointer = "1ab070"
+text_vma_pointer = "70a02a00"
 
 [item_description.00b6]
-pointer = "1ab040"
 text = """
 マルエラツリーの実。　　　　　　詳細不明…
 """
+text_pointer = "1ab040"
+text_vma_pointer = "40a02a00"
 
 [item_description.00b7]
-pointer = "1ab020"
 text = """
 ナネットのお母さんの指輪。
 """
+text_pointer = "1ab020"
+text_vma_pointer = "20a02a00"
 
 [item_description.00b8]
-pointer = "1aafd8"
 text = """
 携帯用無線通信端末。　　　　　　データメモリーにアクセスできる。
 """
+text_pointer = "1aafd8"
+text_vma_pointer = "d89f2a00"
 
 [item_description.00b9]
-pointer = "1aafb8"
 text = """
 レッドダムのカードキー。
 """
+text_pointer = "1aafb8"
+text_vma_pointer = "b89f2a00"
 
 [item_description.00ba]
-pointer = "1aaf98"
 text = """
 イエローダムのカードキー。
 """
+text_pointer = "1aaf98"
+text_vma_pointer = "989f2a00"
 
 [item_description.00bb]
-pointer = "1aaf78"
 text = """
 ブルーダムのカードキー。
 """
+text_pointer = "1aaf78"
+text_vma_pointer = "789f2a00"
 
 [item_description.00bc]
-pointer = "1aaf58"
 text = """
 グリーンダムのカードキー。
 """
+text_pointer = "1aaf58"
+text_vma_pointer = "589f2a00"
 
 [item_description.00bd]
-pointer = "1aaf30"
 text = """
 コンテナを開けることのできるカギ。
 """
+text_pointer = "1aaf30"
+text_vma_pointer = "309f2a00"
 
 [item_description.00be]
-pointer = "1aaf10"
 text = """
 西の橋で必要な通行許可証。
 """
+text_pointer = "1aaf10"
+text_vma_pointer = "109f2a00"
 
 [item_description.00bf]
-pointer = "1aaed0"
 text = """
 化学薬品。　　　　　　　　　　　ラコニア以外の金属を溶かす。
 """
+text_pointer = "1aaed0"
+text_vma_pointer = "d09e2a00"
 
 [item_description.00c0]
-pointer = "1aaeb0"
 text = """
 ルドガーがネイに贈った首飾り。
 """
+text_pointer = "1aaeb0"
+text_vma_pointer = "b09e2a00"
 
 [item_description.00c1]
-pointer = "1aae88"
 text = """
 ナネットからイーノスに宛てた手紙。
 """
+text_pointer = "1aae88"
+text_vma_pointer = "889e2a00"
 
 [item_description.00c2]
-pointer = "1b1840"
 text = """
 アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホ・−マミムメモヤユヨラリルレロワヲンガギグゲゴザジズゼゾダヂヅデドッバビブベボパピプペポァィゥェォャュョ０１２３４５６７８９ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ　○×△□＋？
 """
+text_pointer = "1b1840"
+text_vma_pointer = "40082b00"
 
 [misc_string.0000]
-pointer = "18d8f8"
 text = """
 ユーシス
 """
+text_pointer = "18d8f8"
+text_vma_pointer = "f8c82800"
 
 [misc_string.0001]
-pointer = "1db428"
 text = """
 ネイ
 """
+text_pointer = "1db428"
+text_vma_pointer = "28a42d00"
 
 [misc_string.0002]
-pointer = "18d8e8"
 text = """
 ルドガー
 """
+text_pointer = "18d8e8"
+text_vma_pointer = "e8c82800"
 
 [misc_string.0003]
-pointer = "1db420"
 text = """
 アンヌ
 """
+text_pointer = "1db420"
+text_vma_pointer = "20a42d00"
 
 [misc_string.0004]
-pointer = "18d8d8"
 text = """
 ヒューイ
 """
+text_pointer = "18d8d8"
+text_vma_pointer = "d8c82800"
 
 [misc_string.0005]
-pointer = "18d8c8"
 text = """
 アーミア
 """
+text_pointer = "18d8c8"
+text_vma_pointer = "c8c82800"
 
 [misc_string.0006]
-pointer = "18d8b8"
 text = """
 カインズ
 """
+text_pointer = "18d8b8"
+text_vma_pointer = "b8c82800"
 
 [misc_string.0007]
-pointer = "1db418"
 text = """
 シルカ
 """
+text_pointer = "1db418"
+text_vma_pointer = "18a42d00"
 
 [misc_string.0008]
-pointer = "18d8a8"
 text = """
 最大ＨＰ
 """
+text_pointer = "18d8a8"
+text_vma_pointer = "a8c82800"
 
 [misc_string.0009]
-pointer = "18d898"
 text = """
 最大ＴＰ
 """
+text_pointer = "18d898"
+text_vma_pointer = "98c82800"
 
 [misc_string.000a]
-pointer = "1db410"
 text = """
 攻撃力
 """
+text_pointer = "1db410"
+text_vma_pointer = "10a42d00"
 
 [misc_string.000b]
-pointer = "1db408"
 text = """
 守備力
 """
+text_pointer = "1db408"
+text_vma_pointer = "08a42d00"
 
 [misc_string.000c]
-pointer = "1db400"
 text = """
 体力
 """
+text_pointer = "1db400"
+text_vma_pointer = "a42d00"
 
 [misc_string.000d]
-pointer = "1db3f8"
 text = """
 精神力
 """
+text_pointer = "1db3f8"
+text_vma_pointer = "f8a32d00"
 
 [misc_string.000e]
-pointer = "1db3f0"
 text = """
 素早さ
 """
+text_pointer = "1db3f0"
+text_vma_pointer = "f0a32d00"
 
 [misc_string.000f]
-pointer = "1db3e8"
 text = """
 幸運
 """
+text_pointer = "1db3e8"
+text_vma_pointer = "e8a32d00"
 
 [misc_string.0010]
-pointer = "1db3e0"
 text = """
 器用
 """
+text_pointer = "1db3e0"
+text_vma_pointer = "e0a32d00"
 
 [misc_string.0011]
-pointer = "1db3d8"
 text = """
 武具１
 """
+text_pointer = "1db3d8"
+text_vma_pointer = "d8a32d00"
 
 [misc_string.0012]
-pointer = "1db3d0"
 text = """
 武具２
 """
+text_pointer = "1db3d0"
+text_vma_pointer = "d0a32d00"
 
 [misc_string.0013]
-pointer = "18d870"
 text = """
 セットする属性を選択してください。
 """
+text_pointer = "18d870"
+text_vma_pointer = "70c82800"
 
 [misc_string.0014]
-pointer = "1db3c8"
 text = """
 火
 """
+text_pointer = "1db3c8"
+text_vma_pointer = "c8a32d00"
 
 [misc_string.0015]
-pointer = "1db3c0"
 text = """
 水
 """
+text_pointer = "1db3c0"
+text_vma_pointer = "c0a32d00"
 
 [misc_string.0016]
-pointer = "1db3b8"
 text = """
 雷
 """
+text_pointer = "1db3b8"
+text_vma_pointer = "b8a32d00"
 
 [misc_string.0017]
-pointer = "1db3b0"
 text = """
 風
 """
+text_pointer = "1db3b0"
+text_vma_pointer = "b0a32d00"
 
 [misc_string.0018]
-pointer = "1db3a8"
 text = """
 　
 """
+text_pointer = "1db3a8"
+text_vma_pointer = "a8a32d00"
 
 [misc_string.0019]
-pointer = "1db3a8"
 text = """
 　
 """
+text_pointer = "1db3a8"
+text_vma_pointer = "a8a32d00"
 
 [misc_string.001a]
-pointer = "1db3a0"
 text = """
 解除
 """
+text_pointer = "1db3a0"
+text_vma_pointer = "a0a32d00"
 
 [misc_string.001b]
-pointer = "18d860"
 text = """
 モタビアの歴史
 """
+text_pointer = "18d860"
+text_vma_pointer = "60c82800"
 
 [misc_string.001c]
-pointer = "18d848"
 text = """
 バイオシステムとは
 """
+text_pointer = "18d848"
+text_vma_pointer = "48c82800"
 
 [misc_string.001d]
-pointer = "18d830"
 text = """
 アメダスについて
 """
+text_pointer = "18d830"
+text_vma_pointer = "30c82800"
 
 [misc_string.001e]
-pointer = "18d820"
 text = """
 ダムについて
 """
+text_pointer = "18d820"
+text_vma_pointer = "20c82800"
 
 [misc_string.001f]
-pointer = "18d808"
 text = """
 マザーブレインとは
 """
+text_pointer = "18d808"
+text_vma_pointer = "08c82800"
 
 [misc_string.0020]
-pointer = "18d7f8"
 text = """
 首都パセオ
 """
+text_pointer = "18d7f8"
+text_vma_pointer = "f8c72800"
 
 [misc_string.0021]
-pointer = "18d7e8"
 text = """
 アリマーヤの街
 """
+text_pointer = "18d7e8"
+text_vma_pointer = "e8c72800"
 
 [misc_string.0022]
-pointer = "18d7d8"
 text = """
 オプタノの街
 """
+text_pointer = "18d7d8"
+text_vma_pointer = "d8c72800"
 
 [misc_string.0023]
-pointer = "18d7c8"
 text = """
 ゼマの街
 """
+text_pointer = "18d7c8"
+text_vma_pointer = "c8c72800"
 
 [misc_string.0024]
-pointer = "18d7b8"
 text = """
 クエリスの街
 """
+text_pointer = "18d7b8"
+text_vma_pointer = "b8c72800"
 
 [misc_string.0025]
-pointer = "18d7a8"
 text = """
 ピアタの街
 """
+text_pointer = "18d7a8"
+text_vma_pointer = "a8c72800"
 
 [misc_string.0026]
-pointer = "18d798"
 text = """
 アウクバルの街
 """
+text_pointer = "18d798"
+text_vma_pointer = "98c72800"
 
 [misc_string.0027]
-pointer = "18d788"
 text = """
 ゾーサの街
 """
+text_pointer = "18d788"
+text_vma_pointer = "88c72800"
 
 [misc_string.0028]
-pointer = "18d778"
 text = """
 リュオンの街
 """
+text_pointer = "18d778"
+text_vma_pointer = "78c72800"
 
 [misc_string.0029]
-pointer = "18d768"
 text = """
 スクレの地下道
 """
+text_pointer = "18d768"
+text_vma_pointer = "68c72800"
 
 [misc_string.002a]
-pointer = "1db398"
 text = """
 はい
 """
+text_pointer = "1db398"
+text_vma_pointer = "98a32d00"
 
 [misc_string.002b]
-pointer = "1db390"
 text = """
 いいえ
 """
+text_pointer = "1db390"
+text_vma_pointer = "90a32d00"
 
 [misc_string.002c]
-pointer = "18d758"
 text = """
 傷の治療
 """
+text_pointer = "18d758"
+text_vma_pointer = "58c72800"
 
 [misc_string.002d]
-pointer = "18d748"
 text = """
 毒の治療
 """
+text_pointer = "18d748"
+text_vma_pointer = "48c72800"
 
 [misc_string.002e]
-pointer = "18d718"
 text = """
 これ以上アイテムを持つことはできません。
 """
+text_pointer = "18d718"
+text_vma_pointer = "18c72800"
 
 [misc_string.002f]
-pointer = "18d6e8"
 text = """
 これ以上アイテムを倉庫に移動できません。
 """
+text_pointer = "18d6e8"
+text_vma_pointer = "e8c62800"
 
 [misc_string.0030]
-pointer = "18d6d0"
 text = """
 〜を買いますか？
 """
+text_pointer = "18d6d0"
+text_vma_pointer = "d0c62800"
 
 [misc_string.0031]
-pointer = "1db388"
 text = """
 使う
 """
+text_pointer = "1db388"
+text_vma_pointer = "88a32d00"
 
 [misc_string.0032]
-pointer = "1db380"
 text = """
 捨てる
 """
+text_pointer = "1db380"
+text_vma_pointer = "80a32d00"
 
 [misc_string.0033]
-pointer = "18d6c0"
 text = """
 サウンド
 """
+text_pointer = "18d6c0"
+text_vma_pointer = "c0c62800"
 
 [misc_string.0034]
-pointer = "18d6b0"
 text = """
 戦闘背景
 """
+text_pointer = "18d6b0"
+text_vma_pointer = "b0c62800"
 
 [misc_string.0035]
-pointer = "18d6a0"
 text = """
 パイプの表示
 """
+text_pointer = "18d6a0"
+text_vma_pointer = "a0c62800"
 
 [misc_string.0036]
-pointer = "18d690"
 text = """
 メッセージ速度
 """
+text_pointer = "18d690"
+text_vma_pointer = "90c62800"
 
 [misc_string.0037]
-pointer = "1db378"
 text = """
 振動
 """
+text_pointer = "1db378"
+text_vma_pointer = "78a32d00"
 
 [misc_string.0038]
-pointer = "1db370"
 text = """
 中断
 """
+text_pointer = "1db370"
+text_vma_pointer = "70a32d00"
 
 [misc_string.0039]
-pointer = "18d680"
 text = """
 タイトルに戻る
 """
+text_pointer = "18d680"
+text_vma_pointer = "80c62800"
 
 [misc_string.003a]
-pointer = "18d670"
 text = """
 ステレオ
 """
+text_pointer = "18d670"
+text_vma_pointer = "70c62800"
 
 [misc_string.003b]
-pointer = "18d660"
 text = """
 モノラル
 """
+text_pointer = "18d660"
+text_vma_pointer = "60c62800"
 
 [misc_string.003c]
-pointer = "18d650"
 text = """
 アレンジ
 """
+text_pointer = "18d650"
+text_vma_pointer = "50c62800"
 
 [misc_string.003d]
-pointer = "18d640"
 text = """
 オリジナル
 """
+text_pointer = "18d640"
+text_vma_pointer = "40c62800"
 
 [misc_string.003e]
-pointer = "1db368"
 text = """
 ＯＮ
 """
+text_pointer = "1db368"
+text_vma_pointer = "68a32d00"
 
 [misc_string.003f]
-pointer = "1db360"
 text = """
 ＯＦＦ
 """
+text_pointer = "1db360"
+text_vma_pointer = "60a32d00"
 
 [misc_string.0040]
-pointer = "1db358"
 text = """
 早い
 """
+text_pointer = "1db358"
+text_vma_pointer = "58a32d00"
 
 [misc_string.0041]
-pointer = "1db350"
 text = """
 普通
 """
+text_pointer = "1db350"
+text_vma_pointer = "50a32d00"
 
 [misc_string.0042]
-pointer = "1db348"
 text = """
 遅い
 """
+text_pointer = "1db348"
+text_vma_pointer = "48a32d00"
 
 [misc_string.0043]
-pointer = "18d620"
 text = """
 上書きしてよろしいですか？
 """
+text_pointer = "18d620"
+text_vma_pointer = "20c62800"
 
 [misc_string.0044]
-pointer = "18d608"
 text = """
 セーブが終了しました。
 """
+text_pointer = "18d608"
+text_vma_pointer = "08c62800"
 
 [misc_string.0045]
-pointer = "18d5e0"
 text = """
 中断データを上書きしてよろしいですか？
 """
+text_pointer = "18d5e0"
+text_vma_pointer = "e0c52800"
 
 [misc_string.0046]
-pointer = "18d5a8"
 text = """
 中断データをセーブしました。タイトルに戻ります。
 """
+text_pointer = "18d5a8"
+text_vma_pointer = "a8c52800"
 
 [misc_string.0047]
-pointer = "1db340"
 text = """
 作製
 """
+text_pointer = "1db340"
+text_vma_pointer = "40a32d00"
 
 [misc_string.0048]
-pointer = "1db338"
 text = """
 訓練
 """
+text_pointer = "1db338"
+text_vma_pointer = "38a32d00"
 
 [misc_string.0049]
-pointer = "18d590"
 text = """
 何も起きなかった。
 """
+text_pointer = "18d590"
+text_vma_pointer = "90c52800"
 
 [misc_string.004a]
-pointer = "18d9c0"
 text = """
 ファンタシースプレイト
 """
+text_pointer = "18d9c0"
+text_vma_pointer = "c0c92800"
 
 [misc_string.004b]
-pointer = "18d9b0"
 text = """
 オープニング
 """
+text_pointer = "18d9b0"
+text_vma_pointer = "b0c92800"
 
 [misc_string.004c]
-pointer = "1db480"
 text = """
 街１
 """
+text_pointer = "1db480"
+text_vma_pointer = "80a42d00"
 
 [misc_string.004d]
-pointer = "18d998"
 text = """
 セントラルタワー
 """
+text_pointer = "18d998"
+text_vma_pointer = "98c92800"
 
 [misc_string.004e]
-pointer = "18d988"
 text = """
 主人公の家
 """
+text_pointer = "18d988"
+text_vma_pointer = "88c92800"
 
 [misc_string.004f]
-pointer = "1db478"
 text = """
 建物１
 """
+text_pointer = "1db478"
+text_vma_pointer = "78a42d00"
 
 [misc_string.0050]
-pointer = "1db470"
 text = """
 建物２
 """
+text_pointer = "1db470"
+text_vma_pointer = "70a42d00"
 
 [misc_string.0051]
-pointer = "18d978"
 text = """
 街の外１
 """
+text_pointer = "18d978"
+text_vma_pointer = "78c92800"
 
 [misc_string.0052]
-pointer = "1db468"
 text = """
 戦闘１
 """
+text_pointer = "1db468"
+text_vma_pointer = "68a42d00"
 
 [misc_string.0053]
-pointer = "18d968"
 text = """
 戦闘　勝利
 """
+text_pointer = "18d968"
+text_vma_pointer = "68c92800"
 
 [misc_string.0054]
-pointer = "18d958"
 text = """
 ゲームオーバー
 """
+text_pointer = "18d958"
+text_vma_pointer = "58c92800"
 
 [misc_string.0055]
-pointer = "18d948"
 text = """
 ダンジョン１
 """
+text_pointer = "18d948"
+text_vma_pointer = "48c92800"
 
 [misc_string.0056]
-pointer = "18d938"
 text = """
 ダンジョン２
 """
+text_pointer = "18d938"
+text_vma_pointer = "38c92800"
 
 [misc_string.0057]
-pointer = "1db460"
 text = """
 戦闘２
 """
+text_pointer = "1db460"
+text_vma_pointer = "60a42d00"
 
 [misc_string.0058]
-pointer = "1db458"
 text = """
 セリフ
 """
+text_pointer = "1db458"
+text_vma_pointer = "58a42d00"
 
 [misc_string.0059]
-pointer = "18d928"
 text = """
 ダンジョン３
 """
+text_pointer = "18d928"
+text_vma_pointer = "28c92800"
 
 [misc_string.005a]
-pointer = "1db450"
 text = """
 ムシカ
 """
+text_pointer = "1db450"
+text_vma_pointer = "50a42d00"
 
 [misc_string.005b]
-pointer = "18d918"
 text = """
 街の外２
 """
+text_pointer = "18d918"
+text_vma_pointer = "18c92800"
 
 [misc_string.005c]
-pointer = "1db448"
 text = """
 街２
 """
+text_pointer = "1db448"
+text_vma_pointer = "48a42d00"
 
 [misc_string.005d]
-pointer = "1db440"
 text = """
 ルツ
 """
+text_pointer = "1db440"
+text_vma_pointer = "40a42d00"
 
 [misc_string.005e]
-pointer = "1db438"
 text = """
 ノア
 """
+text_pointer = "1db438"
+text_vma_pointer = "38a42d00"
 
 [misc_string.005f]
-pointer = "18d908"
 text = """
 地球人類
 """
+text_pointer = "18d908"
+text_vma_pointer = "08c92800"
 
 [misc_string.0060]
-pointer = "1db430"
 text = """
 ＥＮＤ
 """
+text_pointer = "1db430"
+text_vma_pointer = "30a42d00"

@@ -1,6 +1,9 @@
 #![allow(clippy::arbitrary_source_item_ordering, reason = "not needed")]
 use crate::{
-    events::{DialogString, codec::decode_psg2_string},
+    events::{
+        DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
+        serialize_dialog_items,
+    },
     helpers::hex_edit_encode,
 };
 use alloc::collections::BTreeMap;
@@ -23,8 +26,11 @@ static CREDIT_FOOTER: [u8; CREDIT_ITEM_HEADER_SIZE] =
 #[derive(Serialize, Deserialize)]
 pub struct EndCreditItem {
     vertical_space: u16,
-    #[serde(flatten)]
-    credit_string: DialogString,
+    #[serde(
+        deserialize_with = "deserialize_dialog_items",
+        serialize_with = "serialize_dialog_items"
+    )]
+    text: Vec<DialogItem>,
 }
 
 #[inline]
@@ -102,7 +108,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             i,
             EndCreditItem {
                 vertical_space,
-                credit_string,
+                text: credit_string.text,
             },
         );
     }
@@ -121,8 +127,13 @@ pub async fn patch(
     for (_, end_credit_item) in end_credits {
         let EndCreditItem {
             vertical_space,
-            mut credit_string,
+            text,
         } = end_credit_item;
+
+        let mut credit_string = DialogString {
+            padded: false,
+            text,
+        };
 
         if log_enabled!(Level::Debug) {
             debug!("Debugged credit string: {credit_string:#?}");

@@ -84,6 +84,11 @@ pub struct Song {
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
     )]
+    name_vma_pointer: u32,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
     field_1: u32,
 }
 
@@ -93,12 +98,17 @@ pub struct MemcardOpt {
         deserialize_with = "deserialize_dialog_items",
         serialize_with = "serialize_dialog_items"
     )]
-    name: Vec<DialogItem>,
+    text: Vec<DialogItem>,
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
     )]
     name_pointer: u32,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
+    name_vma_pointer: u32,
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
@@ -118,6 +128,11 @@ pub struct Technique {
         deserialize_with = "deserialize_u32_hex"
     )]
     name_pointer: u32,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
+    name_vma_pointer: u32,
     #[serde(
         default,
         serialize_with = "serialize_u32_hex",
@@ -266,9 +281,12 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
             reader.read_exact(&mut field_bytes).await?;
             fields.push(field_bytes);
         }
+        let pointer_bytes = fields.pop().unwrap();
         let song = Song {
             name: Vec::new(),
-            name_pointer: u32::from_le_bytes(fields.pop().unwrap()),
+            name_pointer: u32::from_le_bytes(pointer_bytes)
+                - u32::try_from(POINTER_OFFSET).unwrap(),
+            name_vma_pointer: u32::from_be_bytes(pointer_bytes),
             field_1: u32::from_le_bytes(fields.pop().unwrap()),
         };
         songs.insert(Hexu32(u32::try_from(i).unwrap()), song);
@@ -278,9 +296,7 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
 
     for song in songs.values_mut() {
         reader
-            .seek(SeekFrom::Start(
-                u64::from(song.name_pointer) - POINTER_OFFSET as u64,
-            ))
+            .seek(SeekFrom::Start(u64::from(song.name_pointer)))
             .await?;
         let mut string_bytes = Vec::with_capacity(20);
         while let Ok(byte) = reader.read_u8().await
@@ -319,9 +335,12 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
             reader.read_exact(&mut field_bytes).await?;
             fields.push(field_bytes);
         }
+        let pointer_bytes = fields.pop().unwrap();
         let memcard_opt = MemcardOpt {
-            name: Vec::new(),
-            name_pointer: u32::from_le_bytes(fields.pop().unwrap()),
+            text: Vec::new(),
+            name_pointer: u32::from_le_bytes(pointer_bytes)
+                - u32::try_from(POINTER_OFFSET).unwrap(),
+            name_vma_pointer: u32::from_be_bytes(pointer_bytes),
             field_1: u32::from_le_bytes(fields.pop().unwrap()),
         };
         memcard_opts.insert(Hexu32(u32::try_from(i).unwrap()), memcard_opt);
@@ -331,9 +350,7 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
 
     for memcard_opt in memcard_opts.values_mut() {
         reader
-            .seek(SeekFrom::Start(
-                u64::from(memcard_opt.name_pointer) - POINTER_OFFSET as u64,
-            ))
+            .seek(SeekFrom::Start(u64::from(memcard_opt.name_pointer)))
             .await?;
         let mut string_bytes = Vec::with_capacity(20);
         while let Ok(byte) = reader.read_u8().await
@@ -341,7 +358,7 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
         {
             string_bytes.push(byte);
         }
-        memcard_opt.name = decode_psg2_string(string_bytes).text;
+        memcard_opt.text = decode_psg2_string(string_bytes).text;
         // name_pointers.insert(
         //     Hexu32(memcard_opt.name_pointer - 0xff000),
         //     (
@@ -373,9 +390,12 @@ pub async fn parse_techniques<R: AsyncBufRead + AsyncSeek + Unpin>(
             fields.push(field_bytes);
         }
         fields.reverse();
+        let pointer_bytes = fields.pop().unwrap();
         let technique = Technique {
             name: Vec::new(),
-            name_pointer: u32::from_le_bytes(fields.pop().unwrap()),
+            name_pointer: u32::from_le_bytes(pointer_bytes)
+                - u32::try_from(POINTER_OFFSET).unwrap(),
+            name_vma_pointer: u32::from_be_bytes(pointer_bytes),
             field_1: u32::from_le_bytes(fields.pop().unwrap()),
             field_2: u32::from_le_bytes(fields.pop().unwrap()),
             field_3: u32::from_le_bytes(fields.pop().unwrap()),
@@ -398,9 +418,7 @@ pub async fn parse_techniques<R: AsyncBufRead + AsyncSeek + Unpin>(
 
     for technique in techniques.values_mut() {
         reader
-            .seek(SeekFrom::Start(
-                u64::from(technique.name_pointer) - POINTER_OFFSET as u64,
-            ))
+            .seek(SeekFrom::Start(u64::from(technique.name_pointer)))
             .await?;
         let mut string_bytes = Vec::with_capacity(20);
         while let Ok(byte) = reader.read_u8().await
@@ -564,9 +582,18 @@ use tokio::io::{AsyncBufRead, AsyncBufReadExt, AsyncReadExt, AsyncSeek, AsyncSee
 
 #[derive(Serialize, Deserialize)]
 pub struct JumplistString {
-    pointer: Hexu32,
     #[serde(flatten)]
     string: DialogString,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
+    text_pointer: u32, // Pointer to the string
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
+    text_vma_pointer: u32, // Literal VMA pointer to the string
 }
 
 pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
@@ -604,8 +631,9 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
         strings.insert(
             Hexu32(u32::try_from(number).unwrap()),
             JumplistString {
-                pointer: Hexu32(pointer - u32::try_from(POINTER_OFFSET).unwrap()),
                 string: engrish_str,
+                text_pointer: pointer - u32::try_from(POINTER_OFFSET).unwrap(),
+                text_vma_pointer: u32::from_le_bytes(pointer.to_be_bytes()),
             },
         );
     }

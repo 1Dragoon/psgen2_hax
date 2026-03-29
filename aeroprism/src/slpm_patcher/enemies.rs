@@ -188,6 +188,11 @@ pub struct EnemyInfo {
         deserialize_with = "deserialize_u32_hex"
     )]
     name_pointer: u32, // Pointer (alias?) to the enemy name string. First field.
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
+    name_vma_pointer: u32, // Literal VMA pointer to the enemy name string
     #[serde(flatten)]
     attributes: EnemyAttributes,
     health: u32, // Third field
@@ -433,9 +438,12 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             field_vec.push(field_bytes);
         }
         field_vec.reverse();
+        let pointer_bytes = field_vec.pop().unwrap();
         let enemy = EnemyInfo {
             name: Vec::new(),
-            name_pointer: u32::from_le_bytes(field_vec.pop().unwrap()),
+            name_pointer: u32::from_le_bytes(pointer_bytes)
+                - u32::try_from(POINTER_OFFSET).unwrap(),
+            name_vma_pointer: u32::from_be_bytes(pointer_bytes),
             attributes: EnemyAttributes::from(field_vec.pop().unwrap()),
             health: u32::from_le_bytes(field_vec.pop().unwrap()),
             attack: u32::from_le_bytes(field_vec.pop().unwrap()),
@@ -483,9 +491,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     // Fill in the enemy names
     for enemy in enemies.values_mut() {
         reader
-            .seek(SeekFrom::Start(
-                u64::from(enemy.name_pointer) - POINTER_OFFSET as u64,
-            ))
+            .seek(SeekFrom::Start(u64::from(enemy.name_pointer)))
             .await
             .unwrap();
         let mut string_bytes = Vec::with_capacity(20);
@@ -526,7 +532,7 @@ pub async fn patch(
     );
     for (_, enemy_info) in enemies {
         exec_writer
-            .write_all(&enemy_info.name_pointer.to_le_bytes())
+            .write_all(&enemy_info.name_vma_pointer.to_be_bytes())
             .await?;
         exec_writer
             .write_all(&u32::from(&enemy_info.attributes).to_be_bytes())

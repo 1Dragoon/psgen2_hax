@@ -61,6 +61,11 @@ pub struct ItemInfo {
         deserialize_with = "deserialize_u32_hex"
     )]
     name_pointer: u32,
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
+    name_vma_pointer: u32,
     #[serde(default, skip_serializing_if = "is_default")]
     equip_slot: ItemEquipSlot,
     #[serde(
@@ -143,7 +148,9 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             field_vec.push(field_bytes);
         }
         field_vec.reverse();
-        let name_pointer = u32::from_le_bytes(field_vec.pop().unwrap());
+        let pointer = field_vec.pop().unwrap();
+        let name_pointer = u32::from_le_bytes(pointer) - u32::try_from(POINTER_OFFSET).unwrap();
+        let name_vma_pointer = u32::from_be_bytes(pointer);
         let slot_data = field_vec.pop().unwrap();
         let slot_byte = slot_data[0];
         let field_1 = slot_data[1];
@@ -184,6 +191,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let item = ItemInfo {
             name: Vec::new(),
             name_pointer,
+            name_vma_pointer,
             equip_slot,
             field_1,
             field_2,
@@ -208,9 +216,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     // let mut item_pointers = BTreeMap::new();
     for item in items.values_mut() {
         reader
-            .seek(SeekFrom::Start(
-                u64::from(item.name_pointer) - POINTER_OFFSET as u64,
-            ))
+            .seek(SeekFrom::Start(u64::from(item.name_pointer)))
             .await
             .unwrap();
         let mut string_bytes = Vec::with_capacity(20);
@@ -252,7 +258,7 @@ pub async fn patch(
             equip_byte |= character as u8;
         }
         exec_writer
-            .write_all(&item.name_pointer.to_le_bytes())
+            .write_all(&item.name_vma_pointer.to_be_bytes())
             .await?;
         exec_writer.write_u8(item.equip_slot as u8).await?;
         exec_writer.write_u8(item.field_1).await?;
