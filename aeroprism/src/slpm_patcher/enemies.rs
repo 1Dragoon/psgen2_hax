@@ -4,14 +4,13 @@ use crate::{
         DialogItem, codec::decode_psg2_string, deserialize_dialog_items, serialize_dialog_items,
     },
     helpers::{deserialize_u32_hex, is_default, serialize_u32_hex},
-    slpm_patcher::{Elemental, Hexu32, POINTER_OFFSET},
+    slpm_patcher::{Hexu32, POINTER_OFFSET, SpellElemental},
 };
 use alloc::collections::BTreeMap;
 use core::mem::size_of;
 use log::warn;
 use serde::{Deserialize, Serialize};
 use std::io;
-use strum::IntoEnumIterator;
 use tokio::{
     fs::{self},
     io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, AsyncWriteExt, BufWriter, SeekFrom},
@@ -39,9 +38,9 @@ pub struct EnemyAttributes {
     // )]
     // attribute_field: u32, // All bytes of the attribute field. The below values will overwrite the data in this field if it is changed.
     #[serde(default, skip_serializing_if = "is_default")]
-    resistances: Box<[Elemental]>, // First four bits of first byte of attribute field
+    resistances: Box<[SpellElemental]>, // First four bits of first byte of attribute field
     #[serde(default, skip_serializing_if = "is_default")]
-    weaknesses: Box<[Elemental]>, // Second four bits of first byte of attribute field
+    weaknesses: Box<[SpellElemental]>, // Second four bits of first byte of attribute field
     #[serde(default, skip_serializing_if = "is_default")]
     field_1: u8, // Second byte of attribute field. Always appears to be zero.
     r#type: EnemyType, // First four bits of third byte of attribute field
@@ -84,18 +83,9 @@ impl From<[u8; 4]> for EnemyAttributes {
         // attributes.attribute_field = value;
         let resistances = attr_field[0] >> 4;
         let weaknesses = attr_field[0] & 0xf;
-        let mut r = Vec::with_capacity(4);
-        let mut w = Vec::with_capacity(4);
-        for ele in Elemental::iter() {
-            if resistances & ele as u8 == ele as u8 {
-                r.push(ele);
-            }
-            if weaknesses & ele as u8 == ele as u8 {
-                w.push(ele);
-            }
-        }
-        attributes.resistances = r.into_boxed_slice();
-        attributes.weaknesses = w.into_boxed_slice();
+        attributes.resistances = SpellElemental::multi_from_byte(resistances);
+        attributes.weaknesses = SpellElemental::multi_from_byte(weaknesses);
+
         attributes.field_1 = attr_field[1];
         let enemy_types = attr_field[2] >> 4;
         attributes.field_2 = attr_field[2] & 0xf;

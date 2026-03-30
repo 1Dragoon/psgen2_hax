@@ -6,13 +6,12 @@ use crate::{
         deserialize_u8_hex, deserialize_u16_hex, deserialize_u32_hex, is_default, is_u16_max,
         max_u16, serialize_u8_hex, serialize_u16_hex, serialize_u32_hex,
     },
-    slpm_patcher::{Hexu32, POINTER_OFFSET},
+    slpm_patcher::{Character, Hexu32, ItemElemental, POINTER_OFFSET},
 };
 use alloc::collections::BTreeMap;
 use core::mem::size_of;
 use serde::{Deserialize, Serialize};
 use std::io;
-use strum::{EnumIter, IntoEnumIterator};
 use tokio::{
     fs::{self},
     io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, AsyncWriteExt, BufWriter, SeekFrom},
@@ -34,19 +33,6 @@ enum ItemEquipSlot {
     Shield = 4,
     Torso = 5,
     Feet = 6,
-}
-
-#[repr(u8)]
-#[derive(EnumIter, Serialize, Deserialize, PartialEq, Copy, Clone)]
-enum Character {
-    Eusis = 0x01,
-    Nei = 0x02,
-    Rudger = 0x04,
-    Anne = 0x08,
-    Huey = 0x10,
-    Amia = 0x20,
-    Keinz = 0x40,
-    Silka = 0x80,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -74,28 +60,18 @@ pub struct ItemInfo {
         deserialize_with = "deserialize_u8_hex",
         skip_serializing_if = "is_default"
     )]
-    field_1: u8,
+    field_1: u8, // Appears unused
     #[serde(
         default = "max_u16",
         serialize_with = "serialize_u16_hex",
         deserialize_with = "deserialize_u16_hex",
         skip_serializing_if = "is_u16_max"
     )]
-    field_2: u16,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_3: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_4: u32,
+    field_2: u16, // Appears unused
+    #[serde(default, skip_serializing_if = "is_default")]
+    buy_price: u32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    sell_price: u32,
     #[serde(default, skip_serializing_if = "is_default")]
     can_equip: Box<[Character]>,
     #[serde(
@@ -104,14 +80,16 @@ pub struct ItemInfo {
         deserialize_with = "deserialize_u8_hex",
         skip_serializing_if = "is_default"
     )]
-    field_5: u8,
+    field_5: u8, // Appears unused
+    #[serde(default, skip_serializing_if = "is_default")]
+    elemental: Box<[ItemElemental]>,
     #[serde(
         default,
         serialize_with = "serialize_u16_hex",
         deserialize_with = "deserialize_u16_hex",
         skip_serializing_if = "is_default"
     )]
-    field_6: u16,
+    attributes: u16,
     #[serde(default, skip_serializing_if = "is_default")]
     attack: i16,
     #[serde(default, skip_serializing_if = "is_default")]
@@ -128,7 +106,7 @@ pub struct ItemInfo {
         deserialize_with = "deserialize_u16_hex",
         skip_serializing_if = "is_default"
     )]
-    field_7: u16,
+    field_7: u16, // Appears unused
 }
 
 #[inline]
@@ -155,15 +133,16 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let slot_byte = slot_data[0];
         let field_1 = slot_data[1];
         let field_2 = u16::from_le_bytes([slot_data[2], slot_data[3]]);
-        let field_3 = u32::from_le_bytes(field_vec.pop().unwrap());
-        let field_4 = u32::from_le_bytes(field_vec.pop().unwrap());
+        let buy_price = u32::from_le_bytes(field_vec.pop().unwrap());
+        let sell_price = u32::from_le_bytes(field_vec.pop().unwrap());
         let eq_f3 = field_vec.pop().unwrap();
         let at_de = field_vec.pop().unwrap();
         let sk_ag = field_vec.pop().unwrap();
         let lu_f4 = field_vec.pop().unwrap();
         let character_byte = eq_f3[0];
         let field_5 = eq_f3[1];
-        let field_6 = u16::from_le_bytes([eq_f3[2], eq_f3[3]]);
+        let elemental = ItemElemental::multi_from_byte(eq_f3[2]);
+        let attributes = u16::from_le_bytes([eq_f3[2], eq_f3[3]]);
         let attack = i16::from_le_bytes([at_de[0], at_de[1]]);
         let defense = i16::from_le_bytes([at_de[2], at_de[3]]);
         let skill = i16::from_le_bytes([sk_ag[0], sk_ag[1]]);
@@ -181,13 +160,6 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             _ => ItemEquipSlot::None,
         };
 
-        let mut chars = Vec::with_capacity(8);
-        for character in Character::iter() {
-            if character_byte & (character as u8) == (character as u8) {
-                chars.push(character);
-            }
-        }
-
         let item = ItemInfo {
             name: Vec::new(),
             name_pointer,
@@ -195,11 +167,12 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             equip_slot,
             field_1,
             field_2,
-            field_3,
-            field_4,
+            buy_price,
+            sell_price,
             field_5,
-            field_6,
-            can_equip: chars.into_boxed_slice(),
+            elemental,
+            attributes,
+            can_equip: Character::character_list_from_byte(character_byte),
             attack,
             defense,
             skill,
@@ -263,11 +236,15 @@ pub async fn patch(
         exec_writer.write_u8(item.equip_slot as u8).await?;
         exec_writer.write_u8(item.field_1).await?;
         exec_writer.write_all(&item.field_2.to_le_bytes()).await?;
-        exec_writer.write_all(&item.field_3.to_le_bytes()).await?;
-        exec_writer.write_all(&item.field_4.to_le_bytes()).await?;
+        exec_writer.write_all(&item.buy_price.to_le_bytes()).await?;
+        exec_writer
+            .write_all(&item.sell_price.to_le_bytes())
+            .await?;
         exec_writer.write_u8(equip_byte).await?;
         exec_writer.write_u8(item.field_5).await?;
-        exec_writer.write_all(&item.field_6.to_le_bytes()).await?;
+        exec_writer
+            .write_all(&item.attributes.to_le_bytes())
+            .await?;
         exec_writer.write_all(&item.attack.to_le_bytes()).await?;
         exec_writer.write_all(&item.defense.to_le_bytes()).await?;
         exec_writer.write_all(&item.skill.to_le_bytes()).await?;

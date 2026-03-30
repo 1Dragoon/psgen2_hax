@@ -2,25 +2,34 @@
 pub mod end_credits;
 pub mod enemies;
 pub mod items;
+pub mod techniques;
 use crate::{
     EXEC_STRUCTURES_FILENAME,
     events::{DialogItem, codec::decode_psg2_string, load_exec_struct_patch},
-    helpers::{is_default, save_binary_file, unset_readonly},
-    slpm_patcher::{end_credits::EndCreditItem, enemies::EnemyInfo, items::ItemInfo},
+    helpers::{save_binary_file, unset_readonly},
+    slpm_patcher::{
+        end_credits::EndCreditItem, enemies::EnemyInfo, items::ItemInfo, techniques::Technique,
+    },
 };
 use alloc::collections::BTreeMap;
 // use indexmap::IndexMap;
-use crate::events::{deserialize_dialog_items, serialize_dialog_items};
+use crate::{
+    events::{DialogString, deserialize_dialog_items, serialize_dialog_items},
+    helpers::{deserialize_u32_hex, serialize_u32_hex},
+};
 use log::{Level, info, log_enabled};
 use serde::{Deserialize, Serialize};
 use std::{
     io,
     path::{Path, PathBuf},
 };
-use strum::EnumIter;
+use strum::{EnumIter, IntoEnumIterator};
 use tokio::{
     fs::{self, OpenOptions},
-    io::{AsyncWriteExt, BufReader, BufWriter},
+    io::{
+        AsyncBufRead, AsyncBufReadExt, AsyncReadExt, AsyncSeek, AsyncSeekExt, AsyncWriteExt,
+        BufReader, BufWriter, SeekFrom,
+    },
 };
 
 // Via `readelf d:\SLPM_625.53 -l`
@@ -68,6 +77,31 @@ static MEMCARD_STRUCT_FIELDS: usize = 2;
 // static DUNNO_STRUCT_COUNT: usize = 9;
 // static DUNNO_STRUCT_FIELDS: usize = 2;
 
+#[repr(u8)]
+#[derive(EnumIter, Serialize, Deserialize, PartialEq, Copy, Clone)]
+enum Character {
+    Eusis = 0x01,
+    Nei = 0x02,
+    Rudger = 0x04,
+    Anne = 0x08,
+    Huey = 0x10,
+    Amia = 0x20,
+    Keinz = 0x40,
+    Silka = 0x80,
+}
+
+impl Character {
+    pub fn character_list_from_byte(character_byte: u8) -> Box<[Self]> {
+        let mut characters = Vec::with_capacity(8);
+        for character in Self::iter() {
+            if character_byte & (character as u8) == (character as u8) {
+                characters.push(character);
+            }
+        }
+        characters.into_boxed_slice()
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct Song {
     #[serde(
@@ -114,116 +148,6 @@ pub struct MemcardOpt {
         deserialize_with = "deserialize_u32_hex"
     )]
     field_1: u32,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct Technique {
-    #[serde(
-        deserialize_with = "deserialize_dialog_items",
-        serialize_with = "serialize_dialog_items"
-    )]
-    name: Vec<DialogItem>,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
-    name_pointer: u32,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
-    name_vma_pointer: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_1: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_2: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_3: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_4: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_5: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_6: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_7: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_8: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_9: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_10: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_11: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_12: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_13: u32,
 }
 
 // pub async fn parse_structs<R: AsyncBufRead + AsyncSeek + Unpin>(
@@ -375,74 +299,6 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
     Ok(memcard_opts)
 }
 
-pub async fn parse_techniques<R: AsyncBufRead + AsyncSeek + Unpin>(
-    reader: &mut R,
-) -> Result<BTreeMap<Hexu32, Technique>, io::Error> {
-    reader
-        .seek(SeekFrom::Start(TECHNIQUE_STRUCT_START as u64))
-        .await?;
-    let mut field_bytes = [0u8; 4];
-    let mut techniques = BTreeMap::new();
-    for i in 0..TECHNIQUE_STRUCT_COUNT {
-        let mut fields = Vec::with_capacity(TECHNIQUE_STRUCT_FIELDS);
-        for _ in 0..TECHNIQUE_STRUCT_FIELDS {
-            reader.read_exact(&mut field_bytes).await?;
-            fields.push(field_bytes);
-        }
-        fields.reverse();
-        let pointer_bytes = fields.pop().unwrap();
-        let technique = Technique {
-            name: Vec::new(),
-            name_pointer: u32::from_le_bytes(pointer_bytes)
-                - u32::try_from(POINTER_OFFSET).unwrap(),
-            name_vma_pointer: u32::from_be_bytes(pointer_bytes),
-            field_1: u32::from_le_bytes(fields.pop().unwrap()),
-            field_2: u32::from_le_bytes(fields.pop().unwrap()),
-            field_3: u32::from_le_bytes(fields.pop().unwrap()),
-            field_4: u32::from_le_bytes(fields.pop().unwrap()),
-            field_5: u32::from_le_bytes(fields.pop().unwrap()),
-            field_6: u32::from_le_bytes(fields.pop().unwrap()),
-            field_7: u32::from_le_bytes(fields.pop().unwrap()),
-            field_8: u32::from_le_bytes(fields.pop().unwrap()),
-            field_9: u32::from_le_bytes(fields.pop().unwrap()),
-            field_10: u32::from_le_bytes(fields.pop().unwrap()),
-            field_11: u32::from_le_bytes(fields.pop().unwrap()),
-            field_12: u32::from_le_bytes(fields.pop().unwrap()),
-            field_13: u32::from_le_bytes(fields.pop().unwrap()),
-        };
-
-        techniques.insert(Hexu32(u32::try_from(i).unwrap()), technique);
-    }
-
-    // let mut tech_pointers = BTreeMap::new();
-
-    for technique in techniques.values_mut() {
-        reader
-            .seek(SeekFrom::Start(u64::from(technique.name_pointer)))
-            .await?;
-        let mut string_bytes = Vec::with_capacity(20);
-        while let Ok(byte) = reader.read_u8().await
-            && byte != 0
-        {
-            string_bytes.push(byte);
-        }
-        technique.name = decode_psg2_string(string_bytes).text;
-        // tech_pointers.insert(
-        //     Hexu32(technique.name_pointer - 0xff000),
-        //     (
-        //         crate::helpers::encode_hex(&technique.name_pointer.to_le_bytes()),
-        //         technique.name.to_string(),
-        //     ),
-        // );
-    }
-    // let bytes = serde_json::to_string_pretty(&tech_pointers)
-    //     .unwrap()
-    //     .into_bytes();
-    // save_binary_file(&PathBuf::from("jap_tech_pointers.json"), &bytes).await?;
-
-    Ok(techniques)
-}
-
 #[derive(Serialize, Deserialize)]
 pub struct ExecStructures {
     // pub dunno_struct: indexmap::IndexMap<Hexu32, (DialogString, Vec<Hexu32>)>,
@@ -470,11 +326,44 @@ pub struct ExecStructures {
 
 #[repr(u8)]
 #[derive(EnumIter, Serialize, Deserialize, Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Debug)]
-enum Elemental {
+enum SpellElemental {
     Fire = 0x01,
     Ice = 0x02,
     Air = 0x04,
     Lightning = 0x08,
+}
+
+impl SpellElemental {
+    pub fn multi_from_byte(byte: u8) -> Box<[Self]> {
+        let mut elementals = Vec::with_capacity(4);
+        for ele in Self::iter() {
+            if byte & ele as u8 == ele as u8 {
+                elementals.push(ele);
+            }
+        }
+        elementals.into_boxed_slice()
+    }
+}
+
+#[repr(u8)]
+#[derive(EnumIter, Serialize, Deserialize, Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Debug)]
+enum ItemElemental {
+    Fire = 0x01,
+    Ice = 0x02,
+    Lightning = 0x04,
+    Air = 0x08,
+}
+
+impl ItemElemental {
+    pub fn multi_from_byte(byte: u8) -> Box<[Self]> {
+        let mut elementals = Vec::with_capacity(4);
+        for ele in Self::iter() {
+            if byte & ele as u8 == ele as u8 {
+                elementals.push(ele);
+            }
+        }
+        elementals.into_boxed_slice()
+    }
 }
 
 #[inline]
@@ -512,7 +401,7 @@ pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
         // dunno: parse_jumplist_strings(&mut elf_reader, DUNNO_JUMPLIST_START, DUNNO_JUMPLIST_FIELDS)
         //     .await?,
         memcard_opts: parse_memcard_opts(&mut elf_reader).await?,
-        techniques: parse_techniques(&mut elf_reader).await?,
+        techniques: techniques::parse(&mut elf_reader).await?,
         songs: parse_songs(&mut elf_reader).await?,
         items: items::parse(&mut elf_reader).await?,
         enemies: enemies::parse(&mut elf_reader).await?,
@@ -567,7 +456,6 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
     Ok(())
 }
 
-use crate::helpers::{deserialize_u32_hex, serialize_u32_hex};
 #[derive(Serialize, Deserialize, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct Hexu32(
     #[serde(
@@ -576,9 +464,6 @@ pub struct Hexu32(
     )]
     u32,
 );
-
-use crate::events::DialogString;
-use tokio::io::{AsyncBufRead, AsyncBufReadExt, AsyncReadExt, AsyncSeek, AsyncSeekExt, SeekFrom};
 
 #[derive(Serialize, Deserialize)]
 pub struct JumplistString {
