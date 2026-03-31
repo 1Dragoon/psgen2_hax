@@ -7,6 +7,7 @@ use crate::{
     },
 };
 use alloc::collections::BTreeMap;
+use strum::EnumIter;
 // use indexmap::IndexMap;
 use crate::{
     events::{deserialize_dialog_items, serialize_dialog_items},
@@ -15,6 +16,7 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::io;
 use tokio::io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, SeekFrom};
+use strum::IntoEnumIterator;
 
 #[derive(Serialize, Deserialize)]
 pub struct Technique {
@@ -42,6 +44,8 @@ pub struct Technique {
     attributes: u32,
     #[serde(default, skip_serializing_if = "is_default")]
     elemental: Box<[SpellElemental]>,
+    #[serde(default, skip_serializing_if = "is_default")]
+    vulnerable: Box<[Vulerabilities]>,
     #[serde(
         default,
         serialize_with = "serialize_u32_hex",
@@ -123,6 +127,27 @@ pub struct Technique {
     field_13: u32,
 }
 
+#[repr(u8)]
+#[derive(EnumIter, Serialize, Deserialize, Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Debug)]
+enum Vulerabilities {
+    Biologic = 0x1,
+    Robotic = 0x2,
+    NotBoss = 0x4,
+    NotSuperboss = 0x8,
+}
+
+impl Vulerabilities {
+    pub fn multi_from_byte(byte: u8) -> Box<[Self]> {
+        let mut elementals = Vec::with_capacity(4);
+        for ele in Self::iter() {
+            if byte & ele as u8 == ele as u8 {
+                elementals.push(ele);
+            }
+        }
+        elementals.into_boxed_slice()
+    }
+}
+
 pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
 ) -> Result<BTreeMap<Hexu32, Technique>, io::Error> {
@@ -141,6 +166,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let pointer_bytes = fields.pop().unwrap();
         let attributes = fields.pop().unwrap();
         let elemental = SpellElemental::multi_from_byte(attributes[0]);
+        let vulnerable = Vulerabilities::multi_from_byte(attributes[0] >> 4);
 
         let technique = Technique {
             name: Vec::new(),
@@ -149,6 +175,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             name_vma_pointer: u32::from_be_bytes(pointer_bytes),
             attributes: u32::from_le_bytes(attributes),
             elemental,
+            vulnerable,
             field_2: u32::from_le_bytes(fields.pop().unwrap()),
             tp_cost: u32::from_le_bytes(fields.pop().unwrap()),
             field_4: u32::from_le_bytes(fields.pop().unwrap()),

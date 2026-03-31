@@ -4,7 +4,7 @@ use crate::{
         DialogItem, codec::decode_psg2_string, deserialize_dialog_items, serialize_dialog_items,
     },
     helpers::{deserialize_u32_hex, is_default, serialize_u32_hex},
-    slpm_patcher::{Hexu32, POINTER_OFFSET, SpellElemental},
+    slpm_patcher::{EnemyType, Hexu32, POINTER_OFFSET, SpellElemental},
 };
 use alloc::collections::BTreeMap;
 use core::mem::size_of;
@@ -21,15 +21,6 @@ static ENEMY_STRUCT_SIZE: usize = 148;
 static ENEMY_STRUCT_COUNT: usize = 124;
 static ENEMY_STRUCT_FIELDS: usize = ENEMY_STRUCT_SIZE / size_of::<u32>();
 
-#[repr(u8)]
-#[derive(Serialize, Deserialize, Default, Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Debug)]
-enum EnemyType {
-    #[default]
-    Demonic, // First and second bits turned off. Effectively, the below two bits count as a weakness to certain techniques. This simply indicates immunity to both biologic and robitic techniques.
-    Biologic = 0x01,
-    Robotic = 0x02,
-}
-
 #[derive(Serialize, Deserialize, Default, Debug)]
 pub struct EnemyAttributes {
     // #[serde(
@@ -45,9 +36,9 @@ pub struct EnemyAttributes {
     field_1: u8, // Second byte of attribute field. Always appears to be zero.
     r#type: EnemyType, // First four bits of third byte of attribute field
     #[serde(default, skip_serializing_if = "is_default")]
-    gravito_immune: bool, // Mask: 0x04. Possessed by Dark Falz, Motherbrain, Neifirst (both occurrences) and Army Eye. Conveys immunity to gravito techs, possibly other effects.
+    boss: bool, // Mask: 0x04. Possessed by Dark Falz, Motherbrain, Neifirst (both occurrences) and Army Eye. Conveys immunity to certain techs, possibly other effects.
     #[serde(default, skip_serializing_if = "is_default")]
-    super_boss: bool, // Mask: 0x08. The name is just a guess. Only Dark Falz and Motherbrain appear to have the bit for this set. No idea what it does.
+    super_boss: bool, // Mask: 0x08. The name is just a guess. Only Dark Falz and Motherbrain appear to have the bit for this set. No idea what it does. May provide immunity to some things or have other effects.
     #[serde(default, skip_serializing_if = "is_default")]
     field_2: u8, // Second four bits of third byte of attribute field. Always appears to be zero.
     #[serde(default, skip_serializing_if = "is_default")]
@@ -99,7 +90,7 @@ impl From<[u8; 4]> for EnemyAttributes {
             );
         }
         if enemy_types & 0x4 == 0x4 {
-            attributes.gravito_immune = true;
+            attributes.boss = true;
         }
         if enemy_types & 0x8 == 0x8 {
             attributes.super_boss = true;
@@ -132,7 +123,7 @@ impl From<&EnemyAttributes> for u32 {
             weaknesses,
             field_1,
             r#type,
-            gravito_immune,
+            boss,
             super_boss,
             field_2,
             gfx_somepattern,
@@ -148,7 +139,7 @@ impl From<&EnemyAttributes> for u32 {
         }
 
         let mut etype = *r#type as u8;
-        if *gravito_immune {
+        if *boss {
             etype |= 0x4;
         }
         if *super_boss {

@@ -82,6 +82,8 @@ pub struct ItemInfo {
     )]
     field_5: u8, // Appears unused
     #[serde(default, skip_serializing_if = "is_default")]
+    paralysis: bool,
+    #[serde(default, skip_serializing_if = "is_default")]
     elemental: Box<[ItemElemental]>,
     #[serde(
         default,
@@ -142,6 +144,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let character_byte = eq_f3[0];
         let field_5 = eq_f3[1];
         let elemental = ItemElemental::multi_from_byte(eq_f3[2]);
+        let paralysis = eq_f3[2] & 0x10 == 0x10;
         let attributes = u16::from_le_bytes([eq_f3[2], eq_f3[3]]);
         let attack = i16::from_le_bytes([at_de[0], at_de[1]]);
         let defense = i16::from_le_bytes([at_de[2], at_de[3]]);
@@ -170,6 +173,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             buy_price,
             sell_price,
             field_5,
+            paralysis,
             elemental,
             attributes,
             can_equip: Character::character_list_from_byte(character_byte),

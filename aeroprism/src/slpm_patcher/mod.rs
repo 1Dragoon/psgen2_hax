@@ -325,6 +325,15 @@ pub struct ExecStructures {
 }
 
 #[repr(u8)]
+#[derive(Serialize, Deserialize, Default, Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Debug)]
+enum EnemyType {
+    #[default]
+    Demonic, // First and second bits turned off. Effectively, the below two bits count as a weakness to certain techniques. This simply indicates immunity to both biologic and robitic techniques.
+    Biologic = 0x01,
+    Robotic = 0x02,
+}
+
+#[repr(u8)]
 #[derive(EnumIter, Serialize, Deserialize, Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Debug)]
 enum SpellElemental {
     Fire = 0x01,
