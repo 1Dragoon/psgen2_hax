@@ -125,11 +125,7 @@ pub struct Song {
         deserialize_with = "deserialize_u32_hex"
     )]
     name_vma_pointer: u32,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
-    field_1: u32,
+    field_1: i32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -149,11 +145,7 @@ pub struct MemcardOpt {
         deserialize_with = "deserialize_u32_hex"
     )]
     name_vma_pointer: u32,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
-    field_1: u32,
+    field_1: i32,
 }
 
 // pub async fn parse_structs<R: AsyncBufRead + AsyncSeek + Unpin>(
@@ -217,7 +209,7 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
             name_pointer: u32::from_le_bytes(pointer_bytes)
                 - u32::try_from(POINTER_OFFSET).unwrap(),
             name_vma_pointer: u32::from_be_bytes(pointer_bytes),
-            field_1: u32::from_le_bytes(fields.pop().unwrap()),
+            field_1: i32::from_le_bytes(fields.pop().unwrap()),
         };
         songs.insert(Hexu32(u32::try_from(i).unwrap()), song);
     }
@@ -271,7 +263,7 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
             name_pointer: u32::from_le_bytes(pointer_bytes)
                 - u32::try_from(POINTER_OFFSET).unwrap(),
             name_vma_pointer: u32::from_be_bytes(pointer_bytes),
-            field_1: u32::from_le_bytes(fields.pop().unwrap()),
+            field_1: i32::from_le_bytes(fields.pop().unwrap()),
         };
         memcard_opts.insert(Hexu32(u32::try_from(i).unwrap()), memcard_opt);
     }

@@ -60,36 +60,38 @@ pub struct ItemInfo {
         deserialize_with = "deserialize_u8_hex",
         skip_serializing_if = "is_default"
     )]
-    field_1: u8, // Appears unused
+    field_1: u8, // Appears unused, probably MSB of 16-bit equip slot mask
     #[serde(
         default = "max_u16",
         serialize_with = "serialize_u16_hex",
         deserialize_with = "deserialize_u16_hex",
         skip_serializing_if = "is_u16_max"
     )]
-    field_2: u16, // Appears unused
+    field_2: u16, // Always seems to be 0xFFFF, maybe indicates unitialized data to align to next i32?
     #[serde(default, skip_serializing_if = "is_default")]
-    buy_price: u32,
+    buy_price: i32,
     #[serde(default, skip_serializing_if = "is_default")]
-    sell_price: u32,
+    sell_price: i32,
     #[serde(default, skip_serializing_if = "is_default")]
-    can_equip: Box<[Character]>,
+    can_equip: Box<[Character]>, // Character mask
     #[serde(
         default,
         serialize_with = "serialize_u8_hex",
         deserialize_with = "deserialize_u8_hex",
         skip_serializing_if = "is_default"
     )]
-    field_5: u8, // Appears unused
+    field_5: u8, // Appears unused, probably MSB of 16-bit character mask above
     #[serde(default, skip_serializing_if = "is_default")]
     enchantment: Box<[Enchant]>,
-    #[serde(
-        default,
-        serialize_with = "serialize_u16_hex",
-        deserialize_with = "deserialize_u16_hex",
-        skip_serializing_if = "is_default"
-    )]
-    attributes: u16,
+    #[serde(default, skip_serializing_if = "is_default")]
+    important: bool, // Indicates whether items are allowed to be sold, discarded, etc.
+    // #[serde(
+    //     default,
+    //     serialize_with = "serialize_u16_hex",
+    //     deserialize_with = "deserialize_u16_hex",
+    //     skip_serializing_if = "is_default"
+    // )]
+    // attributes: u16,
     #[serde(default, skip_serializing_if = "is_default")]
     attack: i16,
     #[serde(default, skip_serializing_if = "is_default")]
@@ -106,7 +108,7 @@ pub struct ItemInfo {
         deserialize_with = "deserialize_u16_hex",
         skip_serializing_if = "is_default"
     )]
-    field_7: u16, // Appears unused
+    field_7: u16, // Appears unused, probably final padding of this struct to align on 32-bit boundary
 }
 
 #[inline]
@@ -133,16 +135,17 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let slot_byte = slot_data[0];
         let field_1 = slot_data[1];
         let field_2 = u16::from_le_bytes([slot_data[2], slot_data[3]]);
-        let buy_price = u32::from_le_bytes(field_vec.pop().unwrap());
-        let sell_price = u32::from_le_bytes(field_vec.pop().unwrap());
-        let eq_f3 = field_vec.pop().unwrap();
+        let buy_price = i32::from_le_bytes(field_vec.pop().unwrap());
+        let sell_price = i32::from_le_bytes(field_vec.pop().unwrap());
+        let attributes = field_vec.pop().unwrap();
         let at_de = field_vec.pop().unwrap();
         let sk_ag = field_vec.pop().unwrap();
         let lu_f4 = field_vec.pop().unwrap();
-        let character_byte = eq_f3[0];
-        let field_5 = eq_f3[1];
-        let enchantment = Enchant::from_byte(eq_f3[2]);
-        let attributes = u16::from_le_bytes([eq_f3[2], eq_f3[3]]);
+        let character_equip_byte = attributes[0];
+        let field_5 = attributes[1];
+        let enchantment = Enchant::from_byte(attributes[2]);
+        let important = attributes[3] & 0x40 == 0x40;
+        // let attributes = u16::from_le_bytes([eq_f3[2], eq_f3[3]]);
         let attack = i16::from_le_bytes([at_de[0], at_de[1]]);
         let defense = i16::from_le_bytes([at_de[2], at_de[3]]);
         let skill = i16::from_le_bytes([sk_ag[0], sk_ag[1]]);
@@ -171,8 +174,9 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             sell_price,
             field_5,
             enchantment,
-            attributes,
-            can_equip: Character::from_byte(character_byte),
+            important,
+            // attributes,
+            can_equip: Character::from_byte(character_equip_byte),
             attack,
             defense,
             skill,
@@ -226,25 +230,23 @@ pub async fn patch(
         .unwrap();
     assert_eq!(ITEM_STRUCT_COUNT, items.len(), "Item count MUST be exact!");
     for (_, item) in items {
-        let mut equip_byte = 0;
-        for character in item.can_equip {
-            equip_byte |= character as u8;
-        }
+        // Calculate attributes field
+        let equip_byte = Character::to_byte(&item.can_equip);
+        let enchant_byte = Enchant::to_byte(&item.enchantment);
+        let padding = item.field_5;
+        let important = if item.important { 0x40 } else {0x00};
+
+        // Now write it all
         exec_writer
             .write_all(&item.name_vma_pointer.to_be_bytes())
             .await?;
-        exec_writer.write_u8(item.equip_slot as u8).await?;
-        exec_writer.write_u8(item.field_1).await?;
+        exec_writer.write_all(&[item.equip_slot as u8, item.field_1]).await?;
         exec_writer.write_all(&item.field_2.to_le_bytes()).await?;
         exec_writer.write_all(&item.buy_price.to_le_bytes()).await?;
         exec_writer
             .write_all(&item.sell_price.to_le_bytes())
             .await?;
-        exec_writer.write_u8(equip_byte).await?;
-        exec_writer.write_u8(item.field_5).await?;
-        exec_writer
-            .write_all(&item.attributes.to_le_bytes())
-            .await?;
+        exec_writer.write_all(&[equip_byte, enchant_byte, padding, important]).await?;
         exec_writer.write_all(&item.attack.to_le_bytes()).await?;
         exec_writer.write_all(&item.defense.to_le_bytes()).await?;
         exec_writer.write_all(&item.skill.to_le_bytes()).await?;

@@ -57,74 +57,54 @@ pub struct Technique {
     tp_cost: u32,
     #[serde(
         default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
         skip_serializing_if = "is_default"
     )]
-    field_4: u32,
+    field_4: i32,
     #[serde(
         default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
         skip_serializing_if = "is_default"
     )]
-    field_5: u32,
+    field_5: i32,
     #[serde(
         default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
         skip_serializing_if = "is_default"
     )]
-    field_6: u32,
+    field_6: i32,
     #[serde(
         default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
         skip_serializing_if = "is_default"
     )]
-    field_7: u32,
+    field_7: i32,
     #[serde(
         default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
         skip_serializing_if = "is_default"
     )]
-    field_8: u32,
+    field_8: i32,
     #[serde(
         default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
         skip_serializing_if = "is_default"
     )]
-    field_9: u32,
+    field_9: i32,
     #[serde(
         default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
         skip_serializing_if = "is_default"
     )]
-    field_10: u32,
+    field_10: i32,
     #[serde(
         default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
         skip_serializing_if = "is_default"
     )]
-    field_11: u32,
+    field_11: i32,
     #[serde(
         default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
         skip_serializing_if = "is_default"
     )]
-    field_12: u32,
+    field_12: i32,
     #[serde(
         default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
         skip_serializing_if = "is_default"
     )]
-    field_13: u32,
+    field_13: i32,
 }
 
 #[repr(u8)]
@@ -186,16 +166,16 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             vulnerable,
             field_2: u32::from_le_bytes(fields.pop().unwrap()),
             tp_cost: u32::from_le_bytes(fields.pop().unwrap()),
-            field_4: u32::from_le_bytes(fields.pop().unwrap()),
-            field_5: u32::from_le_bytes(fields.pop().unwrap()),
-            field_6: u32::from_le_bytes(fields.pop().unwrap()),
-            field_7: u32::from_le_bytes(fields.pop().unwrap()),
-            field_8: u32::from_le_bytes(fields.pop().unwrap()),
-            field_9: u32::from_le_bytes(fields.pop().unwrap()),
-            field_10: u32::from_le_bytes(fields.pop().unwrap()),
-            field_11: u32::from_le_bytes(fields.pop().unwrap()),
-            field_12: u32::from_le_bytes(fields.pop().unwrap()),
-            field_13: u32::from_le_bytes(fields.pop().unwrap()),
+            field_4: i32::from_le_bytes(fields.pop().unwrap()),
+            field_5: i32::from_le_bytes(fields.pop().unwrap()),
+            field_6: i32::from_le_bytes(fields.pop().unwrap()),
+            field_7: i32::from_le_bytes(fields.pop().unwrap()),
+            field_8: i32::from_le_bytes(fields.pop().unwrap()),
+            field_9: i32::from_le_bytes(fields.pop().unwrap()),
+            field_10: i32::from_le_bytes(fields.pop().unwrap()),
+            field_11: i32::from_le_bytes(fields.pop().unwrap()),
+            field_12: i32::from_le_bytes(fields.pop().unwrap()),
+            field_13: i32::from_le_bytes(fields.pop().unwrap()),
         };
 
         techniques.insert(Hexu32(u32::try_from(i).unwrap()), technique);

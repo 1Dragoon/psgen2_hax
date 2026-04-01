@@ -35,17 +35,16 @@ pub struct EnemyAttributes {
     #[serde(default, skip_serializing_if = "is_default")]
     field_1: u8, // Second byte of attribute field. Always appears to be zero.
     r#type: Box<[EnemyType]>, // First four bits of third byte of attribute field
-    // gfx_somepattern: GfxSomePattern, // Fourth byte of attribute field, first nibble. Flash and two other things, not sure which yet
     #[serde(default, skip_serializing_if = "is_default")]
-    effects: Box<[Effect]>, // Fourth byte of attribute field, second nibble. Controls whether the enemy floats and what float pattern is used
+    effect: Box<[Effect]>, // Fourth byte of attribute field. First nibble: Flash and two other things, not sure which yet. Second nibble: Controls whether the enemy animation hovers, flies, or neither.
 }
 
 #[repr(u8)]
 #[derive(EnumIter, Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 enum Effect {
-    EffectA = 0x10, // I.e. dark falz, mother brain, demons
+    EffectA = 0x10, // I.e. all bosses and most demons
     EffectB = 0x20, // I.e. grass killer, satman (robot)
-    EffectC = 0x40, // I.e. eyesore, heavy soldier
+    EffectC = 0x40, // I.e. eyesore, heavy soldier, some demons
     Fly = 0x01,     // I.e. mosquito and other flying bugs
     Hover = 0x04,   // I.e. spinner and hovering robots
 }
@@ -80,7 +79,7 @@ impl From<[u8; 4]> for EnemyAttributes {
             weaknesses: SpellElemental::from_byte(attr_field[0] & 0xf),
             field_1: attr_field[1],
             r#type: EnemyType::from_byte(attr_field[2]),
-            effects: Effect::from_byte(attr_field[3]),
+            effect: Effect::from_byte(attr_field[3]),
         }
     }
 }
@@ -95,7 +94,7 @@ impl From<&EnemyAttributes> for u32 {
             weaknesses,
             field_1,
             r#type,
-            effects,
+            effect: effects,
         } = value;
         // Fill resistances and weaknesses byte
         let mut rw = SpellElemental::to_byte(resistances) << 4;
@@ -135,126 +134,41 @@ pub struct EnemyInfo {
     defense: u32, // Fifth field
     #[serde(default, skip_serializing_if = "is_default")]
     agility: u32, // Sixth field. Controls chance to dodge your hits, possibly others.
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_7: u32, // These fields serve an unknown purpose. Possible values include: intellect, stamina, technique points
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_8: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_9: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_10: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_11: u32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_7: i32, // These fields serve an unknown purpose. Possible values include: intellect, stamina, technique points
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_8: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_9: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_10: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_11: i32,
     // 12 through 17 appear to control the art assets used for this enemy. E.g. dropping the data in these fields from mother brain into neifirst will make neifirst look like mother brain
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    art_1: u32, // Field 12
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    art_2: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    art_3: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    art_4: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    art_5: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    art_6: u32, // Field 17
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_18: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_19: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_20: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_21: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_22: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_23: u32,
+    #[serde(default)]
+    mondat_def: u32, // I think this mondat file describes image layouts
+    #[serde(default, skip_serializing_if = "is_default")]
+    mondat_body: u32, // Body art
+    #[serde(default, skip_serializing_if = "is_default")]
+    mondat_attack: u32, // Attack art
+    #[serde(default, skip_serializing_if = "is_default")]
+    mondat_special: u32, // Special attack art
+    #[serde(default, skip_serializing_if = "is_default")]
+    mondat_ultimate: u32, // Ultimate attack art
+    #[serde(default, skip_serializing_if = "is_default")]
+    mondat_body_extras: u32, // Extra body assets for enemies with large bodies
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_18: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_19: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_20: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_21: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_22: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_23: i32,
     #[serde(
         default,
         serialize_with = "serialize_u32_hex",
@@ -262,27 +176,12 @@ pub struct EnemyInfo {
         skip_serializing_if = "is_default"
     )]
     field_24: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_25: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_26: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_27: u32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_25: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_26: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_27: i32,
     #[serde(
         default,
         serialize_with = "serialize_u32_hex",
@@ -290,27 +189,12 @@ pub struct EnemyInfo {
         skip_serializing_if = "is_default"
     )]
     field_28: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_29: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_30: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_31: u32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_29: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_30: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_31: i32,
     #[serde(
         default,
         serialize_with = "serialize_u32_hex",
@@ -318,27 +202,12 @@ pub struct EnemyInfo {
         skip_serializing_if = "is_default"
     )]
     field_32: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_33: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_34: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_35: u32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_33: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_34: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_35: i32,
     #[serde(
         default,
         serialize_with = "serialize_u32_hex",
@@ -346,13 +215,8 @@ pub struct EnemyInfo {
         skip_serializing_if = "is_default"
     )]
     field_36: u32,
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_37: u32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    field_37: i32,
 }
 
 #[inline]
@@ -383,37 +247,37 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             attack: u32::from_le_bytes(field_vec.pop().unwrap()),
             defense: u32::from_le_bytes(field_vec.pop().unwrap()),
             agility: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_7: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_8: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_9: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_10: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_11: u32::from_le_bytes(field_vec.pop().unwrap()),
-            art_1: u32::from_le_bytes(field_vec.pop().unwrap()),
-            art_2: u32::from_le_bytes(field_vec.pop().unwrap()),
-            art_3: u32::from_le_bytes(field_vec.pop().unwrap()),
-            art_4: u32::from_le_bytes(field_vec.pop().unwrap()),
-            art_5: u32::from_le_bytes(field_vec.pop().unwrap()),
-            art_6: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_18: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_19: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_20: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_21: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_22: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_23: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_7: i32::from_le_bytes(field_vec.pop().unwrap()),
+            field_8: i32::from_le_bytes(field_vec.pop().unwrap()),
+            field_9: i32::from_le_bytes(field_vec.pop().unwrap()),
+            field_10: i32::from_le_bytes(field_vec.pop().unwrap()),
+            field_11: i32::from_le_bytes(field_vec.pop().unwrap()),
+            mondat_def: u32::from_le_bytes(field_vec.pop().unwrap()),
+            mondat_body: u32::from_le_bytes(field_vec.pop().unwrap()),
+            mondat_attack: u32::from_le_bytes(field_vec.pop().unwrap()),
+            mondat_special: u32::from_le_bytes(field_vec.pop().unwrap()),
+            mondat_ultimate: u32::from_le_bytes(field_vec.pop().unwrap()),
+            mondat_body_extras: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_18: i32::from_le_bytes(field_vec.pop().unwrap()),
+            field_19: i32::from_le_bytes(field_vec.pop().unwrap()),
+            field_20: i32::from_le_bytes(field_vec.pop().unwrap()),
+            field_21: i32::from_le_bytes(field_vec.pop().unwrap()),
+            field_22: i32::from_le_bytes(field_vec.pop().unwrap()),
+            field_23: i32::from_le_bytes(field_vec.pop().unwrap()),
             field_24: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_25: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_26: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_27: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_25: i32::from_le_bytes(field_vec.pop().unwrap()),
+            field_26: i32::from_le_bytes(field_vec.pop().unwrap()),
+            field_27: i32::from_le_bytes(field_vec.pop().unwrap()),
             field_28: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_29: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_30: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_31: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_29: i32::from_le_bytes(field_vec.pop().unwrap()),
+            field_30: i32::from_le_bytes(field_vec.pop().unwrap()),
+            field_31: i32::from_le_bytes(field_vec.pop().unwrap()),
             field_32: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_33: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_34: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_35: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_33: i32::from_le_bytes(field_vec.pop().unwrap()),
+            field_34: i32::from_le_bytes(field_vec.pop().unwrap()),
+            field_35: i32::from_le_bytes(field_vec.pop().unwrap()),
             field_36: u32::from_le_bytes(field_vec.pop().unwrap()),
-            field_37: u32::from_le_bytes(field_vec.pop().unwrap()),
+            field_37: i32::from_le_bytes(field_vec.pop().unwrap()),
         };
         enemies.insert(Hexu32(u32::try_from(enemy_no + 1usize).unwrap()), enemy);
     }
@@ -499,22 +363,22 @@ pub async fn patch(
             .write_all(&enemy_info.field_11.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&enemy_info.art_1.to_le_bytes())
+            .write_all(&enemy_info.mondat_def.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&enemy_info.art_2.to_le_bytes())
+            .write_all(&enemy_info.mondat_body.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&enemy_info.art_3.to_le_bytes())
+            .write_all(&enemy_info.mondat_attack.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&enemy_info.art_4.to_le_bytes())
+            .write_all(&enemy_info.mondat_special.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&enemy_info.art_5.to_le_bytes())
+            .write_all(&enemy_info.mondat_ultimate.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&enemy_info.art_6.to_le_bytes())
+            .write_all(&enemy_info.mondat_body_extras.to_le_bytes())
             .await?;
         exec_writer
             .write_all(&enemy_info.field_18.to_le_bytes())
