@@ -15,8 +15,8 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use std::io;
-use tokio::io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, SeekFrom};
 use strum::IntoEnumIterator;
+use tokio::io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, SeekFrom};
 
 #[derive(Serialize, Deserialize)]
 pub struct Technique {
@@ -137,14 +137,22 @@ enum Vulerabilities {
 }
 
 impl Vulerabilities {
-    pub fn multi_from_byte(byte: u8) -> Box<[Self]> {
-        let mut elementals = Vec::with_capacity(4);
-        for ele in Self::iter() {
-            if byte & ele as u8 == ele as u8 {
-                elementals.push(ele);
+    fn from_byte(byte: u8) -> Box<[Self]> {
+        let mut variants = Vec::with_capacity(8);
+        for variant in Self::iter() {
+            if byte & variant as u8 == variant as u8 {
+                variants.push(variant);
             }
         }
-        elementals.into_boxed_slice()
+        variants.into_boxed_slice()
+    }
+
+    fn to_byte(value: &[Self]) -> u8 {
+        let mut byte = 0;
+        for variant in value.iter().copied() {
+            byte |= variant as u8;
+        }
+        byte
     }
 }
 
@@ -165,8 +173,8 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         fields.reverse();
         let pointer_bytes = fields.pop().unwrap();
         let attributes = fields.pop().unwrap();
-        let elemental = SpellElemental::multi_from_byte(attributes[0]);
-        let vulnerable = Vulerabilities::multi_from_byte(attributes[0] >> 4);
+        let elemental = SpellElemental::from_byte(attributes[0] & 0xf);
+        let vulnerable = Vulerabilities::from_byte(attributes[0] >> 4);
 
         let technique = Technique {
             name: Vec::new(),

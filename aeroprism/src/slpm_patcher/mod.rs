@@ -5,18 +5,16 @@ pub mod items;
 pub mod techniques;
 use crate::{
     EXEC_STRUCTURES_FILENAME,
-    events::{DialogItem, codec::decode_psg2_string, load_exec_struct_patch},
-    helpers::{save_binary_file, unset_readonly},
+    events::{
+        DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
+        load_exec_struct_patch, serialize_dialog_items,
+    },
+    helpers::{deserialize_u32_hex, save_binary_file, serialize_u32_hex, unset_readonly},
     slpm_patcher::{
         end_credits::EndCreditItem, enemies::EnemyInfo, items::ItemInfo, techniques::Technique,
     },
 };
 use alloc::collections::BTreeMap;
-// use indexmap::IndexMap;
-use crate::{
-    events::{DialogString, deserialize_dialog_items, serialize_dialog_items},
-    helpers::{deserialize_u32_hex, serialize_u32_hex},
-};
 use log::{Level, info, log_enabled};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -91,14 +89,22 @@ enum Character {
 }
 
 impl Character {
-    pub fn character_list_from_byte(character_byte: u8) -> Box<[Self]> {
-        let mut characters = Vec::with_capacity(8);
-        for character in Self::iter() {
-            if character_byte & (character as u8) == (character as u8) {
-                characters.push(character);
+    fn from_byte(byte: u8) -> Box<[Self]> {
+        let mut variants = Vec::with_capacity(8);
+        for variant in Self::iter() {
+            if byte & variant as u8 == variant as u8 {
+                variants.push(variant);
             }
         }
-        characters.into_boxed_slice()
+        variants.into_boxed_slice()
+    }
+
+    fn to_byte(value: &[Self]) -> u8 {
+        let mut byte = 0;
+        for variant in value.iter().copied() {
+            byte |= variant as u8;
+        }
+        byte
     }
 }
 
@@ -325,12 +331,57 @@ pub struct ExecStructures {
 }
 
 #[repr(u8)]
-#[derive(Serialize, Deserialize, Default, Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Debug)]
+#[derive(
+    EnumIter,
+    Serialize,
+    Deserialize,
+    Default,
+    Copy,
+    Clone,
+    PartialEq,
+    PartialOrd,
+    Eq,
+    Ord,
+    Hash,
+    Debug,
+)]
 enum EnemyType {
     #[default]
     Demonic, // First and second bits turned off. Effectively, the below two bits count as a weakness to certain techniques. This simply indicates immunity to both biologic and robitic techniques.
-    Biologic = 0x01,
-    Robotic = 0x02,
+    Biologic = 0x10,
+    Robotic = 0x20,
+    Boss = 0x40, // Possessed by Dark Falz, Motherbrain, Neifirst (both occurrences) and Army Eye. Conveys immunity to certain techs, possibly other effects.
+    SuperBoss = 0x80, // The name is just a guess. Only Dark Falz and Motherbrain appear to have the bit for this set. No idea what it does. May provide immunity to some things or have other effects.
+    UnknownA = 0x01,
+    UnknownB = 0x02,
+    UnknownC = 0x04,
+    UnknownD = 0x08,
+}
+
+impl EnemyType {
+    fn from_byte(byte: u8) -> Box<[Self]> {
+        let mut variants = Vec::with_capacity(8);
+        for variant in Self::iter() {
+            if variant == Self::default() {
+                continue;
+            }
+            if byte & variant as u8 == variant as u8 {
+                variants.push(variant);
+            }
+        }
+        if byte & (Self::Biologic as u8 | Self::Robotic as u8) == 0 {
+            variants.push(Self::Demonic);
+        }
+        variants.into_boxed_slice()
+    }
+
+    fn to_byte(value: &[Self]) -> u8 {
+        let mut byte = 0;
+        for variant in value.iter().copied() {
+            byte |= variant as u8;
+        }
+        byte
+    }
 }
 
 #[repr(u8)]
@@ -343,35 +394,55 @@ enum SpellElemental {
 }
 
 impl SpellElemental {
-    pub fn multi_from_byte(byte: u8) -> Box<[Self]> {
-        let mut elementals = Vec::with_capacity(4);
-        for ele in Self::iter() {
-            if byte & ele as u8 == ele as u8 {
-                elementals.push(ele);
+    fn from_byte(byte: u8) -> Box<[Self]> {
+        let mut variants = Vec::with_capacity(8);
+        for variant in Self::iter() {
+            if byte & variant as u8 == variant as u8 {
+                variants.push(variant);
             }
         }
-        elementals.into_boxed_slice()
+        variants.into_boxed_slice()
+    }
+
+    fn to_byte(value: &[Self]) -> u8 {
+        let mut byte = 0;
+        for variant in value.iter().copied() {
+            byte |= variant as u8;
+        }
+        byte
     }
 }
 
 #[repr(u8)]
 #[derive(EnumIter, Serialize, Deserialize, Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Debug)]
-enum ItemElemental {
+enum Enchant {
     Fire = 0x01,
     Ice = 0x02,
     Lightning = 0x04,
     Air = 0x08,
+    Paralysis = 0x10,
+    UnknownB = 0x20,
+    UnknownC = 0x40,
+    UnknownD = 0x80,
 }
 
-impl ItemElemental {
-    pub fn multi_from_byte(byte: u8) -> Box<[Self]> {
-        let mut elementals = Vec::with_capacity(4);
-        for ele in Self::iter() {
-            if byte & ele as u8 == ele as u8 {
-                elementals.push(ele);
+impl Enchant {
+    fn from_byte(byte: u8) -> Box<[Self]> {
+        let mut variants = Vec::with_capacity(8);
+        for variant in Self::iter() {
+            if byte & variant as u8 == variant as u8 {
+                variants.push(variant);
             }
         }
-        elementals.into_boxed_slice()
+        variants.into_boxed_slice()
+    }
+
+    fn to_byte(value: &[Self]) -> u8 {
+        let mut byte = 0;
+        for variant in value.iter().copied() {
+            byte |= variant as u8;
+        }
+        byte
     }
 }
 

@@ -8,9 +8,9 @@ use crate::{
 };
 use alloc::collections::BTreeMap;
 use core::mem::size_of;
-use log::warn;
 use serde::{Deserialize, Serialize};
 use std::io;
+use strum::{EnumIter, IntoEnumIterator};
 use tokio::{
     fs::{self},
     io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, AsyncWriteExt, BufWriter, SeekFrom},
@@ -34,82 +34,54 @@ pub struct EnemyAttributes {
     weaknesses: Box<[SpellElemental]>, // Second four bits of first byte of attribute field
     #[serde(default, skip_serializing_if = "is_default")]
     field_1: u8, // Second byte of attribute field. Always appears to be zero.
-    r#type: EnemyType, // First four bits of third byte of attribute field
+    r#type: Box<[EnemyType]>, // First four bits of third byte of attribute field
+    // gfx_somepattern: GfxSomePattern, // Fourth byte of attribute field, first nibble. Flash and two other things, not sure which yet
     #[serde(default, skip_serializing_if = "is_default")]
-    boss: bool, // Mask: 0x04. Possessed by Dark Falz, Motherbrain, Neifirst (both occurrences) and Army Eye. Conveys immunity to certain techs, possibly other effects.
-    #[serde(default, skip_serializing_if = "is_default")]
-    super_boss: bool, // Mask: 0x08. The name is just a guess. Only Dark Falz and Motherbrain appear to have the bit for this set. No idea what it does. May provide immunity to some things or have other effects.
-    #[serde(default, skip_serializing_if = "is_default")]
-    field_2: u8, // Second four bits of third byte of attribute field. Always appears to be zero.
-    #[serde(default, skip_serializing_if = "is_default")]
-    gfx_somepattern: GfxSomePattern, // Fourth byte of attribute field, first nibble. Flash and two other things, not sure which yet
-    #[serde(default, skip_serializing_if = "is_default")]
-    gfx_float: GfxFloatPattern, // Fourth byte of attribute field, second nibble. Controls whether the enemy floats and what float pattern is used
+    effects: Box<[Effect]>, // Fourth byte of attribute field, second nibble. Controls whether the enemy floats and what float pattern is used
 }
 
 #[repr(u8)]
-#[derive(Serialize, Deserialize, Default, Debug, Copy, Clone, PartialEq, Eq)]
-enum GfxSomePattern {
-    #[default]
-    None = 0x0,
-    PatternA = 0x1, // I.e. dark falz, mother brain, demons
-    PatternB = 0x2, // I.e. grass killer, satman (robot)
-    PatternC = 0x4, // I.e. eyesore, heavy soldier
+#[derive(EnumIter, Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
+enum Effect {
+    EffectA = 0x10, // I.e. dark falz, mother brain, demons
+    EffectB = 0x20, // I.e. grass killer, satman (robot)
+    EffectC = 0x40, // I.e. eyesore, heavy soldier
+    Fly = 0x01,     // I.e. mosquito and other flying bugs
+    Hover = 0x04,   // I.e. spinner and hovering robots
 }
 
-#[repr(u8)]
-#[derive(Serialize, Deserialize, Default, Debug, Copy, Clone, PartialEq, Eq)]
-enum GfxFloatPattern {
-    #[default]
-    None = 0x0,
-    Fly = 0x1,   // I.e. mosquito and other flying bugs
-    Hover = 0x4, // I.e. spinner and hovering robots
+impl Effect {
+    fn from_byte(byte: u8) -> Box<[Self]> {
+        let mut variants = Vec::with_capacity(8);
+        for variant in Self::iter() {
+            if byte & variant as u8 == variant as u8 {
+                variants.push(variant);
+            }
+        }
+        variants.into_boxed_slice()
+    }
+
+    fn to_byte(value: &[Self]) -> u8 {
+        let mut byte = 0;
+        for variant in value.iter().copied() {
+            byte |= variant as u8;
+        }
+        byte
+    }
 }
 
 impl From<[u8; 4]> for EnemyAttributes {
     // De-bitpack the attributes field
     #[inline]
     fn from(attr_field: [u8; 4]) -> Self {
-        let mut attributes = Self::default();
-        // attributes.attribute_field = value;
-        let resistances = attr_field[0] >> 4;
-        let weaknesses = attr_field[0] & 0xf;
-        attributes.resistances = SpellElemental::multi_from_byte(resistances);
-        attributes.weaknesses = SpellElemental::multi_from_byte(weaknesses);
-
-        attributes.field_1 = attr_field[1];
-        let enemy_types = attr_field[2] >> 4;
-        attributes.field_2 = attr_field[2] & 0xf;
-        if enemy_types & 0x1 == 0x1 {
-            attributes.r#type = EnemyType::Biologic;
-        } else if enemy_types & 0x2 == 0x2 {
-            attributes.r#type = EnemyType::Robotic;
-        } else if enemy_types & 0x3 == 0x3 {
-            warn!(
-                "Enemy flagged as both biologic AND robotic! This is invalid. Defaulting to Demon"
-            );
+        Self {
+            // attribute_field, value,
+            resistances: SpellElemental::from_byte(attr_field[0] >> 4),
+            weaknesses: SpellElemental::from_byte(attr_field[0] & 0xf),
+            field_1: attr_field[1],
+            r#type: EnemyType::from_byte(attr_field[2]),
+            effects: Effect::from_byte(attr_field[3]),
         }
-        if enemy_types & 0x4 == 0x4 {
-            attributes.boss = true;
-        }
-        if enemy_types & 0x8 == 0x8 {
-            attributes.super_boss = true;
-        }
-        let float_pattern = attr_field[3] & 0xf;
-        let some_pattern = attr_field[3] >> 4;
-        if float_pattern & 0x1 == 0x1 {
-            attributes.gfx_float = GfxFloatPattern::Fly;
-        } else if float_pattern & 0x4 == 0x4 {
-            attributes.gfx_float = GfxFloatPattern::Hover;
-        }
-        if some_pattern & 0x1 == 0x1 {
-            attributes.gfx_somepattern = GfxSomePattern::PatternA;
-        } else if some_pattern & 0x2 == 0x2 {
-            attributes.gfx_somepattern = GfxSomePattern::PatternB;
-        } else if some_pattern & 0x4 == 0x4 {
-            attributes.gfx_somepattern = GfxSomePattern::PatternC;
-        }
-        attributes
     }
 }
 
@@ -123,37 +95,18 @@ impl From<&EnemyAttributes> for u32 {
             weaknesses,
             field_1,
             r#type,
-            boss,
-            super_boss,
-            field_2,
-            gfx_somepattern,
-            gfx_float,
+            effects,
         } = value;
         // Fill resistances and weaknesses byte
-        let mut rw = 0;
-        for ele in resistances {
-            rw |= (*ele as u8) << 4;
-        }
-        for ele in weaknesses {
-            rw |= *ele as u8;
-        }
+        let mut rw = SpellElemental::to_byte(resistances) << 4;
+        rw |= SpellElemental::to_byte(weaknesses);
 
-        let mut etype = *r#type as u8;
-        if *boss {
-            etype |= 0x4;
-        }
-        if *super_boss {
-            etype |= 0x8;
-        }
-        etype <<= 4;
-        etype |= field_2;
-
-        let mut gfx_effect = 0u8;
-        gfx_effect |= *gfx_somepattern as u8;
-        gfx_effect <<= 4;
-        gfx_effect |= *gfx_float as u8;
-
-        Self::from_be_bytes([rw, *field_1, etype, gfx_effect])
+        Self::from_be_bytes([
+            rw,
+            *field_1,
+            EnemyType::to_byte(r#type),
+            Effect::to_byte(effects),
+        ])
     }
 }
 
