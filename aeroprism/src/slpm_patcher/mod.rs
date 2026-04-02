@@ -300,8 +300,6 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
 #[derive(Serialize, Deserialize)]
 pub struct ExecStructures {
     // pub dunno_struct: indexmap::IndexMap<Hexu32, (DialogString, Vec<Hexu32>)>,
-    #[serde(rename = "memcard_opt")]
-    pub memcard_opts: BTreeMap<Hexu32, MemcardOpt>,
     #[serde(rename = "technique")]
     pub techniques: BTreeMap<Hexu32, Technique>,
     #[serde(rename = "song")]
@@ -319,6 +317,8 @@ pub struct ExecStructures {
     pub item_descriptions: BTreeMap<Hexu32, JumplistString>,
     #[serde(rename = "misc_string")]
     pub misc_strings: BTreeMap<Hexu32, JumplistString>,
+    #[serde(rename = "memcard_opt")]
+    pub memcard_opts: BTreeMap<Hexu32, MemcardOpt>,
     // pub dunno: BTreeMap<Hexu32, DialogString>,
 }
 

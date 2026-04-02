@@ -19,6 +19,56 @@ use strum::IntoEnumIterator;
 use tokio::io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, SeekFrom};
 
 #[derive(Serialize, Deserialize)]
+#[repr(i32)]
+enum Target {
+    SacrificeForAll = -7,
+    SacrificeForOne = -6,
+    AllyDead = -5,
+    AllButCaster = -4,
+    AllyAll = -3,
+    Ally = -2,
+    Caster = -1,
+    Enemy = 0,
+    EnemyGroup = 1,
+    EnemyAll = 5,
+}
+
+impl TryFrom<i32> for Target {
+    type Error = String;
+
+    fn try_from(value: i32) -> Result<Self, Self::Error> {
+        match value {
+            -7 => Ok(Self::SacrificeForAll),
+            -6 => Ok(Self::SacrificeForOne),
+            -5 => Ok(Self::AllyDead),
+            -4 => Ok(Self::AllButCaster),
+            -3 => Ok(Self::AllyAll),
+            -2 => Ok(Self::Ally),
+            -1 => Ok(Self::Caster),
+            0 => Ok(Self::Enemy),
+            1 => Ok(Self::EnemyGroup),
+            5 => Ok(Self::EnemyAll),
+            other => Err(format!("Invalid target value {other}")),
+        }
+    }
+}
+
+// Technique attributes
+enum WhereUsed {
+    BattleOffense = 0x04,
+    BattleDefense = 0x02,
+    Fastest = 0x10,
+    Medium = 0x00,
+    Slowest = 0x20,
+}
+
+// Technique field_2
+enum TechEffect {
+    InstaKill = 0x1000,
+    MaxValue = 0x8000,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct Technique {
     #[serde(
         deserialize_with = "deserialize_dialog_items",
@@ -55,56 +105,25 @@ pub struct Technique {
     field_2: u32,
     #[serde(default, skip_serializing_if = "is_default")]
     tp_cost: u32,
-    #[serde(
-        default,
-        skip_serializing_if = "is_default"
-    )]
-    field_4: i32,
-    #[serde(
-        default,
-        skip_serializing_if = "is_default"
-    )]
-    field_5: i32,
-    #[serde(
-        default,
-        skip_serializing_if = "is_default"
-    )]
-    field_6: i32,
-    #[serde(
-        default,
-        skip_serializing_if = "is_default"
-    )]
-    field_7: i32,
-    #[serde(
-        default,
-        skip_serializing_if = "is_default"
-    )]
-    field_8: i32,
-    #[serde(
-        default,
-        skip_serializing_if = "is_default"
-    )]
-    field_9: i32,
-    #[serde(
-        default,
-        skip_serializing_if = "is_default"
-    )]
-    field_10: i32,
-    #[serde(
-        default,
-        skip_serializing_if = "is_default"
-    )]
-    field_11: i32,
-    #[serde(
-        default,
-        skip_serializing_if = "is_default"
-    )]
-    field_12: i32,
-    #[serde(
-        default,
-        skip_serializing_if = "is_default"
-    )]
-    field_13: i32,
+    target: Target,
+    #[serde(default, skip_serializing_if = "is_default")]
+    power: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    eusis: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    nei: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    rudger: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    anne: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    huey: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    amia: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    keinz: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    silka: i32,
 }
 
 #[repr(u8)]
@@ -166,16 +185,16 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             vulnerable,
             field_2: u32::from_le_bytes(fields.pop().unwrap()),
             tp_cost: u32::from_le_bytes(fields.pop().unwrap()),
-            field_4: i32::from_le_bytes(fields.pop().unwrap()),
-            field_5: i32::from_le_bytes(fields.pop().unwrap()),
-            field_6: i32::from_le_bytes(fields.pop().unwrap()),
-            field_7: i32::from_le_bytes(fields.pop().unwrap()),
-            field_8: i32::from_le_bytes(fields.pop().unwrap()),
-            field_9: i32::from_le_bytes(fields.pop().unwrap()),
-            field_10: i32::from_le_bytes(fields.pop().unwrap()),
-            field_11: i32::from_le_bytes(fields.pop().unwrap()),
-            field_12: i32::from_le_bytes(fields.pop().unwrap()),
-            field_13: i32::from_le_bytes(fields.pop().unwrap()),
+            target: Target::try_from(i32::from_le_bytes(fields.pop().unwrap())).unwrap(),
+            power: i32::from_le_bytes(fields.pop().unwrap()),
+            eusis: i32::from_le_bytes(fields.pop().unwrap()),
+            nei: i32::from_le_bytes(fields.pop().unwrap()),
+            rudger: i32::from_le_bytes(fields.pop().unwrap()),
+            anne: i32::from_le_bytes(fields.pop().unwrap()),
+            huey: i32::from_le_bytes(fields.pop().unwrap()),
+            amia: i32::from_le_bytes(fields.pop().unwrap()),
+            keinz: i32::from_le_bytes(fields.pop().unwrap()),
+            silka: i32::from_le_bytes(fields.pop().unwrap()),
         };
 
         techniques.insert(Hexu32(u32::try_from(i).unwrap()), technique);

@@ -26,13 +26,30 @@ static ITEM_STRUCT_FIELDS: usize = ITEM_STRUCT_SIZE / size_of::<u32>();
 #[derive(Serialize, Deserialize, Default, PartialEq, Copy, Clone)]
 enum ItemEquipSlot {
     #[default]
-    None,
+    None = 0,
     OneHand = 1,
     TwoHand = 2,
     Head = 3,
     Shield = 4,
     Torso = 5,
     Feet = 6,
+}
+
+impl TryFrom<i16> for ItemEquipSlot {
+    type Error = String;
+
+    fn try_from(value: i16) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Self::None),
+            1 => Ok(Self::OneHand),
+            2 => Ok(Self::TwoHand),
+            3 => Ok(Self::Head),
+            4 => Ok(Self::Shield),
+            5 => Ok(Self::Torso),
+            6 => Ok(Self::Feet),
+            other => Err(format!("Invalid equip slot value {other}")),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -54,13 +71,6 @@ pub struct ItemInfo {
     name_vma_pointer: u32,
     #[serde(default, skip_serializing_if = "is_default")]
     equip_slot: ItemEquipSlot,
-    #[serde(
-        default,
-        serialize_with = "serialize_u8_hex",
-        deserialize_with = "deserialize_u8_hex",
-        skip_serializing_if = "is_default"
-    )]
-    field_1: u8, // Appears unused, probably MSB of 16-bit equip slot mask
     #[serde(
         default = "max_u16",
         serialize_with = "serialize_u16_hex",
@@ -85,13 +95,13 @@ pub struct ItemInfo {
     enchantment: Box<[Enchant]>,
     #[serde(default, skip_serializing_if = "is_default")]
     important: bool, // Indicates whether items are allowed to be sold, discarded, etc.
-    // #[serde(
-    //     default,
-    //     serialize_with = "serialize_u16_hex",
-    //     deserialize_with = "deserialize_u16_hex",
-    //     skip_serializing_if = "is_default"
-    // )]
-    // attributes: u16,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    attributes: u32,
     #[serde(default, skip_serializing_if = "is_default")]
     attack: i16,
     #[serde(default, skip_serializing_if = "is_default")]
@@ -132,8 +142,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let name_pointer = u32::from_le_bytes(pointer) - u32::try_from(POINTER_OFFSET).unwrap();
         let name_vma_pointer = u32::from_be_bytes(pointer);
         let slot_data = field_vec.pop().unwrap();
-        let slot_byte = slot_data[0];
-        let field_1 = slot_data[1];
+        let slot_val = i16::from_le_bytes([slot_data[0], slot_data[1]]);
         let field_2 = u16::from_le_bytes([slot_data[2], slot_data[3]]);
         let buy_price = i32::from_le_bytes(field_vec.pop().unwrap());
         let sell_price = i32::from_le_bytes(field_vec.pop().unwrap());
@@ -153,29 +162,20 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let luck = i16::from_le_bytes([lu_f4[0], lu_f4[1]]);
         let field_7 = u16::from_le_bytes([lu_f4[2], lu_f4[3]]);
 
-        let equip_slot = match slot_byte {
-            1 => ItemEquipSlot::OneHand,
-            2 => ItemEquipSlot::TwoHand,
-            3 => ItemEquipSlot::Head,
-            4 => ItemEquipSlot::Shield,
-            5 => ItemEquipSlot::Torso,
-            6 => ItemEquipSlot::Feet,
-            _ => ItemEquipSlot::None,
-        };
+        let equip_slot = ItemEquipSlot::try_from(slot_val).unwrap();
 
         let item = ItemInfo {
             name: Vec::new(),
             name_pointer,
             name_vma_pointer,
             equip_slot,
-            field_1,
             field_2,
             buy_price,
             sell_price,
             field_5,
             enchantment,
             important,
-            // attributes,
+            attributes: u32::from_le_bytes(attributes),
             can_equip: Character::from_byte(character_equip_byte),
             attack,
             defense,
@@ -234,19 +234,23 @@ pub async fn patch(
         let equip_byte = Character::to_byte(&item.can_equip);
         let enchant_byte = Enchant::to_byte(&item.enchantment);
         let padding = item.field_5;
-        let important = if item.important { 0x40 } else {0x00};
+        let important = if item.important { 0x40 } else { 0x00 };
 
         // Now write it all
         exec_writer
             .write_all(&item.name_vma_pointer.to_be_bytes())
             .await?;
-        exec_writer.write_all(&[item.equip_slot as u8, item.field_1]).await?;
+        exec_writer
+            .write_all(&(item.equip_slot as i16).to_le_bytes())
+            .await?;
         exec_writer.write_all(&item.field_2.to_le_bytes()).await?;
         exec_writer.write_all(&item.buy_price.to_le_bytes()).await?;
         exec_writer
             .write_all(&item.sell_price.to_le_bytes())
             .await?;
-        exec_writer.write_all(&[equip_byte, enchant_byte, padding, important]).await?;
+        exec_writer
+            .write_all(&[equip_byte, enchant_byte, padding, important])
+            .await?;
         exec_writer.write_all(&item.attack.to_le_bytes()).await?;
         exec_writer.write_all(&item.defense.to_le_bytes()).await?;
         exec_writer.write_all(&item.skill.to_le_bytes()).await?;
