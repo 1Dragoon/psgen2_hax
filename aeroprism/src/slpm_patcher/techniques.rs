@@ -2,11 +2,12 @@ use crate::{
     events::{DialogItem, codec::decode_psg2_string},
     helpers::is_default,
     slpm_patcher::{
-        Hexu32, POINTER_OFFSET, SpellElemental, TECHNIQUE_STRUCT_COUNT, TECHNIQUE_STRUCT_FIELDS,
-        TECHNIQUE_STRUCT_START,
+        Hexu32, POINTER_OFFSET, SpellElemental, StringMemRegion, TECHNIQUE_STRUCT_COUNT,
+        TECHNIQUE_STRUCT_FIELDS, TECHNIQUE_STRUCT_START,
     },
 };
 use alloc::collections::BTreeMap;
+use indexmap::IndexSet;
 use strum::EnumIter;
 // use indexmap::IndexMap;
 use crate::{
@@ -85,6 +86,7 @@ pub struct Technique {
         deserialize_with = "deserialize_u32_hex"
     )]
     name_vma_pointer: u32,
+    relative_name_pointer: (StringMemRegion, Hexu32),
     #[serde(
         default,
         serialize_with = "serialize_u32_hex",
@@ -163,6 +165,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         .await?;
     let mut field_bytes = [0u8; 4];
     let mut techniques = BTreeMap::new();
+    let mut relative_pointer_index = IndexSet::with_capacity(TECHNIQUE_STRUCT_COUNT);
     for i in 0..TECHNIQUE_STRUCT_COUNT {
         let mut fields = Vec::with_capacity(TECHNIQUE_STRUCT_FIELDS);
         for _ in 0..TECHNIQUE_STRUCT_FIELDS {
@@ -174,12 +177,15 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let attributes = fields.pop().unwrap();
         let elemental = SpellElemental::from_byte(attributes[0] & 0xf);
         let vulnerable = Vulerabilities::from_byte(attributes[0] >> 4);
+        let name_pointer =
+            u32::from_le_bytes(pointer_bytes) - u32::try_from(POINTER_OFFSET).unwrap();
+        relative_pointer_index.insert(name_pointer);
 
         let technique = Technique {
             name: Vec::new(),
-            name_pointer: u32::from_le_bytes(pointer_bytes)
-                - u32::try_from(POINTER_OFFSET).unwrap(),
+            name_pointer,
             name_vma_pointer: u32::from_be_bytes(pointer_bytes),
+            relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0)),
             attributes: u32::from_le_bytes(attributes),
             elemental,
             vulnerable,
@@ -199,6 +205,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
 
         techniques.insert(Hexu32(u32::try_from(i).unwrap()), technique);
     }
+    relative_pointer_index.sort_unstable();
 
     // let mut tech_pointers = BTreeMap::new();
 
@@ -213,6 +220,11 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         technique.name = decode_psg2_string(string_bytes).text;
+        let region = StringMemRegion::try_from(technique.name_pointer).unwrap();
+        let index = relative_pointer_index
+            .get_index_of(&technique.name_pointer)
+            .unwrap();
+        technique.relative_name_pointer = (region, Hexu32(u32::try_from(index).unwrap()));
         // tech_pointers.insert(
         //     Hexu32(technique.name_pointer - 0xff000),
         //     (

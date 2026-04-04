@@ -1,0 +1,69 @@
+string region A: 0x188770 - 0x1890B0
+string region E: 0x18C8F0 - 0x18DD88
+string region F: 0x1A89E0 - 0x1A9298
+string region C: 0x1A9AF0 - 0x1AD808
+string region D: 0x1B1840 - 0x1B1940
+string region B: 0x1DB218 - 0x1DB2D0
+string region G: 0x1DB680 - 0x1DB7A8
+string region H: 0x18DF18 - 0x18E0A0
+string region I: 0x1894E8 - 0x189690
+
+
+mapnames pointers A region start: 0x188770
+mapnames pointers A region end: 0x1890B0
+
+song string pointers B region start: 0x1894E8
+song string pointers B region end: 0x189690
+
+item pointers C region start 0x18C8F0
+item pointers C region end 0x18D590
+
+misc string pointers C2 region start: 0x18D590
+misc string pointers C2 region end: 0x18D9D8
+
+mc string pointers D region start: 0x18DF18
+mc string pointers D region end: 0x18E0A0
+
+techn name pointers E region start: 0x1A3AC8
+techn name pointers E region start: 0x1A3F18
+
+enemy pointers F region start: 0x1A89E0
+enemy pointers F region end: 0x1A9298
+
+menu pointers G region start: 0x1A9AF0
+menu pointers G region end: 0x1AAE88
+
+item desc pointers G2 region start: 0x1AA2E0
+item desc pointers G2 region end: 0x1AD808
+
+item desc pointers H region start: 0x1B1840
+item desc pointers H region end: 0x1B1940
+
+mapnames pointers I region start: 0x1DB218
+mapnames pointers I region end: 0x1DB228
+
+song string pointers I2 region start: 0x1DB228
+song string pointers I2 region end: 0x1DB230
+
+item pointers J region start 0x1DB2D8
+item pointers J region end: 0x1DB330
+
+misc string pointers K region start: 0x1DB338
+misc string pointers K region end: 0x1DB488
+
+tech name pointers L region start: 0x1DB598
+tech name pointers L region end: 0x1DB618
+
+enemy pointers L2 region start: 0x1DB618
+enemy pointers L2 region end: 0x1DB638
+
+menu pointers M region start: 0x1DB680
+menu pointers M region end: 0x1DB7A8
+
+item desc pointers M2 region start: 0x1DB7A0
+item desc pointers M2 region end: 0x1DB7A8
+
+B region terminators:
+PTR: 0x1A4198 = 0x1DB638 (dummy)
+PTR: 0x161868 = 0x1DB640 (literal ???)
+

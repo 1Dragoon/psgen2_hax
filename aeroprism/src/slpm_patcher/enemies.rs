@@ -4,10 +4,11 @@ use crate::{
         DialogItem, codec::decode_psg2_string, deserialize_dialog_items, serialize_dialog_items,
     },
     helpers::{deserialize_u32_hex, is_default, serialize_u32_hex},
-    slpm_patcher::{EnemyType, Hexu32, POINTER_OFFSET, SpellElemental},
+    slpm_patcher::{EnemyType, Hexu32, POINTER_OFFSET, SpellElemental, StringMemRegion},
 };
 use alloc::collections::BTreeMap;
 use core::mem::size_of;
+use indexmap::IndexSet;
 use serde::{Deserialize, Serialize};
 use std::io;
 use strum::{EnumIter, IntoEnumIterator};
@@ -126,6 +127,7 @@ pub struct EnemyInfo {
         deserialize_with = "deserialize_u32_hex"
     )]
     name_vma_pointer: u32, // Literal VMA pointer to the enemy name string
+    relative_name_pointer: (StringMemRegion, Hexu32),
     #[serde(flatten)]
     attributes: EnemyAttributes,
     health: u32, // Third field
@@ -148,15 +150,15 @@ pub struct EnemyInfo {
     #[serde(default)]
     mondat_def: u32, // I think this mondat file describes image layouts
     #[serde(default, skip_serializing_if = "is_default")]
-    mondat_body: u32, // Body art
+    mondat_body_sprites: u32, // Body art
     #[serde(default, skip_serializing_if = "is_default")]
-    mondat_attack: u32, // Attack art
+    mondat_attack_sprites: u32, // Attack art
     #[serde(default, skip_serializing_if = "is_default")]
-    mondat_special: u32, // Special attack art
+    mondat_special_attack_sprites: u32, // Special attack art
     #[serde(default, skip_serializing_if = "is_default")]
-    mondat_ultimate: u32, // Ultimate attack art
+    mondat_ultimate_attack_sprites: u32, // Ultimate attack art
     #[serde(default, skip_serializing_if = "is_default")]
-    mondat_body_extras: u32, // Extra body assets for enemies with large bodies
+    mondat_large_body_sprites: u32, // Extra body assets for enemies with large bodies
     #[serde(default, skip_serializing_if = "is_default")]
     field_18: i32,
     #[serde(default, skip_serializing_if = "is_default")]
@@ -230,6 +232,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     let mut field_bytes = [0u8; 4];
     let mut field_vec = Vec::with_capacity(ENEMY_STRUCT_FIELDS);
     let mut enemies = BTreeMap::new();
+    let mut relative_pointer_index = IndexSet::with_capacity(ENEMY_STRUCT_COUNT);
     for enemy_no in 0..ENEMY_STRUCT_COUNT {
         for _field_no in 0..ENEMY_STRUCT_FIELDS {
             reader.read_exact(&mut field_bytes).await?;
@@ -237,11 +240,15 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         }
         field_vec.reverse();
         let pointer_bytes = field_vec.pop().unwrap();
+        let name_pointer =
+            u32::from_le_bytes(pointer_bytes) - u32::try_from(POINTER_OFFSET).unwrap();
+        relative_pointer_index.insert(name_pointer);
+
         let enemy = EnemyInfo {
             name: Vec::new(),
-            name_pointer: u32::from_le_bytes(pointer_bytes)
-                - u32::try_from(POINTER_OFFSET).unwrap(),
+            name_pointer,
             name_vma_pointer: u32::from_be_bytes(pointer_bytes),
+            relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0)),
             attributes: EnemyAttributes::from(field_vec.pop().unwrap()),
             health: u32::from_le_bytes(field_vec.pop().unwrap()),
             attack: u32::from_le_bytes(field_vec.pop().unwrap()),
@@ -253,11 +260,11 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             field_10: i32::from_le_bytes(field_vec.pop().unwrap()),
             field_11: i32::from_le_bytes(field_vec.pop().unwrap()),
             mondat_def: u32::from_le_bytes(field_vec.pop().unwrap()),
-            mondat_body: u32::from_le_bytes(field_vec.pop().unwrap()),
-            mondat_attack: u32::from_le_bytes(field_vec.pop().unwrap()),
-            mondat_special: u32::from_le_bytes(field_vec.pop().unwrap()),
-            mondat_ultimate: u32::from_le_bytes(field_vec.pop().unwrap()),
-            mondat_body_extras: u32::from_le_bytes(field_vec.pop().unwrap()),
+            mondat_body_sprites: u32::from_le_bytes(field_vec.pop().unwrap()),
+            mondat_attack_sprites: u32::from_le_bytes(field_vec.pop().unwrap()),
+            mondat_special_attack_sprites: u32::from_le_bytes(field_vec.pop().unwrap()),
+            mondat_ultimate_attack_sprites: u32::from_le_bytes(field_vec.pop().unwrap()),
+            mondat_large_body_sprites: u32::from_le_bytes(field_vec.pop().unwrap()),
             field_18: i32::from_le_bytes(field_vec.pop().unwrap()),
             field_19: i32::from_le_bytes(field_vec.pop().unwrap()),
             field_20: i32::from_le_bytes(field_vec.pop().unwrap()),
@@ -281,12 +288,13 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         };
         enemies.insert(Hexu32(u32::try_from(enemy_no + 1usize).unwrap()), enemy);
     }
+    relative_pointer_index.sort_unstable();
     // use crate::slpm_patcher::Hexu32;
     // use alloc::collections::BTreeMap;
     // use crate::helpers::{save_binary_file, encode_hex};
     // use std::path::PathBuf;
     // let mut enemy_pointers = BTreeMap::new();
-    // Fill in the enemy names
+    // Fill in the enemy names and relative pointers
     for enemy in enemies.values_mut() {
         reader
             .seek(SeekFrom::Start(u64::from(enemy.name_pointer)))
@@ -299,6 +307,11 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         enemy.name = decode_psg2_string(string_bytes).text;
+        let region = StringMemRegion::try_from(enemy.name_pointer).unwrap();
+        let index = relative_pointer_index
+            .get_index_of(&enemy.name_pointer)
+            .unwrap();
+        enemy.relative_name_pointer = (region, Hexu32(u32::try_from(index).unwrap()));
         // enemy_pointers.insert(
         //     Hexu32(enemy.name_pointer - 0xff000),
         //     (
@@ -366,19 +379,19 @@ pub async fn patch(
             .write_all(&enemy_info.mondat_def.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&enemy_info.mondat_body.to_le_bytes())
+            .write_all(&enemy_info.mondat_body_sprites.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&enemy_info.mondat_attack.to_le_bytes())
+            .write_all(&enemy_info.mondat_attack_sprites.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&enemy_info.mondat_special.to_le_bytes())
+            .write_all(&enemy_info.mondat_special_attack_sprites.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&enemy_info.mondat_ultimate.to_le_bytes())
+            .write_all(&enemy_info.mondat_ultimate_attack_sprites.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&enemy_info.mondat_body_extras.to_le_bytes())
+            .write_all(&enemy_info.mondat_large_body_sprites.to_le_bytes())
             .await?;
         exec_writer
             .write_all(&enemy_info.field_18.to_le_bytes())

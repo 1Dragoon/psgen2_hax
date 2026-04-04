@@ -6,10 +6,11 @@ use crate::{
         deserialize_u8_hex, deserialize_u16_hex, deserialize_u32_hex, is_default, is_u16_max,
         max_u16, serialize_u8_hex, serialize_u16_hex, serialize_u32_hex,
     },
-    slpm_patcher::{Character, Enchant, Hexu32, POINTER_OFFSET},
+    slpm_patcher::{Character, Enchant, Hexu32, POINTER_OFFSET, StringMemRegion},
 };
 use alloc::collections::BTreeMap;
 use core::mem::size_of;
+use indexmap::IndexSet;
 use serde::{Deserialize, Serialize};
 use std::io;
 use tokio::{
@@ -69,6 +70,7 @@ pub struct ItemInfo {
         deserialize_with = "deserialize_u32_hex"
     )]
     name_vma_pointer: u32,
+    relative_name_pointer: (StringMemRegion, Hexu32),
     #[serde(default, skip_serializing_if = "is_default")]
     equip_slot: ItemEquipSlot,
     #[serde(
@@ -132,6 +134,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     let mut field_bytes = [0u8; 4];
     let mut field_vec = Vec::with_capacity(ITEM_STRUCT_FIELDS);
     let mut items = BTreeMap::new();
+    let mut relative_pointer_index = IndexSet::with_capacity(ITEM_STRUCT_COUNT);
     for item_no in 0..ITEM_STRUCT_COUNT {
         for _field_no in 0..ITEM_STRUCT_FIELDS {
             reader.read_exact(&mut field_bytes).await?;
@@ -161,13 +164,14 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let agility = i16::from_le_bytes([sk_ag[2], sk_ag[3]]);
         let luck = i16::from_le_bytes([lu_f4[0], lu_f4[1]]);
         let field_7 = u16::from_le_bytes([lu_f4[2], lu_f4[3]]);
-
         let equip_slot = ItemEquipSlot::try_from(slot_val).unwrap();
+        relative_pointer_index.insert(name_pointer);
 
         let item = ItemInfo {
             name: Vec::new(),
             name_pointer,
             name_vma_pointer,
+            relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0)),
             equip_slot,
             field_2,
             buy_price,
@@ -186,6 +190,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         };
         items.insert(Hexu32(u32::try_from(item_no + 1).unwrap()), item);
     }
+    relative_pointer_index.sort_unstable();
     // use crate::slpm_patcher::Hexu32;
     // use alloc::collections::BTreeMap;
     // use crate::helpers::{save_binary_file, encode_hex};
@@ -204,6 +209,11 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         }
         let engrish_str = decode_psg2_string(string_bytes).text;
         item.name = engrish_str;
+        let region = StringMemRegion::try_from(item.name_pointer).unwrap();
+        let index = relative_pointer_index
+            .get_index_of(&item.name_pointer)
+            .unwrap();
+        item.relative_name_pointer = (region, Hexu32(u32::try_from(index).unwrap()));
         // item_pointers.insert(
         //     Hexu32(item.name_pointer - 0xff000),
         //     (

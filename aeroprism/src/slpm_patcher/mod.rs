@@ -15,6 +15,7 @@ use crate::{
     },
 };
 use alloc::collections::BTreeMap;
+use indexmap::IndexSet;
 use log::{Level, info, log_enabled};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -38,6 +39,7 @@ pub static POINTER_OFFSET: usize = VMA_OFFSET - FILE_OFFSET;
 
 static MAPNAMES_JUMPLIST_START: usize = 0x14_F798;
 static MAPNAMES_JUMPLIST_FIELDS: usize = 107;
+
 // static MAPNAMES_STRING_REGION_START: usize = 0x18_8770;
 // static MAPNAMES_STRING_REGION_END: usize = 0x18_90AF;
 
@@ -59,21 +61,81 @@ static ITEM_DESCRIPTION_JUMPLIST_FIELDS: usize = 195;
 // static ENEMY_NAMES_STRING_REGION_START: usize = 0x1A_89E0;
 // static ENEMY_NAMES_STRING_REGION_END: usize = 0x1A_929F;
 
-static TECHNIQUE_STRUCT_START: usize = 0x1A_28A0;
-static TECHNIQUE_STRUCT_COUNT: usize = 83;
-static TECHNIQUE_STRUCT_FIELDS: usize = 14;
+static MEMCARD_STRUCT_START: usize = 0x18_E0A0;
+static MEMCARD_STRUCT_COUNT: usize = 9;
+static MEMCARD_STRUCT_FIELDS: usize = 2;
 
 static MUSIC_STRUCT_START: usize = 0x18_9450;
 static MUSIC_STRUCT_COUNT: usize = 19;
 static MUSIC_STRUCT_FIELDS: usize = 2;
 
-static MEMCARD_STRUCT_START: usize = 0x18_E0A0;
-static MEMCARD_STRUCT_COUNT: usize = 9;
-static MEMCARD_STRUCT_FIELDS: usize = 2;
+static TECHNIQUE_STRUCT_START: usize = 0x1A_28A0;
+static TECHNIQUE_STRUCT_COUNT: usize = 83;
+static TECHNIQUE_STRUCT_FIELDS: usize = 14;
 
 // static DUNNO_STRUCT_START: usize = 0x18_E0A0; // end 1A3AC8
 // static DUNNO_STRUCT_COUNT: usize = 9;
 // static DUNNO_STRUCT_FIELDS: usize = 2;
+
+#[derive(Serialize, Deserialize, Ord, PartialOrd, Eq, PartialEq, Copy, Clone)]
+enum StringMemRegion {
+    RegionA,
+    RegionB,
+    RegionC,
+    RegionD,
+    RegionE,
+    RegionF,
+    RegionG,
+    RegionH,
+    RegionI,
+    RegionJ,
+    RegionK,
+    RegionL,
+    RegionM,
+}
+
+impl StringMemRegion {
+    const fn offset_size(self) -> (usize, usize) {
+        match self {
+            Self::RegionA => (0x18_8770, 0x940),
+            Self::RegionB => (0x18_94E8, 0x1a8),
+            Self::RegionC => (0x18_C8F0, 0x10e8),
+            Self::RegionD => (0x18_DF18, 0x188),
+            Self::RegionE => (0x1A_3AC8, 0x450),
+            Self::RegionF => (0x1A_89E0, 0x8b8),
+            Self::RegionG => (0x1A_9AF0, 0x3d18),
+            Self::RegionH => (0x1B_1840, 0x100),
+            Self::RegionI => (0x1D_B218, 0x18),
+            Self::RegionJ => (0x1D_B2D8, 0x58),
+            Self::RegionK => (0x1D_B338, 0x150),
+            Self::RegionL => (0x1D_B598, 0xa0),
+            Self::RegionM => (0x1D_B680, 0x128),
+        }
+    }
+}
+
+impl TryFrom<u32> for StringMemRegion {
+    type Error = String;
+
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        match value {
+            0x18_8770..0x18_90B0 => Ok(Self::RegionA),
+            0x18_94E8..0x18_9690 => Ok(Self::RegionB),
+            0x18_C8F0..0x18_D9D8 => Ok(Self::RegionC),
+            0x18_DF18..0x18_E0A0 => Ok(Self::RegionD),
+            0x1A_3AC8..0x1A_3F18 => Ok(Self::RegionE),
+            0x1A_89E0..0x1A_9298 => Ok(Self::RegionF),
+            0x1A_9AF0..0x1A_D808 => Ok(Self::RegionG),
+            0x1B_1840..0x1B_1940 => Ok(Self::RegionH),
+            0x1D_B218..0x1D_B230 => Ok(Self::RegionI),
+            0x1D_B2D8..0x1D_B330 => Ok(Self::RegionJ),
+            0x1D_B338..0x1D_B488 => Ok(Self::RegionK),
+            0x1D_B598..0x1D_B638 => Ok(Self::RegionL),
+            0x1D_B680..0x1D_B7A8 => Ok(Self::RegionM),
+            _ => Err(format!("No map region for address 0x{value:06x}")),
+        }
+    }
+}
 
 #[repr(u8)]
 #[derive(EnumIter, Serialize, Deserialize, PartialEq, Copy, Clone)]
@@ -125,6 +187,7 @@ pub struct Song {
         deserialize_with = "deserialize_u32_hex"
     )]
     name_vma_pointer: u32,
+    relative_name_pointer: (StringMemRegion, Hexu32),
     field_1: i32,
 }
 
@@ -145,6 +208,7 @@ pub struct MemcardOpt {
         deserialize_with = "deserialize_u32_hex"
     )]
     name_vma_pointer: u32,
+    relative_name_pointer: (StringMemRegion, Hexu32),
     field_1: i32,
 }
 
@@ -197,6 +261,7 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
         .await?;
     let mut field_bytes = [0u8; 4];
     let mut songs = BTreeMap::new();
+    let mut relative_pointer_index = IndexSet::with_capacity(MUSIC_STRUCT_COUNT);
     for i in 0..MUSIC_STRUCT_COUNT {
         let mut fields = Vec::with_capacity(MUSIC_STRUCT_FIELDS);
         for _ in 0..MUSIC_STRUCT_FIELDS {
@@ -204,15 +269,19 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
             fields.push(field_bytes);
         }
         let pointer_bytes = fields.pop().unwrap();
+        let name_pointer =
+            u32::from_le_bytes(pointer_bytes) - u32::try_from(POINTER_OFFSET).unwrap();
+        relative_pointer_index.insert(name_pointer);
         let song = Song {
             name: Vec::new(),
-            name_pointer: u32::from_le_bytes(pointer_bytes)
-                - u32::try_from(POINTER_OFFSET).unwrap(),
+            name_pointer,
             name_vma_pointer: u32::from_be_bytes(pointer_bytes),
+            relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0)),
             field_1: i32::from_le_bytes(fields.pop().unwrap()),
         };
         songs.insert(Hexu32(u32::try_from(i).unwrap()), song);
     }
+    relative_pointer_index.sort_unstable();
 
     // let mut name_pointers = BTreeMap::new();
 
@@ -227,6 +296,11 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         song.name = decode_psg2_string(string_bytes).text;
+        let region = StringMemRegion::try_from(song.name_pointer).unwrap();
+        let index = relative_pointer_index
+            .get_index_of(&song.name_pointer)
+            .unwrap();
+        song.relative_name_pointer = (region, Hexu32(u32::try_from(index).unwrap()));
         // name_pointers.insert(
         //     Hexu32(song.name_pointer - 0xff000),
         //     (
@@ -251,6 +325,7 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
         .await?;
     let mut field_bytes = [0u8; 4];
     let mut memcard_opts = BTreeMap::new();
+    let mut relative_pointer_index = IndexSet::with_capacity(MEMCARD_STRUCT_COUNT);
     for i in 0..MEMCARD_STRUCT_COUNT {
         let mut fields = Vec::with_capacity(MEMCARD_STRUCT_FIELDS);
         for _ in 0..MEMCARD_STRUCT_FIELDS {
@@ -258,15 +333,19 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
             fields.push(field_bytes);
         }
         let pointer_bytes = fields.pop().unwrap();
+        let name_pointer =
+            u32::from_le_bytes(pointer_bytes) - u32::try_from(POINTER_OFFSET).unwrap();
+        relative_pointer_index.insert(name_pointer);
         let memcard_opt = MemcardOpt {
             text: Vec::new(),
-            name_pointer: u32::from_le_bytes(pointer_bytes)
-                - u32::try_from(POINTER_OFFSET).unwrap(),
+            name_pointer,
             name_vma_pointer: u32::from_be_bytes(pointer_bytes),
+            relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0)),
             field_1: i32::from_le_bytes(fields.pop().unwrap()),
         };
         memcard_opts.insert(Hexu32(u32::try_from(i).unwrap()), memcard_opt);
     }
+    relative_pointer_index.sort_unstable();
 
     // let mut name_pointers = BTreeMap::new();
 
@@ -281,6 +360,11 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         memcard_opt.text = decode_psg2_string(string_bytes).text;
+        let region = StringMemRegion::try_from(memcard_opt.name_pointer).unwrap();
+        let index = relative_pointer_index
+            .get_index_of(&memcard_opt.name_pointer)
+            .unwrap();
+        memcard_opt.relative_name_pointer = (region, Hexu32(u32::try_from(index).unwrap()));
         // name_pointers.insert(
         //     Hexu32(memcard_opt.name_pointer - 0xff000),
         //     (
@@ -452,6 +536,16 @@ pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
             MAPNAMES_JUMPLIST_FIELDS,
         )
         .await?,
+        songs: parse_songs(&mut elf_reader).await?,
+        items: items::parse(&mut elf_reader).await?,
+        misc_strings: parse_jumplist_strings(
+            &mut elf_reader,
+            MISC_STRINGS_JUMPLIST_START,
+            MISC_STRINGS_JUMPLIST_FIELDS,
+        )
+        .await?,
+        techniques: techniques::parse(&mut elf_reader).await?,
+        enemies: enemies::parse(&mut elf_reader).await?,
         menu_text: parse_jumplist_strings(
             &mut elf_reader,
             MENU_TEXT_JUMPLIST_START,
@@ -464,19 +558,9 @@ pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
             ITEM_DESCRIPTION_JUMPLIST_FIELDS,
         )
         .await?,
-        misc_strings: parse_jumplist_strings(
-            &mut elf_reader,
-            MISC_STRINGS_JUMPLIST_START,
-            MISC_STRINGS_JUMPLIST_FIELDS,
-        )
-        .await?,
         // dunno: parse_jumplist_strings(&mut elf_reader, DUNNO_JUMPLIST_START, DUNNO_JUMPLIST_FIELDS)
         //     .await?,
         memcard_opts: parse_memcard_opts(&mut elf_reader).await?,
-        techniques: techniques::parse(&mut elf_reader).await?,
-        songs: parse_songs(&mut elf_reader).await?,
-        items: items::parse(&mut elf_reader).await?,
-        enemies: enemies::parse(&mut elf_reader).await?,
         end_credits: end_credits::parse(&mut elf_reader).await?,
         // dunno_struct: parse_structs(
         //     &mut elf_reader,
@@ -551,6 +635,7 @@ pub struct JumplistString {
         deserialize_with = "deserialize_u32_hex"
     )]
     text_vma_pointer: u32, // Literal VMA pointer to the string
+    relative_name_pointer: (StringMemRegion, Hexu32),
 }
 
 pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
@@ -562,10 +647,14 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
     let mut pointer_bytes = [0u8; 4];
     let mut pointer_vec = Vec::with_capacity(count);
     let mut strings = BTreeMap::new();
+    let mut relative_pointer_index = IndexSet::with_capacity(count);
     for i in 0..count {
         reader.read_exact(&mut pointer_bytes).await?;
-        pointer_vec.push((i, u32::from_le_bytes(pointer_bytes)));
+        let pointer = u32::from_le_bytes(pointer_bytes);
+        pointer_vec.push((i, pointer));
+        relative_pointer_index.insert(pointer);
     }
+    relative_pointer_index.sort_unstable();
     assert_eq!(
         pointer_vec.len(),
         count,
@@ -585,12 +674,16 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
             engrish_bytes.push(byte);
         }
         let engrish_str = decode_psg2_string(engrish_bytes);
+        let text_pointer = pointer - u32::try_from(POINTER_OFFSET).unwrap();
+        let region = StringMemRegion::try_from(text_pointer).unwrap();
+        let index = relative_pointer_index.get_index_of(&pointer).unwrap();
         strings.insert(
             Hexu32(u32::try_from(number).unwrap()),
             JumplistString {
                 string: engrish_str,
-                text_pointer: pointer - u32::try_from(POINTER_OFFSET).unwrap(),
+                text_pointer,
                 text_vma_pointer: u32::from_le_bytes(pointer.to_be_bytes()),
+                relative_name_pointer: (region, Hexu32(u32::try_from(index).unwrap())),
             },
         );
     }
