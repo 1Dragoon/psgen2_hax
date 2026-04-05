@@ -89,6 +89,7 @@ enum StringMemRegion {
     RegionH,
     RegionI,
     RegionJ,
+    RegionGoldenboy, // This memory region is possibly invalid...could cause bugs on a real PS2?
     RegionK,
     RegionL,
     RegionM,
@@ -107,6 +108,7 @@ impl StringMemRegion {
             Self::RegionH => (0x1B_1840, 0x100),
             Self::RegionI => (0x1D_B218, 0x18),
             Self::RegionJ => (0x1D_B2D8, 0x58),
+            Self::RegionGoldenboy => (0x1D_B330, 0x8),
             Self::RegionK => (0x1D_B338, 0x150),
             Self::RegionL => (0x1D_B598, 0xa0),
             Self::RegionM => (0x1D_B680, 0x128),
@@ -129,6 +131,7 @@ impl TryFrom<u32> for StringMemRegion {
             0x1B_1840..0x1B_1940 => Ok(Self::RegionH),
             0x1D_B218..0x1D_B230 => Ok(Self::RegionI),
             0x1D_B2D8..0x1D_B330 => Ok(Self::RegionJ),
+            0x1D_B330..0x1D_B338 => Ok(Self::RegionGoldenboy),
             0x1D_B338..0x1D_B488 => Ok(Self::RegionK),
             0x1D_B598..0x1D_B638 => Ok(Self::RegionL),
             0x1D_B680..0x1D_B7A8 => Ok(Self::RegionM),

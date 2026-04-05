@@ -21,7 +21,7 @@ use tokio::io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, SeekFrom};
 
 #[derive(Serialize, Deserialize)]
 #[repr(i32)]
-enum Target {
+enum TargetOptions {
     SacrificeForAll = -7,
     SacrificeForOne = -6,
     AllyDead = -5,
@@ -34,7 +34,7 @@ enum Target {
     EnemyAll = 5,
 }
 
-impl TryFrom<i32> for Target {
+impl TryFrom<i32> for TargetOptions {
     type Error = String;
 
     fn try_from(value: i32) -> Result<Self, Self::Error> {
@@ -107,7 +107,7 @@ pub struct Technique {
     field_2: u32,
     #[serde(default, skip_serializing_if = "is_default")]
     tp_cost: u32,
-    target: Target,
+    target: TargetOptions,
     #[serde(default, skip_serializing_if = "is_default")]
     power: i32,
     #[serde(default, skip_serializing_if = "is_default")]
@@ -191,7 +191,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             vulnerable,
             field_2: u32::from_le_bytes(fields.pop().unwrap()),
             tp_cost: u32::from_le_bytes(fields.pop().unwrap()),
-            target: Target::try_from(i32::from_le_bytes(fields.pop().unwrap())).unwrap(),
+            target: TargetOptions::try_from(i32::from_le_bytes(fields.pop().unwrap())).unwrap(),
             power: i32::from_le_bytes(fields.pop().unwrap()),
             eusis: i32::from_le_bytes(fields.pop().unwrap()),
             nei: i32::from_le_bytes(fields.pop().unwrap()),
