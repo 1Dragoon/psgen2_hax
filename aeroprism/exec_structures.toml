@@ -1638,7 +1638,6 @@ can_equip = [
     "Keinz",
     "Silka",
 ]
-attributes = "00fd"
 attack = 5
 
 [item.0002]
@@ -1663,7 +1662,6 @@ can_equip = [
     "Keinz",
     "Silka",
 ]
-attributes = "00fd"
 attack = 20
 defense = 3
 
@@ -1689,7 +1687,6 @@ can_equip = [
     "Keinz",
     "Silka",
 ]
-attributes = "00fd"
 attack = 28
 defense = 5
 
@@ -1711,7 +1708,6 @@ can_equip = [
     "Amia",
     "Silka",
 ]
-attributes = "00a8"
 attack = 26
 defense = 6
 skill = 1
@@ -1737,7 +1733,6 @@ can_equip = [
     "Keinz",
     "Silka",
 ]
-attributes = "00d4"
 attack = 8
 defense = 1
 
@@ -1755,7 +1750,6 @@ equip_slot = "OneHand"
 buy_price = 13000
 sell_price = 6500
 can_equip = ["Silka"]
-attributes = "0080"
 attack = 26
 defense = 4
 skill = 4
@@ -1776,7 +1770,6 @@ buy_price = 16000
 sell_price = 8000
 can_equip = ["Silka"]
 enchantment = ["Air"]
-attributes = "080080"
 attack = 32
 defense = 4
 skill = 8
@@ -1797,7 +1790,6 @@ equip_slot = "OneHand"
 buy_price = 18400
 sell_price = 9200
 can_equip = ["Silka"]
-attributes = "0080"
 attack = 45
 defense = 7
 
@@ -1818,7 +1810,6 @@ can_equip = [
     "Anne",
     "Huey",
 ]
-attributes = "0018"
 attack = 7
 
 [item.000a]
@@ -1838,7 +1829,6 @@ can_equip = [
     "Anne",
     "Huey",
 ]
-attributes = "0018"
 attack = 18
 defense = 2
 skill = 2
@@ -1858,7 +1848,6 @@ equip_slot = "TwoHand"
 buy_price = 1200
 sell_price = 600
 can_equip = ["Eusis"]
-attributes = "0001"
 attack = 36
 defense = 8
 
@@ -1876,7 +1865,6 @@ equip_slot = "TwoHand"
 buy_price = 3200
 sell_price = 1600
 can_equip = ["Eusis"]
-attributes = "0001"
 attack = 60
 defense = 10
 
@@ -1895,7 +1883,6 @@ buy_price = 16000
 sell_price = 8000
 can_equip = ["Eusis"]
 enchantment = ["Fire"]
-attributes = "010001"
 attack = 84
 defense = 12
 skill = 10
@@ -1915,7 +1902,6 @@ equip_slot = "TwoHand"
 buy_price = 5400
 sell_price = 2700
 can_equip = ["Eusis"]
-attributes = "0001"
 attack = 100
 defense = 18
 
@@ -1933,7 +1919,6 @@ equip_slot = "TwoHand"
 buy_price = 14000
 sell_price = 140
 can_equip = ["Eusis"]
-attributes = "0001"
 attack = 116
 
 [item.0010]
@@ -1950,7 +1935,6 @@ equip_slot = "TwoHand"
 buy_price = 18400
 sell_price = 9200
 can_equip = ["Eusis"]
-attributes = "0001"
 attack = 110
 defense = 16
 skill = 10
@@ -1970,7 +1954,6 @@ equip_slot = "TwoHand"
 buy_price = 22000
 sell_price = 11000
 can_equip = ["Eusis"]
-attributes = "0001"
 attack = 124
 defense = 14
 
@@ -1988,7 +1971,6 @@ equip_slot = "TwoHand"
 buy_price = 19600
 sell_price = 9800
 can_equip = ["Eusis"]
-attributes = "0001"
 attack = 138
 defense = 12
 skill = 16
@@ -2008,7 +1990,6 @@ equip_slot = "TwoHand"
 buy_price = 20000
 can_equip = ["Eusis"]
 important = true
-attributes = "40000001"
 attack = 150
 defense = 48
 
@@ -2027,7 +2008,6 @@ buy_price = 920
 sell_price = 460
 can_equip = ["Anne"]
 enchantment = ["Paralysis"]
-attributes = "100008"
 attack = 20
 
 [item.0015]
@@ -2047,7 +2027,6 @@ can_equip = [
     "Anne",
     "Huey",
 ]
-attributes = "0018"
 attack = 15
 
 [item.0016]
@@ -2067,7 +2046,6 @@ can_equip = [
     "Anne",
     "Huey",
 ]
-attributes = "0018"
 attack = 25
 
 [item.0017]
@@ -2087,7 +2065,6 @@ can_equip = [
     "Rudger",
     "Keinz",
 ]
-attributes = "0044"
 attack = 40
 
 [item.0018]
@@ -2108,7 +2085,6 @@ can_equip = [
     "Keinz",
 ]
 enchantment = ["Fire"]
-attributes = "010044"
 attack = 60
 skill = 8
 luck = 2
@@ -2127,7 +2103,6 @@ equip_slot = "TwoHand"
 buy_price = 20000
 can_equip = ["Rudger"]
 important = true
-attributes = "40000004"
 attack = 120
 
 [item.001a]
@@ -2150,7 +2125,6 @@ can_equip = [
     "Keinz",
 ]
 enchantment = ["Air"]
-attributes = "080055"
 attack = 17
 
 [item.001b]
@@ -2172,7 +2146,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0055"
 attack = 48
 skill = 12
 luck = 4
@@ -2194,7 +2167,6 @@ can_equip = [
     "Rudger",
     "Keinz",
 ]
-attributes = "0044"
 attack = 20
 
 [item.001d]
@@ -2211,7 +2183,6 @@ equip_slot = "TwoHand"
 buy_price = 12600
 sell_price = 6300
 can_equip = ["Rudger"]
-attributes = "0004"
 attack = 56
 
 [item.001e]
@@ -2228,7 +2199,6 @@ equip_slot = "TwoHand"
 buy_price = 31600
 sell_price = 15800
 can_equip = ["Rudger"]
-attributes = "0004"
 attack = 66
 skill = 8
 luck = 12
@@ -2247,7 +2217,6 @@ equip_slot = "TwoHand"
 buy_price = 48000
 sell_price = 24000
 can_equip = ["Rudger"]
-attributes = "0004"
 attack = 76
 
 [item.0020]
@@ -2267,7 +2236,6 @@ can_equip = [
     "Rudger",
     "Keinz",
 ]
-attributes = "0044"
 attack = 36
 
 [item.0021]
@@ -2284,7 +2252,6 @@ equip_slot = "TwoHand"
 buy_price = 20000
 sell_price = 10000
 can_equip = ["Rudger"]
-attributes = "0004"
 attack = 60
 
 [item.0022]
@@ -2301,7 +2268,6 @@ equip_slot = "TwoHand"
 buy_price = 32000
 sell_price = 16000
 can_equip = ["Rudger"]
-attributes = "0004"
 attack = 70
 
 [item.0023]
@@ -2318,7 +2284,6 @@ equip_slot = "TwoHand"
 buy_price = 39600
 sell_price = 19800
 can_equip = ["Rudger"]
-attributes = "0004"
 attack = 80
 skill = 14
 luck = 8
@@ -2342,7 +2307,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0055"
 attack = 10
 
 [item.0025]
@@ -2359,7 +2323,6 @@ equip_slot = "OneHand"
 buy_price = 480
 sell_price = 240
 can_equip = ["Amia"]
-attributes = "0020"
 attack = 12
 
 [item.0026]
@@ -2376,7 +2339,6 @@ equip_slot = "OneHand"
 buy_price = 2000
 sell_price = 1000
 can_equip = ["Amia"]
-attributes = "0020"
 attack = 17
 
 [item.0027]
@@ -2393,7 +2355,6 @@ equip_slot = "OneHand"
 buy_price = 9600
 sell_price = 4800
 can_equip = ["Amia"]
-attributes = "0020"
 attack = 24
 skill = 1
 luck = 8
@@ -2412,7 +2373,6 @@ equip_slot = "OneHand"
 buy_price = 6700
 sell_price = 3350
 can_equip = ["Amia"]
-attributes = "0020"
 attack = 30
 
 [item.0029]
@@ -2430,7 +2390,6 @@ buy_price = 17000
 sell_price = 170
 can_equip = ["Amia"]
 enchantment = ["Fire"]
-attributes = "010020"
 attack = 36
 
 [item.002a]
@@ -2447,7 +2406,6 @@ equip_slot = "OneHand"
 buy_price = 13600
 sell_price = 6800
 can_equip = ["Amia"]
-attributes = "0020"
 attack = 40
 skill = 8
 luck = 16
@@ -2466,7 +2424,6 @@ equip_slot = "OneHand"
 buy_price = 24000
 sell_price = 12000
 can_equip = ["Amia"]
-attributes = "0020"
 attack = 42
 
 [item.002c]
@@ -2483,7 +2440,6 @@ equip_slot = "OneHand"
 buy_price = 20000
 can_equip = ["Amia"]
 important = true
-attributes = "40000020"
 attack = 60
 
 [item.002d]
@@ -2500,7 +2456,6 @@ equip_slot = "OneHand"
 buy_price = 1400
 sell_price = 700
 can_equip = ["Amia"]
-attributes = "0020"
 attack = 20
 defense = 2
 
@@ -2519,7 +2474,6 @@ buy_price = 13600
 sell_price = 6800
 can_equip = ["Amia"]
 enchantment = ["Lightning"]
-attributes = "040020"
 attack = 48
 defense = 6
 skill = 12
@@ -2540,7 +2494,6 @@ buy_price = 33500
 sell_price = 335
 can_equip = ["Anne"]
 enchantment = ["Fire"]
-attributes = "010008"
 attack = 32
 defense = 11
 
@@ -2559,7 +2512,6 @@ buy_price = 16400
 sell_price = 8200
 can_equip = ["Anne"]
 enchantment = ["Ice"]
-attributes = "020008"
 attack = 38
 defense = 15
 skill = 8
@@ -2580,7 +2532,6 @@ buy_price = 19600
 sell_price = 9800
 can_equip = ["Anne"]
 enchantment = ["Air"]
-attributes = "080008"
 attack = 36
 defense = 17
 skill = 12
@@ -2603,7 +2554,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0050"
 attack = 12
 defense = 4
 skill = 1
@@ -2626,7 +2576,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0050"
 attack = 20
 defense = 6
 skill = 6
@@ -2649,7 +2598,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0050"
 attack = 40
 defense = 8
 
@@ -2667,7 +2615,6 @@ equip_slot = "OneHand"
 buy_price = 80
 sell_price = 40
 can_equip = ["Nei"]
-attributes = "0002"
 attack = 7
 defense = 2
 
@@ -2685,7 +2632,6 @@ equip_slot = "OneHand"
 buy_price = 2400
 sell_price = 1200
 can_equip = ["Nei"]
-attributes = "0002"
 attack = 17
 defense = 2
 skill = 2
@@ -2705,7 +2651,6 @@ equip_slot = "OneHand"
 buy_price = 1200
 sell_price = 600
 can_equip = ["Nei"]
-attributes = "0002"
 attack = 27
 defense = 2
 
@@ -2723,7 +2668,6 @@ equip_slot = "OneHand"
 buy_price = 3100
 sell_price = 1550
 can_equip = ["Nei"]
-attributes = "0002"
 attack = 38
 defense = 3
 
@@ -2741,7 +2685,6 @@ equip_slot = "OneHand"
 buy_price = 8400
 sell_price = 4200
 can_equip = ["Nei"]
-attributes = "0002"
 attack = 24
 defense = 3
 skill = 7
@@ -2761,7 +2704,6 @@ equip_slot = "OneHand"
 buy_price = 12800
 can_equip = ["Nei"]
 important = true
-attributes = "40000002"
 attack = 124
 defense = 48
 
@@ -2787,7 +2729,6 @@ can_equip = [
     "Keinz",
     "Silka",
 ]
-attributes = "00fd"
 defense = 3
 
 [item.003c]
@@ -2812,7 +2753,6 @@ can_equip = [
     "Keinz",
     "Silka",
 ]
-attributes = "00fd"
 defense = 8
 
 [item.003d]
@@ -2837,7 +2777,6 @@ can_equip = [
     "Keinz",
     "Silka",
 ]
-attributes = "00fd"
 defense = 14
 
 [item.003e]
@@ -2853,7 +2792,6 @@ relative_name_pointer = [
 equip_slot = "Head"
 sell_price = 140
 can_equip = ["Rudger"]
-attributes = "0004"
 defense = 14
 
 [item.003f]
@@ -2869,7 +2807,6 @@ relative_name_pointer = [
 equip_slot = "Head"
 sell_price = 315
 can_equip = ["Keinz"]
-attributes = "0040"
 defense = 17
 
 [item.0040]
@@ -2888,7 +2825,6 @@ can_equip = [
     "Rudger",
     "Huey",
 ]
-attributes = "0014"
 defense = 19
 skill = 2
 luck = 6
@@ -2910,7 +2846,6 @@ can_equip = [
     "Rudger",
     "Huey",
 ]
-attributes = "0014"
 defense = 27
 
 [item.0042]
@@ -2927,7 +2862,6 @@ equip_slot = "Head"
 buy_price = 80
 sell_price = 40
 can_equip = ["Nei"]
-attributes = "0002"
 defense = 3
 
 [item.0043]
@@ -2944,7 +2878,6 @@ equip_slot = "Head"
 buy_price = 380
 sell_price = 190
 can_equip = ["Nei"]
-attributes = "0002"
 defense = 12
 
 [item.0044]
@@ -2961,7 +2894,6 @@ equip_slot = "Head"
 buy_price = 4700
 sell_price = 2350
 can_equip = ["Nei"]
-attributes = "0002"
 defense = 21
 
 [item.0045]
@@ -2982,7 +2914,6 @@ can_equip = [
     "Amia",
     "Silka",
 ]
-attributes = "00a8"
 defense = 14
 
 [item.0046]
@@ -3003,7 +2934,6 @@ can_equip = [
     "Amia",
     "Silka",
 ]
-attributes = "00a8"
 defense = 17
 
 [item.0047]
@@ -3022,7 +2952,6 @@ can_equip = [
     "Nei",
     "Anne",
 ]
-attributes = "000a"
 defense = 21
 
 [item.0048]
@@ -3041,7 +2970,6 @@ can_equip = [
     "Nei",
     "Anne",
 ]
-attributes = "000a"
 defense = 32
 skill = 8
 luck = 12
@@ -3062,7 +2990,6 @@ can_equip = [
     "Anne",
 ]
 important = true
-attributes = "4000000a"
 defense = 48
 
 [item.004a]
@@ -3082,7 +3009,6 @@ can_equip = [
     "Eusis",
     "Keinz",
 ]
-attributes = "0041"
 defense = 16
 
 [item.004b]
@@ -3102,7 +3028,6 @@ can_equip = [
     "Eusis",
     "Keinz",
 ]
-attributes = "0041"
 defense = 29
 
 [item.004c]
@@ -3121,7 +3046,6 @@ can_equip = [
     "Keinz",
 ]
 important = true
-attributes = "40000041"
 defense = 50
 
 [item.004d]
@@ -3137,7 +3061,6 @@ relative_name_pointer = [
 equip_slot = "Head"
 sell_price = 60
 can_equip = ["Silka"]
-attributes = "0080"
 defense = 17
 
 [item.004e]
@@ -3153,7 +3076,6 @@ relative_name_pointer = [
 equip_slot = "Head"
 sell_price = 65
 can_equip = ["Amia"]
-attributes = "0020"
 defense = 17
 
 [item.004f]
@@ -3169,7 +3091,6 @@ relative_name_pointer = [
 equip_slot = "Head"
 sell_price = 9800
 can_equip = ["Silka"]
-attributes = "0080"
 defense = 17
 skill = 3
 agility = 4
@@ -3188,7 +3109,6 @@ relative_name_pointer = [
 equip_slot = "Head"
 can_equip = ["Eusis"]
 important = true
-attributes = "40000001"
 defense = 2
 luck = 10
 
@@ -3205,7 +3125,6 @@ relative_name_pointer = [
 equip_slot = "Head"
 can_equip = ["Eusis"]
 important = true
-attributes = "40000001"
 defense = 2
 luck = 10
 
@@ -3231,7 +3150,6 @@ can_equip = [
     "Keinz",
     "Silka",
 ]
-attributes = "00fd"
 defense = 4
 
 [item.0053]
@@ -3248,7 +3166,6 @@ equip_slot = "Torso"
 buy_price = 120
 sell_price = 60
 can_equip = ["Nei"]
-attributes = "0002"
 defense = 4
 
 [item.0054]
@@ -3265,7 +3182,6 @@ equip_slot = "Torso"
 buy_price = 280
 sell_price = 140
 can_equip = ["Nei"]
-attributes = "0002"
 defense = 6
 
 [item.0055]
@@ -3287,7 +3203,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0055"
 defense = 8
 
 [item.0056]
@@ -3308,7 +3223,6 @@ can_equip = [
     "Amia",
     "Silka",
 ]
-attributes = "00a8"
 defense = 8
 
 [item.0057]
@@ -3324,7 +3238,6 @@ relative_name_pointer = [
 equip_slot = "Torso"
 sell_price = 1800
 can_equip = ["Huey"]
-attributes = "0010"
 defense = 12
 skill = 3
 luck = 6
@@ -3346,7 +3259,6 @@ can_equip = [
     "Eusis",
     "Huey",
 ]
-attributes = "0011"
 defense = 21
 
 [item.0059]
@@ -3366,7 +3278,6 @@ can_equip = [
     "Eusis",
     "Huey",
 ]
-attributes = "0011"
 defense = 46
 
 [item.005a]
@@ -3385,7 +3296,6 @@ can_equip = [
     "Eusis",
     "Huey",
 ]
-attributes = "0011"
 defense = 52
 skill = 9
 luck = 12
@@ -3403,7 +3313,6 @@ relative_name_pointer = [
 equip_slot = "Torso"
 sell_price = 335
 can_equip = ["Eusis"]
-attributes = "0001"
 defense = 60
 
 [item.005c]
@@ -3420,7 +3329,6 @@ equip_slot = "Torso"
 buy_price = 28000
 sell_price = 14000
 can_equip = ["Eusis"]
-attributes = "0001"
 defense = 80
 
 [item.005d]
@@ -3440,7 +3348,6 @@ can_equip = [
     "Rudger",
     "Keinz",
 ]
-attributes = "0044"
 defense = 24
 
 [item.005e]
@@ -3460,7 +3367,6 @@ can_equip = [
     "Rudger",
     "Keinz",
 ]
-attributes = "0044"
 defense = 48
 
 [item.005f]
@@ -3479,7 +3385,6 @@ can_equip = [
     "Rudger",
     "Keinz",
 ]
-attributes = "0044"
 defense = 56
 skill = 10
 luck = 16
@@ -3500,7 +3405,6 @@ can_equip = [
     "Anne",
     "Amia",
 ]
-attributes = "0028"
 defense = 20
 skill = 1
 luck = 8
@@ -3522,7 +3426,6 @@ can_equip = [
     "Anne",
     "Amia",
 ]
-attributes = "0028"
 defense = 28
 
 [item.0062]
@@ -3543,7 +3446,6 @@ can_equip = [
     "Amia",
     "Silka",
 ]
-attributes = "00a8"
 defense = 56
 
 [item.0063]
@@ -3560,7 +3462,6 @@ equip_slot = "Torso"
 buy_price = 36000
 sell_price = 18000
 can_equip = ["Amia"]
-attributes = "0020"
 defense = 70
 
 [item.0064]
@@ -3579,7 +3480,6 @@ can_equip = [
     "Rudger",
     "Keinz",
 ]
-attributes = "0044"
 defense = 45
 skill = 7
 luck = 14
@@ -3600,7 +3500,6 @@ can_equip = [
     "Rudger",
     "Keinz",
 ]
-attributes = "0044"
 defense = 60
 
 [item.0066]
@@ -3620,7 +3519,6 @@ can_equip = [
     "Rudger",
     "Keinz",
 ]
-attributes = "0044"
 defense = 65
 
 [item.0067]
@@ -3639,7 +3537,6 @@ can_equip = [
     "Keinz",
 ]
 important = true
-attributes = "40000044"
 defense = 95
 
 [item.0068]
@@ -3660,7 +3557,6 @@ can_equip = [
     "Amia",
     "Silka",
 ]
-attributes = "00aa"
 defense = 62
 
 [item.0069]
@@ -3681,7 +3577,6 @@ can_equip = [
     "Amia",
     "Silka",
 ]
-attributes = "00aa"
 defense = 72
 skill = 9
 luck = 18
@@ -3703,7 +3598,6 @@ can_equip = [
     "Silka",
 ]
 important = true
-attributes = "4000008a"
 defense = 88
 
 [item.006b]
@@ -3719,7 +3613,6 @@ relative_name_pointer = [
 equip_slot = "Torso"
 sell_price = 85
 can_equip = ["Huey"]
-attributes = "0010"
 defense = 20
 
 [item.006c]
@@ -3743,7 +3636,6 @@ can_equip = [
     "Keinz",
     "Silka",
 ]
-attributes = "00ff"
 defense = 2
 
 [item.006d]
@@ -3765,7 +3657,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0055"
 defense = 8
 
 [item.006e]
@@ -3787,7 +3678,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0055"
 defense = 15
 
 [item.006f]
@@ -3808,7 +3698,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0055"
 defense = 24
 skill = 2
 luck = 7
@@ -3832,7 +3721,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0055"
 defense = 32
 
 [item.0071]
@@ -3854,7 +3742,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0055"
 defense = 39
 
 [item.0072]
@@ -3873,7 +3760,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0050"
 defense = 32
 
 [item.0073]
@@ -3892,7 +3778,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0050"
 defense = 44
 skill = 3
 luck = 9
@@ -3915,7 +3800,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0054"
 defense = 85
 
 [item.0075]
@@ -3934,7 +3818,6 @@ can_equip = [
     "Keinz",
 ]
 important = true
-attributes = "40000050"
 defense = 95
 
 [item.0076]
@@ -3955,7 +3838,6 @@ can_equip = [
     "Amia",
     "Silka",
 ]
-attributes = "00a8"
 defense = 7
 
 [item.0077]
@@ -3976,7 +3858,6 @@ can_equip = [
     "Amia",
     "Silka",
 ]
-attributes = "00a8"
 defense = 17
 
 [item.0078]
@@ -3996,7 +3877,6 @@ can_equip = [
     "Amia",
     "Silka",
 ]
-attributes = "00a8"
 defense = 24
 skill = 5
 luck = 11
@@ -4019,7 +3899,6 @@ can_equip = [
     "Amia",
     "Silka",
 ]
-attributes = "00a8"
 defense = 30
 
 [item.007a]
@@ -4040,7 +3919,6 @@ can_equip = [
     "Amia",
     "Silka",
 ]
-attributes = "00a8"
 defense = 40
 
 [item.007b]
@@ -4059,7 +3937,6 @@ can_equip = [
     "Amia",
     "Silka",
 ]
-attributes = "00a0"
 defense = 40
 skill = 7
 luck = 13
@@ -4081,7 +3958,6 @@ can_equip = [
     "Anne",
     "Amia",
 ]
-attributes = "0028"
 defense = 68
 
 [item.007d]
@@ -4100,7 +3976,6 @@ can_equip = [
     "Silka",
 ]
 important = true
-attributes = "400000a0"
 defense = 118
 
 [item.007e]
@@ -4116,7 +3991,6 @@ relative_name_pointer = [
 equip_slot = "Shield"
 sell_price = 420
 can_equip = ["Amia"]
-attributes = "0020"
 defense = 63
 
 [item.007f]
@@ -4132,7 +4006,6 @@ relative_name_pointer = [
 equip_slot = "Shield"
 sell_price = 360
 can_equip = ["Silka"]
-attributes = "0080"
 defense = 59
 
 [item.0080]
@@ -4157,7 +4030,6 @@ can_equip = [
     "Keinz",
     "Silka",
 ]
-attributes = "00fd"
 defense = 3
 agility = 2
 
@@ -4175,7 +4047,6 @@ equip_slot = "Feet"
 buy_price = 180
 sell_price = 90
 can_equip = ["Nei"]
-attributes = "0002"
 defense = 3
 agility = 3
 
@@ -4201,7 +4072,6 @@ can_equip = [
     "Keinz",
     "Silka",
 ]
-attributes = "00fd"
 defense = 7
 agility = 3
 
@@ -4222,7 +4092,6 @@ can_equip = [
     "Nei",
     "Amia",
 ]
-attributes = "0022"
 attack = 7
 defense = 7
 agility = 5
@@ -4241,7 +4110,6 @@ equip_slot = "Feet"
 buy_price = 6800
 sell_price = 3400
 can_equip = ["Amia"]
-attributes = "0020"
 attack = 5
 defense = 7
 agility = 7
@@ -4263,7 +4131,6 @@ can_equip = [
     "Anne",
     "Silka",
 ]
-attributes = "0088"
 defense = 7
 agility = 7
 
@@ -4284,7 +4151,6 @@ can_equip = [
     "Amia",
     "Silka",
 ]
-attributes = "00a0"
 defense = 7
 agility = 10
 
@@ -4306,7 +4172,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0055"
 attack = 5
 defense = 10
 skill = 1
@@ -4331,7 +4196,6 @@ can_equip = [
     "Amia",
     "Silka",
 ]
-attributes = "00aa"
 defense = 10
 skill = 3
 agility = 8
@@ -4356,7 +4220,6 @@ can_equip = [
     "Huey",
     "Keinz",
 ]
-attributes = "0055"
 defense = 15
 agility = 8
 
@@ -4626,7 +4489,6 @@ relative_name_pointer = [
     "001a",
 ]
 important = true
-attributes = "40000000"
 
 [item.009f]
 name = """
@@ -4652,7 +4514,6 @@ relative_name_pointer = [
     "0018",
 ]
 important = true
-attributes = "40000000"
 
 [item.00a1]
 name = """
@@ -4666,7 +4527,6 @@ relative_name_pointer = [
 ]
 buy_price = 980
 important = true
-attributes = "40000000"
 
 [item.00a2]
 name = """
@@ -4679,7 +4539,6 @@ relative_name_pointer = [
     "00ae",
 ]
 important = true
-attributes = "40000000"
 
 [item.00a3]
 name = """
@@ -4692,7 +4551,6 @@ relative_name_pointer = [
     "0016",
 ]
 important = true
-attributes = "40000000"
 
 [item.00a4]
 name = """
@@ -4705,7 +4563,6 @@ relative_name_pointer = [
     "0015",
 ]
 important = true
-attributes = "40000000"
 
 [item.00a5]
 name = """
@@ -4718,7 +4575,6 @@ relative_name_pointer = [
     "0014",
 ]
 important = true
-attributes = "40000000"
 
 [item.00a6]
 name = """
@@ -4731,7 +4587,6 @@ relative_name_pointer = [
     "0013",
 ]
 important = true
-attributes = "40000000"
 
 [item.00a7]
 name = """
@@ -4744,7 +4599,6 @@ relative_name_pointer = [
     "0012",
 ]
 important = true
-attributes = "40000000"
 
 [item.00a8]
 name = """
@@ -4757,7 +4611,6 @@ relative_name_pointer = [
     "0011",
 ]
 important = true
-attributes = "40000000"
 
 [item.00a9]
 name = """
@@ -4770,7 +4623,6 @@ relative_name_pointer = [
     "0010",
 ]
 important = true
-attributes = "40000000"
 
 [item.00aa]
 name = """
@@ -4783,7 +4635,6 @@ relative_name_pointer = [
     "000f",
 ]
 important = true
-attributes = "40000000"
 
 [item.00ab]
 name = """
@@ -4796,7 +4647,6 @@ relative_name_pointer = [
     "000e",
 ]
 important = true
-attributes = "40000000"
 
 [item.00ac]
 name = """
@@ -4809,7 +4659,6 @@ relative_name_pointer = [
     "000d",
 ]
 important = true
-attributes = "40000000"
 
 [item.00ad]
 name = """
@@ -4822,7 +4671,6 @@ relative_name_pointer = [
     "000c",
 ]
 important = true
-attributes = "40000000"
 
 [item.00ae]
 name = """
@@ -4835,7 +4683,6 @@ relative_name_pointer = [
     "000b",
 ]
 important = true
-attributes = "40000000"
 
 [item.00af]
 name = """
@@ -4848,7 +4695,6 @@ relative_name_pointer = [
     "000a",
 ]
 important = true
-attributes = "40000000"
 
 [item.00b0]
 name = """
@@ -4873,7 +4719,6 @@ relative_name_pointer = [
     "0008",
 ]
 important = true
-attributes = "40000000"
 
 [item.00b2]
 name = """
@@ -4886,7 +4731,6 @@ relative_name_pointer = [
     "0007",
 ]
 important = true
-attributes = "40000000"
 
 [item.00b3]
 name = """
@@ -4899,7 +4743,6 @@ relative_name_pointer = [
     "0006",
 ]
 important = true
-attributes = "40000000"
 
 [item.00b4]
 name = """
@@ -4912,7 +4755,6 @@ relative_name_pointer = [
     "0005",
 ]
 important = true
-attributes = "40000000"
 
 [item.00b5]
 name = """
@@ -4925,7 +4767,6 @@ relative_name_pointer = [
     "0004",
 ]
 important = true
-attributes = "40000000"
 
 [item.00b6]
 name = """
@@ -4938,7 +4779,6 @@ relative_name_pointer = [
     "0003",
 ]
 important = true
-attributes = "40000000"
 
 [item.00b7]
 name = """
@@ -4951,7 +4791,6 @@ relative_name_pointer = [
     "0002",
 ]
 important = true
-attributes = "40000000"
 
 [item.00b8]
 name = """
@@ -4964,7 +4803,6 @@ relative_name_pointer = [
     "0001",
 ]
 important = true
-attributes = "40000000"
 
 [item.00b9]
 name = """
@@ -4977,7 +4815,6 @@ relative_name_pointer = [
     "0000",
 ]
 important = true
-attributes = "40000000"
 
 [enemy.0001]
 name = """
