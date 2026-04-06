@@ -242,8 +242,8 @@ pub async fn patch(
     for (_, item) in items {
         // Calculate attributes field
         let equip_byte = Character::to_byte(&item.can_equip);
-        let enchant_byte = Enchant::to_byte(&item.enchantment);
         let padding = item.field_5;
+        let enchant_byte = Enchant::to_byte(&item.enchantment);
         let important = if item.important { 0x40 } else { 0x00 };
 
         // Now write it all
@@ -259,7 +259,7 @@ pub async fn patch(
             .write_all(&item.sell_price.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&[equip_byte, enchant_byte, padding, important])
+            .write_all(&[equip_byte, padding, enchant_byte, important])
             .await?;
         exec_writer.write_all(&item.attack.to_le_bytes()).await?;
         exec_writer.write_all(&item.defense.to_le_bytes()).await?;

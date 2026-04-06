@@ -449,7 +449,7 @@ impl EnemyType {
             }
         }
         if byte & (Self::Biologic as u8 | Self::Robotic as u8) == 0 {
-            variants.push(Self::Demonic);
+            variants.push(Self::default());
         }
         variants.into_boxed_slice()
     }
@@ -473,7 +473,8 @@ enum SpellElemental {
 }
 
 impl SpellElemental {
-    fn from_byte(byte: u8) -> Box<[Self]> {
+    fn from_byte(mut byte: u8) -> Box<[Self]> {
+        byte &= 0x0f;
         let mut variants = Vec::with_capacity(8);
         for variant in Self::iter() {
             if byte & variant as u8 == variant as u8 {
@@ -597,7 +598,7 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
         misc_strings: _d,
         // dunno: _e,
         // dunno_struct: _e,
-        techniques: _f,
+        techniques,
         songs: _g,
         memcard_opts: _h,
         items,
@@ -607,6 +608,7 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
     unset_readonly(dest).await?;
     let elf_binary = OpenOptions::new().write(true).open(dest).await?;
     let mut bw = BufWriter::new(elf_binary);
+    techniques::patch(&mut bw, techniques).await?;
     items::patch(&mut bw, items).await?;
     enemies::patch(&mut bw, enemies).await?;
     end_credits::patch(&mut bw, end_credits).await?;

@@ -77,7 +77,7 @@ impl From<[u8; 4]> for EnemyAttributes {
         Self {
             // attribute_field, value,
             resistances: SpellElemental::from_byte(attr_field[0] >> 4),
-            weaknesses: SpellElemental::from_byte(attr_field[0] & 0xf),
+            weaknesses: SpellElemental::from_byte(attr_field[0]),
             field_1: attr_field[1],
             r#type: EnemyType::from_byte(attr_field[2]),
             effect: Effect::from_byte(attr_field[3]),

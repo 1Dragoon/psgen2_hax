@@ -17,7 +17,10 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::io;
 use strum::IntoEnumIterator;
-use tokio::io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, SeekFrom};
+use tokio::{
+    fs,
+    io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, AsyncWriteExt, BufWriter, SeekFrom},
+};
 
 #[derive(Serialize, Deserialize)]
 #[repr(i32)]
@@ -55,18 +58,118 @@ impl TryFrom<i32> for TargetOptions {
 }
 
 // Technique attributes
-enum WhereUsed {
-    BattleOffense = 0x04,
-    BattleDefense = 0x02,
-    Fastest = 0x10,
+#[derive(EnumIter, Serialize, Deserialize, Copy, Clone, Eq, PartialEq, Default)]
+enum Speed {
+    #[default]
     Medium = 0x00,
-    Slowest = 0x20,
+    Fast = 0x10,
+    Slow = 0x20,
+    SpeedA = 0x40,
+    SpeedB = 0x80,
+}
+
+impl Speed {
+    fn from_byte(mut byte: u8) -> Box<[Self]> {
+        byte &= 0xf0;
+        let mut variants = Vec::with_capacity(8);
+        for variant in Self::iter() {
+            if variant == Self::default() {
+                continue;
+            }
+            if byte & variant as u8 == variant as u8 {
+                variants.push(variant);
+            }
+        }
+        if byte == 0 {
+            variants.push(Self::default());
+        }
+        variants.into_boxed_slice()
+    }
+
+    fn to_byte(value: &[Self]) -> u8 {
+        let mut byte = 0;
+        for variant in value.iter().copied() {
+            byte |= variant as u8;
+        }
+        byte
+    }
+}
+
+
+
+#[derive(EnumIter, Serialize, Deserialize, Copy, Clone, Eq, PartialEq, Default)]
+enum Usage {
+    #[default]
+    EnemyEffect = 0x00,
+    Caster = 0x01,
+    Ally = 0x02,
+    Enemy = 0x04,
+    OtherA = 0x08,
+}
+
+impl Usage {
+    fn from_byte(mut byte: u8) -> Box<[Self]> {
+        byte &= 0x0f;
+        let mut variants = Vec::with_capacity(8);
+        for variant in Self::iter() {
+            if variant == Self::default() {
+                continue;
+            }
+            if byte & variant as u8 == variant as u8 {
+                variants.push(variant);
+            }
+        }
+        if byte == 0 {
+            variants.push(Self::default());
+        }
+        variants.into_boxed_slice()
+    }
+
+    fn to_byte(value: &[Self]) -> u8 {
+        let mut byte = 0;
+        for variant in value.iter().copied() {
+            byte |= variant as u8;
+        }
+        byte
+    }
 }
 
 // Technique field_2
+#[derive(EnumIter, Serialize, Deserialize, Copy, Clone, Eq, PartialEq, Default)]
 enum TechEffect {
-    InstaKill = 0x1000,
-    MaxValue = 0x8000,
+    #[default]
+    EffectA = 0x00,
+    InstaKill = 0x10,
+    EffectB = 0x20,
+    EffectC = 0x40,
+    MaxValue = 0x80,
+}
+
+impl TechEffect {
+    fn from_byte(mut byte: u8) -> Box<[Self]> {
+        byte &= 0xf0;
+        let mut variants = Vec::with_capacity(8);
+        for variant in Self::iter() {
+            if variant == Self::default() {
+                continue;
+            }
+            if byte & variant as u8 == variant as u8 {
+                variants.push(variant);
+            }
+        }
+        if byte == 0 {
+            variants.push(Self::default());
+        }
+        variants.into_boxed_slice()
+    }
+
+    fn to_byte(value: &[Self]) -> u8 {
+        let mut byte = 0;
+        for variant in value.iter().copied() {
+            byte |= variant as u8;
+        }
+        byte
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -87,17 +190,23 @@ pub struct Technique {
     )]
     name_vma_pointer: u32,
     relative_name_pointer: (StringMemRegion, Hexu32),
-    #[serde(
-        default,
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex",
-        skip_serializing_if = "is_default"
-    )]
-    attributes: u32,
+    // #[serde(
+    //     default,
+    //     serialize_with = "serialize_u32_hex",
+    //     deserialize_with = "deserialize_u32_hex",
+    //     skip_serializing_if = "is_default"
+    // )]
+    // attributes: u32,
     #[serde(default, skip_serializing_if = "is_default")]
     elemental: Box<[SpellElemental]>,
     #[serde(default, skip_serializing_if = "is_default")]
-    vulnerable: Box<[Vulerabilities]>,
+    vulnerable: Box<[VulerableTargets]>,
+    #[serde(default, skip_serializing_if = "is_default")]
+    usage: Box<[Usage]>,
+    #[serde(default, skip_serializing_if = "is_default")]
+    speed: Box<[Speed]>,
+    #[serde(default, skip_serializing_if = "is_default")]
+    attr_c: u8,
     #[serde(
         default,
         serialize_with = "serialize_u32_hex",
@@ -105,6 +214,10 @@ pub struct Technique {
         skip_serializing_if = "is_default"
     )]
     field_2: u32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    usable_out_of_combat: bool,
+    #[serde(default, skip_serializing_if = "is_default")]
+    special_effect: bool,
     #[serde(default, skip_serializing_if = "is_default")]
     tp_cost: u32,
     target: TargetOptions,
@@ -130,14 +243,14 @@ pub struct Technique {
 
 #[repr(u8)]
 #[derive(EnumIter, Serialize, Deserialize, Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Debug)]
-enum Vulerabilities {
-    Biologic = 0x1,
-    Robotic = 0x2,
-    NotBoss = 0x4,
-    NotSuperboss = 0x8,
+enum VulerableTargets {
+    Biologic = 0x10,
+    Robotic = 0x20,
+    NotBoss = 0x40,
+    NotSuperboss = 0x80,
 }
 
-impl Vulerabilities {
+impl VulerableTargets {
     fn from_byte(byte: u8) -> Box<[Self]> {
         let mut variants = Vec::with_capacity(8);
         for variant in Self::iter() {
@@ -175,32 +288,58 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         fields.reverse();
         let pointer_bytes = fields.pop().unwrap();
         let attributes = fields.pop().unwrap();
-        let elemental = SpellElemental::from_byte(attributes[0] & 0xf);
-        let vulnerable = Vulerabilities::from_byte(attributes[0] >> 4);
+        let elemental = SpellElemental::from_byte(attributes[0]);
+        let vulnerable = VulerableTargets::from_byte(attributes[0]);
         let name_pointer =
             u32::from_le_bytes(pointer_bytes) - u32::try_from(POINTER_OFFSET).unwrap();
         relative_pointer_index.insert(name_pointer);
+
+        let usage = Usage::from_byte(attributes[1]);
+        let speed = Speed::from_byte(attributes[1]);
+        let attr_c = attributes[2];
+        let attr_d = attributes[3];
+
+        let usable_out_of_combat = attr_d & 0x80 == 0x80;
+        let special_effect = attr_d & 0x40 == 0x40;
+        // let attributes = u32::from_le_bytes(attributes);
+        let field_2 = u32::from_le_bytes(fields.pop().unwrap());
+        let tp_cost = u32::from_le_bytes(fields.pop().unwrap());
+        let target = TargetOptions::try_from(i32::from_le_bytes(fields.pop().unwrap())).unwrap();
+        let power = i32::from_le_bytes(fields.pop().unwrap());
+        let eusis = i32::from_le_bytes(fields.pop().unwrap());
+        let nei = i32::from_le_bytes(fields.pop().unwrap());
+        let rudger = i32::from_le_bytes(fields.pop().unwrap());
+        let anne = i32::from_le_bytes(fields.pop().unwrap());
+        let huey = i32::from_le_bytes(fields.pop().unwrap());
+        let amia = i32::from_le_bytes(fields.pop().unwrap());
+        let keinz = i32::from_le_bytes(fields.pop().unwrap());
+        let silka = i32::from_le_bytes(fields.pop().unwrap());
 
         let technique = Technique {
             name: Vec::new(),
             name_pointer,
             name_vma_pointer: u32::from_be_bytes(pointer_bytes),
             relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0)),
-            attributes: u32::from_le_bytes(attributes),
             elemental,
             vulnerable,
-            field_2: u32::from_le_bytes(fields.pop().unwrap()),
-            tp_cost: u32::from_le_bytes(fields.pop().unwrap()),
-            target: TargetOptions::try_from(i32::from_le_bytes(fields.pop().unwrap())).unwrap(),
-            power: i32::from_le_bytes(fields.pop().unwrap()),
-            eusis: i32::from_le_bytes(fields.pop().unwrap()),
-            nei: i32::from_le_bytes(fields.pop().unwrap()),
-            rudger: i32::from_le_bytes(fields.pop().unwrap()),
-            anne: i32::from_le_bytes(fields.pop().unwrap()),
-            huey: i32::from_le_bytes(fields.pop().unwrap()),
-            amia: i32::from_le_bytes(fields.pop().unwrap()),
-            keinz: i32::from_le_bytes(fields.pop().unwrap()),
-            silka: i32::from_le_bytes(fields.pop().unwrap()),
+            speed,
+            usage,
+            attr_c,
+            usable_out_of_combat,
+            special_effect,
+            // attributes,
+            field_2,
+            tp_cost,
+            target,
+            power,
+            eusis,
+            nei,
+            rudger,
+            anne,
+            huey,
+            amia,
+            keinz,
+            silka,
         };
 
         techniques.insert(Hexu32(u32::try_from(i).unwrap()), technique);
@@ -239,4 +378,56 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     // save_binary_file(&PathBuf::from("jap_tech_pointers.json"), &bytes).await?;
 
     Ok(techniques)
+}
+
+#[inline]
+pub async fn patch(
+    exec_writer: &mut BufWriter<fs::File>,
+    techniques: BTreeMap<Hexu32, Technique>,
+) -> Result<(), io::Error> {
+    exec_writer
+        .seek(SeekFrom::Start(TECHNIQUE_STRUCT_START as u64))
+        .await?;
+    assert_eq!(
+        TECHNIQUE_STRUCT_COUNT,
+        techniques.len(),
+        "Technique count MUST be exact!"
+    );
+    for (_, tech) in techniques {
+        // Calculate attributes field
+        let attr_a = SpellElemental::to_byte(&tech.elemental) | VulerableTargets::to_byte(&tech.vulnerable);
+        let attr_b = Speed::to_byte(&tech.speed) | Usage::to_byte(&tech.usage);
+        let attr_c = tech.attr_c;
+        let mut attr_d = 0;
+        if tech.usable_out_of_combat {
+            attr_d |= 0x80;
+        }
+        if tech.special_effect {
+            attr_d |= 0x40;
+        }
+        let attributes = [attr_a, attr_b, attr_c, attr_d];
+
+        // Now write it all
+        exec_writer
+            .write_all(&tech.name_vma_pointer.to_be_bytes())
+            .await?;
+        exec_writer
+            .write_all(&attributes)
+            .await?;
+        exec_writer.write_all(&tech.field_2.to_le_bytes()).await?;
+        exec_writer.write_all(&tech.tp_cost.to_le_bytes()).await?;
+        exec_writer
+            .write_all(&(tech.target as i32).to_le_bytes())
+            .await?;
+        exec_writer.write_all(&tech.power.to_le_bytes()).await?;
+        exec_writer.write_all(&tech.eusis.to_le_bytes()).await?;
+        exec_writer.write_all(&tech.nei.to_le_bytes()).await?;
+        exec_writer.write_all(&tech.rudger.to_le_bytes()).await?;
+        exec_writer.write_all(&tech.anne.to_le_bytes()).await?;
+        exec_writer.write_all(&tech.huey.to_le_bytes()).await?;
+        exec_writer.write_all(&tech.amia.to_le_bytes()).await?;
+        exec_writer.write_all(&tech.keinz.to_le_bytes()).await?;
+        exec_writer.write_all(&tech.silka.to_le_bytes()).await?;
+    }
+    Ok(())
 }
