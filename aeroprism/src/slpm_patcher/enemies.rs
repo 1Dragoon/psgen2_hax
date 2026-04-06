@@ -37,26 +37,40 @@ pub struct EnemyAttributes {
     field_1: u8, // Second byte of attribute field. Always appears to be zero.
     r#type: Box<[EnemyType]>, // First four bits of third byte of attribute field
     #[serde(default, skip_serializing_if = "is_default")]
-    effect: Box<[Effect]>, // Fourth byte of attribute field. First nibble: Flash and two other things, not sure which yet. Second nibble: Controls whether the enemy animation hovers, flies, or neither.
+    graphic_effect: Box<[GraphicEffect]>, // Fourth byte of attribute field. First nibble: Whether and how large the enemy casts a shadow. Second nibble: Controls whether the enemy animation hovers, flies, or neither.
 }
 
 #[repr(u8)]
-#[derive(EnumIter, Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
-enum Effect {
-    EffectA = 0x10, // I.e. all bosses and most demons
-    EffectB = 0x20, // I.e. grass killer, satman (robot)
-    EffectC = 0x40, // I.e. eyesore, heavy soldier, some demons
+#[derive(EnumIter, Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq, Default)]
+enum GraphicEffect {
+    #[default]
+    #[serde(alias="smallshadow", alias="small_shadow")]
+    SmallShadow = 0x00,
+    #[serde(alias="noshadow", alias="no_shadow")]
+    NoShadow = 0x10, // I.e. all bosses and most demons
+    #[serde(alias="mediumshadow", alias="medium_shadow")]
+    MediumShadow = 0x20, // I.e. grass killer, satman (robot)
+    #[serde(alias="largeshadow", alias="large_shadow")]
+    LargeShadow = 0x40, // I.e. eyesore, heavy soldier, some demons
+    #[serde(alias="fly")]
     Fly = 0x01,     // I.e. mosquito and other flying bugs
+    #[serde(alias="hover")]
     Hover = 0x04,   // I.e. spinner and hovering robots
 }
 
-impl Effect {
+impl GraphicEffect {
     fn from_byte(byte: u8) -> Box<[Self]> {
         let mut variants = Vec::with_capacity(8);
         for variant in Self::iter() {
+            if variant == Self::default() {
+                continue;
+            }
             if byte & variant as u8 == variant as u8 {
                 variants.push(variant);
             }
+        }
+        if byte & 0xf0 == 0 {
+            variants.push(Self::default());
         }
         variants.into_boxed_slice()
     }
@@ -80,7 +94,7 @@ impl From<[u8; 4]> for EnemyAttributes {
             weaknesses: SpellElemental::from_byte(attr_field[0]),
             field_1: attr_field[1],
             r#type: EnemyType::from_byte(attr_field[2]),
-            effect: Effect::from_byte(attr_field[3]),
+            graphic_effect: GraphicEffect::from_byte(attr_field[3]),
         }
     }
 }
@@ -95,7 +109,7 @@ impl From<&EnemyAttributes> for u32 {
             weaknesses,
             field_1,
             r#type,
-            effect: effects,
+            graphic_effect: effects,
         } = value;
         // Fill resistances and weaknesses byte
         let mut rw = SpellElemental::to_byte(resistances) << 4;
@@ -105,7 +119,7 @@ impl From<&EnemyAttributes> for u32 {
             rw,
             *field_1,
             EnemyType::to_byte(r#type),
-            Effect::to_byte(effects),
+            GraphicEffect::to_byte(effects),
         ])
     }
 }

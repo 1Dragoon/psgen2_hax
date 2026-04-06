@@ -79,19 +79,33 @@ static TECHNIQUE_STRUCT_FIELDS: usize = 14;
 
 #[derive(Serialize, Deserialize, Ord, PartialOrd, Eq, PartialEq, Copy, Clone)]
 enum StringMemRegion {
+    #[serde(alias="regiona", alias="region_a")]
     RegionA,
+    #[serde(alias="regionb", alias="region_b")]
     RegionB,
+    #[serde(alias="regionc", alias="region_c")]
     RegionC,
+    #[serde(alias="regiond", alias="region_d")]
     RegionD,
+    #[serde(alias="regione", alias="region_e")]
     RegionE,
+    #[serde(alias="regionf", alias="region_f")]
     RegionF,
+    #[serde(alias="regiong", alias="region_g")]
     RegionG,
+    #[serde(alias="regionh", alias="region_h")]
     RegionH,
+    #[serde(alias="regioni", alias="region_i")]
     RegionI,
+    #[serde(alias="regionj", alias="region_j")]
     RegionJ,
+    #[serde(alias="regiongoldenboy", alias="region_goldenboy")]
     RegionGoldenboy, // This memory region is possibly invalid...could cause bugs on a real PS2?
+    #[serde(alias="regionk", alias="region_k")]
     RegionK,
+    #[serde(alias="regionl", alias="region_l")]
     RegionL,
+    #[serde(alias="regionm", alias="region_m")]
     RegionM,
 }
 
@@ -143,13 +157,21 @@ impl TryFrom<u32> for StringMemRegion {
 #[repr(u8)]
 #[derive(EnumIter, Serialize, Deserialize, PartialEq, Copy, Clone)]
 enum Character {
+    #[serde(alias="eusis")]
     Eusis = 0x01,
+    #[serde(alias="nei")]
     Nei = 0x02,
+    #[serde(alias="rudger")]
     Rudger = 0x04,
+    #[serde(alias="anne")]
     Anne = 0x08,
+    #[serde(alias="huey")]
     Huey = 0x10,
+    #[serde(alias="amia")]
     Amia = 0x20,
+    #[serde(alias="keinz")]
     Keinz = 0x40,
+    #[serde(alias="silka")]
     Silka = 0x80,
 }
 
@@ -320,6 +342,31 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
     Ok(songs)
 }
 
+#[inline]
+pub async fn patch_songs(
+    exec_writer: &mut BufWriter<fs::File>,
+    songs: BTreeMap<Hexu32, Song>,
+) -> Result<(), io::Error> {
+    exec_writer
+        .seek(SeekFrom::Start(MUSIC_STRUCT_START as u64))
+        .await?;
+    assert_eq!(
+        MUSIC_STRUCT_COUNT,
+        songs.len(),
+        "Music count MUST be exact!"
+    );
+    for (_, song) in songs {
+        // Field comes before name pointer here
+        exec_writer
+            .write_all(&song.field_1.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&song.name_vma_pointer.to_be_bytes())
+            .await?;
+    }
+    Ok(())
+}
+
 pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
 ) -> Result<BTreeMap<Hexu32, MemcardOpt>, io::Error> {
@@ -384,13 +431,36 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
     Ok(memcard_opts)
 }
 
+#[inline]
+pub async fn patch_memcard_opts(
+    exec_writer: &mut BufWriter<fs::File>,
+    memcard_opts: BTreeMap<Hexu32, MemcardOpt>,
+) -> Result<(), io::Error> {
+    exec_writer
+        .seek(SeekFrom::Start(MEMCARD_STRUCT_START as u64))
+        .await?;
+    assert_eq!(
+        MEMCARD_STRUCT_COUNT,
+        memcard_opts.len(),
+        "Music count MUST be exact!"
+    );
+    for (_, memcard_opt) in memcard_opts {
+        // Field comes before name pointer here
+        exec_writer
+            .write_all(&memcard_opt.field_1.to_le_bytes())
+            .await?;
+        exec_writer
+            .write_all(&memcard_opt.name_vma_pointer.to_be_bytes())
+            .await?;
+    }
+    Ok(())
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct ExecStructures {
     // pub dunno_struct: indexmap::IndexMap<Hexu32, (DialogString, Vec<Hexu32>)>,
     #[serde(rename = "technique")]
     pub techniques: BTreeMap<Hexu32, Technique>,
-    #[serde(rename = "song")]
-    pub songs: BTreeMap<Hexu32, Song>,
     #[serde(rename = "item")]
     pub items: BTreeMap<Hexu32, ItemInfo>,
     #[serde(rename = "enemy")]
@@ -398,12 +468,14 @@ pub struct ExecStructures {
     #[serde(rename = "end_credit")]
     pub end_credits: BTreeMap<usize, EndCreditItem>,
     #[serde(rename = "mapname")]
-    pub mapnames: BTreeMap<Hexu32, JumplistString>,
-    pub menu_text: BTreeMap<Hexu32, JumplistString>,
+    pub mapnames: BTreeMap<Hexu32, JumplistItem>,
+    pub menu_text: BTreeMap<Hexu32, JumplistItem>,
     #[serde(rename = "item_description")]
-    pub item_descriptions: BTreeMap<Hexu32, JumplistString>,
+    pub item_descriptions: BTreeMap<Hexu32, JumplistItem>,
+    #[serde(rename = "song")]
+    pub songs: BTreeMap<Hexu32, Song>,
     #[serde(rename = "misc_string")]
-    pub misc_strings: BTreeMap<Hexu32, JumplistString>,
+    pub misc_strings: BTreeMap<Hexu32, JumplistItem>,
     #[serde(rename = "memcard_opt")]
     pub memcard_opts: BTreeMap<Hexu32, MemcardOpt>,
     // pub dunno: BTreeMap<Hexu32, DialogString>,
@@ -426,14 +498,23 @@ pub struct ExecStructures {
 )]
 enum EnemyType {
     #[default]
+    #[serde(alias="demonic")]
     Demonic, // First and second bits turned off. Effectively, the below two bits count as a weakness to certain techniques. This simply indicates immunity to both biologic and robitic techniques.
+    #[serde(alias="biologic")]
     Biologic = 0x10,
+    #[serde(alias="robotic")]
     Robotic = 0x20,
+    #[serde(alias="boss")]
     Boss = 0x40, // Possessed by Dark Falz, Motherbrain, Neifirst (both occurrences) and Army Eye. Conveys immunity to certain techs, possibly other effects.
+    #[serde(alias="superboss", alias="super_boss")]
     SuperBoss = 0x80, // The name is just a guess. Only Dark Falz and Motherbrain appear to have the bit for this set. No idea what it does. May provide immunity to some things or have other effects.
+    #[serde(alias="unknowna", alias="unknown_a")]
     UnknownA = 0x01,
+    #[serde(alias="unknownb", alias="unknown_b")]
     UnknownB = 0x02,
+    #[serde(alias="unknownc", alias="unknown_c")]
     UnknownC = 0x04,
+    #[serde(alias="unknownd", alias="unknown_d")]
     UnknownD = 0x08,
 }
 
@@ -466,9 +547,13 @@ impl EnemyType {
 #[repr(u8)]
 #[derive(EnumIter, Serialize, Deserialize, Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Debug)]
 enum SpellElemental {
+    #[serde(alias="fire")]
     Fire = 0x01,
+    #[serde(alias="ice")]
     Ice = 0x02,
+    #[serde(alias="air")]
     Air = 0x04,
+    #[serde(alias="lightning")]
     Lightning = 0x08,
 }
 
@@ -496,13 +581,21 @@ impl SpellElemental {
 #[repr(u8)]
 #[derive(EnumIter, Serialize, Deserialize, Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Debug)]
 enum Enchant {
+    #[serde(alias="fire")]
     Fire = 0x01,
+    #[serde(alias="ice")]
     Ice = 0x02,
+    #[serde(alias="lightning")]
     Lightning = 0x04,
+    #[serde(alias="air")]
     Air = 0x08,
+    #[serde(alias="paralysis")]
     Paralysis = 0x10,
+    #[serde(alias="unknownb", alias="unknown_b")]
     UnknownB = 0x20,
+    #[serde(alias="unknownc", alias="unknown_c")]
     UnknownC = 0x40,
+    #[serde(alias="unknownd", alias="unknown_d")]
     UnknownD = 0x80,
 }
 
@@ -592,15 +685,15 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
         info!("Patching '{}'", dest.to_string_lossy());
     }
     let ExecStructures {
-        mapnames: _a,
-        menu_text: _b,
-        item_descriptions: _c,
-        misc_strings: _d,
+        mapnames,
+        menu_text,
+        item_descriptions,
+        misc_strings,
         // dunno: _e,
         // dunno_struct: _e,
         techniques,
-        songs: _g,
-        memcard_opts: _h,
+        songs,
+        memcard_opts,
         items,
         enemies,
         end_credits,
@@ -608,10 +701,16 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
     unset_readonly(dest).await?;
     let elf_binary = OpenOptions::new().write(true).open(dest).await?;
     let mut bw = BufWriter::new(elf_binary);
-    techniques::patch(&mut bw, techniques).await?;
+    patch_jumplist(&mut bw, mapnames, MAPNAMES_JUMPLIST_START, MAPNAMES_JUMPLIST_FIELDS).await?;
+    patch_songs(&mut bw, songs).await?;
     items::patch(&mut bw, items).await?;
+    patch_jumplist(&mut bw, misc_strings, MISC_STRINGS_JUMPLIST_START, MISC_STRINGS_JUMPLIST_FIELDS).await?;
+    techniques::patch(&mut bw, techniques).await?;
     enemies::patch(&mut bw, enemies).await?;
+    patch_jumplist(&mut bw, menu_text, MENU_TEXT_JUMPLIST_START, MENU_TEXT_JUMPLIST_FIELDS).await?;
+    patch_jumplist(&mut bw, item_descriptions, ITEM_DESCRIPTION_JUMPLIST_START, ITEM_DESCRIPTION_JUMPLIST_FIELDS).await?;
     end_credits::patch(&mut bw, end_credits).await?;
+    patch_memcard_opts(&mut bw, memcard_opts).await?;
     bw.flush().await?;
 
     Ok(())
@@ -627,7 +726,7 @@ pub struct Hexu32(
 );
 
 #[derive(Serialize, Deserialize)]
-pub struct JumplistString {
+pub struct JumplistItem {
     #[serde(flatten)]
     string: DialogString,
     #[serde(
@@ -647,7 +746,7 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
     location: usize,
     count: usize,
-) -> Result<BTreeMap<Hexu32, JumplistString>, io::Error> {
+) -> Result<BTreeMap<Hexu32, JumplistItem>, io::Error> {
     reader.seek(SeekFrom::Start(location as u64)).await?;
     let mut pointer_bytes = [0u8; 4];
     let mut pointer_vec = Vec::with_capacity(count);
@@ -684,7 +783,7 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
         let index = relative_pointer_index.get_index_of(&pointer).unwrap();
         strings.insert(
             Hexu32(u32::try_from(number).unwrap()),
-            JumplistString {
+            JumplistItem {
                 string: engrish_str,
                 text_pointer,
                 text_vma_pointer: u32::from_le_bytes(pointer.to_be_bytes()),
@@ -693,4 +792,28 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
         );
     }
     Ok(strings)
+}
+
+#[inline]
+pub async fn patch_jumplist(
+    exec_writer: &mut BufWriter<fs::File>,
+    jumplist_items: BTreeMap<Hexu32, JumplistItem>,
+    location: usize,
+    count: usize,
+) -> Result<(), io::Error> {
+    exec_writer
+        .seek(SeekFrom::Start(location as u64))
+        .await?;
+    assert_eq!(
+        count,
+        jumplist_items.len(),
+        "Jumplist count MUST be exact!"
+    );
+    for (_, jumplist_item) in jumplist_items {
+        // Now write it all
+        exec_writer
+            .write_all(&jumplist_item.text_vma_pointer.to_be_bytes())
+            .await?;
+    }
+    Ok(())
 }

@@ -27,12 +27,19 @@ static ITEM_STRUCT_FIELDS: usize = ITEM_STRUCT_SIZE / size_of::<u32>();
 #[derive(Serialize, Deserialize, Default, PartialEq, Copy, Clone)]
 enum ItemEquipSlot {
     #[default]
+    #[serde(alias="none")]
     None = 0,
+    #[serde(alias="onehand")]
     OneHand = 1,
+    #[serde(alias="twohand")]
     TwoHand = 2,
+    #[serde(alias="head")]
     Head = 3,
+    #[serde(alias="shield")]
     Shield = 4,
+    #[serde(alias="torso")]
     Torso = 5,
+    #[serde(alias="feet")]
     Feet = 6,
 }
 

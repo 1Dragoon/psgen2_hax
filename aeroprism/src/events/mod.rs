@@ -1779,8 +1779,11 @@ pub struct IndexMapWrapper<T: Serialize + DeserializeOwned>(
 
 #[derive(Serialize, Deserialize)]
 enum BytesOrPointer {
+    #[serde(alias="bytes")]
     Bytes(Vec<u8>),
+    #[serde(alias="padbytes", alias="pad_bytes")]
     PadBytes,
+    #[serde(alias="pointer")]
     Pointer(Pointer),
 }
 
