@@ -251,7 +251,7 @@ pub fn parse_events<R: Seek + BufRead>(
             }
             debug_string
                 .push_str(format!("\n-----end string----- {string_end_offset:04x}").as_str());
-            if string_repr.padded {
+            if string_repr.padding > 0 {
                 debug_string.push_str(" (padded)");
             }
             debug_string.push('\n');
@@ -366,7 +366,7 @@ fn debug_raw_string(raw_ps2_sjis_string: &[u8]) {
         debug_string.push_str(format!("{item}").as_str());
     }
     debug_string.push_str("\n-----end string-----");
-    if string_repr.padded {
+    if string_repr.padding > 0 {
         debug_string.push_str(" (padded)");
     }
     debug_string.push('\n');
@@ -525,7 +525,7 @@ pub fn decode_psg2_string(mut raw_ps2_sjis_string: Vec<u8>) -> DialogString {
     dialog_string.shrink_to_fit();
     DialogString {
         text: dialog_string,
-        padded: pad,
+        padding: if pad { 4 } else { 0 },
     }
 }
 

@@ -1,23 +1,22 @@
 use crate::{
-    events::{DialogItem, codec::decode_psg2_string},
+    events::{
+        DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
+        serialize_dialog_items,
+    },
     helpers::{
-        deserialize_u8_hex, deserialize_u32_hex, is_default,
-        serialize_u8_hex, serialize_u32_hex,
+        deserialize_u8_hex, deserialize_u32_hex, is_default, serialize_u8_hex, serialize_u32_hex,
     },
     slpm_patcher::{
-        Hexu32, POINTER_OFFSET, SpellElemental, StringMemRegion, TECHNIQUE_STRUCT_COUNT,
-        TECHNIQUE_STRUCT_FIELDS, TECHNIQUE_STRUCT_START,
+        Hexu32, POINTER_OFFSET, RelativePointer, SpellElemental, StringMemRegion,
+        TECHNIQUE_STRUCT_COUNT, TECHNIQUE_STRUCT_FIELDS, TECHNIQUE_STRUCT_START,
     },
 };
 use alloc::collections::BTreeMap;
 use indexmap::IndexSet;
-use strum::EnumIter;
-use crate::{
-    events::{deserialize_dialog_items, serialize_dialog_items},
-};
 use serde::{Deserialize, Serialize};
 use std::io;
-use strum::IntoEnumIterator;
+use string_interner::symbol::SymbolU32;
+use strum::{EnumIter, IntoEnumIterator};
 use tokio::{
     fs,
     io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, AsyncWriteExt, BufWriter, SeekFrom},
@@ -25,26 +24,26 @@ use tokio::{
 
 #[derive(Serialize, Deserialize)]
 #[repr(i32)]
-enum Targetable {
-    #[serde(alias="sacrificeforall", alias="sacrifice_for_all")]
+pub enum Targetable {
+    #[serde(alias = "sacrificeforall", alias = "sacrifice_for_all")]
     SacrificeForAll = -7,
-    #[serde(alias="sacrificeforone", alias="sacrifice_for_one")]
+    #[serde(alias = "sacrificeforone", alias = "sacrifice_for_one")]
     SacrificeForOne = -6,
-    #[serde(alias="allydead", alias="ally_dead")]
+    #[serde(alias = "allydead", alias = "ally_dead")]
     AllyDead = -5,
-    #[serde(alias="allbutcaster", alias="all_but_caster")]
+    #[serde(alias = "allbutcaster", alias = "all_but_caster")]
     AllButCaster = -4,
-    #[serde(alias="allyall", alias="ally_all")]
+    #[serde(alias = "allyall", alias = "ally_all")]
     AllyAll = -3,
-    #[serde(alias="ally")]
+    #[serde(alias = "ally")]
     Ally = -2,
-    #[serde(alias="caster")]
+    #[serde(alias = "caster")]
     Caster = -1,
-    #[serde(alias="enemy")]
+    #[serde(alias = "enemy")]
     Enemy = 0,
-    #[serde(alias="enemygroup", alias="enemy_group")]
+    #[serde(alias = "enemygroup", alias = "enemy_group")]
     EnemyGroup = 1,
-    #[serde(alias="enemyall", alias="enemy_all")]
+    #[serde(alias = "enemyall", alias = "enemy_all")]
     EnemyAll = 5,
 }
 
@@ -70,17 +69,17 @@ impl TryFrom<i32> for Targetable {
 
 // Technique attributes
 #[derive(EnumIter, Serialize, Deserialize, Copy, Clone, Eq, PartialEq, Default)]
-enum Speed {
+pub enum Speed {
     #[default]
-    #[serde(alias="medium")]
+    #[serde(alias = "medium")]
     Medium = 0x00,
-    #[serde(alias="fast")]
+    #[serde(alias = "fast")]
     Fast = 0x10,
-    #[serde(alias="slow")]
+    #[serde(alias = "slow")]
     Slow = 0x20,
-    #[serde(alias="speeda", alias="speed_a")]
+    #[serde(alias = "speeda", alias = "speed_a")]
     SpeedA = 0x40,
-    #[serde(alias="speedb", alias="speed_b")]
+    #[serde(alias = "speedb", alias = "speed_b")]
     SpeedB = 0x80,
 }
 
@@ -111,20 +110,18 @@ impl Speed {
     }
 }
 
-
-
 #[derive(EnumIter, Serialize, Deserialize, Copy, Clone, Eq, PartialEq, Default)]
-enum Usage {
+pub enum Usage {
     #[default]
-    #[serde(alias="enemyeffect", alias="enemy_effect")]
+    #[serde(alias = "enemyeffect", alias = "enemy_effect")]
     EnemyEffect = 0x00,
-    #[serde(alias="caster")]
+    #[serde(alias = "caster")]
     Caster = 0x01,
-    #[serde(alias="ally")]
+    #[serde(alias = "ally")]
     Ally = 0x02,
-    #[serde(alias="enemy")]
+    #[serde(alias = "enemy")]
     Enemy = 0x04,
-    #[serde(alias="othera", alias="other_a")]
+    #[serde(alias = "othera", alias = "other_a")]
     OtherA = 0x08,
 }
 
@@ -155,42 +152,41 @@ impl Usage {
     }
 }
 
-// Technique field_2
 #[repr(u32)]
 #[derive(EnumIter, Serialize, Deserialize, Copy, Clone, Eq, PartialEq)]
-enum SideEffect {
-   Seal = 0x0000_0001,
-   Paralyze = 0x0000_0002,
-   SkillDown = 0x0000_0004,
-   RaiseDead = 0x0000_0008,
-   UnknownA = 0x0000_0010,
-   CureSleep = 0x0000_0020,
-   UnknownB = 0x0000_0040,
-   UnknownC = 0x0000_0080,
-   CurePoison = 0x0000_0100,
-   TPUp = 0x0000_0200,
-   UnknownD = 0x0000_0400,
-   Poison = 0x0000_0800,
-   AttackUp = 0x0000_1000,
-   DefenseUp = 0x0000_2000,
-   AgilityUp = 0x0000_4000,
-   Heal = 0x0000_8000,
-   AttackDown = 0x0001_0000,
-   DefenseDown = 0x0002_0000,
-   AgilityDown = 0x0004_0000,
-   TPDown = 0x0008_0000,
-   InstaKill = 0x0010_0000,
-   StealHP = 0x0020_0000,
-   HeavyDamage = 0x0040_0000,
-   NoNumbers = 0x0080_0000,
-   UnknownE = 0x0100_0000,
-   UnknownF = 0x0200_0000,
-   UnknownG = 0x0400_0000,
-   UnknownH = 0x0800_0000,
-   Sleep = 0x1000_0000,
-   UnknownI = 0x2000_0000,
-   UnknownJ = 0x4000_0000,
-   UnknownK = 0x8000_0000,
+pub enum SideEffect {
+    Seal = 0x0000_0001,
+    Paralyze = 0x0000_0002,
+    SkillDown = 0x0000_0004,
+    RaiseDead = 0x0000_0008,
+    UnknownA = 0x0000_0010,
+    CureAll = 0x0000_0020,
+    UnknownB = 0x0000_0040,
+    UnknownC = 0x0000_0080,
+    CurePoison = 0x0000_0100,
+    TPUp = 0x0000_0200,
+    UnknownD = 0x0000_0400,
+    Poison = 0x0000_0800,
+    AttackUp = 0x0000_1000,
+    DefenseUp = 0x0000_2000,
+    AgilityUp = 0x0000_4000,
+    Heal = 0x0000_8000,
+    AttackDown = 0x0001_0000,
+    DefenseDown = 0x0002_0000,
+    AgilityDown = 0x0004_0000,
+    TPDown = 0x0008_0000,
+    InstaKill = 0x0010_0000,
+    StealHP = 0x0020_0000,
+    HeavyDamage = 0x0040_0000,
+    NoNumbers = 0x0080_0000,
+    UnknownE = 0x0100_0000,
+    UnknownF = 0x0200_0000,
+    UnknownG = 0x0400_0000,
+    UnknownH = 0x0800_0000,
+    Sleep = 0x1000_0000,
+    UnknownI = 0x2000_0000,
+    UnknownJ = 0x4000_0000,
+    UnknownK = 0x8000_0000,
 }
 
 impl SideEffect {
@@ -219,18 +215,22 @@ pub struct Technique {
         deserialize_with = "deserialize_dialog_items",
         serialize_with = "serialize_dialog_items"
     )]
-    name: Vec<DialogItem>,
+    pub name: Vec<DialogItem>,
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
     )]
-    name_pointer: u32,
+    pub name_pointer: u32,
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
     )]
-    name_vma_pointer: u32,
-    relative_name_pointer: (StringMemRegion, Hexu32),
+    pub name_vma_pointer: u32,
+    #[serde(skip)]
+    pub interner: Option<SymbolU32>,
+    #[serde(skip)]
+    pub text: DialogString,
+    pub relative_name_pointer: (StringMemRegion, Hexu32),
     // #[serde(
     //     default,
     //     serialize_with = "serialize_u32_hex",
@@ -239,62 +239,88 @@ pub struct Technique {
     // )]
     // attributes: u32,
     #[serde(default, skip_serializing_if = "is_default")]
-    elemental: Box<[SpellElemental]>,
+    pub elemental: Box<[SpellElemental]>,
     #[serde(default, skip_serializing_if = "is_default")]
-    vulnerable: Box<[VulerableTargets]>,
+    pub vulnerable: Box<[VulerableTargets]>,
     #[serde(default, skip_serializing_if = "is_default")]
-    usage: Box<[Usage]>,
+    pub usage: Box<[Usage]>,
     #[serde(default, skip_serializing_if = "is_default")]
-    speed: Box<[Speed]>,
+    pub speed: Box<[Speed]>,
     #[serde(
         default,
         serialize_with = "serialize_u8_hex",
         deserialize_with = "deserialize_u8_hex",
         skip_serializing_if = "is_default"
     )]
-    attr_c: u8,
+    pub attr_c: u8,
     #[serde(default, skip_serializing_if = "is_default")]
-    usable_out_of_combat: bool,
+    pub usable_out_of_combat: bool,
     #[serde(default, skip_serializing_if = "is_default")]
-    cannot_be_used_in_combat: bool,
-    #[serde(
-        default,
-        skip_serializing_if = "is_default"
-    )]
-    side_effect: Box<[SideEffect]>,
+    pub cannot_be_used_in_combat: bool,
     #[serde(default, skip_serializing_if = "is_default")]
-    tp_cost: u32,
-    target: Targetable,
+    pub side_effect: Box<[SideEffect]>,
     #[serde(default, skip_serializing_if = "is_default")]
-    power: i32,
+    pub tp_cost: u32,
+    pub target: Targetable,
     #[serde(default, skip_serializing_if = "is_default")]
-    eusis: i32,
+    pub power: i32,
     #[serde(default, skip_serializing_if = "is_default")]
-    nei: i32,
+    pub eusis: i32,
     #[serde(default, skip_serializing_if = "is_default")]
-    rudger: i32,
+    pub nei: i32,
     #[serde(default, skip_serializing_if = "is_default")]
-    anne: i32,
+    pub rudger: i32,
     #[serde(default, skip_serializing_if = "is_default")]
-    huey: i32,
+    pub anne: i32,
     #[serde(default, skip_serializing_if = "is_default")]
-    amia: i32,
+    pub huey: i32,
     #[serde(default, skip_serializing_if = "is_default")]
-    keinz: i32,
+    pub amia: i32,
     #[serde(default, skip_serializing_if = "is_default")]
-    silka: i32,
+    pub keinz: i32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub silka: i32,
+}
+
+impl RelativePointer for Technique {
+    fn get_symbol_mut(&mut self) -> &mut Option<SymbolU32> {
+        &mut self.interner
+    }
+
+    fn get_relative_pointer(&self) -> (StringMemRegion, Hexu32) {
+        (self.relative_name_pointer.0, self.relative_name_pointer.1)
+    }
+
+    fn get_text(&'_ self) -> &'_ DialogString {
+        &self.text
+    }
+
+    fn pad_text(&mut self, size: u8) {
+        self.text.set_padding(size);
+    }
+
+    fn set_vma_pointer(&mut self, ptr_le: u32) {
+        self.name_vma_pointer = ptr_le;
+    }
+
+    fn convert_text(&mut self) {
+        self.text = DialogString {
+            text: self.name.clone(),
+            padding: 0,
+        };
+    }
 }
 
 #[repr(u8)]
 #[derive(EnumIter, Serialize, Deserialize, Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Debug)]
-enum VulerableTargets {
-    #[serde(alias="biologic")]
+pub enum VulerableTargets {
+    #[serde(alias = "biologic")]
     Biologic = 0x10,
-    #[serde(alias="robotic")]
+    #[serde(alias = "robotic")]
     Robotic = 0x20,
-    #[serde(alias="notboss", alias="not_boss")]
+    #[serde(alias = "notboss", alias = "not_boss")]
     NotBoss = 0x40,
-    #[serde(alias="unknowna", alias="unknown_a")]
+    #[serde(alias = "unknowna", alias = "unknown_a")]
     UnknownA = 0x80,
 }
 
@@ -365,8 +391,10 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
 
         let technique = Technique {
             name: Vec::new(),
+            text: DialogString::default(),
             name_pointer,
             name_vma_pointer: u32::from_be_bytes(pointer_bytes),
+            interner: None,
             relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0)),
             elemental,
             vulnerable,
@@ -443,7 +471,8 @@ pub async fn patch(
     );
     for (_, tech) in techniques {
         // Calculate attributes field
-        let attr_a = SpellElemental::to_byte(&tech.elemental) | VulerableTargets::to_byte(&tech.vulnerable);
+        let attr_a =
+            SpellElemental::to_byte(&tech.elemental) | VulerableTargets::to_byte(&tech.vulnerable);
         let attr_b = Speed::to_byte(&tech.speed) | Usage::to_byte(&tech.usage);
         let attr_c = tech.attr_c;
         let mut attr_d = 0;
@@ -460,9 +489,7 @@ pub async fn patch(
         exec_writer
             .write_all(&tech.name_vma_pointer.to_be_bytes())
             .await?;
-        exec_writer
-            .write_all(&attributes)
-            .await?;
+        exec_writer.write_all(&attributes).await?;
         exec_writer.write_all(&side_effect).await?;
         exec_writer.write_all(&tech.tp_cost.to_le_bytes()).await?;
         exec_writer

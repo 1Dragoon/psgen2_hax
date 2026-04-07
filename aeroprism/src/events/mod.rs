@@ -7,8 +7,8 @@ use crate::{
         sjis_map::utf8_to_ps2,
     },
     helpers::{
-        deserialize_hex, deserialize_indexmap, encode_hex, serialize_hex, serialize_indexmap,
-        serialize_rc_empty,
+        deserialize_hex, deserialize_indexmap, encode_hex, is_default, serialize_hex,
+        serialize_indexmap, serialize_rc_empty,
     },
     slpm_patcher::ExecStructures,
 };
@@ -1382,8 +1382,8 @@ impl Display for DialogItem {
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct DialogString {
-    #[serde(default, skip_serializing_if = "is_false")]
-    pub padded: bool,
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub padding: u8,
     #[serde(
         deserialize_with = "deserialize_dialog_items",
         serialize_with = "serialize_dialog_items"
@@ -1403,9 +1403,11 @@ impl Display for DialogString {
 impl DialogString {
     pub fn byte_len(&self) -> usize {
         let mut size = self.text.iter().fold(0, |acc, s| acc + s.byte_len());
-        if self.padded {
+        if self.padding == 1 {
             size += 1;
-            while !size.is_multiple_of(4) {
+        } else if self.padding > 1 {
+            size += 1;
+            while !size.is_multiple_of(self.padding as usize) {
                 size += 1;
             }
         }
@@ -1416,14 +1418,16 @@ impl DialogString {
         // Pass a value into offset to calculate padding where needed
         // Or pass None to ignore padding, even if specified
         let mut string_bytes = Vec::with_capacity(255);
-        let Self { text, padded } = self;
+        let Self { text, padding } = self;
         for item in text {
             string_bytes.extend(item.into_bytes());
         }
-        if padded {
+        if padding == 1 {
+            string_bytes.push(0);
+        } else if padding > 1 {
             let eo = est_offset.unwrap_or_default();
             string_bytes.push(0);
-            while !(eo + string_bytes.len()).is_multiple_of(4) {
+            while !(eo + string_bytes.len()).is_multiple_of(self.padding as usize) {
                 string_bytes.push(0);
             }
         }
@@ -1431,8 +1435,8 @@ impl DialogString {
         string_bytes
     }
 
-    pub const fn set_padded(&mut self) {
-        self.padded = true;
+    pub const fn set_padding(&mut self, size: u8) {
+        self.padding = size;
     }
 }
 
@@ -1779,11 +1783,11 @@ pub struct IndexMapWrapper<T: Serialize + DeserializeOwned>(
 
 #[derive(Serialize, Deserialize)]
 enum BytesOrPointer {
-    #[serde(alias="bytes")]
+    #[serde(alias = "bytes")]
     Bytes(Vec<u8>),
-    #[serde(alias="padbytes", alias="pad_bytes")]
+    #[serde(alias = "padbytes", alias = "pad_bytes")]
     PadBytes,
-    #[serde(alias="pointer")]
+    #[serde(alias = "pointer")]
     Pointer(Pointer),
 }
 
@@ -1960,14 +1964,6 @@ pub fn load_exec_struct_patch<P: AsRef<Path>>(path: P) -> Result<ExecStructures,
     let mut br = BufReader::new(file);
     br.read_to_string(&mut string)?;
     Ok(toml::from_str(&string).unwrap())
-}
-
-#[expect(
-    clippy::trivially_copy_pass_by_ref,
-    reason = "satisfies trait requirement"
-)]
-fn is_false(val: &bool) -> bool {
-    !val
 }
 
 pub fn serialize_dialog_items<S>(x: &Vec<DialogItem>, s: S) -> Result<S::Ok, S::Error>

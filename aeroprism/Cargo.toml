@@ -11,6 +11,7 @@ env_logger = "0.11.10"
 hadris-iso = "1.1.0"
 hex_lit = "0.1.1"
 indexmap = { version = "2.13.1", features = ["serde"] }
+itertools = "0.14.0"
 log = "0.4.29"
 meowhash = "0.3.0"
 png = "0.18.1"
@@ -19,6 +20,7 @@ serde_json = { version = "1.0.149", features = ["preserve_order"] }
 shellexpand = { version = "3.1.1", features = ["os_str_bytes", "path"] }
 snafu = "0.9.0"
 soft-canonicalize = { version = "0.5.5", features = ["dunce"] }
+string-interner = "0.19.0"
 strum = { version = "0.28.0", features = ["derive"] }
 tokio = { version = "1.51.0", features = ["macros", "rt", "rt-multi-thread", "fs", "io-util", "time"] }
 toml = { version = "1.1.2+spec-1.1.0", features = ["preserve_order"] }

@@ -1,18 +1,20 @@
 use crate::{
     events::{
-        DialogItem, codec::decode_psg2_string, deserialize_dialog_items, serialize_dialog_items,
+        DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
+        serialize_dialog_items,
     },
     helpers::{
         deserialize_u8_hex, deserialize_u16_hex, deserialize_u32_hex, is_default, is_u16_max,
         max_u16, serialize_u8_hex, serialize_u16_hex, serialize_u32_hex,
     },
-    slpm_patcher::{Character, Enchant, Hexu32, POINTER_OFFSET, StringMemRegion},
+    slpm_patcher::{Character, Enchant, Hexu32, POINTER_OFFSET, RelativePointer, StringMemRegion},
 };
 use alloc::collections::BTreeMap;
 use core::mem::size_of;
 use indexmap::IndexSet;
 use serde::{Deserialize, Serialize};
 use std::io;
+use string_interner::symbol::SymbolU32;
 use tokio::{
     fs::{self},
     io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, AsyncWriteExt, BufWriter, SeekFrom},
@@ -24,22 +26,22 @@ static ITEM_STRUCT_COUNT: usize = 185;
 static ITEM_STRUCT_FIELDS: usize = ITEM_STRUCT_SIZE / size_of::<u32>();
 
 #[repr(u8)]
-#[derive(Serialize, Deserialize, Default, PartialEq, Copy, Clone)]
-enum ItemEquipSlot {
+#[derive(Serialize, Deserialize, Default, Eq, PartialEq, Copy, Clone)]
+pub enum ItemEquipSlot {
     #[default]
-    #[serde(alias="none")]
+    #[serde(alias = "none")]
     None = 0,
-    #[serde(alias="onehand")]
+    #[serde(alias = "onehand")]
     OneHand = 1,
-    #[serde(alias="twohand")]
+    #[serde(alias = "twohand")]
     TwoHand = 2,
-    #[serde(alias="head")]
+    #[serde(alias = "head")]
     Head = 3,
-    #[serde(alias="shield")]
+    #[serde(alias = "shield")]
     Shield = 4,
-    #[serde(alias="torso")]
+    #[serde(alias = "torso")]
     Torso = 5,
-    #[serde(alias="feet")]
+    #[serde(alias = "feet")]
     Feet = 6,
 }
 
@@ -66,44 +68,48 @@ pub struct ItemInfo {
         deserialize_with = "deserialize_dialog_items",
         serialize_with = "serialize_dialog_items"
     )]
-    name: Vec<DialogItem>,
+    pub name: Vec<DialogItem>,
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
     )]
-    name_pointer: u32,
+    pub name_pointer: u32,
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
     )]
-    name_vma_pointer: u32,
-    relative_name_pointer: (StringMemRegion, Hexu32),
+    pub name_vma_pointer: u32,
+    #[serde(skip)]
+    pub interner: Option<SymbolU32>,
+    #[serde(skip)]
+    pub text: DialogString,
+    pub relative_name_pointer: (StringMemRegion, Hexu32),
     #[serde(default, skip_serializing_if = "is_default")]
-    equip_slot: ItemEquipSlot,
+    pub equip_slot: ItemEquipSlot,
     #[serde(
         default = "max_u16",
         serialize_with = "serialize_u16_hex",
         deserialize_with = "deserialize_u16_hex",
         skip_serializing_if = "is_u16_max"
     )]
-    field_2: u16, // Always seems to be 0xFFFF, maybe indicates unitialized data to align to next i32?
+    pub unknown_2: u16, // Always seems to be 0xFFFF, maybe indicates unitialized data to align to next i32?
     #[serde(default, skip_serializing_if = "is_default")]
-    buy_price: i32,
+    pub buy_price: i32,
     #[serde(default, skip_serializing_if = "is_default")]
-    sell_price: i32,
+    pub sell_price: i32,
     #[serde(default, skip_serializing_if = "is_default")]
-    can_equip: Box<[Character]>, // Character mask
+    pub can_equip: Box<[Character]>, // Character mask
     #[serde(
         default,
         serialize_with = "serialize_u8_hex",
         deserialize_with = "deserialize_u8_hex",
         skip_serializing_if = "is_default"
     )]
-    field_5: u8, // Appears unused, probably MSB of 16-bit character mask above
+    pub unknown_5: u8, // Appears unused, probably MSB of 16-bit character mask above
     #[serde(default, skip_serializing_if = "is_default")]
-    enchantment: Box<[Enchant]>,
+    pub enchantment: Box<[Enchant]>,
     #[serde(default, skip_serializing_if = "is_default")]
-    important: bool, // Indicates whether items are allowed to be sold, discarded, etc.
+    pub important: bool, // Indicates whether items are allowed to be sold, discarded, etc.
     // #[serde(
     //     default,
     //     serialize_with = "serialize_u32_hex",
@@ -112,22 +118,51 @@ pub struct ItemInfo {
     // )]
     // attributes: u32,
     #[serde(default, skip_serializing_if = "is_default")]
-    attack: i16,
+    pub attack: i16,
     #[serde(default, skip_serializing_if = "is_default")]
-    defense: i16,
+    pub defense: i16,
     #[serde(default, skip_serializing_if = "is_default")]
-    skill: i16,
+    pub skill: i16,
     #[serde(default, skip_serializing_if = "is_default")]
-    agility: i16,
+    pub agility: i16,
     #[serde(default, skip_serializing_if = "is_default")]
-    luck: i16,
+    pub luck: i16,
     #[serde(
         default,
         serialize_with = "serialize_u16_hex",
         deserialize_with = "deserialize_u16_hex",
         skip_serializing_if = "is_default"
     )]
-    field_7: u16, // Appears unused, probably final padding of this struct to align on 32-bit boundary
+    pub unknown_7: u16, // Appears unused, probably final padding of this struct to align on 32-bit boundary
+}
+
+impl RelativePointer for ItemInfo {
+    fn get_symbol_mut(&mut self) -> &mut Option<SymbolU32> {
+        &mut self.interner
+    }
+
+    fn get_relative_pointer(&self) -> (StringMemRegion, Hexu32) {
+        (self.relative_name_pointer.0, self.relative_name_pointer.1)
+    }
+
+    fn get_text(&'_ self) -> &'_ DialogString {
+        &self.text
+    }
+
+    fn pad_text(&mut self, size: u8) {
+        self.text.set_padding(size);
+    }
+
+    fn set_vma_pointer(&mut self, ptr_le: u32) {
+        self.name_vma_pointer = ptr_le;
+    }
+
+    fn convert_text(&mut self) {
+        self.text = DialogString {
+            text: self.name.clone(),
+            padding: 0,
+        };
+    }
 }
 
 #[inline]
@@ -153,7 +188,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let name_vma_pointer = u32::from_be_bytes(pointer);
         let slot_data = field_vec.pop().unwrap();
         let slot_val = i16::from_le_bytes([slot_data[0], slot_data[1]]);
-        let field_2 = u16::from_le_bytes([slot_data[2], slot_data[3]]);
+        let unknown_2 = u16::from_le_bytes([slot_data[2], slot_data[3]]);
         let buy_price = i32::from_le_bytes(field_vec.pop().unwrap());
         let sell_price = i32::from_le_bytes(field_vec.pop().unwrap());
         let attributes = field_vec.pop().unwrap();
@@ -161,7 +196,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let sk_ag = field_vec.pop().unwrap();
         let lu_f4 = field_vec.pop().unwrap();
         let character_equip_byte = attributes[0];
-        let field_5 = attributes[1];
+        let unknown_5 = attributes[1];
         let enchantment = Enchant::from_byte(attributes[2]);
         let important = attributes[3] & 0x40 == 0x40;
         // let attributes = u16::from_le_bytes([eq_f3[2], eq_f3[3]]);
@@ -170,7 +205,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let skill = i16::from_le_bytes([sk_ag[0], sk_ag[1]]);
         let agility = i16::from_le_bytes([sk_ag[2], sk_ag[3]]);
         let luck = i16::from_le_bytes([lu_f4[0], lu_f4[1]]);
-        let field_7 = u16::from_le_bytes([lu_f4[2], lu_f4[3]]);
+        let unknown_7 = u16::from_le_bytes([lu_f4[2], lu_f4[3]]);
         let equip_slot = ItemEquipSlot::try_from(slot_val).unwrap();
         relative_pointer_index.insert(name_pointer);
 
@@ -178,12 +213,14 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             name: Vec::new(),
             name_pointer,
             name_vma_pointer,
+            text: DialogString::default(),
+            interner: None,
             relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0)),
             equip_slot,
-            field_2,
+            unknown_2,
             buy_price,
             sell_price,
-            field_5,
+            unknown_5,
             enchantment,
             important,
             // attributes: u32::from_le_bytes(attributes),
@@ -193,7 +230,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             skill,
             agility,
             luck,
-            field_7,
+            unknown_7,
         };
         items.insert(Hexu32(u32::try_from(item_no + 1).unwrap()), item);
     }
@@ -249,7 +286,7 @@ pub async fn patch(
     for (_, item) in items {
         // Calculate attributes field
         let equip_byte = Character::to_byte(&item.can_equip);
-        let padding = item.field_5;
+        let padding = item.unknown_5;
         let enchant_byte = Enchant::to_byte(&item.enchantment);
         let important = if item.important { 0x40 } else { 0x00 };
 
@@ -260,7 +297,7 @@ pub async fn patch(
         exec_writer
             .write_all(&(item.equip_slot as i16).to_le_bytes())
             .await?;
-        exec_writer.write_all(&item.field_2.to_le_bytes()).await?;
+        exec_writer.write_all(&item.unknown_2.to_le_bytes()).await?;
         exec_writer.write_all(&item.buy_price.to_le_bytes()).await?;
         exec_writer
             .write_all(&item.sell_price.to_le_bytes())
@@ -273,7 +310,7 @@ pub async fn patch(
         exec_writer.write_all(&item.skill.to_le_bytes()).await?;
         exec_writer.write_all(&item.agility.to_le_bytes()).await?;
         exec_writer.write_all(&item.luck.to_le_bytes()).await?;
-        exec_writer.write_all(&item.field_7.to_le_bytes()).await?;
+        exec_writer.write_all(&item.unknown_7.to_le_bytes()).await?;
     }
     Ok(())
 }

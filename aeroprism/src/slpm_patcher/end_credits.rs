@@ -130,10 +130,7 @@ pub async fn patch(
             text,
         } = end_credit_item;
 
-        let mut credit_string = DialogString {
-            padded: false,
-            text,
-        };
+        let mut credit_string = DialogString { padding: 0, text };
 
         if log_enabled!(Level::Debug) {
             debug!("Debugged credit string: {credit_string:#?}");
@@ -149,7 +146,7 @@ pub async fn patch(
         ]
         .concat();
         // Mark as padded so we don't have to calculate that manually here
-        credit_string.set_padded();
+        credit_string.set_padding(4);
 
         // Convert the string into bytes and calculate the length field, storing as a u16 for later
         let expand_by = credit_string.byte_len() + credit_header.len();
