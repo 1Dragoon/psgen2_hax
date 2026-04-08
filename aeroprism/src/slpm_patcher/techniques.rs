@@ -4,10 +4,11 @@ use crate::{
         serialize_dialog_items,
     },
     helpers::{
-        deserialize_u8_hex, deserialize_u32_hex, encode_hex, is_default, serialize_u8_hex, serialize_u32_hex
+        deserialize_u8_hex, deserialize_u32_hex, encode_hex, is_default, serialize_u8_hex,
+        serialize_u32_hex,
     },
     slpm_patcher::{
-        Hexu32, POINTER_OFFSET, RelativePointer, SpellElemental, StringMemRegion,
+        Hexu32, POINTER_OFFSET, RelativePointerInfo, SpellElemental, StringFill, StringMemRegion,
         TECHNIQUE_STRUCT_COUNT, TECHNIQUE_STRUCT_FIELDS, TECHNIQUE_STRUCT_START,
     },
 };
@@ -15,8 +16,7 @@ use alloc::collections::BTreeMap;
 use indexmap::IndexSet;
 use log::warn;
 use serde::{Deserialize, Serialize};
-use std::io;
-use string_interner::symbol::SymbolU32;
+use std::{collections::HashSet, io};
 use strum::{EnumIter, IntoEnumIterator};
 use tokio::{
     fs,
@@ -228,10 +228,9 @@ pub struct Technique {
     )]
     pub name_vma_pointer: u32,
     #[serde(skip)]
-    pub interner: Option<SymbolU32>,
-    #[serde(skip)]
     pub text: DialogString,
-    pub relative_name_pointer: (StringMemRegion, Hexu32, bool),
+    #[serde(flatten)]
+    pub relative_name_pointer: RelativePointerInfo,
     // #[serde(
     //     default,
     //     serialize_with = "serialize_u32_hex",
@@ -283,13 +282,9 @@ pub struct Technique {
     pub silka: i32,
 }
 
-impl RelativePointer for Technique {
-    fn get_symbol_mut(&mut self) -> &mut Option<SymbolU32> {
-        &mut self.interner
-    }
-
-    fn get_relative_pointer(&self) -> (StringMemRegion, Hexu32) {
-        (self.relative_name_pointer.0, self.relative_name_pointer.1)
+impl StringFill for Technique {
+    fn get_relative_pointer(&self) -> RelativePointerInfo {
+        self.relative_name_pointer
     }
 
     fn get_text(&'_ self) -> &'_ DialogString {
@@ -302,7 +297,11 @@ impl RelativePointer for Technique {
 
     fn set_vma_pointer(&mut self, ptr_le: u32) {
         if self.name_vma_pointer != ptr_le {
-            warn!("Got {}, expected {}", encode_hex(&self.name_vma_pointer.to_le_bytes()), encode_hex(&ptr_le.to_le_bytes()));
+            warn!(
+                "Got {}, expected {}",
+                encode_hex(&self.name_vma_pointer.to_le_bytes()),
+                encode_hex(&ptr_le.to_le_bytes())
+            );
         }
         self.name_vma_pointer = ptr_le;
     }
@@ -315,7 +314,7 @@ impl RelativePointer for Technique {
     }
 
     fn is_pointer_aliased(&self) -> bool {
-        self.relative_name_pointer.2
+        self.relative_name_pointer.aliased
     }
 }
 
@@ -354,7 +353,7 @@ impl VulerableTargets {
 
 pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-    aliaser: &mut std::collections::HashSet<u32>
+    aliaser: &mut HashSet<u32>,
 ) -> Result<BTreeMap<Hexu32, Technique>, io::Error> {
     reader
         .seek(SeekFrom::Start(TECHNIQUE_STRUCT_START as u64))
@@ -403,8 +402,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             text: DialogString::default(),
             name_pointer,
             name_vma_pointer: u32::from_be_bytes(pointer_bytes),
-            interner: None,
-            relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0), false),
+            relative_name_pointer: RelativePointerInfo::default(),
             elemental,
             vulnerable,
             speed,
@@ -448,7 +446,11 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let index = relative_pointer_index
             .get_index_of(&technique.name_pointer)
             .unwrap();
-        technique.relative_name_pointer = (region, Hexu32(u32::try_from(index).unwrap()), !aliaser.insert(technique.name_pointer));
+        technique.relative_name_pointer = RelativePointerInfo::new(
+            region,
+            Hexu32(u32::try_from(index).unwrap()),
+            !aliaser.insert(technique.name_pointer),
+        );
         // tech_pointers.insert(
         //     Hexu32(technique.name_pointer - 0xff000),
         //     (

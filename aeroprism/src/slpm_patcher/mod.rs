@@ -10,8 +10,8 @@ use crate::{
         load_exec_struct_patch, serialize_dialog_items,
     },
     helpers::{
-        deserialize_u32_hex, encode_hex, hex_edit_encode, save_binary_file, serialize_u32_hex,
-        unset_readonly,
+        deserialize_u32_hex, encode_hex, hex_edit_encode, is_default, save_binary_file,
+        serialize_u32_hex, unset_readonly,
     },
     slpm_patcher::{
         end_credits::EndCreditItem, enemies::EnemyInfo, items::ItemInfo, techniques::Technique,
@@ -27,7 +27,6 @@ use std::{
     io,
     path::{Path, PathBuf},
 };
-use string_interner::{DefaultStringInterner, StringInterner, symbol::SymbolU32};
 use strum::{EnumIter, IntoEnumIterator};
 use tokio::{
     fs::{self, OpenOptions},
@@ -58,14 +57,8 @@ static MENU_TEXT_JUMPLIST_FIELDS: usize = 149;
 static ITEM_DESCRIPTION_JUMPLIST_START: usize = 0x16_5428;
 static ITEM_DESCRIPTION_JUMPLIST_FIELDS: usize = 195;
 
-// static DUNNO_JUMPLIST_START: usize = 0x18_B048;
-// static DUNNO_JUMPLIST_FIELDS: usize = 5;
-
-// static STRING_REGION_A_START: usize = 0x1A_9AF0; // menu text
-// static STRING_REGION_A_END: usize = 0x1A_D802; //
-
-// static ENEMY_NAMES_STRING_REGION_START: usize = 0x1A_89E0;
-// static ENEMY_NAMES_STRING_REGION_END: usize = 0x1A_929F;
+static DUNNO_JUMPLIST_START: usize = 0x14_f798;
+static DUNNO_JUMPLIST_FIELDS: usize = 106;
 
 static MEMCARD_STRUCT_START: usize = 0x18_E0A0;
 static MEMCARD_STRUCT_COUNT: usize = 9;
@@ -79,12 +72,13 @@ static TECHNIQUE_STRUCT_START: usize = 0x1A_28A0;
 static TECHNIQUE_STRUCT_COUNT: usize = 83;
 static TECHNIQUE_STRUCT_FIELDS: usize = 14;
 
-// static DUNNO_STRUCT_START: usize = 0x18_E0A0; // end 1A3AC8
+// static DUNNO_STRUCT_START: usize = 0x1A4198; // end 1A3AC8
 // static DUNNO_STRUCT_COUNT: usize = 9;
-// static DUNNO_STRUCT_FIELDS: usize = 2;
+// static DUNNO_STRUCT_FIELDS: usize = 25;
 
-#[derive(Serialize, Deserialize, Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Debug)]
+#[derive(Serialize, Deserialize, Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Debug, Default)]
 pub enum StringMemRegion {
+    #[default]
     #[serde(alias = "regiona", alias = "region_a")]
     RegionA,
     #[serde(alias = "regionb", alias = "region_b")]
@@ -130,7 +124,7 @@ impl StringMemRegion {
             Self::RegionJ => (0x1D_B2D8, 0x58),
             Self::RegionGoldenboy => (0x1D_B330, 0x8),
             Self::RegionK => (0x1D_B338, 0x150),
-            Self::RegionL => (0x1D_B598, 0xa0),
+            Self::RegionL => (0x1D_B598, 0xb0),
             Self::RegionM => (0x1D_B680, 0x128),
         }
     }
@@ -153,7 +147,7 @@ impl TryFrom<u32> for StringMemRegion {
             0x1D_B2D8..0x1D_B330 => Ok(Self::RegionJ),
             0x1D_B330..0x1D_B338 => Ok(Self::RegionGoldenboy),
             0x1D_B338..0x1D_B488 => Ok(Self::RegionK),
-            0x1D_B598..0x1D_B638 => Ok(Self::RegionL),
+            0x1D_B598..0x1D_B648 => Ok(Self::RegionL),
             0x1D_B680..0x1D_B7A8 => Ok(Self::RegionM),
             _ => Err(format!("No map region for address 0x{value:06x}")),
         }
@@ -201,6 +195,30 @@ impl Character {
     }
 }
 
+#[derive(Serialize, Deserialize, Default, Copy, Clone)]
+pub struct RelativePointerInfo {
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub string_mem_region: StringMemRegion,
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub region_relative: Hexu32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub aliased: bool,
+}
+
+impl RelativePointerInfo {
+    const fn new(
+        string_mem_region: StringMemRegion,
+        region_relative: Hexu32,
+        aliased: bool,
+    ) -> Self {
+        Self {
+            string_mem_region,
+            region_relative,
+            aliased,
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct Song {
     #[serde(
@@ -219,20 +237,15 @@ pub struct Song {
     )]
     name_vma_pointer: u32,
     #[serde(skip)]
-    interner: Option<SymbolU32>,
-    #[serde(skip)]
     text: DialogString,
-    relative_name_pointer: (StringMemRegion, Hexu32, bool),
+    #[serde(flatten)]
+    relative_name_pointer: RelativePointerInfo,
     unknown_1: i32,
 }
 
-impl RelativePointer for Song {
-    fn get_symbol_mut(&mut self) -> &mut Option<SymbolU32> {
-        &mut self.interner
-    }
-
-    fn get_relative_pointer(&self) -> (StringMemRegion, Hexu32) {
-        (self.relative_name_pointer.0, self.relative_name_pointer.1)
+impl StringFill for Song {
+    fn get_relative_pointer(&self) -> RelativePointerInfo {
+        self.relative_name_pointer
     }
 
     fn get_text(&'_ self) -> &'_ DialogString {
@@ -262,7 +275,7 @@ impl RelativePointer for Song {
     }
 
     fn is_pointer_aliased(&self) -> bool {
-        self.relative_name_pointer.2
+        self.relative_name_pointer.aliased
     }
 }
 
@@ -284,20 +297,15 @@ pub struct MemcardOpt {
     )]
     name_vma_pointer: u32,
     #[serde(skip)]
-    interner: Option<SymbolU32>,
-    #[serde(skip)]
     text: DialogString,
-    relative_name_pointer: (StringMemRegion, Hexu32, bool),
+    #[serde(flatten)]
+    relative_name_pointer: RelativePointerInfo,
     unknown_1: i32,
 }
 
-impl RelativePointer for MemcardOpt {
-    fn get_symbol_mut(&mut self) -> &mut Option<SymbolU32> {
-        &mut self.interner
-    }
-
-    fn get_relative_pointer(&self) -> (StringMemRegion, Hexu32) {
-        (self.relative_name_pointer.0, self.relative_name_pointer.1)
+impl StringFill for MemcardOpt {
+    fn get_relative_pointer(&self) -> RelativePointerInfo {
+        self.relative_name_pointer
     }
 
     fn get_text(&'_ self) -> &'_ DialogString {
@@ -327,7 +335,7 @@ impl RelativePointer for MemcardOpt {
     }
 
     fn is_pointer_aliased(&self) -> bool {
-        self.relative_name_pointer.2
+        self.relative_name_pointer.aliased
     }
 }
 
@@ -396,9 +404,8 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
             name: Vec::new(),
             name_pointer,
             name_vma_pointer: u32::from_be_bytes(pointer_bytes),
-            interner: None,
             text: DialogString::default(),
-            relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0), false),
+            relative_name_pointer: RelativePointerInfo::default(),
             unknown_1: i32::from_le_bytes(fields.pop().unwrap()),
         };
         songs.insert(Hexu32(u32::try_from(song_no + 1).unwrap()), song);
@@ -422,7 +429,7 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
         let index = relative_pointer_index
             .get_index_of(&song.name_pointer)
             .unwrap();
-        song.relative_name_pointer = (
+        song.relative_name_pointer = RelativePointerInfo::new(
             region,
             Hexu32(u32::try_from(index).unwrap()),
             !aliaser.insert(song.name_pointer),
@@ -491,8 +498,7 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
             text: DialogString::default(),
             name_pointer,
             name_vma_pointer: u32::from_be_bytes(pointer_bytes),
-            interner: None,
-            relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0), false),
+            relative_name_pointer: RelativePointerInfo::default(),
             unknown_1: i32::from_le_bytes(fields.pop().unwrap()),
         };
         memcard_opts.insert(Hexu32(u32::try_from(mc_opt_no + 1).unwrap()), memcard_opt);
@@ -516,7 +522,7 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
         let index = relative_pointer_index
             .get_index_of(&memcard_opt.name_pointer)
             .unwrap();
-        memcard_opt.relative_name_pointer = (
+        memcard_opt.relative_name_pointer = RelativePointerInfo::new(
             region,
             Hexu32(u32::try_from(index).unwrap()),
             !aliaser.insert(memcard_opt.name_pointer),
@@ -584,7 +590,7 @@ pub struct ExecStructures {
     pub misc_strings: BTreeMap<Hexu32, JumplistItem>,
     #[serde(rename = "memcard_opt")]
     pub memcard_opts: BTreeMap<Hexu32, MemcardOpt>,
-    // pub dunno: BTreeMap<Hexu32, DialogString>,
+    // pub dunno: BTreeMap<Hexu32, JumplistItem>,
 }
 
 #[repr(u8)]
@@ -726,7 +732,7 @@ impl Enchant {
 }
 
 #[inline]
-pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
+pub async fn parse_exec<P: AsRef<Path> + Send + Sync>(
     elf_exec: &PathBuf,
     out_dir: &P,
 ) -> Result<(), io::Error> {
@@ -766,8 +772,13 @@ pub async fn generate_exec_data<P: AsRef<Path> + Send + Sync>(
             &mut aliaser,
         )
         .await?,
-        // dunno: parse_jumplist_strings(&mut elf_reader, DUNNO_JUMPLIST_START, DUNNO_JUMPLIST_FIELDS)
-        //     .await?,
+        // dunno: parse_jumplist_strings(
+        //     &mut elf_reader,
+        //     DUNNO_JUMPLIST_START,
+        //     DUNNO_JUMPLIST_FIELDS,
+        //     &mut aliaser,
+        // )
+        // .await?,
         memcard_opts: parse_memcard_opts(&mut elf_reader, &mut aliaser).await?,
         end_credits: end_credits::parse(&mut elf_reader).await?,
         // dunno_struct: parse_structs(
@@ -807,6 +818,7 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
         menu_text,
         item_descriptions,
         end_credits,
+        // dunno: _a,
     } = load_exec_struct_patch(exec_data_path)?;
     unset_readonly(dest).await?;
 
@@ -875,15 +887,15 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
 }
 
 #[inline]
-fn fill_mem_region<T: RelativePointer>(
+fn fill_mem_region<T: StringFill>(
     items: BTreeMap<Hexu32, T>,
-    interner: &mut std::collections::HashMap<String, u32>,
+    interner: &mut HashMap<String, u32>,
     region_buckets: &mut BTreeMap<StringMemRegion, Vec<u8>>,
 ) -> BTreeMap<Hexu32, T> {
     let sorted_by_ptr_address = items.into_iter().sorted_by(|(_, item_a), (_, item_b)| {
         Ord::cmp(
-            &item_a.get_relative_pointer().1,
-            &item_b.get_relative_pointer().1,
+            &item_a.get_relative_pointer().region_relative,
+            &item_b.get_relative_pointer().region_relative,
         )
     });
     let mut debug_buckets = BTreeMap::new();
@@ -893,7 +905,9 @@ fn fill_mem_region<T: RelativePointer>(
         item.convert_text();
         item.pad_text(if *crate::ENGRISH.get().unwrap() { 1 } else { 8 });
         let text = item.get_text();
-        let (region, relative) = item.get_relative_pointer();
+        let relative_pointer = item.get_relative_pointer();
+        let region = relative_pointer.string_mem_region;
+        let relative = relative_pointer.region_relative;
         // Get the bytes we have for this region bucket, extend it with
         let region_bytes = region_buckets.entry(region).or_default();
         debug_buckets
@@ -908,16 +922,15 @@ fn fill_mem_region<T: RelativePointer>(
             let string = text.clone().to_string();
             println!("Adding {string} to {region:?} relative {:02x}", relative.0);
             let vma_pointer = if let Some(vma_pointer) = interner.get(&string) {
-                if !item.is_pointer_aliased()
-                {
+                if item.is_pointer_aliased() {
+                    *vma_pointer
+                } else {
                     region_bytes.extend(text.clone().into_bytes(Some(offset)));
                     u32::from_be_bytes(
                         u32::try_from(offset + POINTER_OFFSET)
                             .unwrap()
                             .to_le_bytes(),
                     )
-                } else {
-                    *vma_pointer
                 }
             } else {
                 region_bytes.extend(text.clone().into_bytes(Some(offset)));
@@ -934,7 +947,7 @@ fn fill_mem_region<T: RelativePointer>(
             updated_items.insert(num, item);
         } else {
             for (region, bytes) in region_buckets.iter() {
-                println!("{region:?}: {}\n", hex_edit_encode(bytes));
+                println!("{region:?}: {}\n", encode_hex(bytes));
             }
             println!(
                 "Region {region:?} exceeded length. Expected: {max_size}, Got: {new_region_size}. Exceeded by {} bytes.\nBuckets: {debug_buckets:?}\nWould have added {text}",
@@ -945,7 +958,7 @@ fn fill_mem_region<T: RelativePointer>(
     updated_items
 }
 
-#[derive(Serialize, Deserialize, PartialEq, PartialOrd, Eq, Ord, Hash, Copy, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, PartialOrd, Eq, Ord, Hash, Copy, Clone, Default)]
 pub struct Hexu32(
     #[serde(
         serialize_with = "serialize_u32_hex",
@@ -954,9 +967,8 @@ pub struct Hexu32(
     u32,
 );
 
-pub trait RelativePointer {
-    fn get_symbol_mut(&mut self) -> &mut Option<SymbolU32>;
-    fn get_relative_pointer(&self) -> (StringMemRegion, Hexu32);
+pub trait StringFill {
+    fn get_relative_pointer(&self) -> RelativePointerInfo;
     fn get_text(&'_ self) -> &'_ DialogString;
     fn pad_text(&mut self, size: u8);
     fn set_vma_pointer(&mut self, ptr_le: u32);
@@ -978,18 +990,13 @@ pub struct JumplistItem {
         deserialize_with = "deserialize_u32_hex"
     )]
     text_vma_pointer: u32, // Literal VMA pointer to the string
-    #[serde(skip)]
-    interner: Option<SymbolU32>,
-    relative_name_pointer: (StringMemRegion, Hexu32, bool),
+    #[serde(flatten)]
+    relative_name_pointer: RelativePointerInfo,
 }
 
-impl RelativePointer for JumplistItem {
-    fn get_symbol_mut(&mut self) -> &mut Option<SymbolU32> {
-        &mut self.interner
-    }
-
-    fn get_relative_pointer(&self) -> (StringMemRegion, Hexu32) {
-        (self.relative_name_pointer.0, self.relative_name_pointer.1)
+impl StringFill for JumplistItem {
+    fn get_relative_pointer(&self) -> RelativePointerInfo {
+        self.relative_name_pointer
     }
 
     fn get_text(&'_ self) -> &'_ DialogString {
@@ -1014,7 +1021,7 @@ impl RelativePointer for JumplistItem {
     fn convert_text(&mut self) {}
 
     fn is_pointer_aliased(&self) -> bool {
-        self.relative_name_pointer.2
+        self.relative_name_pointer.aliased
     }
 }
 
@@ -1064,8 +1071,7 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
                 string: engrish_str,
                 text_pointer,
                 text_vma_pointer: u32::from_le_bytes(pointer.to_be_bytes()),
-                interner: None,
-                relative_name_pointer: (
+                relative_name_pointer: RelativePointerInfo::new(
                     region,
                     Hexu32(u32::try_from(index).unwrap()),
                     !aliaser.insert(text_pointer),

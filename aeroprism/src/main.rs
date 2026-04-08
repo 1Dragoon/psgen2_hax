@@ -44,7 +44,7 @@ extern crate alloc;
 use crate::{
     dat_codec::{pack_dat, unpack_dat},
     helpers::{copy_dir_all, copy_file, save_binary_file},
-    slpm_patcher::{generate_exec_data, patch_exec},
+    slpm_patcher::{parse_exec, patch_exec},
 };
 use alloc::sync::Arc;
 use clap::Parser;
@@ -284,7 +284,7 @@ async fn read_dir_entry<P: AsRef<Path> + Send + Sync>(
     let path = dir_entry.path();
     let dest = (*out_dir).as_ref().join(path.file_name().unwrap());
     if path.to_string_lossy().ends_with("SLPM_625.53") {
-        generate_exec_data(&path, &*out_dir).await?;
+        parse_exec(&path, &*out_dir).await?;
         // elf_bin_engrish_strings(&path).await;
     }
     if path.is_dir() {
