@@ -4,12 +4,13 @@ use crate::{
         DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
         serialize_dialog_items,
     },
-    helpers::{deserialize_u32_hex, is_default, serialize_u32_hex},
+    helpers::{deserialize_u32_hex, encode_hex, is_default, serialize_u32_hex},
     slpm_patcher::{
         EnemyType, Hexu32, POINTER_OFFSET, RelativePointer, SpellElemental, StringMemRegion,
     },
 };
 use alloc::collections::BTreeMap;
+use log::warn;
 use core::mem::size_of;
 use indexmap::IndexSet;
 use serde::{Deserialize, Serialize};
@@ -149,7 +150,7 @@ pub struct EnemyInfo {
     pub interner: Option<SymbolU32>,
     #[serde(skip)]
     pub text: DialogString,
-    pub relative_name_pointer: (StringMemRegion, Hexu32),
+    pub relative_name_pointer: (StringMemRegion, Hexu32, bool),
     #[serde(flatten)]
     pub attributes: EnemyAttributes,
     pub health: u32, // Third field
@@ -261,6 +262,9 @@ impl RelativePointer for EnemyInfo {
     }
 
     fn set_vma_pointer(&mut self, ptr_le: u32) {
+        if self.name_vma_pointer != ptr_le {
+            warn!("Got {}, expected {}", encode_hex(&self.name_vma_pointer.to_le_bytes()), encode_hex(&ptr_le.to_le_bytes()));
+        }
         self.name_vma_pointer = ptr_le;
     }
 
@@ -270,11 +274,16 @@ impl RelativePointer for EnemyInfo {
             padding: 0,
         };
     }
+        fn is_pointer_aliased(&self) -> bool {
+        self.relative_name_pointer.2
+    }
+
 }
 
 #[inline]
 pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
+    aliaser: &mut std::collections::HashSet<u32>
 ) -> Result<BTreeMap<Hexu32, EnemyInfo>, io::Error> {
     reader
         .seek(SeekFrom::Start(ENEMY_STRUCTS_START as u64))
@@ -301,7 +310,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             name_vma_pointer: u32::from_be_bytes(pointer_bytes),
             interner: None,
             text: DialogString::default(),
-            relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0)),
+            relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0), false),
             attributes: EnemyAttributes::from(field_vec.pop().unwrap()),
             health: u32::from_le_bytes(field_vec.pop().unwrap()),
             attack: u32::from_le_bytes(field_vec.pop().unwrap()),
@@ -339,7 +348,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             unknown_36: u32::from_le_bytes(field_vec.pop().unwrap()),
             unknown_37: i32::from_le_bytes(field_vec.pop().unwrap()),
         };
-        enemies.insert(Hexu32(u32::try_from(enemy_no + 1usize).unwrap()), enemy);
+        enemies.insert(Hexu32(u32::try_from(enemy_no + 1).unwrap()), enemy);
     }
     relative_pointer_index.sort_unstable();
     // use crate::slpm_patcher::Hexu32;
@@ -364,7 +373,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let index = relative_pointer_index
             .get_index_of(&enemy.name_pointer)
             .unwrap();
-        enemy.relative_name_pointer = (region, Hexu32(u32::try_from(index).unwrap()));
+        enemy.relative_name_pointer = (region, Hexu32(u32::try_from(index).unwrap()), !aliaser.insert(enemy.name_pointer));
         // enemy_pointers.insert(
         //     Hexu32(enemy.name_pointer - 0xff000),
         //     (

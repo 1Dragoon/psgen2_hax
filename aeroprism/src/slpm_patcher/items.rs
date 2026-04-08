@@ -4,12 +4,12 @@ use crate::{
         serialize_dialog_items,
     },
     helpers::{
-        deserialize_u8_hex, deserialize_u16_hex, deserialize_u32_hex, is_default, is_u16_max,
-        max_u16, serialize_u8_hex, serialize_u16_hex, serialize_u32_hex,
+        deserialize_u8_hex, deserialize_u16_hex, deserialize_u32_hex, encode_hex, is_default, is_u16_max, max_u16, serialize_u8_hex, serialize_u16_hex, serialize_u32_hex
     },
     slpm_patcher::{Character, Enchant, Hexu32, POINTER_OFFSET, RelativePointer, StringMemRegion},
 };
 use alloc::collections::BTreeMap;
+use log::warn;
 use core::mem::size_of;
 use indexmap::IndexSet;
 use serde::{Deserialize, Serialize};
@@ -83,7 +83,7 @@ pub struct ItemInfo {
     pub interner: Option<SymbolU32>,
     #[serde(skip)]
     pub text: DialogString,
-    pub relative_name_pointer: (StringMemRegion, Hexu32),
+    pub relative_name_pointer: (StringMemRegion, Hexu32, bool),
     #[serde(default, skip_serializing_if = "is_default")]
     pub equip_slot: ItemEquipSlot,
     #[serde(
@@ -154,6 +154,9 @@ impl RelativePointer for ItemInfo {
     }
 
     fn set_vma_pointer(&mut self, ptr_le: u32) {
+        if self.name_vma_pointer != ptr_le {
+            warn!("Got {}, expected {}", encode_hex(&self.name_vma_pointer.to_le_bytes()), encode_hex(&ptr_le.to_le_bytes()));
+        }
         self.name_vma_pointer = ptr_le;
     }
 
@@ -163,11 +166,15 @@ impl RelativePointer for ItemInfo {
             padding: 0,
         };
     }
+    fn is_pointer_aliased(&self) -> bool {
+        self.relative_name_pointer.2
+    }
 }
 
 #[inline]
 pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
+    aliaser: &mut std::collections::HashSet<u32>
 ) -> Result<BTreeMap<Hexu32, ItemInfo>, io::Error> {
     reader
         .seek(SeekFrom::Start(ITEM_STRUCTS_START as u64))
@@ -215,7 +222,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             name_vma_pointer,
             text: DialogString::default(),
             interner: None,
-            relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0)),
+            relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0), false),
             equip_slot,
             unknown_2,
             buy_price,
@@ -257,7 +264,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let index = relative_pointer_index
             .get_index_of(&item.name_pointer)
             .unwrap();
-        item.relative_name_pointer = (region, Hexu32(u32::try_from(index).unwrap()));
+        item.relative_name_pointer = (region, Hexu32(u32::try_from(index).unwrap()), !aliaser.insert(item.name_pointer));
         // item_pointers.insert(
         //     Hexu32(item.name_pointer - 0xff000),
         //     (

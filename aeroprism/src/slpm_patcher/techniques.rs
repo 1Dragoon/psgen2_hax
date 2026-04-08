@@ -4,7 +4,7 @@ use crate::{
         serialize_dialog_items,
     },
     helpers::{
-        deserialize_u8_hex, deserialize_u32_hex, is_default, serialize_u8_hex, serialize_u32_hex,
+        deserialize_u8_hex, deserialize_u32_hex, encode_hex, is_default, serialize_u8_hex, serialize_u32_hex
     },
     slpm_patcher::{
         Hexu32, POINTER_OFFSET, RelativePointer, SpellElemental, StringMemRegion,
@@ -13,6 +13,7 @@ use crate::{
 };
 use alloc::collections::BTreeMap;
 use indexmap::IndexSet;
+use log::warn;
 use serde::{Deserialize, Serialize};
 use std::io;
 use string_interner::symbol::SymbolU32;
@@ -230,7 +231,7 @@ pub struct Technique {
     pub interner: Option<SymbolU32>,
     #[serde(skip)]
     pub text: DialogString,
-    pub relative_name_pointer: (StringMemRegion, Hexu32),
+    pub relative_name_pointer: (StringMemRegion, Hexu32, bool),
     // #[serde(
     //     default,
     //     serialize_with = "serialize_u32_hex",
@@ -300,6 +301,9 @@ impl RelativePointer for Technique {
     }
 
     fn set_vma_pointer(&mut self, ptr_le: u32) {
+        if self.name_vma_pointer != ptr_le {
+            warn!("Got {}, expected {}", encode_hex(&self.name_vma_pointer.to_le_bytes()), encode_hex(&ptr_le.to_le_bytes()));
+        }
         self.name_vma_pointer = ptr_le;
     }
 
@@ -308,6 +312,10 @@ impl RelativePointer for Technique {
             text: self.name.clone(),
             padding: 0,
         };
+    }
+
+    fn is_pointer_aliased(&self) -> bool {
+        self.relative_name_pointer.2
     }
 }
 
@@ -346,6 +354,7 @@ impl VulerableTargets {
 
 pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
+    aliaser: &mut std::collections::HashSet<u32>
 ) -> Result<BTreeMap<Hexu32, Technique>, io::Error> {
     reader
         .seek(SeekFrom::Start(TECHNIQUE_STRUCT_START as u64))
@@ -353,7 +362,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     let mut field_bytes = [0u8; 4];
     let mut techniques = BTreeMap::new();
     let mut relative_pointer_index = IndexSet::with_capacity(TECHNIQUE_STRUCT_COUNT);
-    for i in 0..TECHNIQUE_STRUCT_COUNT {
+    for tech_no in 0..TECHNIQUE_STRUCT_COUNT {
         let mut fields = Vec::with_capacity(TECHNIQUE_STRUCT_FIELDS);
         for _ in 0..TECHNIQUE_STRUCT_FIELDS {
             reader.read_exact(&mut field_bytes).await?;
@@ -395,7 +404,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             name_pointer,
             name_vma_pointer: u32::from_be_bytes(pointer_bytes),
             interner: None,
-            relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0)),
+            relative_name_pointer: (StringMemRegion::RegionA, Hexu32(0), false),
             elemental,
             vulnerable,
             speed,
@@ -418,7 +427,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             silka,
         };
 
-        techniques.insert(Hexu32(u32::try_from(i).unwrap()), technique);
+        techniques.insert(Hexu32(u32::try_from(tech_no + 1).unwrap()), technique);
     }
     relative_pointer_index.sort_unstable();
 
@@ -439,7 +448,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let index = relative_pointer_index
             .get_index_of(&technique.name_pointer)
             .unwrap();
-        technique.relative_name_pointer = (region, Hexu32(u32::try_from(index).unwrap()));
+        technique.relative_name_pointer = (region, Hexu32(u32::try_from(index).unwrap()), !aliaser.insert(technique.name_pointer));
         // tech_pointers.insert(
         //     Hexu32(technique.name_pointer - 0xff000),
         //     (
