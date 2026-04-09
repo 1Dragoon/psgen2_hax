@@ -345,7 +345,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             unknown_36: u32::from_le_bytes(field_vec.pop().unwrap()),
             unknown_37: i32::from_le_bytes(field_vec.pop().unwrap()),
         };
-        enemies.insert(Hexu32(u32::try_from(enemy_no + 1).unwrap()), enemy);
+        enemies.insert(Hexu32(u32::try_from(enemy_no).unwrap()), enemy);
     }
     relative_pointer_index.sort_unstable();
     // use crate::slpm_patcher::Hexu32;

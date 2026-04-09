@@ -8,12 +8,11 @@ use crate::{
         is_u16_max, max_u16, serialize_u8_hex, serialize_u16_hex, serialize_u32_hex,
     },
     slpm_patcher::{
-        Character, Enchant, Hexu32, POINTER_OFFSET, RelativePointerInfo, StringFill,
-        StringMemRegion,
+        Character, Enchant, Hexu32, ITEM_STRUCT_COUNT, ITEM_STRUCT_FIELDS, ITEM_STRUCTS_START,
+        POINTER_OFFSET, RelativePointerInfo, StringFill, StringMemRegion,
     },
 };
 use alloc::collections::BTreeMap;
-use core::mem::size_of;
 use indexmap::IndexSet;
 use log::warn;
 use serde::{Deserialize, Serialize};
@@ -22,11 +21,6 @@ use tokio::{
     fs::{self},
     io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, AsyncWriteExt, BufWriter, SeekFrom},
 };
-
-static ITEM_STRUCTS_START: usize = 0x18_B1D0;
-static ITEM_STRUCT_SIZE: usize = 32;
-static ITEM_STRUCT_COUNT: usize = 185;
-static ITEM_STRUCT_FIELDS: usize = ITEM_STRUCT_SIZE / size_of::<u32>();
 
 #[repr(u8)]
 #[derive(Serialize, Deserialize, Default, Eq, PartialEq, Copy, Clone)]
@@ -240,7 +234,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             luck,
             unknown_7,
         };
-        items.insert(Hexu32(u32::try_from(item_no + 1).unwrap()), item);
+        items.insert(Hexu32(u32::try_from(item_no).unwrap()), item);
     }
     relative_pointer_index.sort_unstable();
     // use crate::slpm_patcher::Hexu32;

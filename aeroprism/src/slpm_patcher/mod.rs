@@ -7,18 +7,18 @@ use crate::{
     EXEC_STRUCTURES_FILENAME,
     events::{
         DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
-        load_exec_struct_patch, serialize_dialog_items,
+        load_exec_struct_patch, serialize_dialog_items, sjis_map::word_to_sjis,
     },
     helpers::{
-        deserialize_u32_hex, encode_hex, hex_edit_encode, is_default, save_binary_file,
-        serialize_u32_hex, unset_readonly,
+        deserialize_u32_hex, encode_hex, is_default, save_binary_file, serialize_u32_hex,
+        unset_readonly,
     },
     slpm_patcher::{
         end_credits::EndCreditItem, enemies::EnemyInfo, items::ItemInfo, techniques::Technique,
     },
 };
 use alloc::collections::BTreeMap;
-use indexmap::IndexSet;
+use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
 use log::{Level, info, log_enabled, warn};
 use serde::{Deserialize, Serialize};
@@ -57,8 +57,11 @@ static MENU_TEXT_JUMPLIST_FIELDS: usize = 149;
 static ITEM_DESCRIPTION_JUMPLIST_START: usize = 0x16_5428;
 static ITEM_DESCRIPTION_JUMPLIST_FIELDS: usize = 195;
 
-static DUNNO_JUMPLIST_START: usize = 0x14_f798;
-static DUNNO_JUMPLIST_FIELDS: usize = 106;
+static SAVEXIT_JUMPLIST_START: usize = 0x15_65B0;
+static SAVEXIT_JUMPLIST_FIELDS: usize = 3;
+
+// static DUNNO_JUMPLIST_START: usize = 0x14_f798;
+// static DUNNO_JUMPLIST_FIELDS: usize = 3;
 
 static MEMCARD_STRUCT_START: usize = 0x18_E0A0;
 static MEMCARD_STRUCT_COUNT: usize = 9;
@@ -71,6 +74,10 @@ static MUSIC_STRUCT_FIELDS: usize = 2;
 static TECHNIQUE_STRUCT_START: usize = 0x1A_28A0;
 static TECHNIQUE_STRUCT_COUNT: usize = 83;
 static TECHNIQUE_STRUCT_FIELDS: usize = 14;
+
+static ITEM_STRUCTS_START: usize = 0x18_B1B0;
+static ITEM_STRUCT_COUNT: usize = 186;
+static ITEM_STRUCT_FIELDS: usize = 8;
 
 // static DUNNO_STRUCT_START: usize = 0x1A4198; // end 1A3AC8
 // static DUNNO_STRUCT_COUNT: usize = 9;
@@ -99,14 +106,10 @@ pub enum StringMemRegion {
     RegionI,
     #[serde(alias = "regionj", alias = "region_j")]
     RegionJ,
-    #[serde(alias = "regiongoldenboy", alias = "region_goldenboy")]
-    RegionGoldenboy, // This memory region is possibly invalid...could cause bugs on a real PS2?
     #[serde(alias = "regionk", alias = "region_k")]
     RegionK,
     #[serde(alias = "regionl", alias = "region_l")]
     RegionL,
-    #[serde(alias = "regionm", alias = "region_m")]
-    RegionM,
 }
 
 impl StringMemRegion {
@@ -121,11 +124,9 @@ impl StringMemRegion {
             Self::RegionG => (0x1A_9AF0, 0x3d18),
             Self::RegionH => (0x1B_1840, 0x100),
             Self::RegionI => (0x1D_B218, 0x18),
-            Self::RegionJ => (0x1D_B2D8, 0x58),
-            Self::RegionGoldenboy => (0x1D_B330, 0x8),
-            Self::RegionK => (0x1D_B338, 0x150),
-            Self::RegionL => (0x1D_B598, 0xb0),
-            Self::RegionM => (0x1D_B680, 0x128),
+            Self::RegionJ => (0x1D_B2D8, 0x1B0),
+            Self::RegionK => (0x1D_B598, 0xb0),
+            Self::RegionL => (0x1D_B680, 0x128),
         }
     }
 }
@@ -144,11 +145,9 @@ impl TryFrom<u32> for StringMemRegion {
             0x1A_9AF0..0x1A_D808 => Ok(Self::RegionG),
             0x1B_1840..0x1B_1940 => Ok(Self::RegionH),
             0x1D_B218..0x1D_B230 => Ok(Self::RegionI),
-            0x1D_B2D8..0x1D_B330 => Ok(Self::RegionJ),
-            0x1D_B330..0x1D_B338 => Ok(Self::RegionGoldenboy),
-            0x1D_B338..0x1D_B488 => Ok(Self::RegionK),
-            0x1D_B598..0x1D_B648 => Ok(Self::RegionL),
-            0x1D_B680..0x1D_B7A8 => Ok(Self::RegionM),
+            0x1D_B2D8..0x1D_B488 => Ok(Self::RegionJ),
+            0x1D_B598..0x1D_B648 => Ok(Self::RegionK),
+            0x1D_B680..0x1D_B7A8 => Ok(Self::RegionL),
             _ => Err(format!("No map region for address 0x{value:06x}")),
         }
     }
@@ -408,7 +407,7 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
             relative_name_pointer: RelativePointerInfo::default(),
             unknown_1: i32::from_le_bytes(fields.pop().unwrap()),
         };
-        songs.insert(Hexu32(u32::try_from(song_no + 1).unwrap()), song);
+        songs.insert(Hexu32(u32::try_from(song_no).unwrap()), song);
     }
     relative_pointer_index.sort_unstable();
 
@@ -501,7 +500,7 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
             relative_name_pointer: RelativePointerInfo::default(),
             unknown_1: i32::from_le_bytes(fields.pop().unwrap()),
         };
-        memcard_opts.insert(Hexu32(u32::try_from(mc_opt_no + 1).unwrap()), memcard_opt);
+        memcard_opts.insert(Hexu32(u32::try_from(mc_opt_no).unwrap()), memcard_opt);
     }
     relative_pointer_index.sort_unstable();
 
@@ -590,7 +589,7 @@ pub struct ExecStructures {
     pub misc_strings: BTreeMap<Hexu32, JumplistItem>,
     #[serde(rename = "memcard_opt")]
     pub memcard_opts: BTreeMap<Hexu32, MemcardOpt>,
-    // pub dunno: BTreeMap<Hexu32, JumplistItem>,
+    pub dunno: BTreeMap<Hexu32, JumplistItem>,
 }
 
 #[repr(u8)]
@@ -738,6 +737,52 @@ pub async fn parse_exec<P: AsRef<Path> + Send + Sync>(
 ) -> Result<(), io::Error> {
     let elf_file = fs::File::open(elf_exec).await?;
     let mut elf_reader = BufReader::new(elf_file);
+
+    let mut all_pointers = IndexMap::with_capacity(10240);
+    let mut aliases = IndexSet::with_capacity(10240);
+    let mut unit = [0u8; 4];
+    elf_reader.seek(SeekFrom::Start(0)).await?;
+    let mut pointer_offset = 0;
+    while elf_reader.read_exact(&mut unit).await.is_ok() {
+        let maybe_pointer =
+            u32::from_le_bytes(unit).saturating_sub(u32::try_from(POINTER_OFFSET).unwrap());
+        if maybe_pointer > u32::try_from(POINTER_OFFSET).unwrap() && maybe_pointer < 0x1D_BC10 {
+            let pointer_locations = all_pointers
+                .entry(maybe_pointer)
+                .or_insert(Vec::with_capacity(3));
+            pointer_locations.push(pointer_offset);
+            if pointer_locations.len() > 1 {
+                aliases.insert(maybe_pointer);
+            }
+        }
+        pointer_offset = u32::try_from(elf_reader.stream_position().await.unwrap()).unwrap();
+    }
+    println!("Aliases:\n");
+    for pointer in aliases {
+        print!("0x{}, ", encode_hex(&pointer.to_be_bytes()));
+    }
+    let mut string_pointers = BTreeMap::new();
+    let mut data1 = [0u8; 2];
+    let mut data2 = [0u8; 2];
+    for (offset, alias_pointers) in &all_pointers {
+        elf_reader.seek(SeekFrom::Start(u64::from(*offset))).await?;
+        elf_reader.read_exact(&mut data1).await.unwrap();
+        elf_reader.read_exact(&mut data2).await.unwrap();
+        if word_to_sjis(data1).is_some() && word_to_sjis(data2).is_some() {
+            string_pointers.insert(*offset, alias_pointers.clone());
+        }
+    }
+    println!("\n\nPossible strings in unknown regions:\n");
+    for (offset, pointers) in &string_pointers {
+        if StringMemRegion::try_from(*offset).is_err() {
+            print!("0x{}: ", encode_hex(&offset.to_be_bytes()));
+            for pointer in pointers {
+                print!("{}, ", encode_hex(&pointer.to_be_bytes()));
+            }
+            println!();
+        }
+    }
+
     let mut aliaser = HashSet::with_capacity(1024);
     let exec_structures = ExecStructures {
         mapnames: parse_jumplist_strings(
@@ -772,13 +817,13 @@ pub async fn parse_exec<P: AsRef<Path> + Send + Sync>(
             &mut aliaser,
         )
         .await?,
-        // dunno: parse_jumplist_strings(
-        //     &mut elf_reader,
-        //     DUNNO_JUMPLIST_START,
-        //     DUNNO_JUMPLIST_FIELDS,
-        //     &mut aliaser,
-        // )
-        // .await?,
+        dunno: parse_jumplist_strings(
+            &mut elf_reader,
+            SAVEXIT_JUMPLIST_START,
+            SAVEXIT_JUMPLIST_FIELDS,
+            &mut aliaser,
+        )
+        .await?,
         memcard_opts: parse_memcard_opts(&mut elf_reader, &mut aliaser).await?,
         end_credits: end_credits::parse(&mut elf_reader).await?,
         // dunno_struct: parse_structs(
@@ -818,7 +863,7 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
         menu_text,
         item_descriptions,
         end_credits,
-        // dunno: _a,
+        dunno: _a,
     } = load_exec_struct_patch(exec_data_path)?;
     unset_readonly(dest).await?;
 
@@ -946,8 +991,8 @@ fn fill_mem_region<T: StringFill>(
             item.set_vma_pointer(vma_pointer);
             updated_items.insert(num, item);
         } else {
-            for (region, bytes) in region_buckets.iter() {
-                println!("{region:?}: {}\n", encode_hex(bytes));
+            for (disp_region, bytes) in region_buckets.iter() {
+                println!("{disp_region:?}: {}\n", encode_hex(bytes));
             }
             println!(
                 "Region {region:?} exceeded length. Expected: {max_size}, Got: {new_region_size}. Exceeded by {} bytes.\nBuckets: {debug_buckets:?}\nWould have added {text}",
@@ -1063,10 +1108,10 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
         }
         let engrish_str = decode_psg2_string(engrish_bytes);
         let text_pointer = pointer - u32::try_from(POINTER_OFFSET).unwrap();
-        let region = StringMemRegion::try_from(text_pointer).unwrap();
+        let region = StringMemRegion::try_from(text_pointer).unwrap_or_default();
         let index = relative_pointer_index.get_index_of(&pointer).unwrap();
         strings.insert(
-            Hexu32(u32::try_from(string_no + 1).unwrap()),
+            Hexu32(u32::try_from(string_no).unwrap()),
             JumplistItem {
                 string: engrish_str,
                 text_pointer,

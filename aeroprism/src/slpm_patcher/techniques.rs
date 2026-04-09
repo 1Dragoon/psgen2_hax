@@ -425,7 +425,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             silka,
         };
 
-        techniques.insert(Hexu32(u32::try_from(tech_no + 1).unwrap()), technique);
+        techniques.insert(Hexu32(u32::try_from(tech_no).unwrap()), technique);
     }
     relative_pointer_index.sort_unstable();
 
