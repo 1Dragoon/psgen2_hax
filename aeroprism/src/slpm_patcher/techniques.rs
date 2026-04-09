@@ -8,7 +8,7 @@ use crate::{
         serialize_u32_hex,
     },
     slpm_patcher::{
-        Hexu32, POINTER_OFFSET, RelativePointerInfo, SpellElemental, StringFill, StringMemRegion,
+        Hexu32, MemRegion, POINTER_OFFSET, RelativePointerInfo, SpellElemental, StringFill,
         TECHNIQUE_STRUCT_COUNT, TECHNIQUE_STRUCT_FIELDS, TECHNIQUE_STRUCT_START,
     },
 };
@@ -442,7 +442,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         technique.name = decode_psg2_string(string_bytes).text;
-        let region = StringMemRegion::try_from(technique.name_pointer).unwrap();
+        let region = MemRegion::try_from(technique.name_pointer).unwrap();
         let index = relative_pointer_index
             .get_index_of(&technique.name_pointer)
             .unwrap();

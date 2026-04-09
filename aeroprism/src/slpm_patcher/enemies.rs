@@ -6,8 +6,8 @@ use crate::{
     },
     helpers::{deserialize_u32_hex, encode_hex, is_default, serialize_u32_hex},
     slpm_patcher::{
-        EnemyType, Hexu32, POINTER_OFFSET, RelativePointerInfo, SpellElemental, StringFill,
-        StringMemRegion,
+        EnemyType, Hexu32, MemRegion, POINTER_OFFSET, RelativePointerInfo, SpellElemental,
+        StringFill,
     },
 };
 use alloc::collections::BTreeMap;
@@ -366,7 +366,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         enemy.name = decode_psg2_string(string_bytes).text;
-        let region = StringMemRegion::try_from(enemy.name_pointer).unwrap();
+        let region = MemRegion::try_from(enemy.name_pointer).unwrap();
         let index = relative_pointer_index
             .get_index_of(&enemy.name_pointer)
             .unwrap();

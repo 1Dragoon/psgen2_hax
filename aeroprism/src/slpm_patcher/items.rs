@@ -9,7 +9,7 @@ use crate::{
     },
     slpm_patcher::{
         Character, Enchant, Hexu32, ITEM_STRUCT_COUNT, ITEM_STRUCT_FIELDS, ITEM_STRUCTS_START,
-        POINTER_OFFSET, RelativePointerInfo, StringFill, StringMemRegion,
+        MemRegion, POINTER_OFFSET, RelativePointerInfo, StringFill,
     },
 };
 use alloc::collections::BTreeMap;
@@ -255,7 +255,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         }
         let engrish_str = decode_psg2_string(string_bytes).text;
         item.name = engrish_str;
-        let region = StringMemRegion::try_from(item.name_pointer).unwrap();
+        let region = MemRegion::try_from(item.name_pointer).unwrap();
         let index = relative_pointer_index
             .get_index_of(&item.name_pointer)
             .unwrap();

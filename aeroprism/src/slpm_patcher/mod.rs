@@ -7,7 +7,7 @@ use crate::{
     EXEC_STRUCTURES_FILENAME,
     events::{
         DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
-        load_exec_struct_patch, serialize_dialog_items, sjis_map::word_to_sjis,
+        load_exec_struct_patch, serialize_dialog_items,
     },
     helpers::{
         deserialize_u32_hex, encode_hex, is_default, save_binary_file, serialize_u32_hex,
@@ -18,9 +18,9 @@ use crate::{
     },
 };
 use alloc::collections::BTreeMap;
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexSet;
 use itertools::Itertools;
-use log::{Level, info, log_enabled, warn};
+use log::{Level, debug, error, info, log_enabled, warn};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::{HashMap, HashSet},
@@ -60,8 +60,14 @@ static ITEM_DESCRIPTION_JUMPLIST_FIELDS: usize = 195;
 static SAVEXIT_JUMPLIST_START: usize = 0x15_65B0;
 static SAVEXIT_JUMPLIST_FIELDS: usize = 3;
 
-// static DUNNO_JUMPLIST_START: usize = 0x14_f798;
-// static DUNNO_JUMPLIST_FIELDS: usize = 3;
+// static INDICATORS_JUMPLIST_START: usize = 0x18_B044;
+// static INDICATORS_JUMPLIST_FIELDS: usize = 6;
+
+// static DUNNO_JUMPLIST_START: usize = 0x16_1868;
+// static DUNNO_JUMPLIST_FIELDS: usize = 1;
+
+static QUESTION_JUMPLIST_START: usize = 0x16_1868;
+static QUESTION_JUMPLIST_FIELDS: usize = 1;
 
 static MEMCARD_STRUCT_START: usize = 0x18_E0A0;
 static MEMCARD_STRUCT_COUNT: usize = 9;
@@ -84,71 +90,122 @@ static ITEM_STRUCT_FIELDS: usize = 8;
 // static DUNNO_STRUCT_FIELDS: usize = 25;
 
 #[derive(Serialize, Deserialize, Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Debug, Default)]
-pub enum StringMemRegion {
+pub enum MemRegion {
+    #[serde(rename = "ja")]
+    JumplessA,
     #[default]
-    #[serde(alias = "regiona", alias = "region_a")]
-    RegionA,
-    #[serde(alias = "regionb", alias = "region_b")]
-    RegionB,
-    #[serde(alias = "regionc", alias = "region_c")]
-    RegionC,
-    #[serde(alias = "regiond", alias = "region_d")]
-    RegionD,
-    #[serde(alias = "regione", alias = "region_e")]
-    RegionE,
-    #[serde(alias = "regionf", alias = "region_f")]
-    RegionF,
-    #[serde(alias = "regiong", alias = "region_g")]
-    RegionG,
-    #[serde(alias = "regionh", alias = "region_h")]
-    RegionH,
-    #[serde(alias = "regioni", alias = "region_i")]
-    RegionI,
-    #[serde(alias = "regionj", alias = "region_j")]
-    RegionJ,
-    #[serde(alias = "regionk", alias = "region_k")]
-    RegionK,
-    #[serde(alias = "regionl", alias = "region_l")]
-    RegionL,
+    #[serde(rename = "sa")]
+    StructuredA,
+    #[serde(rename = "jb")]
+    JumplessB,
+    #[serde(rename = "jc")]
+    JumplessC,
+    #[serde(rename = "sb")]
+    StructuredB,
+    #[serde(rename = "jd")]
+    JumplessD,
+    #[serde(rename = "je")]
+    JumplessE,
+    #[serde(rename = "jf")]
+    JumplessF,
+    #[serde(rename = "jg")]
+    JumplessG,
+    #[serde(rename = "jh")]
+    JumplessH,
+    #[serde(rename = "sc")]
+    StructuredC,
+    #[serde(rename = "ji")]
+    JumplessI,
+    #[serde(rename = "sd")]
+    StructuredD,
+    #[serde(rename = "jj")]
+    JumplessJ,
+    #[serde(rename = "jk")]
+    JumplessK,
+    #[serde(rename = "se")]
+    StructuredE,
+    #[serde(rename = "sf")]
+    StructuredF,
+    #[serde(rename = "sg")]
+    StructuredG,
+    #[serde(rename = "sh")]
+    StructuredH,
+    #[serde(rename = "si")]
+    StructuredI,
+    #[serde(rename = "sj")]
+    StructuredJ,
+    #[serde(rename = "sk")]
+    StructuredK,
+    #[serde(rename = "sl")]
+    StructuredL,
+    #[serde(rename = "sm")]
+    StructuredM,
 }
 
-impl StringMemRegion {
+impl MemRegion {
     const fn offset_size(self) -> (usize, usize) {
         match self {
-            Self::RegionA => (0x18_8770, 0x940),
-            Self::RegionB => (0x18_94E8, 0x1a8),
-            Self::RegionC => (0x18_C8F0, 0x10e8),
-            Self::RegionD => (0x18_DF18, 0x188),
-            Self::RegionE => (0x1A_3AC8, 0x450),
-            Self::RegionF => (0x1A_89E0, 0x8c0),
-            Self::RegionG => (0x1A_9AF0, 0x3d18),
-            Self::RegionH => (0x1B_1840, 0x100),
-            Self::RegionI => (0x1D_B218, 0x18),
-            Self::RegionJ => (0x1D_B2D8, 0x1B0),
-            Self::RegionK => (0x1D_B598, 0xb0),
-            Self::RegionL => (0x1D_B680, 0x128),
+            Self::JumplessA => (0x18_7880, 0x50),
+            Self::StructuredA => (0x18_8770, 0x940),
+            Self::JumplessB => (0x18_9210, 0x90),
+            Self::JumplessC => (0x18_92C8, 0x40),
+            Self::StructuredB => (0x18_94E8, 0x1a8),
+            Self::JumplessD => (0x18_96E8, 0x10),
+            Self::JumplessE => (0x18_A330, 0x420),
+            Self::JumplessF => (0x18_A760, 0x48),
+            Self::JumplessG => (0x18_B0A0, 0x30),
+            Self::JumplessH => (0x18_B160, 0x18),
+            Self::StructuredC => (0x18_C8F0, 0x10e8),
+            Self::JumplessI => (0x18_DA10, 0x378),
+            Self::StructuredD => (0x18_DF18, 0x188),
+            Self::JumplessJ => (0x1A_1C80, 0x48),
+            Self::JumplessK => (0x1A_1E78, 0x470),
+            Self::StructuredE => (0x1A_3AC8, 0x450),
+            Self::StructuredF => (0x1A_89E0, 0x8c0),
+            Self::StructuredG => (0x1A_9AF0, 0x3d18),
+            Self::StructuredH => (0x1B_1840, 0x100),
+            Self::StructuredI => (0x1D_B218, 0x18),
+            Self::StructuredJ => (0x1D_B238, 0x98),
+            Self::StructuredK => (0x1D_B2D8, 0x1B0),
+            Self::StructuredL => (0x1D_B598, 0xb0),
+            Self::StructuredM => (0x1D_B680, 0x128),
         }
     }
 }
 
-impl TryFrom<u32> for StringMemRegion {
+// Note: Some of my string regions are smaller than the goldenboy release because I want to avoid writing into the trailing 64-bit null fields.
+impl TryFrom<u32> for MemRegion {
     type Error = String;
 
     fn try_from(value: u32) -> Result<Self, Self::Error> {
         match value {
-            0x18_8770..0x18_90B0 => Ok(Self::RegionA),
-            0x18_94E8..0x18_9690 => Ok(Self::RegionB),
-            0x18_C8F0..0x18_D9D8 => Ok(Self::RegionC),
-            0x18_DF18..0x18_E0A0 => Ok(Self::RegionD),
-            0x1A_3AC8..0x1A_3F18 => Ok(Self::RegionE),
-            0x1A_89E0..0x1A_9298 => Ok(Self::RegionF),
-            0x1A_9AF0..0x1A_D808 => Ok(Self::RegionG),
-            0x1B_1840..0x1B_1940 => Ok(Self::RegionH),
-            0x1D_B218..0x1D_B230 => Ok(Self::RegionI),
-            0x1D_B2D8..0x1D_B488 => Ok(Self::RegionJ),
-            0x1D_B598..0x1D_B648 => Ok(Self::RegionK),
-            0x1D_B680..0x1D_B7A8 => Ok(Self::RegionL),
-            _ => Err(format!("No map region for address 0x{value:06x}")),
+            0x18_7880..0x18_78D0 => Ok(Self::JumplessA),
+            0x18_8770..0x18_90B0 => Ok(Self::StructuredA),
+            0x18_9210..0x18_92A0 => Ok(Self::JumplessB),
+            0x18_92C8..0x18_9308 => Ok(Self::JumplessC), // Goldenboy goes to 0x189310
+            0x18_94E8..0x18_9690 => Ok(Self::StructuredB),
+            0x18_96E8..0x18_96F8 => Ok(Self::JumplessD), // Goldenboy goes to 0x189700
+            0x18_A330..0x18_A750 => Ok(Self::JumplessE),
+            0x18_A760..0x18_A7A8 => Ok(Self::JumplessF), // Goldenboy goes to 0x18A7B0
+            0x18_B0A0..0x18_B0D0 => Ok(Self::JumplessG),
+            0x18_B160..0x18_B178 => Ok(Self::JumplessH),
+            0x18_C8F0..0x18_D9D8 => Ok(Self::StructuredC), // Goldenboy goes to 0x18D9E0
+            0x18_DA10..0x18_DD88 => Ok(Self::JumplessI),   // Goldenboy goes to 0x18DD90
+            0x18_DF18..0x18_E0A0 => Ok(Self::StructuredD),
+            0x1A_1C80..0x1A_1CC8 => Ok(Self::JumplessJ), // Goldenboy goes to 0x1A1CD0
+            0x1A_1E78..0x1A_22E8 => Ok(Self::JumplessK),
+            0x1A_3AC8..0x1A_3F18 => Ok(Self::StructuredE),
+            0x1A_89E0..0x1A_9298 => Ok(Self::StructuredF),
+            0x1A_9AF0..0x1A_D808 => Ok(Self::StructuredG),
+            0x1B_1840..0x1B_1940 => Ok(Self::StructuredH),
+            0x1D_B218..0x1D_B230 => Ok(Self::StructuredI),
+            0x1D_B238..0x1D_B2D0 => Ok(Self::StructuredJ),
+            0x1D_B2D8..0x1D_B488 => Ok(Self::StructuredK),
+            0x1D_B598..0x1D_B648 => Ok(Self::StructuredL),
+            0x1D_B680..0x1D_B7A8 => Ok(Self::StructuredM),
+            _ => Err(format!(
+                "No defined memory region for address 0x{value:06x}"
+            )),
         }
     }
 }
@@ -197,7 +254,7 @@ impl Character {
 #[derive(Serialize, Deserialize, Default, Copy, Clone)]
 pub struct RelativePointerInfo {
     #[serde(default, skip_serializing_if = "is_default")]
-    pub string_mem_region: StringMemRegion,
+    pub string_mem_region: MemRegion,
     #[serde(default, skip_serializing_if = "is_default")]
     pub region_relative: Hexu32,
     #[serde(default, skip_serializing_if = "is_default")]
@@ -205,11 +262,7 @@ pub struct RelativePointerInfo {
 }
 
 impl RelativePointerInfo {
-    const fn new(
-        string_mem_region: StringMemRegion,
-        region_relative: Hexu32,
-        aliased: bool,
-    ) -> Self {
+    const fn new(string_mem_region: MemRegion, region_relative: Hexu32, aliased: bool) -> Self {
         Self {
             string_mem_region,
             region_relative,
@@ -338,6 +391,49 @@ impl StringFill for MemcardOpt {
     }
 }
 
+const JUMPLESS_REGIONS: [MemRegion; 11] = [
+    MemRegion::JumplessA,
+    MemRegion::JumplessB,
+    MemRegion::JumplessC,
+    MemRegion::JumplessD,
+    MemRegion::JumplessE,
+    MemRegion::JumplessF,
+    MemRegion::JumplessG,
+    MemRegion::JumplessH,
+    MemRegion::JumplessI,
+    MemRegion::JumplessJ,
+    MemRegion::JumplessK,
+];
+
+pub async fn parse_jumpless<R: AsyncBufRead + AsyncSeek + Unpin>(
+    reader: &mut R,
+) -> Result<BTreeMap<MemRegion, Vec<DialogString>>, io::Error> {
+    let mut regions = BTreeMap::new();
+    for region in JUMPLESS_REGIONS {
+        debug!("Reading string region {region:?}...");
+        let (offset, size) = region.offset_size();
+        reader.seek(SeekFrom::Start(offset as u64)).await?;
+        let mut region_bytes = vec![0u8; size];
+        reader.read_exact(&mut region_bytes).await?;
+        let mut strings = Vec::with_capacity(128);
+        while !region_bytes.is_empty() {
+            debug!("Region bytes {} left", region_bytes.len());
+            let (terminator_pos, _) = region_bytes.iter().find_position(|b| **b == 0).unwrap();
+            let bytes = region_bytes.drain(0..terminator_pos).collect_vec();
+            strings.push(decode_psg2_string(bytes));
+            if let Some((non_terminator_pos, _)) = region_bytes.iter().find_position(|b| **b != 0) {
+                // Remove any leftover padding
+                let f = region_bytes.drain(0..non_terminator_pos).collect_vec();
+                debug!("Removed {} bytes of padding", f.len());
+            } else {
+                break;
+            }
+        }
+        regions.insert(region, strings);
+    }
+    Ok(regions)
+}
+
 // pub async fn parse_structs<R: AsyncBufRead + AsyncSeek + Unpin>(
 //     reader: &mut R,
 //     location: usize,
@@ -424,7 +520,7 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         song.name = decode_psg2_string(string_bytes).text;
-        let region = StringMemRegion::try_from(song.name_pointer).unwrap();
+        let region = MemRegion::try_from(song.name_pointer).unwrap();
         let index = relative_pointer_index
             .get_index_of(&song.name_pointer)
             .unwrap();
@@ -517,7 +613,7 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         memcard_opt.string = decode_psg2_string(string_bytes).text;
-        let region = StringMemRegion::try_from(memcard_opt.name_pointer).unwrap();
+        let region = MemRegion::try_from(memcard_opt.name_pointer).unwrap();
         let index = relative_pointer_index
             .get_index_of(&memcard_opt.name_pointer)
             .unwrap();
@@ -589,7 +685,11 @@ pub struct ExecStructures {
     pub misc_strings: BTreeMap<Hexu32, JumplistItem>,
     #[serde(rename = "memcard_opt")]
     pub memcard_opts: BTreeMap<Hexu32, MemcardOpt>,
-    pub dunno: BTreeMap<Hexu32, JumplistItem>,
+    pub savexit: BTreeMap<Hexu32, JumplistItem>,
+    pub question: BTreeMap<Hexu32, JumplistItem>,
+    pub other: BTreeMap<MemRegion, Vec<DialogString>>,
+    // pub indicators: BTreeMap<Hexu32, JumplistItem>,
+    // pub dunno: BTreeMap<Hexu32, JumplistItem>,
 }
 
 #[repr(u8)]
@@ -738,50 +838,7 @@ pub async fn parse_exec<P: AsRef<Path> + Send + Sync>(
     let elf_file = fs::File::open(elf_exec).await?;
     let mut elf_reader = BufReader::new(elf_file);
 
-    let mut all_pointers = IndexMap::with_capacity(10240);
-    let mut aliases = IndexSet::with_capacity(10240);
-    let mut unit = [0u8; 4];
-    elf_reader.seek(SeekFrom::Start(0)).await?;
-    let mut pointer_offset = 0;
-    while elf_reader.read_exact(&mut unit).await.is_ok() {
-        let maybe_pointer =
-            u32::from_le_bytes(unit).saturating_sub(u32::try_from(POINTER_OFFSET).unwrap());
-        if maybe_pointer > u32::try_from(POINTER_OFFSET).unwrap() && maybe_pointer < 0x1D_BC10 {
-            let pointer_locations = all_pointers
-                .entry(maybe_pointer)
-                .or_insert(Vec::with_capacity(3));
-            pointer_locations.push(pointer_offset);
-            if pointer_locations.len() > 1 {
-                aliases.insert(maybe_pointer);
-            }
-        }
-        pointer_offset = u32::try_from(elf_reader.stream_position().await.unwrap()).unwrap();
-    }
-    println!("Aliases:\n");
-    for pointer in aliases {
-        print!("0x{}, ", encode_hex(&pointer.to_be_bytes()));
-    }
-    let mut string_pointers = BTreeMap::new();
-    let mut data1 = [0u8; 2];
-    let mut data2 = [0u8; 2];
-    for (offset, alias_pointers) in &all_pointers {
-        elf_reader.seek(SeekFrom::Start(u64::from(*offset))).await?;
-        elf_reader.read_exact(&mut data1).await.unwrap();
-        elf_reader.read_exact(&mut data2).await.unwrap();
-        if word_to_sjis(data1).is_some() && word_to_sjis(data2).is_some() {
-            string_pointers.insert(*offset, alias_pointers.clone());
-        }
-    }
-    println!("\n\nPossible strings in unknown regions:\n");
-    for (offset, pointers) in &string_pointers {
-        if StringMemRegion::try_from(*offset).is_err() {
-            print!("0x{}: ", encode_hex(&offset.to_be_bytes()));
-            for pointer in pointers {
-                print!("{}, ", encode_hex(&pointer.to_be_bytes()));
-            }
-            println!();
-        }
-    }
+    // find_pointers(&mut elf_reader).await?;
 
     let mut aliaser = HashSet::with_capacity(1024);
     let exec_structures = ExecStructures {
@@ -817,13 +874,34 @@ pub async fn parse_exec<P: AsRef<Path> + Send + Sync>(
             &mut aliaser,
         )
         .await?,
-        dunno: parse_jumplist_strings(
+        savexit: parse_jumplist_strings(
             &mut elf_reader,
             SAVEXIT_JUMPLIST_START,
             SAVEXIT_JUMPLIST_FIELDS,
             &mut aliaser,
         )
         .await?,
+        question: parse_jumplist_strings(
+            &mut elf_reader,
+            QUESTION_JUMPLIST_START,
+            QUESTION_JUMPLIST_FIELDS,
+            &mut aliaser,
+        )
+        .await?,
+        // dunno: parse_jumplist_strings(
+        //     &mut elf_reader,
+        //     DUNNO_JUMPLIST_START,
+        //     DUNNO_JUMPLIST_FIELDS,
+        //     &mut aliaser,
+        // )
+        // .await?,
+        // indicators: parse_jumplist_strings(
+        //     &mut elf_reader,
+        //     INDICATORS_JUMPLIST_START,
+        //     INDICATORS_JUMPLIST_FIELDS,
+        //     &mut aliaser,
+        // )
+        // .await?,
         memcard_opts: parse_memcard_opts(&mut elf_reader, &mut aliaser).await?,
         end_credits: end_credits::parse(&mut elf_reader).await?,
         // dunno_struct: parse_structs(
@@ -834,6 +912,7 @@ pub async fn parse_exec<P: AsRef<Path> + Send + Sync>(
         //     1,
         // )
         // .await?,
+        other: parse_jumpless(&mut elf_reader).await?,
     };
     let exec_structures_path = PathBuf::with_capacity(128)
         .join(out_dir)
@@ -845,6 +924,52 @@ pub async fn parse_exec<P: AsRef<Path> + Send + Sync>(
     .await?;
     Ok(())
 }
+
+// async fn find_pointers(elf_reader: &mut BufReader<fs::File>) -> Result<(), io::Error> {
+//     let mut pointer_candidates = IndexMap::with_capacity(10240);
+//     let mut string_alias_candidates = HashSet::with_capacity(128);
+//     let mut mem_unit = [0u8; 4];
+//     elf_reader.seek(SeekFrom::Start(0)).await?;
+//     let mut pointer_offset = 0;
+//     while elf_reader.read_exact(&mut mem_unit).await.is_ok() {
+//         let maybe_pointer =
+//             u32::from_le_bytes(mem_unit).saturating_sub(u32::try_from(POINTER_OFFSET).unwrap());
+//         if maybe_pointer > u32::try_from(POINTER_OFFSET).unwrap() && maybe_pointer < 0x1D_BC10 {
+//             let pointer_locations = pointer_candidates
+//                 .entry(maybe_pointer)
+//                 .or_insert(Vec::with_capacity(3));
+//             pointer_locations.push(pointer_offset);
+//             if pointer_locations.len() > 1 {
+//                 string_alias_candidates.insert(maybe_pointer);
+//             }
+//         }
+//         pointer_offset = u32::try_from(elf_reader.stream_position().await.unwrap()).unwrap();
+//     }
+//     let mut string_pointers = BTreeMap::new();
+//     for (offset, alias_pointers) in &pointer_candidates {
+//         if let Ok(region) = MemRegion::try_from(*offset) {
+//             println!(
+//                 "{region:?}: {} -- {}",
+//                 encode_hex(&offset.to_be_bytes()),
+//                 alias_pointers
+//                     .iter()
+//                     .map(|p| encode_hex(&p.to_be_bytes()))
+//                     .join(", ")
+//             );
+//             string_pointers.insert(*offset, alias_pointers.clone());
+//         }
+//     }
+//     println!("\n\nPossible aliased strings:\n");
+//     Ok(for (offset, pointers) in &pointer_candidates {
+//         if MemRegion::try_from(*offset).is_ok() && string_alias_candidates.contains(offset) {
+//             print!("0x{}: ", encode_hex(&offset.to_be_bytes()));
+//             for pointer in pointers {
+//                 print!("{}, ", encode_hex(&pointer.to_be_bytes()));
+//             }
+//             println!();
+//         }
+//     })
+// }
 
 #[inline]
 #[expect(clippy::shadow_reuse, reason = "Easier to read")]
@@ -863,7 +988,10 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
         menu_text,
         item_descriptions,
         end_credits,
-        dunno: _a,
+        savexit: _a,
+        other: _b,
+        question: _c, // indicators: _b,
+                      // dunno: _c,
     } = load_exec_struct_patch(exec_data_path)?;
     unset_readonly(dest).await?;
 
@@ -874,7 +1002,7 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
     // techniques before enemies
     let mut interner = HashMap::with_capacity(1024);
     // Sort items by relative string pointer
-    let mut region_buckets: BTreeMap<StringMemRegion, Vec<u8>> = BTreeMap::new();
+    let mut region_buckets: BTreeMap<MemRegion, Vec<u8>> = BTreeMap::new();
 
     let mapnames = fill_mem_region(mapnames, &mut interner, &mut region_buckets);
     let songs = fill_mem_region(songs, &mut interner, &mut region_buckets);
@@ -935,7 +1063,7 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
 fn fill_mem_region<T: StringFill>(
     items: BTreeMap<Hexu32, T>,
     interner: &mut HashMap<String, u32>,
-    region_buckets: &mut BTreeMap<StringMemRegion, Vec<u8>>,
+    region_buckets: &mut BTreeMap<MemRegion, Vec<u8>>,
 ) -> BTreeMap<Hexu32, T> {
     let sorted_by_ptr_address = items.into_iter().sorted_by(|(_, item_a), (_, item_b)| {
         Ord::cmp(
@@ -960,16 +1088,23 @@ fn fill_mem_region<T: StringFill>(
             .or_insert_with(|| text.to_string());
         let (location, max_size) = region.offset_size();
         let offset = region_bytes.len() + location;
-        let added_text_size = text.byte_len();
-        let new_region_size = region_bytes.len() + added_text_size;
+        let mut new_region_size = region_bytes.len();
+        if !item.is_pointer_aliased() {
+            new_region_size += text.byte_len();
+        }
         if new_region_size <= max_size {
             // region_bytes.extend(text.clone().to_string().into_bytes());
             let string = text.clone().to_string();
-            println!("Adding {string} to {region:?} relative {:02x}", relative.0);
+            debug!(
+                "Adding {string} to {region:?} relative 0x{:02x}",
+                relative.0
+            );
             let vma_pointer = if let Some(vma_pointer) = interner.get(&string) {
                 if item.is_pointer_aliased() {
+                    debug!("This is pointer aliased, won't add to region: {string}");
                     *vma_pointer
                 } else {
+                    debug!("This is not pointer aliased, adding to region: {string}");
                     region_bytes.extend(text.clone().into_bytes(Some(offset)));
                     u32::from_be_bytes(
                         u32::try_from(offset + POINTER_OFFSET)
@@ -978,6 +1113,7 @@ fn fill_mem_region<T: StringFill>(
                     )
                 }
             } else {
+                debug!("We are NOT interned!");
                 region_bytes.extend(text.clone().into_bytes(Some(offset)));
                 let vma_pointer = u32::from_be_bytes(
                     u32::try_from(offset + POINTER_OFFSET)
@@ -987,14 +1123,14 @@ fn fill_mem_region<T: StringFill>(
                 interner.insert(string, vma_pointer);
                 vma_pointer
             };
-            println!("VMA pointer {}", encode_hex(&vma_pointer.to_le_bytes()));
+            debug!("VMA pointer {}", encode_hex(&vma_pointer.to_le_bytes()));
             item.set_vma_pointer(vma_pointer);
             updated_items.insert(num, item);
         } else {
             for (disp_region, bytes) in region_buckets.iter() {
-                println!("{disp_region:?}: {}\n", encode_hex(bytes));
+                error!("{disp_region:?}: {}\n", encode_hex(bytes));
             }
-            println!(
+            error!(
                 "Region {region:?} exceeded length. Expected: {max_size}, Got: {new_region_size}. Exceeded by {} bytes.\nBuckets: {debug_buckets:?}\nWould have added {text}",
                 new_region_size - max_size
             );
@@ -1108,7 +1244,7 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
         }
         let engrish_str = decode_psg2_string(engrish_bytes);
         let text_pointer = pointer - u32::try_from(POINTER_OFFSET).unwrap();
-        let region = StringMemRegion::try_from(text_pointer).unwrap_or_default();
+        let region = MemRegion::try_from(text_pointer).unwrap_or_default();
         let index = relative_pointer_index.get_index_of(&pointer).unwrap();
         strings.insert(
             Hexu32(u32::try_from(string_no).unwrap()),

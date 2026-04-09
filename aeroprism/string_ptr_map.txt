@@ -1,8 +1,27 @@
+pointerless region A start: 0x187880
+pointerless region A end: 0x1878D0
+
 mapnames pointers A region start: 0x188770
 mapnames pointers A region end: 0x1890B0
 
 song string pointers B region start: 0x1894E8
 song string pointers B region end: 0x189690
+
+pointerless region A start: 0x18A330
+pointerless region A end: 0x18A750
+
+pointerless region B start: 0x18A760
+pointerless region B end: 0x18A7A8
+
+HP formatter: 0x18B060
+TP formatter: 0x18B070
+playtime formatter: 0x18B090
+
+pointerless region C start: 0x18B0A0
+pointerless region C end: 0x18B0D0
+
+pointerless region D start: 0x18B160
+pointerless region D end: 0x18B178
 
 item pointers C region start 0x18C8F0
 item pointers C region end 0x18D590
@@ -10,8 +29,14 @@ item pointers C region end 0x18D590
 misc string pointers C2 region start: 0x18D590
 misc string pointers C2 region end: 0x18D9D8
 
+pointerless region E start: 0x18DA10
+pointerless region E end: 0x18DD88
+
 mc string pointers D region start: 0x18DF18
 mc string pointers D region end: 0x18E0A0
+
+pointerless region F start: 0x1A1E78
+pointerless region F end: 0x1A22F8
 
 techn name pointers E region start: 0x1A3AC8
 techn name pointers E region start: 0x1A3F18
@@ -34,24 +59,45 @@ mapnames pointers I region end: 0x1DB228
 song string pointers I2 region start: 0x1DB228
 song string pointers I2 region end: 0x1DB230
 
+menu formatters pointerless region G start: 0x1DB238
+menu formatters pointerless region G end: 0x1DB2D0
+
 item pointers J region start 0x1DB2D8
 item pointers J region end: 0x1DB330
 
-misc string pointers K region start: 0x1DB338
-misc string pointers K region end: 0x1DB488
+misc string pointers J2 region start: 0x1DB330
+misc string pointers J2 region end: 0x1DB488
 
-tech name pointers L region start: 0x1DB598
-tech name pointers L region end: 0x1DB618
+tech name pointers K region start: 0x1DB598
+tech name pointers K region end: 0x1DB618
 
-enemy pointers L2 region start: 0x1DB618
-enemy pointers L2 region end: 0x1DB648
+enemy pointers K2 region start: 0x1DB618
+enemy pointers K2 region end: 0x1DB648
 
-menu pointers M region start: 0x1DB680
-menu pointers M region end: 0x1DB7A8
+menu pointers L region start: 0x1DB680
+menu pointers L region end: 0x1DB7A8
 
-item desc pointers M2 region start: 0x1DB7A0
-item desc pointers M2 region end: 0x1DB7A8
+item desc pointers L2 region start: 0x1DB7A0
+item desc pointers L2 region end: 0x1DB7A8
+
+pointerless region I start: 0x189210
+pointerless region I end: 0x1892A0
+
+pointerless region J start: 0x1892C8
+pointerless region J end: 0x189308
+
+pointerless region K start: 0x1896E8
+pointerless region K end: 0x1896F8
+
+pointerless region L start: 0x1A1C80
+pointerless region L end: 0x1A1CC8
+
+https://learn.microsoft.com/en-us/windows/win32/gdi/character-widths
+sjis table: 0x152B08 - 0x153744
+advance width table: 0x153744
+
+0x00150bc8 -> 0x001896e8
+0x0018b048 -> 0x001db270
 
 B region alias:
 PTR: 0x161868 = 0x1DB640 (literal ???)
-
