@@ -16,7 +16,7 @@ use alloc::collections::BTreeMap;
 use indexmap::IndexSet;
 use log::warn;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashSet, io};
+use std::io;
 use tokio::{
     fs::{self},
     io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, AsyncWriteExt, BufWriter, SeekFrom},
@@ -149,8 +149,8 @@ impl StringFill for ItemInfo {
         if self.name_vma_pointer != ptr_le {
             warn!(
                 "Got {}, expected {}",
-                encode_hex(&self.name_vma_pointer.to_le_bytes()),
-                encode_hex(&ptr_le.to_le_bytes())
+                encode_hex(&ptr_le.to_le_bytes()),
+                encode_hex(&self.name_vma_pointer.to_le_bytes())
             );
         }
         self.name_vma_pointer = ptr_le;
@@ -162,15 +162,12 @@ impl StringFill for ItemInfo {
             padding: 0,
         };
     }
-    fn is_pointer_aliased(&self) -> bool {
-        self.relative_name_pointer.aliased
-    }
 }
 
 #[inline]
 pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-    aliaser: &mut HashSet<u32>,
+    pointers: &mut BTreeMap<u32, (MemRegion, Hexu32)>,
 ) -> Result<BTreeMap<Hexu32, ItemInfo>, io::Error> {
     reader
         .seek(SeekFrom::Start(ITEM_STRUCTS_START as u64))
@@ -243,10 +240,8 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     // use std::path::PathBuf;
     // let mut item_pointers = BTreeMap::new();
     for item in items.values_mut() {
-        reader
-            .seek(SeekFrom::Start(u64::from(item.name_pointer)))
-            .await
-            .unwrap();
+        let ptr = item.name_pointer;
+        reader.seek(SeekFrom::Start(u64::from(ptr))).await.unwrap();
         let mut string_bytes = Vec::with_capacity(20);
         while let Ok(byte) = reader.read_u8().await
             && byte != 0
@@ -255,15 +250,12 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         }
         let engrish_str = decode_psg2_string(string_bytes).text;
         item.name = engrish_str;
-        let region = MemRegion::try_from(item.name_pointer).unwrap();
-        let index = relative_pointer_index
-            .get_index_of(&item.name_pointer)
-            .unwrap();
-        item.relative_name_pointer = RelativePointerInfo::new(
-            region,
-            Hexu32(u32::try_from(index).unwrap()),
-            !aliaser.insert(item.name_pointer),
-        );
+        let region = MemRegion::try_from(ptr).unwrap();
+        let index = relative_pointer_index.get_index_of(&ptr).unwrap();
+        let position = Hexu32(u32::try_from(index).unwrap());
+        item.relative_name_pointer =
+            RelativePointerInfo::new(region, position, pointers.get(&ptr).copied());
+        pointers.insert(ptr, (region, position));
         // item_pointers.insert(
         //     Hexu32(item.name_pointer - 0xff000),
         //     (

@@ -15,7 +15,7 @@ use core::mem::size_of;
 use indexmap::IndexSet;
 use log::warn;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashSet, io};
+use std::io;
 use strum::{EnumIter, IntoEnumIterator};
 use tokio::{
     fs::{self},
@@ -260,8 +260,8 @@ impl StringFill for EnemyInfo {
         if self.name_vma_pointer != ptr_le {
             warn!(
                 "Got {}, expected {}",
-                encode_hex(&self.name_vma_pointer.to_le_bytes()),
-                encode_hex(&ptr_le.to_le_bytes())
+                encode_hex(&ptr_le.to_le_bytes()),
+                encode_hex(&self.name_vma_pointer.to_le_bytes())
             );
         }
         self.name_vma_pointer = ptr_le;
@@ -273,15 +273,12 @@ impl StringFill for EnemyInfo {
             padding: 0,
         };
     }
-    fn is_pointer_aliased(&self) -> bool {
-        self.relative_name_pointer.aliased
-    }
 }
 
 #[inline]
 pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-    aliaser: &mut HashSet<u32>,
+    pointers: &mut BTreeMap<u32, (MemRegion, Hexu32)>,
 ) -> Result<BTreeMap<Hexu32, EnemyInfo>, io::Error> {
     reader
         .seek(SeekFrom::Start(ENEMY_STRUCTS_START as u64))
@@ -355,10 +352,8 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     // let mut enemy_pointers = BTreeMap::new();
     // Fill in the enemy names and relative pointers
     for enemy in enemies.values_mut() {
-        reader
-            .seek(SeekFrom::Start(u64::from(enemy.name_pointer)))
-            .await
-            .unwrap();
+        let ptr = enemy.name_pointer;
+        reader.seek(SeekFrom::Start(u64::from(ptr))).await.unwrap();
         let mut string_bytes = Vec::with_capacity(20);
         while let Ok(byte) = reader.read_u8().await
             && byte != 0
@@ -366,15 +361,12 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         enemy.name = decode_psg2_string(string_bytes).text;
-        let region = MemRegion::try_from(enemy.name_pointer).unwrap();
-        let index = relative_pointer_index
-            .get_index_of(&enemy.name_pointer)
-            .unwrap();
-        enemy.relative_name_pointer = RelativePointerInfo::new(
-            region,
-            Hexu32(u32::try_from(index).unwrap()),
-            !aliaser.insert(enemy.name_pointer),
-        );
+        let region = MemRegion::try_from(ptr).unwrap();
+        let index = relative_pointer_index.get_index_of(&ptr).unwrap();
+        let position = Hexu32(u32::try_from(index).unwrap());
+        enemy.relative_name_pointer =
+            RelativePointerInfo::new(region, position, pointers.get(&ptr).copied());
+        pointers.insert(ptr, (region, position));
         // enemy_pointers.insert(
         //     Hexu32(enemy.name_pointer - 0xff000),
         //     (

@@ -16,7 +16,7 @@ use alloc::collections::BTreeMap;
 use indexmap::IndexSet;
 use log::warn;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashSet, io};
+use std::io;
 use strum::{EnumIter, IntoEnumIterator};
 use tokio::{
     fs,
@@ -299,8 +299,8 @@ impl StringFill for Technique {
         if self.name_vma_pointer != ptr_le {
             warn!(
                 "Got {}, expected {}",
-                encode_hex(&self.name_vma_pointer.to_le_bytes()),
-                encode_hex(&ptr_le.to_le_bytes())
+                encode_hex(&ptr_le.to_le_bytes()),
+                encode_hex(&self.name_vma_pointer.to_le_bytes())
             );
         }
         self.name_vma_pointer = ptr_le;
@@ -311,10 +311,6 @@ impl StringFill for Technique {
             text: self.name.clone(),
             padding: 0,
         };
-    }
-
-    fn is_pointer_aliased(&self) -> bool {
-        self.relative_name_pointer.aliased
     }
 }
 
@@ -353,7 +349,7 @@ impl VulerableTargets {
 
 pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-    aliaser: &mut HashSet<u32>,
+    pointers: &mut BTreeMap<u32, (MemRegion, Hexu32)>,
 ) -> Result<BTreeMap<Hexu32, Technique>, io::Error> {
     reader
         .seek(SeekFrom::Start(TECHNIQUE_STRUCT_START as u64))
@@ -432,9 +428,8 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     // let mut tech_pointers = BTreeMap::new();
 
     for technique in techniques.values_mut() {
-        reader
-            .seek(SeekFrom::Start(u64::from(technique.name_pointer)))
-            .await?;
+        let ptr = technique.name_pointer;
+        reader.seek(SeekFrom::Start(u64::from(ptr))).await?;
         let mut string_bytes = Vec::with_capacity(20);
         while let Ok(byte) = reader.read_u8().await
             && byte != 0
@@ -442,15 +437,13 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         technique.name = decode_psg2_string(string_bytes).text;
-        let region = MemRegion::try_from(technique.name_pointer).unwrap();
-        let index = relative_pointer_index
-            .get_index_of(&technique.name_pointer)
-            .unwrap();
-        technique.relative_name_pointer = RelativePointerInfo::new(
-            region,
-            Hexu32(u32::try_from(index).unwrap()),
-            !aliaser.insert(technique.name_pointer),
-        );
+        let region = MemRegion::try_from(ptr).unwrap();
+        let index = relative_pointer_index.get_index_of(&ptr).unwrap();
+        let position = Hexu32(u32::try_from(index).unwrap());
+        technique.relative_name_pointer =
+            RelativePointerInfo::new(region, position, pointers.get(&ptr).copied());
+        pointers.insert(ptr, (region, position));
+
         // tech_pointers.insert(
         //     Hexu32(technique.name_pointer - 0xff000),
         //     (
