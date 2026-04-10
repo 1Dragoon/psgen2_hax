@@ -18,12 +18,11 @@ use crate::{
     },
 };
 use alloc::collections::BTreeMap;
-use indexmap::IndexSet;
 use itertools::Itertools;
 use log::{Level, debug, error, info, log_enabled, warn};
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     io,
     path::{Path, PathBuf},
 };
@@ -38,9 +37,9 @@ use tokio::{
 
 // Via `readelf d:\SLPM_625.53 -l`
 // Program segment 1 and 2 both end up as 0xFF000
-static VMA_OFFSET: usize = 0x10_0000;
-static FILE_OFFSET: usize = 0x1000;
-pub static POINTER_OFFSET: usize = VMA_OFFSET - FILE_OFFSET;
+static VMA_OFFSET: u32 = 0x10_0000;
+static FILE_OFFSET: u32 = 0x1000;
+pub static POINTER_OFFSET: u32 = VMA_OFFSET - FILE_OFFSET;
 
 static MAPNAMES_JUMPLIST_START: usize = 0x14_F798;
 static MAPNAMES_JUMPLIST_FIELDS: usize = 107;
@@ -142,6 +141,8 @@ pub enum MemRegion {
     StructuredL,
     #[serde(rename = "sm")]
     StructuredM,
+    #[serde(rename = "sn")]
+    StructuredN,
 }
 
 impl MemRegion {
@@ -162,15 +163,16 @@ impl MemRegion {
             Self::StructuredD => (0x18_DF18, 0x188),
             Self::JumplessJ => (0x1A_1C80, 0x48),
             Self::JumplessK => (0x1A_1E78, 0x470),
-            Self::StructuredE => (0x1A_3AC8, 0x450),
-            Self::StructuredF => (0x1A_89E0, 0x8c0),
-            Self::StructuredG => (0x1A_9AF0, 0x3d18),
-            Self::StructuredH => (0x1B_1840, 0x100),
-            Self::StructuredI => (0x1D_B218, 0x18),
-            Self::StructuredJ => (0x1D_B238, 0x98),
-            Self::StructuredK => (0x1D_B2D8, 0x1B0),
-            Self::StructuredL => (0x1D_B598, 0xb0),
-            Self::StructuredM => (0x1D_B680, 0x128),
+            Self::StructuredE => (0x1A_1D80, 0x40),
+            Self::StructuredF => (0x1A_3AC8, 0x450),
+            Self::StructuredG => (0x1A_89E0, 0x8c0),
+            Self::StructuredH => (0x1A_9AF0, 0x3d18),
+            Self::StructuredI => (0x1B_1840, 0x100),
+            Self::StructuredJ => (0x1D_B218, 0x18),
+            Self::StructuredK => (0x1D_B238, 0x98),
+            Self::StructuredL => (0x1D_B2D8, 0x1B0),
+            Self::StructuredM => (0x1D_B598, 0xb0),
+            Self::StructuredN => (0x1D_B680, 0x128),
         }
     }
 }
@@ -195,16 +197,17 @@ impl TryFrom<u32> for MemRegion {
             0x18_DA10..0x18_DD88 => Ok(Self::JumplessI),   // Goldenboy goes to 0x18DD90
             0x18_DF18..0x18_E0A0 => Ok(Self::StructuredD),
             0x1A_1C80..0x1A_1CC8 => Ok(Self::JumplessJ), // Goldenboy goes to 0x1A1CD0
+            0x1A_1D80..0x1A_1DC0 => Ok(Self::StructuredE),
             0x1A_1E78..0x1A_22E8 => Ok(Self::JumplessK),
-            0x1A_3AC8..0x1A_3F18 => Ok(Self::StructuredE),
-            0x1A_89E0..0x1A_9298 => Ok(Self::StructuredF),
-            0x1A_9AF0..0x1A_D808 => Ok(Self::StructuredG),
-            0x1B_1840..0x1B_1940 => Ok(Self::StructuredH),
-            0x1D_B218..0x1D_B230 => Ok(Self::StructuredI),
-            0x1D_B238..0x1D_B2D0 => Ok(Self::StructuredJ),
-            0x1D_B2D8..0x1D_B488 => Ok(Self::StructuredK),
-            0x1D_B598..0x1D_B648 => Ok(Self::StructuredL),
-            0x1D_B680..0x1D_B7A8 => Ok(Self::StructuredM),
+            0x1A_3AC8..0x1A_3F18 => Ok(Self::StructuredF),
+            0x1A_89E0..0x1A_9298 => Ok(Self::StructuredG),
+            0x1A_9AF0..0x1A_D808 => Ok(Self::StructuredH),
+            0x1B_1840..0x1B_1940 => Ok(Self::StructuredI),
+            0x1D_B218..0x1D_B230 => Ok(Self::StructuredJ),
+            0x1D_B238..0x1D_B2D0 => Ok(Self::StructuredK),
+            0x1D_B2D8..0x1D_B488 => Ok(Self::StructuredL),
+            0x1D_B598..0x1D_B648 => Ok(Self::StructuredM),
+            0x1D_B680..0x1D_B7A8 => Ok(Self::StructuredN),
             _ => Err(format!(
                 "No defined memory region for address 0x{value:06x}"
             )),
@@ -284,11 +287,6 @@ pub struct Song {
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
     )]
-    name_pointer: u32,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
     name_vma_pointer: u32,
     #[serde(skip)]
     text: DialogString,
@@ -336,11 +334,6 @@ pub struct MemcardOpt {
         serialize_with = "serialize_dialog_items"
     )]
     string: Vec<DialogItem>,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
-    name_pointer: u32,
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
@@ -471,14 +464,13 @@ pub async fn parse_jumpless<R: AsyncBufRead + AsyncSeek + Unpin>(
 
 pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-    pointers: &mut BTreeMap<u32, (MemRegion, Hexu32)>,
+    pointers: &mut Vec<u32>,
 ) -> Result<BTreeMap<Hexu32, Song>, io::Error> {
     reader
         .seek(SeekFrom::Start(MUSIC_STRUCT_START as u64))
         .await?;
     let mut field_bytes = [0u8; 4];
     let mut songs = BTreeMap::new();
-    let mut relative_pointer_index = IndexSet::with_capacity(MUSIC_STRUCT_COUNT);
     for song_no in 0..MUSIC_STRUCT_COUNT {
         let mut fields = Vec::with_capacity(MUSIC_STRUCT_FIELDS);
         for _ in 0..MUSIC_STRUCT_FIELDS {
@@ -486,26 +478,25 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
             fields.push(field_bytes);
         }
         let pointer_bytes = fields.pop().unwrap();
-        let name_pointer =
-            u32::from_le_bytes(pointer_bytes) - u32::try_from(POINTER_OFFSET).unwrap();
-        relative_pointer_index.insert(name_pointer);
+        let name_vma_pointer = u32::from_le_bytes(pointer_bytes);
+        pointers.push(name_vma_pointer);
         let song = Song {
             name: Vec::new(),
-            name_pointer,
-            name_vma_pointer: u32::from_be_bytes(pointer_bytes),
+            name_vma_pointer,
             text: DialogString::default(),
             relative_name_pointer: RelativePointerInfo::default(),
             unknown_1: i32::from_le_bytes(fields.pop().unwrap()),
         };
         songs.insert(Hexu32(u32::try_from(song_no).unwrap()), song);
     }
-    relative_pointer_index.sort_unstable();
 
     // let mut name_pointers = BTreeMap::new();
 
     for song in songs.values_mut() {
-        let ptr = song.name_pointer;
-        reader.seek(SeekFrom::Start(u64::from(ptr))).await?;
+        let ptr = song.name_vma_pointer;
+        reader
+            .seek(SeekFrom::Start(u64::from(ptr - POINTER_OFFSET)))
+            .await?;
         let mut string_bytes = Vec::with_capacity(20);
         while let Ok(byte) = reader.read_u8().await
             && byte != 0
@@ -513,15 +504,6 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         song.name = decode_psg2_string(string_bytes).text;
-        let region = MemRegion::try_from(ptr).unwrap();
-        let index = relative_pointer_index.get_index_of(&ptr).unwrap();
-        let position = Hexu32(u32::try_from(index).unwrap());
-        let aliased = pointers.get(&ptr).is_some();
-        if !aliased {
-            pointers.insert(ptr, (region, position));
-        }
-        song.relative_name_pointer =
-            RelativePointerInfo::new(region, position, aliased);
         // name_pointers.insert(
         //     Hexu32(song.name_pointer - 0xff000),
         //     (
@@ -555,7 +537,7 @@ pub async fn patch_songs(
         // Field comes before name pointer here
         exec_writer.write_all(&song.unknown_1.to_le_bytes()).await?;
         exec_writer
-            .write_all(&song.name_vma_pointer.to_be_bytes())
+            .write_all(&song.name_vma_pointer.to_le_bytes())
             .await?;
     }
     Ok(())
@@ -563,14 +545,13 @@ pub async fn patch_songs(
 
 pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-    pointers: &mut BTreeMap<u32, (MemRegion, Hexu32)>,
+    pointers: &mut Vec<u32>,
 ) -> Result<BTreeMap<Hexu32, MemcardOpt>, io::Error> {
     reader
         .seek(SeekFrom::Start(MEMCARD_STRUCT_START as u64))
         .await?;
     let mut field_bytes = [0u8; 4];
-    let mut memcard_opts = BTreeMap::new();
-    let mut relative_pointer_index = IndexSet::with_capacity(MEMCARD_STRUCT_COUNT);
+    let mut memcard_opts: BTreeMap<Hexu32, MemcardOpt> = BTreeMap::new();
     for mc_opt_no in 0..MEMCARD_STRUCT_COUNT {
         let mut fields = Vec::with_capacity(MEMCARD_STRUCT_FIELDS);
         for _ in 0..MEMCARD_STRUCT_FIELDS {
@@ -578,26 +559,25 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
             fields.push(field_bytes);
         }
         let pointer_bytes = fields.pop().unwrap();
-        let name_pointer =
-            u32::from_le_bytes(pointer_bytes) - u32::try_from(POINTER_OFFSET).unwrap();
-        relative_pointer_index.insert(name_pointer);
+        let name_vma_pointer = u32::from_le_bytes(pointer_bytes);
+        pointers.push(name_vma_pointer);
         let memcard_opt = MemcardOpt {
             string: Vec::new(),
             text: DialogString::default(),
-            name_pointer,
-            name_vma_pointer: u32::from_be_bytes(pointer_bytes),
+            name_vma_pointer,
             relative_name_pointer: RelativePointerInfo::default(),
             unknown_1: i32::from_le_bytes(fields.pop().unwrap()),
         };
         memcard_opts.insert(Hexu32(u32::try_from(mc_opt_no).unwrap()), memcard_opt);
     }
-    relative_pointer_index.sort_unstable();
 
     // let mut name_pointers = BTreeMap::new();
 
     for memcard_opt in memcard_opts.values_mut() {
-        let ptr = memcard_opt.name_pointer;
-        reader.seek(SeekFrom::Start(u64::from(ptr))).await?;
+        let ptr = memcard_opt.name_vma_pointer;
+        reader
+            .seek(SeekFrom::Start(u64::from(ptr - POINTER_OFFSET)))
+            .await?;
         let mut string_bytes = Vec::with_capacity(20);
         while let Ok(byte) = reader.read_u8().await
             && byte != 0
@@ -605,15 +585,6 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         memcard_opt.string = decode_psg2_string(string_bytes).text;
-        let region = MemRegion::try_from(ptr).unwrap();
-        let index = relative_pointer_index.get_index_of(&ptr).unwrap();
-        let position = Hexu32(u32::try_from(index).unwrap());
-        let aliased = pointers.get(&ptr).is_some();
-        if !aliased {
-            pointers.insert(ptr, (region, position));
-        }
-                memcard_opt.relative_name_pointer =
-            RelativePointerInfo::new(region, position, aliased);
         // name_pointers.insert(
         //     Hexu32(memcard_opt.name_pointer - 0xff000),
         //     (
@@ -649,7 +620,7 @@ pub async fn patch_memcard_opts(
             .write_all(&memcard_opt.unknown_1.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&memcard_opt.name_vma_pointer.to_be_bytes())
+            .write_all(&memcard_opt.name_vma_pointer.to_le_bytes())
             .await?;
     }
     Ok(())
@@ -832,8 +803,8 @@ pub async fn parse_exec<P: AsRef<Path> + Send + Sync>(
 
     // find_pointers(&mut elf_reader).await?;
 
-    let mut pointers = BTreeMap::new();
-    let exec_structures = ExecStructures {
+    let mut pointers = Vec::with_capacity(10240);
+    let mut exec_structures = ExecStructures {
         mapnames: parse_jumplist_strings(
             &mut elf_reader,
             MAPNAMES_JUMPLIST_START,
@@ -906,6 +877,87 @@ pub async fn parse_exec<P: AsRef<Path> + Send + Sync>(
         // .await?,
         other: parse_jumpless(&mut elf_reader).await?,
     };
+
+    pointers.sort_unstable();
+    pointers.dedup();
+    let mut relatives = HashMap::with_capacity(10240);
+    for (position, pointer) in pointers.into_iter().enumerate() {
+        let relative = RelativePointerInfo {
+            mem_region: MemRegion::try_from(pointer - POINTER_OFFSET).unwrap(),
+            position: Hexu32(u32::try_from(position).unwrap()),
+            aliased: false,
+        };
+        relatives.insert(pointer, relative);
+    }
+
+    let mut aliases = HashSet::with_capacity(64);
+    for item in exec_structures.techniques.values_mut() {
+        let ptr = item.name_vma_pointer;
+        let mut rnp = relatives.get(&ptr).copied().unwrap();
+        rnp.aliased = !aliases.insert(ptr);
+        item.relative_name_pointer = rnp;
+    }
+    for item in exec_structures.items.values_mut() {
+                let ptr = item.name_vma_pointer;
+        let mut rnp = relatives.get(&ptr).copied().unwrap();
+        rnp.aliased = !aliases.insert(ptr);
+        item.relative_name_pointer = rnp;
+    }
+    for item in exec_structures.enemies.values_mut() {
+        let ptr = item.name_vma_pointer;
+        let mut rnp = relatives.get(&ptr).copied().unwrap();
+        rnp.aliased = !aliases.insert(ptr);
+        item.relative_name_pointer = rnp;
+    }
+    for item in exec_structures.mapnames.values_mut() {
+        let ptr = item.text_vma_pointer;
+        let mut rnp = relatives.get(&ptr).copied().unwrap();
+        rnp.aliased = !aliases.insert(ptr);
+        item.relative_name_pointer = rnp;
+    }
+    for item in exec_structures.menu_text.values_mut() {
+        let ptr = item.text_vma_pointer;
+        let mut rnp = relatives.get(&ptr).copied().unwrap();
+        rnp.aliased = !aliases.insert(ptr);
+        item.relative_name_pointer = rnp;
+    }
+    for item in exec_structures.item_descriptions.values_mut() {
+        let ptr = item.text_vma_pointer;
+        let mut rnp = relatives.get(&ptr).copied().unwrap();
+        rnp.aliased = !aliases.insert(ptr);
+        item.relative_name_pointer = rnp;
+    }
+    for item in exec_structures.songs.values_mut() {
+        let ptr = item.name_vma_pointer;
+        let mut rnp = relatives.get(&ptr).copied().unwrap();
+        rnp.aliased = !aliases.insert(ptr);
+        item.relative_name_pointer = rnp;
+    }
+    for item in exec_structures.misc_strings.values_mut() {
+        let ptr = item.text_vma_pointer;
+        let mut rnp = relatives.get(&ptr).copied().unwrap();
+        rnp.aliased = !aliases.insert(ptr);
+        item.relative_name_pointer = rnp;
+    }
+    for item in exec_structures.savexit.values_mut() {
+        let ptr = item.text_vma_pointer;
+        let mut rnp = relatives.get(&ptr).copied().unwrap();
+        rnp.aliased = !aliases.insert(ptr);
+        item.relative_name_pointer = rnp;
+    }
+    for item in exec_structures.question.values_mut() {
+        let ptr = item.text_vma_pointer;
+        let mut rnp = relatives.get(&ptr).copied().unwrap();
+        rnp.aliased = !aliases.insert(ptr);
+        item.relative_name_pointer = rnp;
+    }
+    for item in exec_structures.memcard_opts.values_mut() {
+        let ptr = item.name_vma_pointer;
+        let mut rnp = relatives.get(&ptr).copied().unwrap();
+        rnp.aliased = !aliases.insert(ptr);
+        item.relative_name_pointer = rnp;
+    }
+
     let exec_structures_path = PathBuf::with_capacity(128)
         .join(out_dir)
         .join(EXEC_STRUCTURES_FILENAME);
@@ -1107,13 +1159,7 @@ fn fill_mem_region<T: StringFill>(
                 );
                 offset
             };
-            let vma_pointer = u32::from_be_bytes(
-                u32::try_from(adjusted_offset + POINTER_OFFSET)
-                    .unwrap()
-                    .to_le_bytes(),
-            );
-            println!("VMA pointer {}", encode_hex(&vma_pointer.to_le_bytes()));
-            item.set_vma_pointer(vma_pointer);
+            item.set_vma_pointer(u32::try_from(adjusted_offset).unwrap() + POINTER_OFFSET);
             updated_items.insert(num, item);
         } else {
             for (disp_region, bytes) in region_buckets.iter() {
@@ -1149,11 +1195,6 @@ pub trait StringFill {
 pub struct JumplistItem {
     #[serde(flatten)]
     string: DialogString,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
-    text_pointer: u32, // Pointer to the string
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
@@ -1194,20 +1235,18 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
     location: usize,
     count: usize,
-    pointers: &mut BTreeMap<u32, (MemRegion, Hexu32)>,
+    pointers: &mut Vec<u32>,
 ) -> Result<BTreeMap<Hexu32, JumplistItem>, io::Error> {
     reader.seek(SeekFrom::Start(location as u64)).await?;
     let mut pointer_bytes = [0u8; 4];
     let mut pointer_vec = Vec::with_capacity(count);
     let mut strings = BTreeMap::new();
-    let mut relative_pointer_index = IndexSet::with_capacity(count);
     for string_no in 0..count {
         reader.read_exact(&mut pointer_bytes).await?;
         let pointer = u32::from_le_bytes(pointer_bytes);
         pointer_vec.push((string_no, pointer));
-        relative_pointer_index.insert(pointer);
+        pointers.push(pointer);
     }
-    relative_pointer_index.sort_unstable();
     assert_eq!(
         pointer_vec.len(),
         count,
@@ -1215,7 +1254,7 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
     );
     for (string_no, ptr) in pointer_vec {
         reader
-            .seek(SeekFrom::Start(u64::from(ptr) - POINTER_OFFSET as u64))
+            .seek(SeekFrom::Start(u64::from(ptr - POINTER_OFFSET)))
             .await?;
         let mut string_bytes = Vec::with_capacity(20);
         reader.read_until(0, &mut string_bytes).await?;
@@ -1227,22 +1266,12 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
             engrish_bytes.push(byte);
         }
         let engrish_str = decode_psg2_string(engrish_bytes);
-        let text_pointer = ptr - u32::try_from(POINTER_OFFSET).unwrap();
-        let region = MemRegion::try_from(text_pointer).unwrap_or_default();
-        let index = relative_pointer_index.get_index_of(&ptr).unwrap();
-        let position = Hexu32(u32::try_from(index).unwrap());
-        let aliased = pointers.get(&ptr).is_some();
-        if !aliased {
-            pointers.insert(ptr, (region, position));
-        }
-
         strings.insert(
             Hexu32(u32::try_from(string_no).unwrap()),
             JumplistItem {
                 string: engrish_str,
-                text_pointer,
-                text_vma_pointer: u32::from_le_bytes(ptr.to_be_bytes()),
-                relative_name_pointer: RelativePointerInfo::new(region, position, aliased),
+                text_vma_pointer: ptr,
+                relative_name_pointer: RelativePointerInfo::default(),
             },
         );
     }
@@ -1261,7 +1290,7 @@ pub async fn patch_jumplist(
     for (_, jumplist_item) in jumplist_items {
         // Now write it all
         exec_writer
-            .write_all(&jumplist_item.text_vma_pointer.to_be_bytes())
+            .write_all(&jumplist_item.text_vma_pointer.to_le_bytes())
             .await?;
     }
     Ok(())

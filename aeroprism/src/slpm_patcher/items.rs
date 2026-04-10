@@ -8,12 +8,10 @@ use crate::{
         is_u16_max, max_u16, serialize_u8_hex, serialize_u16_hex, serialize_u32_hex,
     },
     slpm_patcher::{
-        Character, Enchant, Hexu32, ITEM_STRUCT_COUNT, ITEM_STRUCT_FIELDS, ITEM_STRUCTS_START,
-        MemRegion, POINTER_OFFSET, RelativePointerInfo, StringFill,
+        Character, Enchant, Hexu32, ITEM_STRUCT_COUNT, ITEM_STRUCT_FIELDS, ITEM_STRUCTS_START, POINTER_OFFSET, RelativePointerInfo, StringFill
     },
 };
 use alloc::collections::BTreeMap;
-use indexmap::IndexSet;
 use log::warn;
 use serde::{Deserialize, Serialize};
 use std::io;
@@ -66,11 +64,6 @@ pub struct ItemInfo {
         serialize_with = "serialize_dialog_items"
     )]
     pub name: Vec<DialogItem>,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
-    pub name_pointer: u32,
     #[serde(
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
@@ -167,7 +160,7 @@ impl StringFill for ItemInfo {
 #[inline]
 pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-    pointers: &mut BTreeMap<u32, (MemRegion, Hexu32)>,
+    pointers: &mut Vec<u32>,
 ) -> Result<BTreeMap<Hexu32, ItemInfo>, io::Error> {
     reader
         .seek(SeekFrom::Start(ITEM_STRUCTS_START as u64))
@@ -176,7 +169,6 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     let mut field_bytes = [0u8; 4];
     let mut field_vec = Vec::with_capacity(ITEM_STRUCT_FIELDS);
     let mut items = BTreeMap::new();
-    let mut relative_pointer_index = IndexSet::with_capacity(ITEM_STRUCT_COUNT);
     for item_no in 0..ITEM_STRUCT_COUNT {
         for _field_no in 0..ITEM_STRUCT_FIELDS {
             reader.read_exact(&mut field_bytes).await?;
@@ -184,8 +176,8 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         }
         field_vec.reverse();
         let pointer = field_vec.pop().unwrap();
-        let name_pointer = u32::from_le_bytes(pointer) - u32::try_from(POINTER_OFFSET).unwrap();
-        let name_vma_pointer = u32::from_be_bytes(pointer);
+        let name_vma_pointer = u32::from_le_bytes(pointer);
+        pointers.push(name_vma_pointer);
         let slot_data = field_vec.pop().unwrap();
         let slot_val = i16::from_le_bytes([slot_data[0], slot_data[1]]);
         let unknown_2 = u16::from_le_bytes([slot_data[2], slot_data[3]]);
@@ -207,11 +199,9 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let luck = i16::from_le_bytes([lu_f4[0], lu_f4[1]]);
         let unknown_7 = u16::from_le_bytes([lu_f4[2], lu_f4[3]]);
         let equip_slot = ItemEquipSlot::try_from(slot_val).unwrap();
-        relative_pointer_index.insert(name_pointer);
 
         let item = ItemInfo {
             name: Vec::new(),
-            name_pointer,
             name_vma_pointer,
             text: DialogString::default(),
             relative_name_pointer: RelativePointerInfo::default(),
@@ -233,15 +223,14 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         };
         items.insert(Hexu32(u32::try_from(item_no).unwrap()), item);
     }
-    relative_pointer_index.sort_unstable();
     // use crate::slpm_patcher::Hexu32;
     // use alloc::collections::BTreeMap;
     // use crate::helpers::{save_binary_file, encode_hex};
     // use std::path::PathBuf;
     // let mut item_pointers = BTreeMap::new();
     for item in items.values_mut() {
-        let ptr = item.name_pointer;
-        reader.seek(SeekFrom::Start(u64::from(ptr))).await.unwrap();
+        let ptr = item.name_vma_pointer;
+        reader.seek(SeekFrom::Start(u64::from(ptr - POINTER_OFFSET))).await.unwrap();
         let mut string_bytes = Vec::with_capacity(20);
         while let Ok(byte) = reader.read_u8().await
             && byte != 0
@@ -250,14 +239,6 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         }
         let engrish_str = decode_psg2_string(string_bytes).text;
         item.name = engrish_str;
-        let region = MemRegion::try_from(ptr).unwrap();
-        let index = relative_pointer_index.get_index_of(&ptr).unwrap();
-        let position = Hexu32(u32::try_from(index).unwrap());
-        let aliased = pointers.get(&ptr).is_some();
-        if !aliased {
-            pointers.insert(ptr, (region, position));
-        }
-        item.relative_name_pointer = RelativePointerInfo::new(region, position, aliased);
         // item_pointers.insert(
         //     Hexu32(item.name_pointer - 0xff000),
         //     (
@@ -279,7 +260,7 @@ pub async fn patch(
     items: BTreeMap<Hexu32, ItemInfo>,
 ) -> Result<(), io::Error> {
     exec_writer
-        .seek(SeekFrom::Start(ITEM_STRUCTS_START.try_into().unwrap()))
+        .seek(SeekFrom::Start(ITEM_STRUCTS_START as u64))
         .await
         .unwrap();
     assert_eq!(ITEM_STRUCT_COUNT, items.len(), "Item count MUST be exact!");
@@ -292,7 +273,7 @@ pub async fn patch(
 
         // Now write it all
         exec_writer
-            .write_all(&item.name_vma_pointer.to_be_bytes())
+            .write_all(&item.name_vma_pointer.to_le_bytes())
             .await?;
         exec_writer
             .write_all(&(item.equip_slot as i16).to_le_bytes())

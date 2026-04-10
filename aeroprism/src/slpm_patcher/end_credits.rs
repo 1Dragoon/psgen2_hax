@@ -121,7 +121,7 @@ pub async fn patch(
     end_credits: BTreeMap<usize, EndCreditItem>,
 ) -> Result<(), io::Error> {
     exec_writer
-        .seek(SeekFrom::Start(END_CREDITS_START.try_into().unwrap()))
+        .seek(SeekFrom::Start(END_CREDITS_START as u64))
         .await?;
     let mut total_bytes = 0;
     for (_, end_credit_item) in end_credits {

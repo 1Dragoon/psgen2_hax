@@ -5,14 +5,10 @@ use crate::{
         serialize_dialog_items,
     },
     helpers::{deserialize_u32_hex, encode_hex, is_default, serialize_u32_hex},
-    slpm_patcher::{
-        EnemyType, Hexu32, MemRegion, POINTER_OFFSET, RelativePointerInfo, SpellElemental,
-        StringFill,
-    },
+    slpm_patcher::{EnemyType, Hexu32, POINTER_OFFSET, RelativePointerInfo, SpellElemental, StringFill},
 };
 use alloc::collections::BTreeMap;
 use core::mem::size_of;
-use indexmap::IndexSet;
 use log::warn;
 use serde::{Deserialize, Serialize};
 use std::io;
@@ -140,11 +136,6 @@ pub struct EnemyInfo {
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
     )]
-    pub name_pointer: u32, // Pointer (alias?) to the enemy name string. First field.
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
     pub name_vma_pointer: u32, // Literal VMA pointer to the enemy name string
     #[serde(skip)]
     pub text: DialogString,
@@ -168,7 +159,7 @@ pub struct EnemyInfo {
     pub unknown_10: i32,
     #[serde(default, skip_serializing_if = "is_default")]
     pub unknown_11: i32,
-    // 12 through 17 appear to control the art assets used for this enemy. E.g. dropping the data in these fields from mother brain into neifirst will make neifirst look like mother brain
+    // These control the art assets used for this enemy. E.g. dropping the data in these fields from mother brain into neifirst will make neifirst look like mother brain
     #[serde(default)]
     pub mondat_def: u32, // I think this mondat file describes image layouts
     #[serde(default, skip_serializing_if = "is_default")]
@@ -278,7 +269,7 @@ impl StringFill for EnemyInfo {
 #[inline]
 pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-    pointers: &mut BTreeMap<u32, (MemRegion, Hexu32)>,
+    pointers: &mut Vec<u32>,
 ) -> Result<BTreeMap<Hexu32, EnemyInfo>, io::Error> {
     reader
         .seek(SeekFrom::Start(ENEMY_STRUCTS_START as u64))
@@ -287,7 +278,6 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     let mut field_bytes = [0u8; 4];
     let mut field_vec = Vec::with_capacity(ENEMY_STRUCT_FIELDS);
     let mut enemies = BTreeMap::new();
-    let mut relative_pointer_index = IndexSet::with_capacity(ENEMY_STRUCT_COUNT);
     for enemy_no in 0..ENEMY_STRUCT_COUNT {
         for _field_no in 0..ENEMY_STRUCT_FIELDS {
             reader.read_exact(&mut field_bytes).await?;
@@ -295,14 +285,12 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         }
         field_vec.reverse();
         let pointer_bytes = field_vec.pop().unwrap();
-        let name_pointer =
-            u32::from_le_bytes(pointer_bytes) - u32::try_from(POINTER_OFFSET).unwrap();
-        relative_pointer_index.insert(name_pointer);
+        let name_vma_pointer = u32::from_le_bytes(pointer_bytes);
+        pointers.push(name_vma_pointer);
 
         let enemy = EnemyInfo {
             name: Vec::new(),
-            name_pointer,
-            name_vma_pointer: u32::from_be_bytes(pointer_bytes),
+            name_vma_pointer,
             text: DialogString::default(),
             relative_name_pointer: RelativePointerInfo::default(),
             attributes: EnemyAttributes::from(field_vec.pop().unwrap()),
@@ -344,7 +332,6 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         };
         enemies.insert(Hexu32(u32::try_from(enemy_no).unwrap()), enemy);
     }
-    relative_pointer_index.sort_unstable();
     // use crate::slpm_patcher::Hexu32;
     // use alloc::collections::BTreeMap;
     // use crate::helpers::{save_binary_file, encode_hex};
@@ -352,8 +339,8 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     // let mut enemy_pointers = BTreeMap::new();
     // Fill in the enemy names and relative pointers
     for enemy in enemies.values_mut() {
-        let ptr = enemy.name_pointer;
-        reader.seek(SeekFrom::Start(u64::from(ptr))).await.unwrap();
+        let ptr = enemy.name_vma_pointer;
+        reader.seek(SeekFrom::Start(u64::from(ptr - POINTER_OFFSET))).await.unwrap();
         let mut string_bytes = Vec::with_capacity(20);
         while let Ok(byte) = reader.read_u8().await
             && byte != 0
@@ -361,14 +348,6 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         enemy.name = decode_psg2_string(string_bytes).text;
-        let region = MemRegion::try_from(ptr).unwrap();
-        let index = relative_pointer_index.get_index_of(&ptr).unwrap();
-        let position = Hexu32(u32::try_from(index).unwrap());
-        let aliased = pointers.get(&ptr).is_some();
-        if !aliased {
-            pointers.insert(ptr, (region, position));
-        }
-        enemy.relative_name_pointer = RelativePointerInfo::new(region, position, aliased);
         // enemy_pointers.insert(
         //     Hexu32(enemy.name_pointer - 0xff000),
         //     (
@@ -390,7 +369,7 @@ pub async fn patch(
     enemies: BTreeMap<Hexu32, EnemyInfo>,
 ) -> Result<(), io::Error> {
     exec_writer
-        .seek(SeekFrom::Start(ENEMY_STRUCTS_START.try_into().unwrap()))
+        .seek(SeekFrom::Start(ENEMY_STRUCTS_START as u64))
         .await
         .unwrap();
     assert_eq!(
@@ -400,7 +379,7 @@ pub async fn patch(
     );
     for (_, enemy_info) in enemies {
         exec_writer
-            .write_all(&enemy_info.name_vma_pointer.to_be_bytes())
+            .write_all(&enemy_info.name_vma_pointer.to_le_bytes())
             .await?;
         exec_writer
             .write_all(&u32::from(&enemy_info.attributes).to_be_bytes())

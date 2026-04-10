@@ -8,12 +8,10 @@ use crate::{
         serialize_u32_hex,
     },
     slpm_patcher::{
-        Hexu32, MemRegion, POINTER_OFFSET, RelativePointerInfo, SpellElemental, StringFill,
-        TECHNIQUE_STRUCT_COUNT, TECHNIQUE_STRUCT_FIELDS, TECHNIQUE_STRUCT_START,
+        Hexu32, POINTER_OFFSET, RelativePointerInfo, SpellElemental, StringFill, TECHNIQUE_STRUCT_COUNT, TECHNIQUE_STRUCT_FIELDS, TECHNIQUE_STRUCT_START
     },
 };
 use alloc::collections::BTreeMap;
-use indexmap::IndexSet;
 use log::warn;
 use serde::{Deserialize, Serialize};
 use std::io;
@@ -221,11 +219,6 @@ pub struct Technique {
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex"
     )]
-    pub name_pointer: u32,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
     pub name_vma_pointer: u32,
     #[serde(skip)]
     pub text: DialogString,
@@ -349,14 +342,13 @@ impl VulerableTargets {
 
 pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-    pointers: &mut BTreeMap<u32, (MemRegion, Hexu32)>,
+    pointers: &mut Vec<u32>,
 ) -> Result<BTreeMap<Hexu32, Technique>, io::Error> {
     reader
         .seek(SeekFrom::Start(TECHNIQUE_STRUCT_START as u64))
         .await?;
     let mut field_bytes = [0u8; 4];
     let mut techniques = BTreeMap::new();
-    let mut relative_pointer_index = IndexSet::with_capacity(TECHNIQUE_STRUCT_COUNT);
     for tech_no in 0..TECHNIQUE_STRUCT_COUNT {
         let mut fields = Vec::with_capacity(TECHNIQUE_STRUCT_FIELDS);
         for _ in 0..TECHNIQUE_STRUCT_FIELDS {
@@ -368,9 +360,8 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let attributes = fields.pop().unwrap();
         let elemental = SpellElemental::from_byte(attributes[0]);
         let vulnerable = VulerableTargets::from_byte(attributes[0]);
-        let name_pointer =
-            u32::from_le_bytes(pointer_bytes) - u32::try_from(POINTER_OFFSET).unwrap();
-        relative_pointer_index.insert(name_pointer);
+        let name_vma_pointer = u32::from_le_bytes(pointer_bytes);
+        pointers.push(name_vma_pointer);
 
         let usage = Usage::from_byte(attributes[1]);
         let speed = Speed::from_byte(attributes[1]);
@@ -396,8 +387,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let technique = Technique {
             name: Vec::new(),
             text: DialogString::default(),
-            name_pointer,
-            name_vma_pointer: u32::from_be_bytes(pointer_bytes),
+            name_vma_pointer,
             relative_name_pointer: RelativePointerInfo::default(),
             elemental,
             vulnerable,
@@ -423,13 +413,12 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
 
         techniques.insert(Hexu32(u32::try_from(tech_no).unwrap()), technique);
     }
-    relative_pointer_index.sort_unstable();
 
     // let mut tech_pointers = BTreeMap::new();
 
     for technique in techniques.values_mut() {
-        let ptr = technique.name_pointer;
-        reader.seek(SeekFrom::Start(u64::from(ptr))).await?;
+        let ptr = technique.name_vma_pointer;
+        reader.seek(SeekFrom::Start(u64::from(ptr - POINTER_OFFSET))).await?;
         let mut string_bytes = Vec::with_capacity(20);
         while let Ok(byte) = reader.read_u8().await
             && byte != 0
@@ -437,15 +426,6 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             string_bytes.push(byte);
         }
         technique.name = decode_psg2_string(string_bytes).text;
-        let region = MemRegion::try_from(ptr).unwrap();
-        let index = relative_pointer_index.get_index_of(&ptr).unwrap();
-        let position = Hexu32(u32::try_from(index).unwrap());
-        let aliased = pointers.get(&ptr).is_some();
-        if !aliased {
-            pointers.insert(ptr, (region, position));
-        }
-        technique.relative_name_pointer = RelativePointerInfo::new(region, position, aliased);
-
         // tech_pointers.insert(
         //     Hexu32(technique.name_pointer - 0xff000),
         //     (
@@ -493,7 +473,7 @@ pub async fn patch(
 
         // Now write it all
         exec_writer
-            .write_all(&tech.name_vma_pointer.to_be_bytes())
+            .write_all(&tech.name_vma_pointer.to_le_bytes())
             .await?;
         exec_writer.write_all(&attributes).await?;
         exec_writer.write_all(&side_effect).await?;
