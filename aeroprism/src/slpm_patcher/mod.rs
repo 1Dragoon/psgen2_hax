@@ -260,19 +260,15 @@ pub struct RelativePointerInfo {
     #[serde(default, skip_serializing_if = "is_default")]
     pub position: Hexu32,
     #[serde(default, skip_serializing_if = "is_default")]
-    pub alias: Option<(MemRegion, Hexu32)>,
+    pub aliased: bool,
 }
 
 impl RelativePointerInfo {
-    const fn new(
-        mem_region: MemRegion,
-        position: Hexu32,
-        alias: Option<(MemRegion, Hexu32)>,
-    ) -> Self {
+    const fn new(mem_region: MemRegion, position: Hexu32, aliased: bool) -> Self {
         Self {
             mem_region,
             position,
-            alias,
+            aliased,
         }
     }
 }
@@ -520,9 +516,12 @@ pub async fn parse_songs<R: AsyncBufRead + AsyncSeek + Unpin>(
         let region = MemRegion::try_from(ptr).unwrap();
         let index = relative_pointer_index.get_index_of(&ptr).unwrap();
         let position = Hexu32(u32::try_from(index).unwrap());
+        let aliased = pointers.get(&ptr).is_some();
+        if !aliased {
+            pointers.insert(ptr, (region, position));
+        }
         song.relative_name_pointer =
-            RelativePointerInfo::new(region, position, pointers.get(&ptr).copied());
-        pointers.insert(ptr, (region, position));
+            RelativePointerInfo::new(region, position, aliased);
         // name_pointers.insert(
         //     Hexu32(song.name_pointer - 0xff000),
         //     (
@@ -609,9 +608,12 @@ pub async fn parse_memcard_opts<R: AsyncBufRead + AsyncSeek + Unpin>(
         let region = MemRegion::try_from(ptr).unwrap();
         let index = relative_pointer_index.get_index_of(&ptr).unwrap();
         let position = Hexu32(u32::try_from(index).unwrap());
-        memcard_opt.relative_name_pointer =
-            RelativePointerInfo::new(region, position, pointers.get(&ptr).copied());
-        pointers.insert(ptr, (region, position));
+        let aliased = pointers.get(&ptr).is_some();
+        if !aliased {
+            pointers.insert(ptr, (region, position));
+        }
+                memcard_opt.relative_name_pointer =
+            RelativePointerInfo::new(region, position, aliased);
         // name_pointers.insert(
         //     Hexu32(memcard_opt.name_pointer - 0xff000),
         //     (
@@ -1070,7 +1072,8 @@ fn fill_mem_region<T: StringFill>(
         let text = item.get_text();
         let relative_pointer = item.get_relative_pointer();
         let region = relative_pointer.mem_region;
-        let relative = relative_pointer.position;
+        let position = relative_pointer.position;
+        let aliased = relative_pointer.aliased;
         // Get the bytes we have for this region bucket, extend it with
         let region_bytes = region_buckets.entry(region).or_default();
         debug_buckets
@@ -1079,32 +1082,31 @@ fn fill_mem_region<T: StringFill>(
         let (location, max_size) = region.offset_size();
         let offset = region_bytes.len() + location;
         let mut new_region_size = region_bytes.len();
-        if item.get_relative_pointer().alias.is_none() {
+        if !aliased {
             new_region_size += text.byte_len();
         }
         if new_region_size <= max_size {
             let string = text.clone().to_string();
             println!(
                 "Adding {string} to {region:?} relative 0x{:02x}",
-                relative.0
+                position.0
             );
-            let adjusted_offset =
-                if let Some((memregion, position)) = item.get_relative_pointer().alias {
-                    println!("This is pointer aliased, won't add to region: {string}");
-                    interner
-                        .get(&(memregion, usize::try_from(position.0).unwrap()))
-                        .copied()
-                        .unwrap()
-                } else {
-                    println!("This is not pointer aliased, adding to region: {string}");
-                    region_bytes.extend(text.clone().into_bytes(Some(offset)));
-                    let rp = item.get_relative_pointer();
-                    interner.insert(
-                        (rp.mem_region, usize::try_from(rp.position.0).unwrap()),
-                        offset,
-                    );
-                    offset
-                };
+            let adjusted_offset = if aliased {
+                println!("This is pointer aliased, won't add to region: {string}");
+                interner
+                    .get(&(region, usize::try_from(position.0).unwrap()))
+                    .copied()
+                    .unwrap()
+            } else {
+                println!("This is not pointer aliased, adding to region: {string}");
+                region_bytes.extend(text.clone().into_bytes(Some(offset)));
+                let rp = item.get_relative_pointer();
+                interner.insert(
+                    (rp.mem_region, usize::try_from(rp.position.0).unwrap()),
+                    offset,
+                );
+                offset
+            };
             let vma_pointer = u32::from_be_bytes(
                 u32::try_from(adjusted_offset + POINTER_OFFSET)
                     .unwrap()
@@ -1229,20 +1231,20 @@ pub async fn parse_jumplist_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
         let region = MemRegion::try_from(text_pointer).unwrap_or_default();
         let index = relative_pointer_index.get_index_of(&ptr).unwrap();
         let position = Hexu32(u32::try_from(index).unwrap());
+        let aliased = pointers.get(&ptr).is_some();
+        if !aliased {
+            pointers.insert(ptr, (region, position));
+        }
+
         strings.insert(
             Hexu32(u32::try_from(string_no).unwrap()),
             JumplistItem {
                 string: engrish_str,
                 text_pointer,
                 text_vma_pointer: u32::from_le_bytes(ptr.to_be_bytes()),
-                relative_name_pointer: RelativePointerInfo::new(
-                    region,
-                    position,
-                    pointers.get(&ptr).copied(),
-                ),
+                relative_name_pointer: RelativePointerInfo::new(region, position, aliased),
             },
         );
-        pointers.insert(ptr, (region, position));
     }
     Ok(strings)
 }

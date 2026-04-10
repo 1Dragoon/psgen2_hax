@@ -440,9 +440,11 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let region = MemRegion::try_from(ptr).unwrap();
         let index = relative_pointer_index.get_index_of(&ptr).unwrap();
         let position = Hexu32(u32::try_from(index).unwrap());
-        technique.relative_name_pointer =
-            RelativePointerInfo::new(region, position, pointers.get(&ptr).copied());
-        pointers.insert(ptr, (region, position));
+        let aliased = pointers.get(&ptr).is_some();
+        if !aliased {
+            pointers.insert(ptr, (region, position));
+        }
+        technique.relative_name_pointer = RelativePointerInfo::new(region, position, aliased);
 
         // tech_pointers.insert(
         //     Hexu32(technique.name_pointer - 0xff000),
