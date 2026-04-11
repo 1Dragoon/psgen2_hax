@@ -4,12 +4,11 @@ use crate::{
         DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
         serialize_dialog_items,
     },
-    helpers::{Hexu32, deserialize_u32_hex, encode_hex, is_default, serialize_u32_hex},
+    helpers::{Hexu32, deserialize_u32_hex, is_default, serialize_u32_hex},
     slpm_patcher::{POINTER_OFFSET, RelativePointerInfo, StringFill, techniques::SpellElemental},
 };
 use alloc::collections::BTreeMap;
 use core::mem::size_of;
-use log::warn;
 use serde::{Deserialize, Serialize};
 use std::io;
 use strum::{EnumIter, IntoEnumIterator};
@@ -195,10 +194,7 @@ pub struct EnemyInfo {
         serialize_with = "serialize_dialog_items"
     )]
     pub name: Vec<DialogItem>,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
+    #[serde(skip)]
     pub name_vma_pointer: u32, // Literal VMA pointer to the enemy name string
     #[serde(skip)]
     pub text: DialogString,
@@ -311,13 +307,6 @@ impl StringFill for EnemyInfo {
     }
 
     fn set_vma_pointer(&mut self, ptr_le: u32) {
-        if self.name_vma_pointer != ptr_le {
-            warn!(
-                "Got {}, expected {}",
-                encode_hex(&ptr_le.to_le_bytes()),
-                encode_hex(&self.name_vma_pointer.to_le_bytes())
-            );
-        }
         self.name_vma_pointer = ptr_le;
     }
 

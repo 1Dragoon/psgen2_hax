@@ -1,6 +1,6 @@
 use crate::{
     events::{DialogString, codec::decode_psg2_string},
-    helpers::{Hexu32, deserialize_u32_hex, encode_hex, serialize_u32_hex},
+    helpers::{Hexu32, encode_hex},
     slpm_patcher::{POINTER_OFFSET, RelativePointerInfo, StringFill},
 };
 use alloc::collections::BTreeMap;
@@ -15,20 +15,23 @@ use tokio::{
     },
 };
 
+#[expect(
+    clippy::arbitrary_source_item_ordering,
+    reason = "Ordered by binary struct fields."
+)]
 #[derive(Serialize, Deserialize)]
 pub struct JumplistItem {
     #[serde(flatten)]
     pub string: DialogString,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
+    #[serde(skip)]
     pub text_vma_pointer: u32, // Literal VMA pointer to the string
     #[serde(flatten)]
     pub relative_name_pointer: RelativePointerInfo,
 }
 
 impl StringFill for JumplistItem {
+    fn convert_text(&mut self) {}
+
     fn get_relative_pointer(&self) -> RelativePointerInfo {
         self.relative_name_pointer
     }
@@ -51,8 +54,6 @@ impl StringFill for JumplistItem {
         }
         self.text_vma_pointer = ptr_le;
     }
-
-    fn convert_text(&mut self) {}
 }
 
 pub async fn parse_strings<R: AsyncBufRead + AsyncSeek + Unpin>(

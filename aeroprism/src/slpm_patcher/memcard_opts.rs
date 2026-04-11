@@ -3,7 +3,7 @@ use crate::{
         DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
         serialize_dialog_items,
     },
-    helpers::{Hexu32, deserialize_u32_hex, encode_hex, serialize_u32_hex},
+    helpers::{Hexu32, encode_hex},
     slpm_patcher::{POINTER_OFFSET, RelativePointerInfo, StringFill},
 };
 use alloc::collections::BTreeMap;
@@ -19,6 +19,10 @@ static MEMCARD_STRUCT_START: usize = 0x18_E0A0;
 static MEMCARD_STRUCT_COUNT: usize = 9;
 static MEMCARD_STRUCT_FIELDS: usize = 2;
 
+#[expect(
+    clippy::arbitrary_source_item_ordering,
+    reason = "Ordered by binary struct fields."
+)]
 #[derive(Serialize, Deserialize)]
 pub struct MemcardOpt {
     #[serde(
@@ -26,10 +30,7 @@ pub struct MemcardOpt {
         serialize_with = "serialize_dialog_items"
     )]
     pub string: Vec<DialogItem>,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
+    #[serde(skip)]
     pub name_vma_pointer: u32,
     #[serde(skip)]
     pub text: DialogString,
@@ -39,6 +40,13 @@ pub struct MemcardOpt {
 }
 
 impl StringFill for MemcardOpt {
+    fn convert_text(&mut self) {
+        self.text = DialogString {
+            text: self.string.clone(),
+            padding: 0,
+        };
+    }
+
     fn get_relative_pointer(&self) -> RelativePointerInfo {
         self.relative_name_pointer
     }
@@ -60,13 +68,6 @@ impl StringFill for MemcardOpt {
             );
         }
         self.name_vma_pointer = ptr_le;
-    }
-
-    fn convert_text(&mut self) {
-        self.text = DialogString {
-            text: self.string.clone(),
-            padding: 0,
-        };
     }
 }
 

@@ -4,13 +4,12 @@ use crate::{
         serialize_dialog_items,
     },
     helpers::{
-        Hexu32, deserialize_u8_hex, deserialize_u16_hex, deserialize_u32_hex, encode_hex,
-        is_default, is_u16_max, max_u16, serialize_u8_hex, serialize_u16_hex, serialize_u32_hex,
+        Hexu32, deserialize_u8_hex, deserialize_u16_hex, is_default, is_u16_max, max_u16,
+        serialize_u8_hex, serialize_u16_hex,
     },
-    slpm_patcher::{Character, POINTER_OFFSET, RelativePointerInfo, StringFill},
+    slpm_patcher::{POINTER_OFFSET, RelativePointerInfo, StringFill},
 };
 use alloc::collections::BTreeMap;
-use log::warn;
 use serde::{Deserialize, Serialize};
 use std::io;
 use strum::{EnumIter, IntoEnumIterator};
@@ -45,6 +44,47 @@ pub enum Enchant {
 }
 
 impl Enchant {
+    fn from_byte(byte: u8) -> Box<[Self]> {
+        let mut variants = Vec::with_capacity(8);
+        for variant in Self::iter() {
+            if byte & variant as u8 == variant as u8 {
+                variants.push(variant);
+            }
+        }
+        variants.into_boxed_slice()
+    }
+
+    fn to_byte(value: &[Self]) -> u8 {
+        let mut byte = 0;
+        for variant in value.iter().copied() {
+            byte |= variant as u8;
+        }
+        byte
+    }
+}
+
+#[repr(u8)]
+#[derive(EnumIter, Serialize, Deserialize, Eq, PartialEq, Copy, Clone)]
+pub enum Character {
+    #[serde(alias = "eusis")]
+    Eusis = 0x01,
+    #[serde(alias = "nei")]
+    Nei = 0x02,
+    #[serde(alias = "rudger")]
+    Rudger = 0x04,
+    #[serde(alias = "anne")]
+    Anne = 0x08,
+    #[serde(alias = "huey")]
+    Huey = 0x10,
+    #[serde(alias = "amia")]
+    Amia = 0x20,
+    #[serde(alias = "keinz")]
+    Keinz = 0x40,
+    #[serde(alias = "silka")]
+    Silka = 0x80,
+}
+
+impl Character {
     fn from_byte(byte: u8) -> Box<[Self]> {
         let mut variants = Vec::with_capacity(8);
         for variant in Self::iter() {
@@ -101,6 +141,10 @@ impl TryFrom<i16> for ItemEquipSlot {
     }
 }
 
+#[expect(
+    clippy::arbitrary_source_item_ordering,
+    reason = "Ordered by binary struct fields."
+)]
 #[derive(Serialize, Deserialize)]
 pub struct ItemInfo {
     #[serde(
@@ -108,10 +152,7 @@ pub struct ItemInfo {
         serialize_with = "serialize_dialog_items"
     )]
     pub name: Vec<DialogItem>,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
+    #[serde(skip)]
     pub name_vma_pointer: u32,
     #[serde(skip)]
     pub text: DialogString,
@@ -170,6 +211,13 @@ pub struct ItemInfo {
 }
 
 impl StringFill for ItemInfo {
+    fn convert_text(&mut self) {
+        self.text = DialogString {
+            text: self.name.clone(),
+            padding: 0,
+        };
+    }
+
     fn get_relative_pointer(&self) -> RelativePointerInfo {
         self.relative_name_pointer
     }
@@ -183,21 +231,7 @@ impl StringFill for ItemInfo {
     }
 
     fn set_vma_pointer(&mut self, ptr_le: u32) {
-        if self.name_vma_pointer != ptr_le {
-            warn!(
-                "Got {}, expected {}",
-                encode_hex(&ptr_le.to_le_bytes()),
-                encode_hex(&self.name_vma_pointer.to_le_bytes())
-            );
-        }
         self.name_vma_pointer = ptr_le;
-    }
-
-    fn convert_text(&mut self) {
-        self.text = DialogString {
-            text: self.name.clone(),
-            padding: 0,
-        };
     }
 }
 

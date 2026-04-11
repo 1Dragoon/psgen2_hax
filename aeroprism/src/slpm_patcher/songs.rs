@@ -3,7 +3,7 @@ use crate::{
         DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
         serialize_dialog_items,
     },
-    helpers::{deserialize_u32_hex, encode_hex, serialize_u32_hex},
+    helpers::encode_hex,
     slpm_patcher::{Hexu32, POINTER_OFFSET, RelativePointerInfo, StringFill},
 };
 use alloc::collections::BTreeMap;
@@ -19,6 +19,10 @@ static MUSIC_STRUCT_START: usize = 0x18_9450;
 static MUSIC_STRUCT_COUNT: usize = 19;
 static MUSIC_STRUCT_FIELDS: usize = 2;
 
+#[expect(
+    clippy::arbitrary_source_item_ordering,
+    reason = "Ordered by binary struct fields."
+)]
 #[derive(Serialize, Deserialize)]
 pub struct Song {
     #[serde(
@@ -26,10 +30,7 @@ pub struct Song {
         serialize_with = "serialize_dialog_items"
     )]
     pub name: Vec<DialogItem>,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
+    #[serde(skip)]
     pub name_vma_pointer: u32,
     #[serde(skip)]
     pub text: DialogString,
@@ -39,6 +40,13 @@ pub struct Song {
 }
 
 impl StringFill for Song {
+    fn convert_text(&mut self) {
+        self.text = DialogString {
+            text: self.name.clone(),
+            padding: 0,
+        };
+    }
+
     fn get_relative_pointer(&self) -> RelativePointerInfo {
         self.relative_name_pointer
     }
@@ -60,13 +68,6 @@ impl StringFill for Song {
             );
         }
         self.name_vma_pointer = ptr_le;
-    }
-
-    fn convert_text(&mut self) {
-        self.text = DialogString {
-            text: self.name.clone(),
-            padding: 0,
-        };
     }
 }
 

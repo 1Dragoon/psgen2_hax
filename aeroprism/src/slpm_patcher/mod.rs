@@ -1,4 +1,3 @@
-#![allow(clippy::arbitrary_source_item_ordering, reason = "not needed")]
 pub mod end_credits;
 pub mod enemies;
 pub mod items;
@@ -24,7 +23,6 @@ use std::{
     io,
     path::{Path, PathBuf},
 };
-use strum::{EnumIter, IntoEnumIterator};
 use tokio::{
     fs::{self, OpenOptions},
     io::{
@@ -81,6 +79,10 @@ const JUMPLESS_REGIONS: [MemRegion; 11] = [
     MemRegion::JumplessK,
 ];
 
+#[expect(
+    clippy::arbitrary_source_item_ordering,
+    reason = "Ordered by address space location."
+)]
 #[derive(
     Serialize, Deserialize, Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Debug, Default, Hash,
 )]
@@ -208,47 +210,6 @@ impl TryFrom<u32> for MemRegion {
     }
 }
 
-#[repr(u8)]
-#[derive(EnumIter, Serialize, Deserialize, Eq, PartialEq, Copy, Clone)]
-pub enum Character {
-    #[serde(alias = "eusis")]
-    Eusis = 0x01,
-    #[serde(alias = "nei")]
-    Nei = 0x02,
-    #[serde(alias = "rudger")]
-    Rudger = 0x04,
-    #[serde(alias = "anne")]
-    Anne = 0x08,
-    #[serde(alias = "huey")]
-    Huey = 0x10,
-    #[serde(alias = "amia")]
-    Amia = 0x20,
-    #[serde(alias = "keinz")]
-    Keinz = 0x40,
-    #[serde(alias = "silka")]
-    Silka = 0x80,
-}
-
-impl Character {
-    fn from_byte(byte: u8) -> Box<[Self]> {
-        let mut variants = Vec::with_capacity(8);
-        for variant in Self::iter() {
-            if byte & variant as u8 == variant as u8 {
-                variants.push(variant);
-            }
-        }
-        variants.into_boxed_slice()
-    }
-
-    fn to_byte(value: &[Self]) -> u8 {
-        let mut byte = 0;
-        for variant in value.iter().copied() {
-            byte |= variant as u8;
-        }
-        byte
-    }
-}
-
 #[expect(
     clippy::struct_field_names,
     reason = "This struct gets flattened in the output, where the names help."
@@ -256,11 +217,48 @@ impl Character {
 #[derive(Serialize, Deserialize, Default, Copy, Clone)]
 pub struct RelativePointerInfo {
     #[serde(default, skip_serializing_if = "is_default")]
+    pub string_aliased: bool,
+    #[serde(default, skip_serializing_if = "is_default")]
     pub string_mem_region: MemRegion,
     #[serde(default, skip_serializing_if = "is_default")]
     pub string_position: Hexu32,
-    #[serde(default, skip_serializing_if = "is_default")]
-    pub string_aliased: bool,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ExecStructures {
+    // pub dunno_struct: indexmap::IndexMap<Hexu32, (DialogString, Vec<Hexu32>)>,
+    #[serde(rename = "end_credit")]
+    pub end_credits: BTreeMap<usize, EndCreditItem>,
+    #[serde(rename = "enemy")]
+    pub enemies: BTreeMap<Hexu32, EnemyInfo>,
+    #[serde(rename = "item_description")]
+    pub item_descriptions: BTreeMap<Hexu32, JumplistItem>,
+    #[serde(rename = "item")]
+    pub items: BTreeMap<Hexu32, ItemInfo>,
+    pub jumpless_strings: BTreeMap<MemRegion, Vec<DialogString>>,
+    #[serde(rename = "mapname")]
+    pub mapnames: BTreeMap<Hexu32, JumplistItem>,
+    #[serde(rename = "memcard_opt")]
+    pub memcard_opts: BTreeMap<Hexu32, MemcardOpt>,
+    pub menu_text: BTreeMap<Hexu32, JumplistItem>,
+    #[serde(rename = "misc_string")]
+    pub misc_strings: BTreeMap<Hexu32, JumplistItem>,
+    pub question: BTreeMap<Hexu32, JumplistItem>,
+    pub savexit: BTreeMap<Hexu32, JumplistItem>,
+    #[serde(rename = "song")]
+    pub songs: BTreeMap<Hexu32, Song>,
+    #[serde(rename = "technique")]
+    pub techniques: BTreeMap<Hexu32, Technique>,
+    // pub indicators: BTreeMap<Hexu32, JumplistItem>,
+    // pub dunno: BTreeMap<Hexu32, JumplistItem>,
+}
+
+pub trait StringFill {
+    fn convert_text(&mut self);
+    fn get_relative_pointer(&self) -> RelativePointerInfo;
+    fn get_text(&'_ self) -> &'_ DialogString;
+    fn pad_text(&mut self, size: u8);
+    fn set_vma_pointer(&mut self, ptr_le: u32);
 }
 
 pub async fn parse_jumpless<R: AsyncBufRead + AsyncSeek + Unpin>(
@@ -332,35 +330,6 @@ pub async fn parse_jumpless<R: AsyncBufRead + AsyncSeek + Unpin>(
 
 //     Ok(index_map)
 // }
-
-#[derive(Serialize, Deserialize)]
-pub struct ExecStructures {
-    // pub dunno_struct: indexmap::IndexMap<Hexu32, (DialogString, Vec<Hexu32>)>,
-    #[serde(rename = "technique")]
-    pub techniques: BTreeMap<Hexu32, Technique>,
-    #[serde(rename = "item")]
-    pub items: BTreeMap<Hexu32, ItemInfo>,
-    #[serde(rename = "enemy")]
-    pub enemies: BTreeMap<Hexu32, EnemyInfo>,
-    #[serde(rename = "end_credit")]
-    pub end_credits: BTreeMap<usize, EndCreditItem>,
-    #[serde(rename = "mapname")]
-    pub mapnames: BTreeMap<Hexu32, JumplistItem>,
-    pub menu_text: BTreeMap<Hexu32, JumplistItem>,
-    #[serde(rename = "item_description")]
-    pub item_descriptions: BTreeMap<Hexu32, JumplistItem>,
-    #[serde(rename = "song")]
-    pub songs: BTreeMap<Hexu32, Song>,
-    #[serde(rename = "misc_string")]
-    pub misc_strings: BTreeMap<Hexu32, JumplistItem>,
-    #[serde(rename = "memcard_opt")]
-    pub memcard_opts: BTreeMap<Hexu32, MemcardOpt>,
-    pub savexit: BTreeMap<Hexu32, JumplistItem>,
-    pub question: BTreeMap<Hexu32, JumplistItem>,
-    pub jumpless_strings: BTreeMap<MemRegion, Vec<DialogString>>,
-    // pub indicators: BTreeMap<Hexu32, JumplistItem>,
-    // pub dunno: BTreeMap<Hexu32, JumplistItem>,
-}
 
 #[inline]
 pub async fn parse_exec<P: AsRef<Path> + Send + Sync>(
@@ -766,12 +735,4 @@ fn fill_mem_region<T: StringFill>(
         }
     }
     updated_items
-}
-
-pub trait StringFill {
-    fn get_relative_pointer(&self) -> RelativePointerInfo;
-    fn get_text(&'_ self) -> &'_ DialogString;
-    fn pad_text(&mut self, size: u8);
-    fn set_vma_pointer(&mut self, ptr_le: u32);
-    fn convert_text(&mut self);
 }

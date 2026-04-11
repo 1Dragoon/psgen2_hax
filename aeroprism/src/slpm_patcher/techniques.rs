@@ -3,10 +3,7 @@ use crate::{
         DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
         serialize_dialog_items,
     },
-    helpers::{
-        deserialize_u8_hex, deserialize_u32_hex, encode_hex, is_default, serialize_u8_hex,
-        serialize_u32_hex,
-    },
+    helpers::{deserialize_u8_hex, encode_hex, is_default, serialize_u8_hex},
     slpm_patcher::{Hexu32, POINTER_OFFSET, RelativePointerInfo, StringFill},
 };
 use alloc::collections::BTreeMap;
@@ -103,6 +100,10 @@ impl TryFrom<i32> for Targetable {
 }
 
 // Technique attributes
+#[expect(
+    clippy::arbitrary_source_item_ordering,
+    reason = "Ordered by packed bitfields."
+)]
 #[derive(EnumIter, Serialize, Deserialize, Copy, Clone, Eq, PartialEq, Default)]
 pub enum Speed {
     #[default]
@@ -145,6 +146,10 @@ impl Speed {
     }
 }
 
+#[expect(
+    clippy::arbitrary_source_item_ordering,
+    reason = "Ordered by packed bitfields."
+)]
 #[derive(EnumIter, Serialize, Deserialize, Copy, Clone, Eq, PartialEq, Default)]
 pub enum Usage {
     #[default]
@@ -244,6 +249,10 @@ impl SideEffect {
     }
 }
 
+#[expect(
+    clippy::arbitrary_source_item_ordering,
+    reason = "Ordered by binary struct fields."
+)]
 #[derive(Serialize, Deserialize)]
 pub struct Technique {
     #[serde(
@@ -251,10 +260,7 @@ pub struct Technique {
         serialize_with = "serialize_dialog_items"
     )]
     pub name: Vec<DialogItem>,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
+    #[serde(skip)]
     pub name_vma_pointer: u32,
     #[serde(skip)]
     pub text: DialogString,
@@ -312,6 +318,13 @@ pub struct Technique {
 }
 
 impl StringFill for Technique {
+    fn convert_text(&mut self) {
+        self.text = DialogString {
+            text: self.name.clone(),
+            padding: 0,
+        };
+    }
+
     fn get_relative_pointer(&self) -> RelativePointerInfo {
         self.relative_name_pointer
     }
@@ -333,13 +346,6 @@ impl StringFill for Technique {
             );
         }
         self.name_vma_pointer = ptr_le;
-    }
-
-    fn convert_text(&mut self) {
-        self.text = DialogString {
-            text: self.name.clone(),
-            padding: 0,
-        };
     }
 }
 
