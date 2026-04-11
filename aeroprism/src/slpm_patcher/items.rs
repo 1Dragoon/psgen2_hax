@@ -4,21 +4,65 @@ use crate::{
         serialize_dialog_items,
     },
     helpers::{
-        deserialize_u8_hex, deserialize_u16_hex, deserialize_u32_hex, encode_hex, is_default,
-        is_u16_max, max_u16, serialize_u8_hex, serialize_u16_hex, serialize_u32_hex,
+        Hexu32, deserialize_u8_hex, deserialize_u16_hex, deserialize_u32_hex, encode_hex,
+        is_default, is_u16_max, max_u16, serialize_u8_hex, serialize_u16_hex, serialize_u32_hex,
     },
-    slpm_patcher::{
-        Character, Enchant, Hexu32, ITEM_STRUCT_COUNT, ITEM_STRUCT_FIELDS, ITEM_STRUCTS_START, POINTER_OFFSET, RelativePointerInfo, StringFill
-    },
+    slpm_patcher::{Character, POINTER_OFFSET, RelativePointerInfo, StringFill},
 };
 use alloc::collections::BTreeMap;
 use log::warn;
 use serde::{Deserialize, Serialize};
 use std::io;
+use strum::{EnumIter, IntoEnumIterator};
 use tokio::{
     fs::{self},
     io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, AsyncWriteExt, BufWriter, SeekFrom},
 };
+
+static ITEM_STRUCTS_START: usize = 0x18_B1B0;
+static ITEM_STRUCT_COUNT: usize = 186;
+static ITEM_STRUCT_FIELDS: usize = 8;
+
+#[repr(u8)]
+#[derive(EnumIter, Serialize, Deserialize, Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Debug)]
+pub enum Enchant {
+    #[serde(alias = "fire")]
+    Fire = 0x01,
+    #[serde(alias = "ice")]
+    Ice = 0x02,
+    #[serde(alias = "lightning")]
+    Lightning = 0x04,
+    #[serde(alias = "air")]
+    Air = 0x08,
+    #[serde(alias = "paralysis")]
+    Paralysis = 0x10,
+    #[serde(alias = "unknownb", alias = "unknown_b")]
+    UnknownB = 0x20,
+    #[serde(alias = "unknownc", alias = "unknown_c")]
+    UnknownC = 0x40,
+    #[serde(alias = "unknownd", alias = "unknown_d")]
+    UnknownD = 0x80,
+}
+
+impl Enchant {
+    fn from_byte(byte: u8) -> Box<[Self]> {
+        let mut variants = Vec::with_capacity(8);
+        for variant in Self::iter() {
+            if byte & variant as u8 == variant as u8 {
+                variants.push(variant);
+            }
+        }
+        variants.into_boxed_slice()
+    }
+
+    fn to_byte(value: &[Self]) -> u8 {
+        let mut byte = 0;
+        for variant in value.iter().copied() {
+            byte |= variant as u8;
+        }
+        byte
+    }
+}
 
 #[repr(u8)]
 #[derive(Serialize, Deserialize, Default, Eq, PartialEq, Copy, Clone)]
@@ -230,7 +274,10 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     // let mut item_pointers = BTreeMap::new();
     for item in items.values_mut() {
         let ptr = item.name_vma_pointer;
-        reader.seek(SeekFrom::Start(u64::from(ptr - POINTER_OFFSET))).await.unwrap();
+        reader
+            .seek(SeekFrom::Start(u64::from(ptr - POINTER_OFFSET)))
+            .await
+            .unwrap();
         let mut string_bytes = Vec::with_capacity(20);
         while let Ok(byte) = reader.read_u8().await
             && byte != 0

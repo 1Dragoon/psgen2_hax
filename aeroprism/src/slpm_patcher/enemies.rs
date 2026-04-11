@@ -4,8 +4,8 @@ use crate::{
         DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
         serialize_dialog_items,
     },
-    helpers::{deserialize_u32_hex, encode_hex, is_default, serialize_u32_hex},
-    slpm_patcher::{EnemyType, Hexu32, POINTER_OFFSET, RelativePointerInfo, SpellElemental, StringFill},
+    helpers::{Hexu32, deserialize_u32_hex, encode_hex, is_default, serialize_u32_hex},
+    slpm_patcher::{POINTER_OFFSET, RelativePointerInfo, StringFill, techniques::SpellElemental},
 };
 use alloc::collections::BTreeMap;
 use core::mem::size_of;
@@ -122,6 +122,69 @@ impl From<&EnemyAttributes> for u32 {
             EnemyType::to_byte(r#type),
             GraphicEffect::to_byte(effects),
         ])
+    }
+}
+
+#[repr(u8)]
+#[derive(
+    EnumIter,
+    Serialize,
+    Deserialize,
+    Default,
+    Copy,
+    Clone,
+    PartialEq,
+    PartialOrd,
+    Eq,
+    Ord,
+    Hash,
+    Debug,
+)]
+enum EnemyType {
+    #[default]
+    #[serde(alias = "demonic")]
+    Demonic, // First and second bits turned off. Effectively, the below two bits count as a weakness to certain techniques. This simply indicates immunity to both biologic and robitic techniques.
+    #[serde(alias = "biologic")]
+    Biologic = 0x10,
+    #[serde(alias = "robotic")]
+    Robotic = 0x20,
+    #[serde(alias = "boss")]
+    Boss = 0x40, // Possessed by Dark Falz, Motherbrain, Neifirst (both occurrences) and Army Eye. Conveys immunity to certain techs, possibly other effects.
+    #[serde(alias = "superboss", alias = "super_boss")]
+    SuperBoss = 0x80, // The name is just a guess. Only Dark Falz and Motherbrain appear to have the bit for this set. No idea what it does. May provide immunity to some things or have other effects.
+    #[serde(alias = "unknowna", alias = "unknown_a")]
+    UnknownA = 0x01,
+    #[serde(alias = "unknownb", alias = "unknown_b")]
+    UnknownB = 0x02,
+    #[serde(alias = "unknownc", alias = "unknown_c")]
+    UnknownC = 0x04,
+    #[serde(alias = "unknownd", alias = "unknown_d")]
+    UnknownD = 0x08,
+}
+
+impl EnemyType {
+    fn from_byte(byte: u8) -> Box<[Self]> {
+        let mut variants = Vec::with_capacity(8);
+        for variant in Self::iter() {
+            if variant == Self::default() {
+                continue;
+            }
+            if byte & variant as u8 == variant as u8 {
+                variants.push(variant);
+            }
+        }
+        if byte & (Self::Biologic as u8 | Self::Robotic as u8) == 0 {
+            variants.push(Self::default());
+        }
+        variants.into_boxed_slice()
+    }
+
+    fn to_byte(value: &[Self]) -> u8 {
+        let mut byte = 0;
+        for variant in value.iter().copied() {
+            byte |= variant as u8;
+        }
+        byte
     }
 }
 
@@ -340,7 +403,10 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
     // Fill in the enemy names and relative pointers
     for enemy in enemies.values_mut() {
         let ptr = enemy.name_vma_pointer;
-        reader.seek(SeekFrom::Start(u64::from(ptr - POINTER_OFFSET))).await.unwrap();
+        reader
+            .seek(SeekFrom::Start(u64::from(ptr - POINTER_OFFSET)))
+            .await
+            .unwrap();
         let mut string_bytes = Vec::with_capacity(20);
         while let Ok(byte) = reader.read_u8().await
             && byte != 0

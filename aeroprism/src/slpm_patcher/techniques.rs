@@ -7,9 +7,7 @@ use crate::{
         deserialize_u8_hex, deserialize_u32_hex, encode_hex, is_default, serialize_u8_hex,
         serialize_u32_hex,
     },
-    slpm_patcher::{
-        Hexu32, POINTER_OFFSET, RelativePointerInfo, SpellElemental, StringFill, TECHNIQUE_STRUCT_COUNT, TECHNIQUE_STRUCT_FIELDS, TECHNIQUE_STRUCT_START
-    },
+    slpm_patcher::{Hexu32, POINTER_OFFSET, RelativePointerInfo, StringFill},
 };
 use alloc::collections::BTreeMap;
 use log::warn;
@@ -20,6 +18,44 @@ use tokio::{
     fs,
     io::{AsyncBufRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, AsyncWriteExt, BufWriter, SeekFrom},
 };
+
+static TECHNIQUE_STRUCT_START: usize = 0x1A_28A0;
+static TECHNIQUE_STRUCT_COUNT: usize = 83;
+static TECHNIQUE_STRUCT_FIELDS: usize = 14;
+
+#[repr(u8)]
+#[derive(EnumIter, Serialize, Deserialize, Copy, Clone, PartialEq, PartialOrd, Eq, Ord, Debug)]
+pub enum SpellElemental {
+    #[serde(alias = "fire")]
+    Fire = 0x01,
+    #[serde(alias = "ice")]
+    Ice = 0x02,
+    #[serde(alias = "air")]
+    Air = 0x04,
+    #[serde(alias = "lightning")]
+    Lightning = 0x08,
+}
+
+impl SpellElemental {
+    pub fn from_byte(mut byte: u8) -> Box<[Self]> {
+        byte &= 0x0f;
+        let mut variants = Vec::with_capacity(8);
+        for variant in Self::iter() {
+            if byte & variant as u8 == variant as u8 {
+                variants.push(variant);
+            }
+        }
+        variants.into_boxed_slice()
+    }
+
+    pub fn to_byte(value: &[Self]) -> u8 {
+        let mut byte = 0;
+        for variant in value.iter().copied() {
+            byte |= variant as u8;
+        }
+        byte
+    }
+}
 
 #[derive(Serialize, Deserialize)]
 #[repr(i32)]
@@ -418,7 +454,9 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
 
     for technique in techniques.values_mut() {
         let ptr = technique.name_vma_pointer;
-        reader.seek(SeekFrom::Start(u64::from(ptr - POINTER_OFFSET))).await?;
+        reader
+            .seek(SeekFrom::Start(u64::from(ptr - POINTER_OFFSET)))
+            .await?;
         let mut string_bytes = Vec::with_capacity(20);
         while let Ok(byte) = reader.read_u8().await
             && byte != 0

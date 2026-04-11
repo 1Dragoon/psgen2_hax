@@ -28,6 +28,15 @@ pub enum DecodeHexError {
     ParseInt(ParseIntError),
 }
 
+#[derive(Serialize, Deserialize, PartialEq, PartialOrd, Eq, Ord, Hash, Copy, Clone, Default)]
+pub struct Hexu32(
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
+    pub u32,
+);
+
 impl From<ParseIntError> for DecodeHexError {
     fn from(e: ParseIntError) -> Self {
         Self::ParseInt(e)
