@@ -1,5 +1,5 @@
-use crate::helpers::{deserialize_u32_hex, encode_hex, serialize_u32_hex};
-use log::warn;
+// use crate::helpers::{deserialize_u32_hex, encode_hex, serialize_u32_hex};
+// use log::warn;
 use crate::{
     events::{DialogString, codec::decode_psg2_string},
     helpers::Hexu32,
@@ -24,11 +24,11 @@ use tokio::{
 pub struct JumplistItem {
     #[serde(flatten)]
     pub string: DialogString,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
-    // #[serde(skip)]
+    // #[serde(
+    //     serialize_with = "serialize_u32_hex",
+    //     deserialize_with = "deserialize_u32_hex"
+    // )]
+    #[serde(skip)]
     pub text_vma_pointer: u32, // Literal VMA pointer to the string
     #[serde(flatten)]
     pub relative_name_pointer: RelativePointerInfo,
@@ -50,13 +50,13 @@ impl StringFill for JumplistItem {
     }
 
     fn set_vma_pointer(&mut self, ptr_le: u32) {
-        if self.text_vma_pointer != ptr_le {
-            warn!(
-                "Got {}, expected {}",
-                encode_hex(&ptr_le.to_le_bytes()),
-                encode_hex(&self.text_vma_pointer.to_le_bytes())
-            );
-        }
+        // if self.text_vma_pointer != ptr_le {
+        //     warn!(
+        //         "Got {}, expected {}",
+        //         encode_hex(&ptr_le.to_le_bytes()),
+        //         encode_hex(&self.text_vma_pointer.to_le_bytes())
+        //     );
+        // }
         self.text_vma_pointer = ptr_le;
     }
 }

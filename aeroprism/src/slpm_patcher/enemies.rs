@@ -1,12 +1,12 @@
 #![allow(clippy::arbitrary_source_item_ordering, reason = "not needed")]
-use crate::helpers::{deserialize_u32_hex, serialize_u32_hex};
-use log::warn;
+// use crate::helpers::encode_hex;
+// use log::warn;
 use crate::{
     events::{
         DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
         serialize_dialog_items,
     },
-    helpers::{Hexu32, encode_hex, is_default},
+    helpers::{Hexu32, deserialize_u32_hex, is_default, serialize_u32_hex},
     slpm_patcher::{POINTER_OFFSET, RelativePointerInfo, StringFill, techniques::SpellElemental},
 };
 use alloc::collections::BTreeMap;
@@ -196,11 +196,11 @@ pub struct EnemyInfo {
         serialize_with = "serialize_dialog_items"
     )]
     pub name: Vec<DialogItem>,
-    #[serde(
-        serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
-    )]
-    // #[serde(skip)]
+    // #[serde(
+    //     serialize_with = "serialize_u32_hex",
+    //     deserialize_with = "deserialize_u32_hex"
+    // )]
+    #[serde(skip)]
     pub name_vma_pointer: u32, // Literal VMA pointer to the enemy name string
     #[serde(skip)]
     pub text: DialogString,
@@ -313,13 +313,13 @@ impl StringFill for EnemyInfo {
     }
 
     fn set_vma_pointer(&mut self, ptr_le: u32) {
-        if self.name_vma_pointer != ptr_le {
-            warn!(
-                "Got {}, expected {}",
-                encode_hex(&ptr_le.to_le_bytes()),
-                encode_hex(&self.name_vma_pointer.to_le_bytes())
-            );
-        }
+        // if self.name_vma_pointer != ptr_le {
+        //     warn!(
+        //         "Got {}, expected {}",
+        //         encode_hex(&ptr_le.to_le_bytes()),
+        //         encode_hex(&self.name_vma_pointer.to_le_bytes())
+        //     );
+        // }
         self.name_vma_pointer = ptr_le;
     }
 
