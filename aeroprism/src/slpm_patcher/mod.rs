@@ -148,7 +148,7 @@ impl MemRegion {
             Self::JumplessB => (0x18_9210, 0x90),
             Self::JumplessC => (0x18_92C8, 0x40),
             Self::StructuredB => (0x18_94E8, 0x1a8),
-            Self::JumplessD => (0x18_96E8, 0x10),
+            Self::JumplessD => (0x18_96E8, 0x14), // Extended by 4 bytes for compatibility with goldenboy release
             Self::JumplessE => (0x18_A330, 0x420),
             Self::JumplessF => (0x18_A760, 0x48),
             Self::JumplessG => (0x18_B0A0, 0x30),
@@ -156,7 +156,7 @@ impl MemRegion {
             Self::StructuredC => (0x18_C8F0, 0x10e8),
             Self::JumplessI => (0x18_DA10, 0x378),
             Self::StructuredD => (0x18_DF18, 0x188),
-            Self::JumplessJ => (0x1A_1C80, 0x48),
+            Self::JumplessJ => (0x1A_1C80, 0x4c), // Extended by 4 bytes for compatibility with goldenboy release
             Self::JumplessK => (0x1A_1E78, 0x470),
             Self::StructuredE => (0x1A_1D80, 0x40),
             Self::StructuredF => (0x1A_3AC8, 0x450),
@@ -189,7 +189,7 @@ impl TryFrom<u32> for MemRegion {
             0x18_B0A0..0x18_B0D0 => Ok(Self::JumplessG),
             0x18_B160..0x18_B178 => Ok(Self::JumplessH),
             0x18_C8F0..0x18_D9D8 => Ok(Self::StructuredC), // Goldenboy goes to 0x18D9E0
-            0x18_DA10..0x18_DD88 => Ok(Self::JumplessI),   // Goldenboy goes to 0x18DD90
+            0x18_DA10..0x18_DD88 => Ok(Self::JumplessI), // Goldenboy goes to 0x18DD90
             0x18_DF18..0x18_E0A0 => Ok(Self::StructuredD),
             0x1A_1C80..0x1A_1CC8 => Ok(Self::JumplessJ), // Goldenboy goes to 0x1A1CD0
             0x1A_1D80..0x1A_1DC0 => Ok(Self::StructuredE),
@@ -274,7 +274,7 @@ pub async fn parse_jumpless<R: AsyncBufRead + AsyncSeek + Unpin>(
         let mut strings = Vec::with_capacity(128);
         while !region_bytes.is_empty() {
             debug!("Region bytes {} left", region_bytes.len());
-            let (terminator_pos, _) = region_bytes.iter().find_position(|b| **b == 0).unwrap();
+            let (terminator_pos, _) = region_bytes.iter().find_position(|b| **b == 0).unwrap(); // Can fail here if strings are added past the 64-bit boundary into the null field that comes after
             let bytes = region_bytes.drain(0..terminator_pos).collect_vec();
             strings.push(decode_psg2_string(bytes));
             if let Some((non_terminator_pos, _)) = region_bytes.iter().find_position(|b| **b != 0) {
@@ -594,9 +594,9 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
     let memcard_opts = fill_mem_region(memcard_opts, &mut interner, &mut region_buckets);
     let techniques = fill_mem_region(techniques, &mut interner, &mut region_buckets);
     let enemies = fill_mem_region(enemies, &mut interner, &mut region_buckets);
-    let menu_text = fill_mem_region(menu_text, &mut interner, &mut region_buckets);
-    let item_descriptions = fill_mem_region(item_descriptions, &mut interner, &mut region_buckets);
-    let savexit = fill_mem_region(savexit, &mut interner, &mut region_buckets);
+    // let menu_text = fill_mem_region(menu_text, &mut interner, &mut region_buckets);
+    // let item_descriptions = fill_mem_region(item_descriptions, &mut interner, &mut region_buckets);
+    // let savexit = fill_mem_region(savexit, &mut interner, &mut region_buckets);
     let question = fill_mem_region(question, &mut interner, &mut region_buckets);
 
     for (region, strings) in jumpless_strings {
@@ -609,11 +609,19 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
         }
     }
 
-    let elf_binary = OpenOptions::new().write(true).open(dest).await?;
-    let mut bw = BufWriter::new(elf_binary);
+    let write_elf_binary = OpenOptions::new().write(true).open(dest).await?;
+    let mut bw = BufWriter::new(write_elf_binary);
+    let read_elf_binary = OpenOptions::new().read(true).open(dest).await?;
+    let mut br = BufReader::new(read_elf_binary);
 
     for (region, bytes) in region_buckets {
         let (offset, _size) = region.offset_size();
+        br.seek(SeekFrom::Start(offset as u64)).await?;
+        let mut existing_region_bytes = vec![0u8; bytes.len()];
+        br.read_exact(&mut existing_region_bytes).await?;
+
+        assert_eq!(encode_hex(&bytes), encode_hex(&existing_region_bytes), "In region {region:?}");
+
         bw.seek(SeekFrom::Start(offset as u64)).await?;
         bw.write_all(&bytes).await?;
     }

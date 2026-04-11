@@ -3,11 +3,9 @@ use crate::{
         DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
         serialize_dialog_items,
     },
-    helpers::encode_hex,
     slpm_patcher::{Hexu32, POINTER_OFFSET, RelativePointerInfo, StringFill},
 };
 use alloc::collections::BTreeMap;
-use log::warn;
 use serde::{Deserialize, Serialize};
 use std::io;
 use tokio::{
@@ -60,13 +58,6 @@ impl StringFill for Song {
     }
 
     fn set_vma_pointer(&mut self, ptr_le: u32) {
-        if self.name_vma_pointer != ptr_le {
-            warn!(
-                "Got {}, expected {}",
-                encode_hex(&ptr_le.to_le_bytes()),
-                encode_hex(&self.name_vma_pointer.to_le_bytes())
-            );
-        }
         self.name_vma_pointer = ptr_le;
     }
 }
