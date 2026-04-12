@@ -189,7 +189,7 @@ impl TryFrom<u32> for MemRegion {
             0x18_B0A0..0x18_B0D0 => Ok(Self::JumplessG),
             0x18_B160..0x18_B178 => Ok(Self::JumplessH),
             0x18_C8F0..0x18_D9D8 => Ok(Self::StructuredC), // Goldenboy goes to 0x18D9E0
-            0x18_DA10..0x18_DD88 => Ok(Self::JumplessI), // Goldenboy goes to 0x18DD90
+            0x18_DA10..0x18_DD88 => Ok(Self::JumplessI),   // Goldenboy goes to 0x18DD90
             0x18_DF18..0x18_E0A0 => Ok(Self::StructuredD),
             0x1A_1C80..0x1A_1CC8 => Ok(Self::JumplessJ), // Goldenboy goes to 0x1A1CD0
             0x1A_1D80..0x1A_1DC0 => Ok(Self::StructuredE),
@@ -594,13 +594,14 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
     let memcard_opts = fill_mem_region(memcard_opts, &mut interner, &mut region_buckets);
     let techniques = fill_mem_region(techniques, &mut interner, &mut region_buckets);
     let enemies = fill_mem_region(enemies, &mut interner, &mut region_buckets);
-    // let menu_text = fill_mem_region(menu_text, &mut interner, &mut region_buckets);
-    // let item_descriptions = fill_mem_region(item_descriptions, &mut interner, &mut region_buckets);
-    // let savexit = fill_mem_region(savexit, &mut interner, &mut region_buckets);
+    let menu_text = fill_mem_region(menu_text, &mut interner, &mut region_buckets);
+    let item_descriptions = fill_mem_region(item_descriptions, &mut interner, &mut region_buckets);
+    let savexit = fill_mem_region(savexit, &mut interner, &mut region_buckets);
     let question = fill_mem_region(question, &mut interner, &mut region_buckets);
 
     for (region, strings) in jumpless_strings {
-        for string in strings {
+        for mut string in strings {
+            string.set_padding(if *crate::ENGRISH.get().unwrap() { 1 } else { 8 });
             let (offset, _size) = region.offset_size();
             if let Some(region_bytes) = region_buckets.get_mut(&region) {
                 let est_offset = region_bytes.len() + offset;
@@ -619,8 +620,11 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
         br.seek(SeekFrom::Start(offset as u64)).await?;
         let mut existing_region_bytes = vec![0u8; bytes.len()];
         br.read_exact(&mut existing_region_bytes).await?;
-
-        assert_eq!(encode_hex(&bytes), encode_hex(&existing_region_bytes), "In region {region:?}");
+        let a = encode_hex(&bytes);
+        let b = encode_hex(&existing_region_bytes);
+        if a != b {
+            error!("Mismatch in region {region:?}\n     new: {a}\nexisting: {b}");
+        }
 
         bw.seek(SeekFrom::Start(offset as u64)).await?;
         bw.write_all(&bytes).await?;
@@ -691,6 +695,7 @@ fn fill_mem_region<T: StringFill>(
             &item_b.get_relative_pointer().string_position,
         )
     });
+
     // let mut debug_buckets = BTreeMap::new();
     let mut updated_items = BTreeMap::new();
     // let mut relative_pointers = BTreeMap::new();
