@@ -25,7 +25,7 @@ text = """
 [end_credit.5]
 vertical_space = 40
 text = """
-<SmallIndent>Daisei Sat<ô>
+<SmallIndent>Daisei Sato
 """
 
 [end_credit.6]
@@ -37,7 +37,7 @@ text = """
 [end_credit.7]
 vertical_space = 40
 text = """
-<SmallIndent>Seijir<ô> Sannabe
+<SmallIndent>Seijiro Sannabe
 """
 
 [end_credit.8]
@@ -115,7 +115,7 @@ text = """
 [end_credit.20]
 vertical_space = 20
 text = """
-<MidIndent>K<ô>ji Tsurunaga
+<MidIndent>Koji Tsurunaga
 """
 
 [end_credit.21]
@@ -127,7 +127,7 @@ text = """
 [end_credit.22]
 vertical_space = 40
 text = """
-<SmallIndent>Daisuke It<ô>
+<SmallIndent>Daisuke Ito
 """
 
 [end_credit.23]
@@ -199,7 +199,7 @@ text = """
 [end_credit.34]
 vertical_space = 20
 text = """
-<SmallIndent>Y<û>ko Nojiri
+<SmallIndent>Yuko Nojiri
 """
 
 [end_credit.35]
@@ -223,7 +223,7 @@ text = """
 [end_credit.38]
 vertical_space = 40
 text = """
-<MidIndent>Directeur de l'animation :
+<MidIndent>Animation Director
 """
 
 [end_credit.39]
@@ -247,7 +247,7 @@ text = """
 [end_credit.42]
 vertical_space = 20
 text = """
-<LargeIndent>Makoto Shinj<ô>
+<LargeIndent>Makoto Shinjo
 """
 
 [end_credit.43]
@@ -283,7 +283,7 @@ text = """
 [end_credit.48]
 vertical_space = 20
 text = """
-<LargeIndent>Kaori It<ô>
+<LargeIndent>Kaori Ito
 """
 
 [end_credit.49]
@@ -373,7 +373,7 @@ text = """
 [end_credit.63]
 vertical_space = 40
 text = """
-<LargeIndent>Ry<ô> Arai
+<LargeIndent>Ryo Arai
 """
 
 [end_credit.64]
@@ -385,7 +385,7 @@ text = """
 [end_credit.65]
 vertical_space = 40
 text = """
-<LargeIndent>Yasuhiko Kond<ô>
+<LargeIndent>Yasuhiko Kondo
 """
 
 [end_credit.66]
@@ -403,7 +403,7 @@ text = """
 [end_credit.68]
 vertical_space = 40
 text = """
-<SmallIndent>Ch<û>ji Nagaoka
+<SmallIndent>Chuji Nagaoka
 """
 
 [end_credit.69]
@@ -421,7 +421,7 @@ text = """
 [end_credit.71]
 vertical_space = 20
 text = """
-<SmallIndent>Junz<ô> Yagami
+<SmallIndent>Junzo Yagami
 """
 
 [end_credit.72]
@@ -469,13 +469,13 @@ text = """
 [end_credit.79]
 vertical_space = 20
 text = """
-<SmallIndent>K<ô>ji Uemura
+<SmallIndent>Koji Uemura
 """
 
 [end_credit.80]
 vertical_space = 20
 text = """
-<SmallIndent>Yoshihito End<ô>
+<SmallIndent>Yoshihito Endo
 """
 
 [end_credit.81]
@@ -511,13 +511,13 @@ text = """
 [end_credit.86]
 vertical_space = 20
 text = """
-<SmallIndent>T<ô>ru Yasuda
+<SmallIndent>Toru Yasuda
 """
 
 [end_credit.87]
 vertical_space = 20
 text = """
-<SmallIndent>Y<û>suke Watanabe
+<SmallIndent>Yusuke Watanabe
 """
 
 [end_credit.88]
@@ -535,7 +535,7 @@ text = """
 [end_credit.90]
 vertical_space = 20
 text = """
-<SmallIndent>Y<û>ji Konishi
+<SmallIndent>Yuji Konishi
 """
 
 [end_credit.91]
@@ -559,7 +559,7 @@ text = """
 [end_credit.94]
 vertical_space = 20
 text = """
-<SmallIndent>Y<ô>ko Fukazawa
+<SmallIndent>Yoko Fukazawa
 """
 
 [end_credit.95]
@@ -583,7 +583,7 @@ text = """
 [end_credit.98]
 vertical_space = 40
 text = """
-<SmallIndent>Takayoshi <uÔ>uchi
+<SmallIndent>Takayoshi Ouchi
 """
 
 [end_credit.99]
@@ -613,7 +613,7 @@ text = """
 [end_credit.103]
 vertical_space = 20
 text = """
-<SmallIndent>Osamu Sat<ô>
+<SmallIndent>Osamu Sato
 """
 
 [end_credit.104]
@@ -637,7 +637,7 @@ text = """
 [end_credit.107]
 vertical_space = 20
 text = """
-<SmallIndent>Y<ô>ko Nagasawa
+<SmallIndent>Yoko Nagasawa
 """
 
 [end_credit.108]
@@ -673,13 +673,13 @@ text = """
 [end_credit.113]
 vertical_space = 20
 text = """
-<SmallIndent>Y<ô>ichir<ô> Shirota
+<SmallIndent>Yoichiro Shirota
 """
 
 [end_credit.114]
 vertical_space = 20
 text = """
-<SmallIndent>Kaori <uÔ>ike
+<SmallIndent>Kaori Oike
 """
 
 [end_credit.115]
@@ -715,7 +715,7 @@ text = """
 [end_credit.120]
 vertical_space = 40
 text = """
-<SmallIndent>Y<û>ji Naka <SonicTeam>
+<SmallIndent>Yuji Naka <SonicTeam>
 """
 
 [end_credit.121]
@@ -727,7 +727,7 @@ text = """
 [end_credit.122]
 vertical_space = 20
 text = """
-<SmallIndent>T<ô>ru Yoshida<SegaWow>
+<SmallIndent>Toru Yoshida<SegaWow>
 """
 
 [end_credit.123]
@@ -739,7 +739,7 @@ text = """
 [end_credit.124]
 vertical_space = 20
 text = """
-<SmallIndent>K<ô>ichi Murayama
+<SmallIndent>Koichi Murayama
 """
 
 [end_credit.125]
@@ -781,7 +781,7 @@ text = """
 [end_credit.131]
 vertical_space = 40
 text = """
-<SmallIndent>Y<û>ji It<ô>
+<SmallIndent>Yuji Ito
 """
 
 [end_credit.132]
@@ -12920,7 +12920,10 @@ name = """
 """
 string_mem_region = "sm"
 string_position = "0387"
-vulnerable = ["Biologic"]
+vulnerable = [
+    "Biologic",
+    "NotBoss"
+]
 usage = ["EnemyEffect"]
 speed = ["Medium"]
 side_effect = [
@@ -12968,7 +12971,10 @@ name = """
 """
 string_mem_region = "sm"
 string_position = "0386"
-vulnerable = ["Robotic"]
+vulnerable = [
+    "Robotic",
+    "NotBoss"
+]
 usage = ["EnemyEffect"]
 speed = ["Medium"]
 side_effect = [

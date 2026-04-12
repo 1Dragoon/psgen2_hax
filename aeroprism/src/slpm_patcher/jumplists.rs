@@ -1,6 +1,6 @@
 use crate::{
     events::{DialogString, codec::decode_psg2_string},
-    helpers::{Hexu32, deserialize_u32_hex, serialize_u32_hex, is_default},
+    helpers::{Hexu32, deserialize_u32_hex, is_default, serialize_u32_hex},
     slpm_patcher::{POINTER_OFFSET, RelativePointerInfo, StringFill, debug_set_vma_pointer},
 };
 use alloc::collections::BTreeMap;

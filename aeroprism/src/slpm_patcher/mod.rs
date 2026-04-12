@@ -748,16 +748,18 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
             continue;
         }
 
-        br.seek(SeekFrom::Start(offset as u64)).await?;
-        let mut existing_region_bytes = vec![0u8; max_size];
-        br.read_exact(&mut existing_region_bytes).await?;
-        let a = encode_hex(&bytes);
-        let b = encode_hex(&existing_region_bytes);
-        if a != b {
-            error!(
-                "Mismatch in region {region:?} (Starts at 0x{}) \n     new: {a}\nexisting: {b}",
-                encode_hex(&u32::try_from(region.offset_size().0).unwrap().to_be_bytes())
-            );
+        if log_enabled!(Level::Debug) {
+            br.seek(SeekFrom::Start(offset as u64)).await?;
+            let mut existing_region_bytes = vec![0u8; max_size];
+            br.read_exact(&mut existing_region_bytes).await?;
+            let a = encode_hex(&bytes);
+            let b = encode_hex(&existing_region_bytes);
+            if a != b {
+                error!(
+                    "Mismatch in region {region:?} (Starts at 0x{}) \n     new: {a}\nexisting: {b}",
+                    encode_hex(&u32::try_from(region.offset_size().0).unwrap().to_be_bytes())
+                );
+            }
         }
 
         bw.seek(SeekFrom::Start(offset as u64)).await?;
