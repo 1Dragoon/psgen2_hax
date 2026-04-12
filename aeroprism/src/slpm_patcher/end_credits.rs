@@ -42,7 +42,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         .await?;
 
     let mut credit_items = BTreeMap::new();
-    let mut field = [0x0; 2];
+    let mut field = [0u8; 2];
     let mut i = 0;
     debug!("Parsing end credits...");
     loop {
