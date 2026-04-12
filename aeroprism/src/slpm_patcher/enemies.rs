@@ -1,16 +1,18 @@
 #![allow(clippy::arbitrary_source_item_ordering, reason = "not needed")]
-use crate::helpers::{deserialize_u32_hex, serialize_u32_hex};
-use log::warn;
 use crate::{
     events::{
         DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
         serialize_dialog_items,
     },
-    helpers::{Hexu32, encode_hex, is_default},
-    slpm_patcher::{POINTER_OFFSET, RelativePointerInfo, StringFill, techniques::SpellElemental},
+    helpers::{Hexu32, deserialize_u32_hex, is_default, serialize_u32_hex},
+    slpm_patcher::{
+        POINTER_OFFSET, RelativePointerInfo, StringFill, debug_set_vma_pointer,
+        techniques::SpellElemental,
+    },
 };
 use alloc::collections::BTreeMap;
 use core::mem::size_of;
+use log::{Level, log_enabled};
 use serde::{Deserialize, Serialize};
 use std::io;
 use strum::{EnumIter, IntoEnumIterator};
@@ -197,10 +199,11 @@ pub struct EnemyInfo {
     )]
     pub name: Vec<DialogItem>,
     #[serde(
+        default,
         serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
     )]
-    // #[serde(skip)]
     pub name_vma_pointer: u32, // Literal VMA pointer to the enemy name string
     #[serde(skip)]
     pub text: DialogString,
@@ -300,6 +303,13 @@ pub struct EnemyInfo {
 }
 
 impl StringFill for EnemyInfo {
+    fn convert_text(&mut self) {
+        self.text = DialogString {
+            text: self.name.clone(),
+            padding: 0,
+        };
+    }
+
     fn get_relative_pointer(&self) -> RelativePointerInfo {
         self.relative_name_pointer
     }
@@ -313,21 +323,10 @@ impl StringFill for EnemyInfo {
     }
 
     fn set_vma_pointer(&mut self, ptr_le: u32) {
-        if self.name_vma_pointer != ptr_le {
-            warn!(
-                "Got {}, expected {}",
-                encode_hex(&ptr_le.to_le_bytes()),
-                encode_hex(&self.name_vma_pointer.to_le_bytes())
-            );
+        if log_enabled!(Level::Debug) {
+            debug_set_vma_pointer(self.name_vma_pointer, ptr_le);
         }
         self.name_vma_pointer = ptr_le;
-    }
-
-    fn convert_text(&mut self) {
-        self.text = DialogString {
-            text: self.name.clone(),
-            padding: 0,
-        };
     }
 }
 

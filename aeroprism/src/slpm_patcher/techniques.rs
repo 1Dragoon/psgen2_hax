@@ -1,14 +1,17 @@
-use crate::helpers::{deserialize_u32_hex, encode_hex, serialize_u32_hex};
-use log::warn;
 use crate::{
     events::{
         DialogItem, DialogString, codec::decode_psg2_string, deserialize_dialog_items,
         serialize_dialog_items,
     },
-    helpers::{deserialize_u8_hex, is_default, serialize_u8_hex},
-    slpm_patcher::{Hexu32, POINTER_OFFSET, RelativePointerInfo, StringFill},
+    helpers::{
+        deserialize_u8_hex, deserialize_u32_hex, is_default, serialize_u8_hex, serialize_u32_hex,
+    },
+    slpm_patcher::{
+        Hexu32, POINTER_OFFSET, RelativePointerInfo, StringFill, debug_set_vma_pointer,
+    },
 };
 use alloc::collections::BTreeMap;
+use log::{Level, log_enabled};
 use serde::{Deserialize, Serialize};
 use std::io;
 use strum::{EnumIter, IntoEnumIterator};
@@ -262,10 +265,11 @@ pub struct Technique {
     )]
     pub name: Vec<DialogItem>,
     #[serde(
+        default,
         serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
     )]
-    // #[serde(skip)]
     pub name_vma_pointer: u32,
     #[serde(skip)]
     pub text: DialogString,
@@ -343,12 +347,8 @@ impl StringFill for Technique {
     }
 
     fn set_vma_pointer(&mut self, ptr_le: u32) {
-        if self.name_vma_pointer != ptr_le {
-            warn!(
-                "Got {}, expected {}",
-                encode_hex(&ptr_le.to_le_bytes()),
-                encode_hex(&self.name_vma_pointer.to_le_bytes())
-            );
+        if log_enabled!(Level::Debug) {
+            debug_set_vma_pointer(self.name_vma_pointer, ptr_le);
         }
         self.name_vma_pointer = ptr_le;
     }

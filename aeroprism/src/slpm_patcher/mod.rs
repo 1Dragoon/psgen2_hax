@@ -6,7 +6,7 @@ pub mod memcard_opts;
 pub mod songs;
 pub mod techniques;
 use crate::{
-    EXEC_STRUCTURES_FILENAME,
+    EXEC_STRUCTURES_FILENAME, engrish,
     events::{DialogString, codec::decode_psg2_string, load_exec_struct_patch},
     helpers::{Hexu32, encode_hex, is_default, save_binary_file, unset_readonly},
     slpm_patcher::{
@@ -16,7 +16,7 @@ use crate::{
 };
 use alloc::collections::BTreeMap;
 use itertools::Itertools;
-use log::{Level, debug, error, info, log_enabled};
+use log::{Level, debug, error, info, log_enabled, warn};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::{HashMap, HashSet},
@@ -52,8 +52,8 @@ static ITEM_DESCRIPTION_JUMPLIST_FIELDS: usize = 195;
 static SAVEXIT_JUMPLIST_START: usize = 0x15_65B0;
 static SAVEXIT_JUMPLIST_FIELDS: usize = 3;
 
-// static INDICATORS_JUMPLIST_START: usize = 0x18_B044;
-// static INDICATORS_JUMPLIST_FIELDS: usize = 6;
+// static INDICATORS_JUMPLIST_START: usize = 0x18_B048;
+// static INDICATORS_JUMPLIST_FIELDS: usize = 5;
 
 // static DUNNO_JUMPLIST_START: usize = 0x16_1868;
 // static DUNNO_JUMPLIST_FIELDS: usize = 1;
@@ -204,7 +204,8 @@ impl TryFrom<u32> for MemRegion {
             0x1D_B598..0x1D_B648 => Ok(Self::StructuredM),
             0x1D_B680..0x1D_B7A8 => Ok(Self::StructuredN),
             _ => Err(format!(
-                "No defined memory region for address 0x{value:06x}"
+                "No defined memory region for address 0x{}",
+                encode_hex(&value.to_be_bytes())
             )),
         }
     }
@@ -235,7 +236,8 @@ pub struct ExecStructures {
     pub item_descriptions: BTreeMap<Hexu32, JumplistItem>,
     #[serde(rename = "item")]
     pub items: BTreeMap<Hexu32, ItemInfo>,
-    pub jumpless_strings: BTreeMap<MemRegion, Vec<DialogString>>,
+    #[serde(rename = "jumpless_string")]
+    pub jumpless_strings: BTreeMap<Hexu32, JumplessString>,
     #[serde(rename = "mapname")]
     pub mapnames: BTreeMap<Hexu32, JumplistItem>,
     #[serde(rename = "memcard_opt")]
@@ -249,8 +251,17 @@ pub struct ExecStructures {
     pub songs: BTreeMap<Hexu32, Song>,
     #[serde(rename = "technique")]
     pub techniques: BTreeMap<Hexu32, Technique>,
+    // #[serde(rename = "indicator")]
     // pub indicators: BTreeMap<Hexu32, JumplistItem>,
     // pub dunno: BTreeMap<Hexu32, JumplistItem>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct JumplessString {
+    jumpless_offset: Hexu32,
+    #[serde(flatten)]
+    string: DialogString,
+    string_mem_region: MemRegion,
 }
 
 pub trait StringFill {
@@ -261,31 +272,82 @@ pub trait StringFill {
     fn set_vma_pointer(&mut self, ptr_le: u32);
 }
 
+#[inline]
+pub fn debug_set_vma_pointer(vma: u32, ptr_le: u32) {
+    if vma != 0 && vma != ptr_le {
+        let ptr_be = encode_hex(&(ptr_le).to_be_bytes());
+        let vma_be = encode_hex(&(vma).to_be_bytes());
+        let text_ptr = ptr_le - POINTER_OFFSET;
+        let text_vma = vma - POINTER_OFFSET;
+        let got_region = MemRegion::try_from(text_ptr).unwrap();
+        let exp_region = MemRegion::try_from(text_ptr).unwrap();
+        warn!(
+            "Got 0x{}, expected 0x{} || 0x{} 0x{} || 0x{} 0x{} || {:?} {:?} || diff {}",
+            encode_hex(&ptr_le.to_le_bytes()),
+            encode_hex(&vma.to_le_bytes()),
+            ptr_be,
+            vma_be,
+            encode_hex(&(text_ptr).to_be_bytes()),
+            encode_hex(&(text_vma).to_be_bytes()),
+            got_region,
+            exp_region,
+            text_vma.cast_signed() - text_ptr.cast_signed()
+        );
+    }
+}
+
 pub async fn parse_jumpless<R: AsyncBufRead + AsyncSeek + Unpin>(
     reader: &mut R,
-) -> Result<BTreeMap<MemRegion, Vec<DialogString>>, io::Error> {
+) -> Result<BTreeMap<Hexu32, JumplessString>, io::Error> {
     let mut regions = BTreeMap::new();
+    let mut jumpless_string_number = 0;
     for region in JUMPLESS_REGIONS {
         debug!("Reading string region {region:?}...");
         let (offset, size) = region.offset_size();
         reader.seek(SeekFrom::Start(offset as u64)).await?;
         let mut region_bytes = vec![0u8; size];
+        // The goldenboy release has some stray japanese characters in it, so this necessarily has to be complicated to skip them.
+        // First: enumerate each byte, and chunk all non-null bytes together, keeping them separate from null bytes
         reader.read_exact(&mut region_bytes).await?;
-        let mut strings = Vec::with_capacity(128);
-        while !region_bytes.is_empty() {
-            debug!("Region bytes {} left", region_bytes.len());
-            let (terminator_pos, _) = region_bytes.iter().find_position(|b| **b == 0).unwrap(); // Can fail here if strings are added past the 64-bit boundary into the null field that comes after
-            let bytes = region_bytes.drain(0..terminator_pos).collect_vec();
-            strings.push(decode_psg2_string(bytes));
-            if let Some((non_terminator_pos, _)) = region_bytes.iter().find_position(|b| **b != 0) {
-                // Remove any leftover padding
-                let f = region_bytes.drain(0..non_terminator_pos).collect_vec();
-                debug!("Removed {} bytes of padding", f.len());
-            } else {
-                break;
+        for (not_null, bytes) in &region_bytes
+            .into_iter()
+            .enumerate()
+            .chunk_by(|(_, b)| *b != 0)
+        {
+            // If, and only if, this chunk is not full of null bytes, process it. Otherwise, skip it.
+            if not_null {
+                // Increment the string number so that we can indicate in the config file which string this is overall (informational only for the user)
+                jumpless_string_number += 1;
+                let mut region_offset = 0;
+                // Enumerate these ones (remember, inner is still being enumerated) that way we can know when we're on the first byte within this string
+                let string_bytes = bytes
+                    .enumerate()
+                    .map(|(local_offset, (i, b))| {
+                        // If this is the first byte (i.e. byte zero) then that is the offset of this string within this memory region
+                        if local_offset == 0 {
+                            region_offset = i;
+                        }
+                        b
+                        // Collect all remaining bytes in this string. Remember, we're chunking null bytes separately, and we're ignoring them
+                    })
+                    .collect::<Vec<_>>();
+                // If this offset is not a multiple of 8, namely on a 64-bit boundary, then it's just junk we don't care about, usually leftover japanese characters
+                if region_offset.is_multiple_of(8) {
+                    // If it is on a 64-bit boundary, then we probably need it, so keep it
+                    regions.insert(
+                        Hexu32(u32::try_from(jumpless_string_number).unwrap()),
+                        JumplessString {
+                            string_mem_region: region,
+                            string: decode_psg2_string(string_bytes),
+                            jumpless_offset: Hexu32(u32::try_from(region_offset).unwrap()),
+                        },
+                    );
+                    // This method may still leave in some stray Japanese characters.
+                    // Because we record the offset of each string, stray Japanese characters may be safely deleted. The patcher will put null characters in their place.
+                    // If you need more room in a previous string entry because you want to add more text, then you SHOULD delete these unneeded bits.
+                }
             }
         }
-        regions.insert(region, strings);
     }
     Ok(regions)
 }
@@ -396,11 +458,11 @@ pub async fn parse_exec<P: AsRef<Path> + Send + Sync>(
         //     &mut aliaser,
         // )
         // .await?,
-        // indicators: parse_jumplist_strings(
+        // indicators: jumplists::parse_strings(
         //     &mut elf_reader,
         //     INDICATORS_JUMPLIST_START,
         //     INDICATORS_JUMPLIST_FIELDS,
-        //     &mut aliaser,
+        //     &mut pointers,
         // )
         // .await?,
         memcard_opts: memcard_opts::parse(&mut elf_reader, &mut pointers).await?,
@@ -428,72 +490,106 @@ pub async fn parse_exec<P: AsRef<Path> + Send + Sync>(
         relatives.insert(pointer, relative);
     }
 
-    let mut aliases = HashSet::with_capacity(64);
+    let mut aliases = HashSet::with_capacity(1024);
     for item in exec_structures.techniques.values_mut() {
         let ptr = item.name_vma_pointer;
         let mut rnp = relatives.get(&ptr).copied().unwrap();
         rnp.string_aliased = !aliases.insert(ptr);
         item.relative_name_pointer = rnp;
+        // If we're not debugging, then leave the vma offset blank in the output config so that it's less noisy
+        if !log_enabled!(Level::Debug) {
+            item.name_vma_pointer = 0;
+        }
     }
     for item in exec_structures.items.values_mut() {
         let ptr = item.name_vma_pointer;
         let mut rnp = relatives.get(&ptr).copied().unwrap();
         rnp.string_aliased = !aliases.insert(ptr);
         item.relative_name_pointer = rnp;
+        if !log_enabled!(Level::Debug) {
+            item.name_vma_pointer = 0;
+        }
     }
     for item in exec_structures.enemies.values_mut() {
         let ptr = item.name_vma_pointer;
         let mut rnp = relatives.get(&ptr).copied().unwrap();
         rnp.string_aliased = !aliases.insert(ptr);
         item.relative_name_pointer = rnp;
+        if !log_enabled!(Level::Debug) {
+            item.name_vma_pointer = 0;
+        }
     }
     for item in exec_structures.mapnames.values_mut() {
         let ptr = item.text_vma_pointer;
         let mut rnp = relatives.get(&ptr).copied().unwrap();
         rnp.string_aliased = !aliases.insert(ptr);
         item.relative_name_pointer = rnp;
+        if !log_enabled!(Level::Debug) {
+            item.text_vma_pointer = 0;
+        }
     }
     for item in exec_structures.menu_text.values_mut() {
         let ptr = item.text_vma_pointer;
         let mut rnp = relatives.get(&ptr).copied().unwrap();
         rnp.string_aliased = !aliases.insert(ptr);
         item.relative_name_pointer = rnp;
+        if !log_enabled!(Level::Debug) {
+            item.text_vma_pointer = 0;
+        }
     }
     for item in exec_structures.item_descriptions.values_mut() {
         let ptr = item.text_vma_pointer;
         let mut rnp = relatives.get(&ptr).copied().unwrap();
         rnp.string_aliased = !aliases.insert(ptr);
         item.relative_name_pointer = rnp;
+        if !log_enabled!(Level::Debug) {
+            item.text_vma_pointer = 0;
+        }
     }
     for item in exec_structures.songs.values_mut() {
         let ptr = item.name_vma_pointer;
         let mut rnp = relatives.get(&ptr).copied().unwrap();
         rnp.string_aliased = !aliases.insert(ptr);
         item.relative_name_pointer = rnp;
+        if !log_enabled!(Level::Debug) {
+            item.name_vma_pointer = 0;
+        }
     }
     for item in exec_structures.misc_strings.values_mut() {
         let ptr = item.text_vma_pointer;
         let mut rnp = relatives.get(&ptr).copied().unwrap();
         rnp.string_aliased = !aliases.insert(ptr);
         item.relative_name_pointer = rnp;
+        if !log_enabled!(Level::Debug) {
+            item.text_vma_pointer = 0;
+        }
     }
     for item in exec_structures.savexit.values_mut() {
         let ptr = item.text_vma_pointer;
         let mut rnp = relatives.get(&ptr).copied().unwrap();
         rnp.string_aliased = !aliases.insert(ptr);
         item.relative_name_pointer = rnp;
+        if !log_enabled!(Level::Debug) {
+            item.text_vma_pointer = 0;
+        }
     }
     for item in exec_structures.question.values_mut() {
         let ptr = item.text_vma_pointer;
         let mut rnp = relatives.get(&ptr).copied().unwrap();
         rnp.string_aliased = !aliases.insert(ptr);
         item.relative_name_pointer = rnp;
+        if !log_enabled!(Level::Debug) {
+            item.text_vma_pointer = 0;
+        }
     }
     for item in exec_structures.memcard_opts.values_mut() {
         let ptr = item.name_vma_pointer;
         let mut rnp = relatives.get(&ptr).copied().unwrap();
         rnp.string_aliased = !aliases.insert(ptr);
         item.relative_name_pointer = rnp;
+        if !log_enabled!(Level::Debug) {
+            item.name_vma_pointer = 0;
+        }
     }
 
     let exec_structures_path = PathBuf::with_capacity(128)
@@ -572,7 +668,7 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
         end_credits,
         savexit,
         question,
-        // indicators: _a,
+        // indicators,
         // dunno: _b,
         jumpless_strings,
     } = load_exec_struct_patch(exec_data_path)?;
@@ -583,47 +679,85 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
     // menus before item desc
     // mapnames before songs
     // techniques before enemies
-    let mut interner = HashMap::with_capacity(1024);
+    let mut aliaser = HashMap::with_capacity(1024);
     // Sort items by relative string pointer
     let mut region_buckets: BTreeMap<MemRegion, Vec<u8>> = BTreeMap::new();
+    let mut jls_iter = jumpless_strings.into_iter().peekable();
 
-    let mapnames = fill_mem_region(mapnames, &mut interner, &mut region_buckets);
-    let songs = fill_mem_region(songs, &mut interner, &mut region_buckets);
-    let items = fill_mem_region(items, &mut interner, &mut region_buckets);
-    let misc_strings = fill_mem_region(misc_strings, &mut interner, &mut region_buckets);
-    let memcard_opts = fill_mem_region(memcard_opts, &mut interner, &mut region_buckets);
-    let techniques = fill_mem_region(techniques, &mut interner, &mut region_buckets);
-    let enemies = fill_mem_region(enemies, &mut interner, &mut region_buckets);
-    let menu_text = fill_mem_region(menu_text, &mut interner, &mut region_buckets);
-    let item_descriptions = fill_mem_region(item_descriptions, &mut interner, &mut region_buckets);
-    let savexit = fill_mem_region(savexit, &mut interner, &mut region_buckets);
-    let question = fill_mem_region(question, &mut interner, &mut region_buckets);
-
-    for (region, strings) in jumpless_strings {
-        for mut string in strings {
-            string.set_padding(if *crate::ENGRISH.get().unwrap() { 1 } else { 8 });
-            let (offset, _size) = region.offset_size();
-            if let Some(region_bytes) = region_buckets.get_mut(&region) {
-                let est_offset = region_bytes.len() + offset;
-                region_bytes.extend(string.into_bytes(Some(est_offset)));
+    while let Some((jls_no, jls)) = jls_iter.next() {
+        let (offset, _size) = jls.string_mem_region.offset_size();
+        let region_bytes = region_buckets
+            .entry(jls.string_mem_region)
+            .or_insert_with(|| Vec::with_capacity(1024));
+        let est_offset = region_bytes.len() + offset;
+        region_bytes.extend(jls.string.into_bytes(Some(est_offset)));
+        if let Some((_, next_jls)) = jls_iter.peek()
+            && jls.string_mem_region == next_jls.string_mem_region
+        {
+            let current_region_offset = u32::try_from(region_bytes.len()).unwrap();
+            let next_region_string_offset = next_jls.jumpless_offset.0;
+            let next_padding =
+                next_region_string_offset.cast_signed() - current_region_offset.cast_signed();
+            if current_region_offset > next_region_string_offset {
+                error!(
+                    "Jumpless string {:04x} exceeded its permitted length by {} bytes.",
+                    jls_no.0,
+                    next_padding.abs()
+                );
+            } else {
+                region_bytes.extend(vec![0; usize::try_from(next_padding).unwrap()]);
             }
         }
     }
+
+    let mapnames = fill_mem_region(mapnames, &mut aliaser, &mut region_buckets);
+    let songs = fill_mem_region(songs, &mut aliaser, &mut region_buckets);
+    let items = fill_mem_region(items, &mut aliaser, &mut region_buckets);
+    let misc_strings = fill_mem_region(misc_strings, &mut aliaser, &mut region_buckets);
+    let memcard_opts = fill_mem_region(memcard_opts, &mut aliaser, &mut region_buckets);
+    let techniques = fill_mem_region(techniques, &mut aliaser, &mut region_buckets);
+    let enemies = fill_mem_region(enemies, &mut aliaser, &mut region_buckets);
+    let menu_text = fill_mem_region(menu_text, &mut aliaser, &mut region_buckets);
+    let item_descriptions = fill_mem_region(item_descriptions, &mut aliaser, &mut region_buckets);
+    let savexit = fill_mem_region(savexit, &mut aliaser, &mut region_buckets);
+    let question = fill_mem_region(question, &mut aliaser, &mut region_buckets);
 
     let write_elf_binary = OpenOptions::new().write(true).open(dest).await?;
     let mut bw = BufWriter::new(write_elf_binary);
     let read_elf_binary = OpenOptions::new().read(true).open(dest).await?;
     let mut br = BufReader::new(read_elf_binary);
 
-    for (region, bytes) in region_buckets {
-        let (offset, _size) = region.offset_size();
+    for (region, mut bytes) in region_buckets {
+        let (offset, max_size) = region.offset_size();
+        // If zero padding exceeds the total size of the region, go ahead and strip it off here, but don't do this if the last byte of the region is not null.
+        if bytes.iter().skip(max_size - 1).all(|b| *b == 0) {
+            bytes.truncate(max_size);
+        }
+        let generated_region_size = bytes.len();
+        if generated_region_size > max_size {
+            error!(
+                "Region {region:?} exceeded length by {} bytes. Expected: {max_size}, Got: {generated_region_size}.",
+                generated_region_size - max_size
+            );
+        } else {
+            bytes.extend(vec![0u8; max_size - generated_region_size]);
+        }
+
+        // Don't overwrite StructuredI region for now, goldenboy reused it for a purpose I'm unfamiliar with.
+        if engrish() && matches!(region, MemRegion::StructuredI) {
+            continue;
+        }
+
         br.seek(SeekFrom::Start(offset as u64)).await?;
-        let mut existing_region_bytes = vec![0u8; bytes.len()];
+        let mut existing_region_bytes = vec![0u8; max_size];
         br.read_exact(&mut existing_region_bytes).await?;
         let a = encode_hex(&bytes);
         let b = encode_hex(&existing_region_bytes);
         if a != b {
-            error!("Mismatch in region {region:?}\n     new: {a}\nexisting: {b}");
+            error!(
+                "Mismatch in region {region:?} (Starts at 0x{}) \n     new: {a}\nexisting: {b}",
+                encode_hex(&u32::try_from(region.offset_size().0).unwrap().to_be_bytes())
+            );
         }
 
         bw.seek(SeekFrom::Start(offset as u64)).await?;
@@ -677,6 +811,13 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
         QUESTION_JUMPLIST_FIELDS,
     )
     .await?;
+    // jumplists::patch_strings(
+    //     &mut bw,
+    //     indicators,
+    //     INDICATORS_JUMPLIST_START,
+    //     INDICATORS_JUMPLIST_FIELDS,
+    // )
+    // .await?;
     end_credits::patch(&mut bw, end_credits).await?;
     bw.flush().await?;
 
@@ -686,7 +827,7 @@ pub async fn patch_exec(dest: &PathBuf, exec_data_path: PathBuf) -> Result<(), i
 #[inline]
 fn fill_mem_region<T: StringFill>(
     items: BTreeMap<Hexu32, T>,
-    interner: &mut HashMap<(MemRegion, usize), usize>,
+    aliaser: &mut HashMap<(MemRegion, usize), usize>,
     region_buckets: &mut BTreeMap<MemRegion, Vec<u8>>,
 ) -> BTreeMap<Hexu32, T> {
     let sorted_by_ptr_address = items.into_iter().sorted_by(|(_, item_a), (_, item_b)| {
@@ -701,7 +842,7 @@ fn fill_mem_region<T: StringFill>(
     // let mut relative_pointers = BTreeMap::new();
     for (num, mut item) in sorted_by_ptr_address {
         item.convert_text();
-        item.pad_text(if *crate::ENGRISH.get().unwrap() { 1 } else { 8 });
+        item.pad_text(if engrish() { 2 } else { 8 });
         let text = item.get_text();
         let relative_pointer = item.get_relative_pointer();
         let region = relative_pointer.string_mem_region;
@@ -718,7 +859,7 @@ fn fill_mem_region<T: StringFill>(
         if new_region_size <= max_size {
             let adjusted_offset = if aliased {
                 // If the pointer is an alias, don't add anything to the region and simply get the aliased pointer address
-                interner
+                aliaser
                     .get(&(region, usize::try_from(position.0).unwrap()))
                     .copied()
                     .unwrap()
@@ -726,7 +867,7 @@ fn fill_mem_region<T: StringFill>(
                 // Add the string to the current region if it's not aliased, and return the new pointer address
                 region_bytes.extend(text.clone().into_bytes(Some(offset)));
                 let rp = item.get_relative_pointer();
-                interner.insert(
+                aliaser.insert(
                     (
                         rp.string_mem_region,
                         usize::try_from(rp.string_position.0).unwrap(),
@@ -741,10 +882,6 @@ fn fill_mem_region<T: StringFill>(
             for (disp_region, bytes) in region_buckets.iter() {
                 error!("{disp_region:?}: {}\n", encode_hex(bytes));
             }
-            error!(
-                "Region {region:?} exceeded length. Expected: {max_size}, Got: {new_region_size}. Exceeded by {} bytes.",
-                new_region_size - max_size
-            );
         }
     }
     updated_items

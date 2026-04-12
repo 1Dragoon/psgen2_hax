@@ -106,6 +106,7 @@ struct Cli {
 
 fn main() -> Result<(), io::Error> {
     let cli = Cli::parse();
+    ENGRISH.set(cli.engrish).unwrap();
     let mut builder = runtime::Builder::new_multi_thread();
     if let Some(t) = cli.threads {
         builder.worker_threads(t);
@@ -117,9 +118,16 @@ fn main() -> Result<(), io::Error> {
         .block_on(async { main_thread(cli).await })
 }
 
+#[inline]
+fn engrish() -> bool {
+    // SAFETY:
+    // So long as this isn't called before main_thread, the check is totally unnecessary.
+    unsafe { *ENGRISH.get().unwrap_unchecked() }
+}
+
+#[inline]
 async fn main_thread(cli: Cli) -> Result<(), io::Error> {
     // events::sjis_map::sjis_gen();
-    ENGRISH.set(cli.engrish).unwrap();
     let mut log_builder = basic_builder();
     log_builder.target(Target::Stdout);
     log_builder.filter(None, cli.log_level).init();

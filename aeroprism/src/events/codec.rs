@@ -1,5 +1,6 @@
 extern crate alloc;
 use crate::{
+    engrish,
     events::{
         Archy, BytesOrPointer, Color, ControlCode, Data, DataItems, DialogItem, DialogString,
         GUESTIMATED_LENGTH, MTECode, Offset, Pointer, Portrait, UmanagedData,
@@ -399,7 +400,7 @@ pub fn decode_psg2_string(mut raw_ps2_sjis_string: Vec<u8>) -> DialogString {
                 continue;
             }
         }
-        if *crate::ENGRISH.get().unwrap() && (0x20..=0xff).contains(&byte) {
+        if engrish() && (0x20..=0xff).contains(&byte) {
             if let Some(next_byte) = string_iter.peek() {
                 let word = u16::from_be_bytes([byte, *next_byte]);
                 let mc = MTECode::from(word);
@@ -707,7 +708,7 @@ pub fn parse_next_sjis(
             _ => (),
         }
     }
-    if *crate::ENGRISH.get().unwrap() {
+    if engrish() {
         if let Some(string) = byte_to_engrish(byte) {
             sjis_string.push(string.into());
             return Ok(1);

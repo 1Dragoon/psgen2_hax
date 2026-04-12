@@ -1,11 +1,10 @@
-use crate::helpers::{deserialize_u32_hex, encode_hex, serialize_u32_hex};
-use log::warn;
 use crate::{
     events::{DialogString, codec::decode_psg2_string},
-    helpers::Hexu32,
-    slpm_patcher::{POINTER_OFFSET, RelativePointerInfo, StringFill},
+    helpers::{Hexu32, deserialize_u32_hex, serialize_u32_hex, is_default},
+    slpm_patcher::{POINTER_OFFSET, RelativePointerInfo, StringFill, debug_set_vma_pointer},
 };
 use alloc::collections::BTreeMap;
+use log::{Level, log_enabled};
 use serde::{Deserialize, Serialize};
 use std::io;
 use tokio::{
@@ -25,10 +24,11 @@ pub struct JumplistItem {
     #[serde(flatten)]
     pub string: DialogString,
     #[serde(
+        default,
         serialize_with = "serialize_u32_hex",
-        deserialize_with = "deserialize_u32_hex"
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
     )]
-    // #[serde(skip)]
     pub text_vma_pointer: u32, // Literal VMA pointer to the string
     #[serde(flatten)]
     pub relative_name_pointer: RelativePointerInfo,
@@ -50,12 +50,8 @@ impl StringFill for JumplistItem {
     }
 
     fn set_vma_pointer(&mut self, ptr_le: u32) {
-        if self.text_vma_pointer != ptr_le {
-            warn!(
-                "Got {}, expected {}",
-                encode_hex(&ptr_le.to_le_bytes()),
-                encode_hex(&self.text_vma_pointer.to_le_bytes())
-            );
+        if log_enabled!(Level::Debug) {
+            debug_set_vma_pointer(self.text_vma_pointer, ptr_le);
         }
         self.text_vma_pointer = ptr_le;
     }
@@ -96,6 +92,7 @@ pub async fn parse_strings<R: AsyncBufRead + AsyncSeek + Unpin>(
             engrish_bytes.push(byte);
         }
         let engrish_str = decode_psg2_string(engrish_bytes);
+
         strings.insert(
             Hexu32(u32::try_from(string_no).unwrap()),
             JumplistItem {
