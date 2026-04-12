@@ -1,6 +1,17 @@
 use core::{convert, error, fmt, num::ParseIntError};
-use std::path::Path;
-use tokio::{fs, io};
+use indexmap::IndexMap;
+use serde::{
+    Deserialize, Deserializer, Serialize, Serializer,
+    de::{self, Error, Visitor},
+    ser::SerializeSeq,
+};
+use std::path::{Path, PathBuf};
+use tokio::{
+    fs::{self, OpenOptions},
+    io::{self, AsyncWriteExt, BufWriter},
+};
+
+use crate::events::Archy;
 
 const HEX_BYTES: &str = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f\
                          202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f\
@@ -16,6 +27,15 @@ pub enum DecodeHexError {
     OddLength,
     ParseInt(ParseIntError),
 }
+
+#[derive(Serialize, Deserialize, PartialEq, PartialOrd, Eq, Ord, Hash, Copy, Clone, Default)]
+pub struct Hexu32(
+    #[serde(
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex"
+    )]
+    pub u32,
+);
 
 impl From<ParseIntError> for DecodeHexError {
     fn from(e: ParseIntError) -> Self {
@@ -84,6 +104,7 @@ pub fn hex_edit_encode(bytes: &[u8]) -> String {
 }
 
 pub async fn copy_dir_all<P: AsRef<Path> + Sync + Send>(src: P, dst: P) -> io::Result<()> {
+    unset_readonly(dst.as_ref()).await?;
     fs::create_dir_all(&dst).await?;
     let mut read_dir = fs::read_dir(&src).await.unwrap();
     while let Some(dir_entry) = read_dir.next_entry().await.unwrap() {
@@ -96,21 +117,249 @@ pub async fn copy_dir_all<P: AsRef<Path> + Sync + Send>(src: P, dst: P) -> io::R
             .await?;
         } else {
             let dest = dst.as_ref().join(dir_entry.file_name());
-            #[cfg(target_os = "windows")]
-            if dest.exists() {
-                use std::fs::set_permissions;
-                let mut perms = fs::metadata(&dest).await?.permissions();
-                if perms.readonly() {
-                    #[expect(
-                        clippy::permissions_set_readonly_false,
-                        reason = "lint is only relevant to non-windows systems"
-                    )]
-                    perms.set_readonly(false);
-                    set_permissions(&dest, perms)?;
-                }
-            }
-            fs::copy(dir_entry.path(), dest).await?;
+            copy_file(&dir_entry.path(), &dest).await?;
         }
     }
+    Ok(())
+}
+
+#[inline]
+pub fn is_default<T: Default + PartialEq>(value: &T) -> bool {
+    *value == T::default()
+}
+
+#[inline]
+#[expect(clippy::trivially_copy_pass_by_ref, reason = "ref required for serde")]
+pub const fn is_u16_max(val: &u16) -> bool {
+    *val == u16::MAX
+}
+
+#[inline]
+pub const fn max_u16() -> u16 {
+    0xffff
+}
+
+#[inline]
+pub async fn copy_file(source: &Path, dest: &Path) -> Result<(), io::Error> {
+    unset_readonly(dest).await?;
+    fs::copy(source, dest).await?;
+    Ok(())
+}
+
+#[inline]
+pub fn serialize_hex<S>(x: &[u8], s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    s.serialize_str(&encode_hex(x))
+}
+
+#[inline]
+pub fn deserialize_hex<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    struct HexVisitor;
+
+    impl Visitor<'_> for HexVisitor {
+        type Value = Vec<u8>;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("hexadecimal string to bytes")
+        }
+
+        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+        where
+            E: Error,
+        {
+            decode_hex(v).map_err(de::Error::custom)
+        }
+    }
+
+    deserializer.deserialize_str(HexVisitor)
+}
+
+#[inline]
+pub fn serialize_rc_empty<S>(_: &Archy, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    s.serialize_seq(Some(0))?.end()
+}
+
+#[expect(clippy::trivially_copy_pass_by_ref, reason = "required for trait impl")]
+#[inline]
+pub fn serialize_u32_hex<S>(x: &u32, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let mut hex = format!("{x:04x}");
+    if hex.len() % 2 != 0 {
+        hex = format!("0{hex}");
+    }
+    s.serialize_str(hex.as_str())
+}
+
+#[inline]
+pub fn deserialize_u32_hex<'de, D>(deserializer: D) -> Result<u32, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    struct U32visitor;
+
+    impl Visitor<'_> for U32visitor {
+        type Value = u32;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("a two byte hex string")
+        }
+
+        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+        where
+            E: Error,
+        {
+            let mut bytes = decode_hex(v).map_err(de::Error::custom)?;
+            let fourth = bytes.pop().unwrap_or_default();
+            let third = bytes.pop().unwrap_or_default();
+            let second = bytes.pop().unwrap_or_default();
+            let first = bytes.pop().unwrap_or_default();
+            Ok(u32::from_be_bytes([first, second, third, fourth]))
+        }
+    }
+
+    deserializer.deserialize_str(U32visitor)
+}
+
+#[expect(clippy::trivially_copy_pass_by_ref, reason = "required for trait impl")]
+#[inline]
+pub fn serialize_u16_hex<S>(x: &u16, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let mut hex = format!("{x:04x}");
+    if hex.len() % 2 != 0 {
+        hex = format!("0{hex}");
+    }
+    s.serialize_str(hex.as_str())
+}
+
+#[inline]
+pub fn deserialize_u16_hex<'de, D>(deserializer: D) -> Result<u16, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    struct U16visitor;
+
+    impl Visitor<'_> for U16visitor {
+        type Value = u16;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("a two byte hex string")
+        }
+
+        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+        where
+            E: Error,
+        {
+            let mut bytes = decode_hex(v).map_err(de::Error::custom)?;
+            let second = bytes.pop().unwrap_or_default();
+            let first = bytes.pop().unwrap_or_default();
+            Ok(u16::from_be_bytes([first, second]))
+        }
+    }
+
+    deserializer.deserialize_str(U16visitor)
+}
+
+#[expect(clippy::trivially_copy_pass_by_ref, reason = "required for trait impl")]
+pub fn serialize_u8_hex<S>(x: &u8, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    s.serialize_str(format!("{x:02x}").as_str())
+}
+
+#[inline]
+pub fn deserialize_u8_hex<'de, D>(deserializer: D) -> Result<u8, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    struct U8visitor;
+
+    impl Visitor<'_> for U8visitor {
+        type Value = u8;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("a two byte hex string")
+        }
+
+        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+        where
+            E: Error,
+        {
+            let mut bytes = decode_hex(v).map_err(de::Error::custom)?;
+            let byte = bytes.pop().unwrap_or_default();
+            Ok(byte)
+        }
+    }
+
+    deserializer.deserialize_str(U8visitor)
+}
+
+#[inline]
+pub fn deserialize_indexmap<'de, D, T>(d: D) -> Result<IndexMap<u32, T>, D::Error>
+where
+    D: Deserializer<'de>,
+    T: Deserialize<'de>,
+{
+    #[derive(Deserialize, Hash, Eq, PartialEq, Ord, PartialOrd)]
+    struct Wrapper(#[serde(deserialize_with = "deserialize_u32_hex")] u32);
+
+    let dict: IndexMap<Wrapper, T> = Deserialize::deserialize(d)?;
+    Ok(dict.into_iter().map(|(Wrapper(k), v)| (k, v)).collect())
+}
+
+#[inline]
+pub fn serialize_indexmap<S, T>(s: &IndexMap<u32, T>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+    T: Serialize,
+{
+    #[derive(Serialize)]
+    struct Wrapper<'a>(#[serde(serialize_with = "serialize_u32_hex")] &'a u32);
+
+    let map = s.iter().map(|(k, v)| (Wrapper(k), v));
+    serializer.collect_map(map)
+}
+
+#[inline]
+pub async fn unset_readonly(path: &Path) -> Result<(), io::Error> {
+    #[cfg(target_os = "windows")]
+    if path.exists() {
+        use fs::set_permissions;
+        let mut perms = fs::metadata(path).await?.permissions();
+        if perms.readonly() {
+            #[expect(
+                clippy::permissions_set_readonly_false,
+                reason = "lint is only relevant to non-windows systems"
+            )]
+            perms.set_readonly(false);
+            set_permissions(path, perms).await?;
+        }
+    }
+    Ok(())
+}
+
+#[inline]
+pub async fn save_binary_file(dest: &PathBuf, data: &[u8]) -> Result<(), io::Error> {
+    let binary_file = OpenOptions::new()
+        .create(true)
+        .truncate(true)
+        .write(true)
+        .open(dest)
+        .await?;
+    let mut bw = BufWriter::new(binary_file);
+    bw.write_all(data).await?;
+    bw.flush().await?;
     Ok(())
 }

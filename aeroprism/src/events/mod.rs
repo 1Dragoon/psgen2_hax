@@ -6,24 +6,28 @@ use crate::{
         codec::{DialogMap, OrderedData, OrderedDialog, marshal_events},
         sjis_map::utf8_to_ps2,
     },
-    helpers::{decode_hex, encode_hex},
+    helpers::{
+        deserialize_hex, deserialize_indexmap, encode_hex, is_default, serialize_hex,
+        serialize_indexmap, serialize_rc_empty,
+    },
+    slpm_patcher::ExecStructures,
 };
 use alloc::{
     collections::{BTreeMap, BTreeSet},
-    rc::Rc,
+    sync::Arc,
 };
-use core::{cell::RefCell, fmt, fmt::Display, mem, str::FromStr};
+use core::{fmt, fmt::Display, mem, str::FromStr};
 use indexmap::IndexMap;
-use log::{debug, error, trace};
+use log::{Level, debug, error, log_enabled, trace};
 use serde::{
     Deserialize, Deserializer, Serialize, Serializer,
     de::{self, DeserializeOwned, Error, Visitor},
-    ser::SerializeSeq,
 };
 use std::{
     fs::OpenOptions,
-    io::{self, BufReader, BufWriter, Read, Write},
-    path::{Path, PathBuf},
+    io::{self, BufReader, Read},
+    path::Path,
+    sync::RwLock,
 };
 use unicode_segmentation::UnicodeSegmentation;
 
@@ -35,8 +39,9 @@ type Offset = u32;
 #[repr(u8)]
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(rename_all(deserialize = "lowercase"))]
-enum ControlCode {
+pub enum ControlCode {
     None,
+    Fibrillae, // Also 'c' like color, so it needs special handling
     #[serde(alias = "wait")]
     Push = b'%',
     End = b'\\',
@@ -44,24 +49,66 @@ enum ControlCode {
     More = b'?',
     Select = b'*',
     Value = b'$',
-    Important = b'J', // Goldenboy release specific
-    Musik = b'v',     // Goldenboy release specific
-    Sword = b'V',     // Goldenboy release specific
-    Cross = b'|',     // Goldenboy release specific
-    Triangle = 0x7F,  // <delete> // Goldenboy release specific
-    Square = b'~',    // Goldenboy release specific
-    Circle = b'}',    // Goldenboy release specific
-    Claw = b'Z',      // Goldenboy release specific
-    Star = b'M',      // Goldenboy release specific
-    Sol = b'L',       // Goldenboy release specific
-    Crown = b'k',     // Goldenboy release specific
-    Helmet = b'i',    // Goldenboy release specific
-    Fluid = b'H',     // Goldenboy release specific
-    Moon = b'N',      // Goldenboy release specific
-    Hat = b'h',       // Goldenboy release specific
     // Newline = b'@',
     Color = b'c',
     Portrait = b'#',
+    // Remaining items are specific to goldenboy release
+    Air = b'x',
+    Armel = b'm',
+    Armor = b'`',
+    Bandana = b'g',
+    Boots = b'd',
+    Cake = b'K',
+    Cane = b'O',
+    Cannon = b'Q',
+    CCVariant1 = b':',
+    CCVariant2 = b']',
+    CCVariant3 = b';',
+    Chestplate = b'[',
+    Circle = b'}',
+    Claw = b'Z',
+    Coat = b'a',
+    Cross = b'|',
+    Crown = b'k',
+    Dagger = b'X',
+    Espadrilles = b'f',
+    Fire = b'r',
+    Fluid = b'H',
+    Gravito = b't',
+    Gun = b'S',
+    Hat = b'h',
+    Headgear = b'j',
+    Heal = b'G',
+    Helmet = b'i',
+    Important = b'J',
+    Knife = b'E',
+    Light = 0x73,
+    Lightning = b'y',
+    Mantle = b'F',
+    Mantle2 = b'b',
+    Megiddo = b'p',
+    Moon = b'N',
+    Musik = b'v',
+    Ocarina = b'I',
+    Prozedun = 0x75,
+    Ribbon = b'l',
+    Scale = b'U',
+    Scalpel = b'W',
+    Shield = b'o',
+    Shoes = b'e',
+    Shot = b'T',
+    Slicer = b'Y',
+    Sol = b'L',
+    Square = b'~',
+    Star = b'M',
+    Suit = b'_',
+    Sword = b'V',
+    Triangle = 0x7F, // <delete>
+    Vest = b'^',
+    Volt = 0x71,
+    Vulcan = b'R',
+    Water = b'w',
+    Whip = b'P',
 }
 
 impl FromStr for ControlCode {
@@ -74,23 +121,65 @@ impl FromStr for ControlCode {
             "more" => Ok(Self::More),
             "select" => Ok(Self::Select),
             "value" => Ok(Self::Value),
-            "important" => Ok(Self::Important),
-            "musik" => Ok(Self::Musik),
-            "sword" => Ok(Self::Sword),
-            "cross" => Ok(Self::Cross),
-            "triangle" => Ok(Self::Triangle),
-            "square" => Ok(Self::Square),
-            "circle" => Ok(Self::Circle),
-            "claw" => Ok(Self::Claw),
-            "star" => Ok(Self::Star),
-            "sol" => Ok(Self::Sol),
-            "crown" => Ok(Self::Crown),
-            "helmet" => Ok(Self::Helmet),
-            "fluid" => Ok(Self::Fluid),
-            "moon" => Ok(Self::Moon),
-            "hat" => Ok(Self::Hat),
             "color" => Ok(Self::Color),
             "portrait" => Ok(Self::Portrait),
+            "air" => Ok(Self::Air),
+            "armel" => Ok(Self::Armel),
+            "armor" => Ok(Self::Armor),
+            "bandana" => Ok(Self::Bandana),
+            "boots" => Ok(Self::Boots),
+            "cake" => Ok(Self::Cake),
+            "cane" => Ok(Self::Cane),
+            "cannon" => Ok(Self::Cannon),
+            "ccvariant1" => Ok(Self::CCVariant1),
+            "ccvariant2" => Ok(Self::CCVariant2),
+            "ccvariant3" => Ok(Self::CCVariant3),
+            "chestplate" => Ok(Self::Chestplate),
+            "circle" => Ok(Self::Circle),
+            "claw" => Ok(Self::Claw),
+            "coat" => Ok(Self::Coat),
+            "cross" => Ok(Self::Cross),
+            "crown" => Ok(Self::Crown),
+            "dagger" => Ok(Self::Dagger),
+            "espadrilles" => Ok(Self::Espadrilles),
+            "fibrillae" => Ok(Self::Fibrillae),
+            "fire" => Ok(Self::Fire),
+            "fluid" => Ok(Self::Fluid),
+            "gravito" => Ok(Self::Gravito),
+            "gun" => Ok(Self::Gun),
+            "hat" => Ok(Self::Hat),
+            "headgear" => Ok(Self::Headgear),
+            "heal" => Ok(Self::Heal),
+            "helmet" => Ok(Self::Helmet),
+            "important" => Ok(Self::Important),
+            "knife" => Ok(Self::Knife),
+            "light" => Ok(Self::Light),
+            "lightning" => Ok(Self::Lightning),
+            "mantle" => Ok(Self::Mantle),
+            "mantle2" => Ok(Self::Mantle2),
+            "megiddo" => Ok(Self::Megiddo),
+            "moon" => Ok(Self::Moon),
+            "musik" => Ok(Self::Musik),
+            "ocarina" => Ok(Self::Ocarina),
+            "prozedun" => Ok(Self::Prozedun),
+            "ribbon" => Ok(Self::Ribbon),
+            "scale" => Ok(Self::Scale),
+            "scalpel" => Ok(Self::Scalpel),
+            "shield" => Ok(Self::Shield),
+            "shoes" => Ok(Self::Shoes),
+            "shot" => Ok(Self::Shot),
+            "slicer" => Ok(Self::Slicer),
+            "sol" => Ok(Self::Sol),
+            "square" => Ok(Self::Square),
+            "star" => Ok(Self::Star),
+            "suit" => Ok(Self::Suit),
+            "sword" => Ok(Self::Sword),
+            "triangle" => Ok(Self::Triangle),
+            "vest" => Ok(Self::Vest),
+            "volt" => Ok(Self::Volt),
+            "vulcan" => Ok(Self::Vulcan),
+            "water" => Ok(Self::Water),
+            "whip" => Ok(Self::Whip),
             other => Err(format!("Invalid ControlCode variant: {other}")),
         }
     }
@@ -105,23 +194,65 @@ impl Display for ControlCode {
             Self::More => write!(f, "[More]"),
             Self::Select => write!(f, "[Select]"),
             Self::Value => write!(f, "[Value]"),
-            Self::Important => write!(f, "[Important]"),
-            Self::Musik => write!(f, "[Musik]"),
-            Self::Sword => write!(f, "[Sword]"),
-            Self::Cross => write!(f, "[Cross]"),
-            Self::Triangle => write!(f, "[Triangle]"),
-            Self::Square => write!(f, "[Square]"),
-            Self::Circle => write!(f, "[Circle]"),
-            Self::Claw => write!(f, "[Claw]"),
-            Self::Star => write!(f, "[Star]"),
-            Self::Sol => write!(f, "[Sol]"),
-            Self::Crown => write!(f, "[Crown]"),
-            Self::Helmet => write!(f, "[Helmet]"),
-            Self::Fluid => write!(f, "[Fluid]"),
-            Self::Moon => write!(f, "[Moon]"),
-            Self::Hat => write!(f, "[Hat]"),
             Self::Color => write!(f, "[Color]"),
             Self::Portrait => write!(f, "[Portrait]"),
+            Self::Air => write!(f, "[Air]"),
+            Self::Armel => write!(f, "[Armel]"),
+            Self::Armor => write!(f, "[Armor]"),
+            Self::Bandana => write!(f, "[Bandana]"),
+            Self::Boots => write!(f, "[Boots]"),
+            Self::Cake => write!(f, "[Cake]"),
+            Self::Cane => write!(f, "[Cane]"),
+            Self::Cannon => write!(f, "[Cannon]"),
+            Self::CCVariant1 => write!(f, "[CCVariant1]"),
+            Self::CCVariant2 => write!(f, "[CCVariant2]"),
+            Self::CCVariant3 => write!(f, "[CCVariant3]"),
+            Self::Chestplate => write!(f, "[Chestplate]"),
+            Self::Circle => write!(f, "[Circle]"),
+            Self::Claw => write!(f, "[Claw]"),
+            Self::Coat => write!(f, "[Coat]"),
+            Self::Cross => write!(f, "[Cross]"),
+            Self::Crown => write!(f, "[Crown]"),
+            Self::Dagger => write!(f, "[Dagger]"),
+            Self::Espadrilles => write!(f, "[Espadrilles]"),
+            Self::Fibrillae => write!(f, "[Fibrillae]"),
+            Self::Fire => write!(f, "[Fire]"),
+            Self::Fluid => write!(f, "[Fluid]"),
+            Self::Gravito => write!(f, "[Gravito]"),
+            Self::Gun => write!(f, "[Gun]"),
+            Self::Hat => write!(f, "[Hat]"),
+            Self::Headgear => write!(f, "[Headgear]"),
+            Self::Heal => write!(f, "[Heal]"),
+            Self::Helmet => write!(f, "[Helmet]"),
+            Self::Important => write!(f, "[Important]"),
+            Self::Knife => write!(f, "[Knife]"),
+            Self::Light => write!(f, "[Light]"),
+            Self::Lightning => write!(f, "[Lightning]"),
+            Self::Mantle => write!(f, "[Mantle]"),
+            Self::Mantle2 => write!(f, "[Mantle2]"),
+            Self::Megiddo => write!(f, "[Megiddo]"),
+            Self::Moon => write!(f, "[Moon]"),
+            Self::Musik => write!(f, "[Musik]"),
+            Self::Ocarina => write!(f, "[Ocarina]"),
+            Self::Prozedun => write!(f, "[Prozedun]"),
+            Self::Ribbon => write!(f, "[Ribbon]"),
+            Self::Scale => write!(f, "[Scale]"),
+            Self::Scalpel => write!(f, "[Scalpel]"),
+            Self::Shield => write!(f, "[Shield]"),
+            Self::Shoes => write!(f, "[Shoes]"),
+            Self::Shot => write!(f, "[Shot]"),
+            Self::Slicer => write!(f, "[Slicer]"),
+            Self::Sol => write!(f, "[Sol]"),
+            Self::Square => write!(f, "[Square]"),
+            Self::Star => write!(f, "[Star]"),
+            Self::Suit => write!(f, "[Suit]"),
+            Self::Sword => write!(f, "[Sword]"),
+            Self::Triangle => write!(f, "[Triangle]"),
+            Self::Vest => write!(f, "[Vest]"),
+            Self::Volt => write!(f, "[Volt]"),
+            Self::Vulcan => write!(f, "[Vulcan]"),
+            Self::Water => write!(f, "[Water]"),
+            Self::Whip => write!(f, "[Whip]"),
         }
     }
 }
@@ -134,30 +265,992 @@ impl From<u8> for ControlCode {
             b'?' => Self::More,
             b'*' => Self::Select,
             b'$' => Self::Value,
+            b'c' => Self::Color, // Also Fibrillae
+            b'#' => Self::Portrait,
+            0x71 => Self::Volt,
+            0x73 => Self::Light,
+            0x75 => Self::Prozedun,
+            0x7F => Self::Triangle,
+            b'_' => Self::Suit,
+            b';' => Self::CCVariant3,
+            b':' => Self::CCVariant1,
+            b'[' => Self::Chestplate,
+            b']' => Self::CCVariant2,
+            b'}' => Self::Circle,
+            b'`' => Self::Armor,
+            b'^' => Self::Vest,
+            b'|' => Self::Cross,
+            b'~' => Self::Square,
+            b'a' => Self::Coat,
+            b'b' => Self::Mantle2,
+            b'd' => Self::Boots,
+            b'E' => Self::Knife,
+            b'e' => Self::Shoes,
+            b'f' => Self::Espadrilles,
+            b'F' => Self::Mantle,
+            b'g' => Self::Bandana,
+            b'G' => Self::Heal,
+            b'H' => Self::Fluid,
+            b'h' => Self::Hat,
+            b'i' => Self::Helmet,
+            b'I' => Self::Ocarina,
+            b'j' => Self::Headgear,
             b'J' => Self::Important,
+            b'K' => Self::Cake,
+            b'k' => Self::Crown,
+            b'l' => Self::Ribbon,
+            b'L' => Self::Sol,
+            b'm' => Self::Armel,
+            b'M' => Self::Star,
+            b'N' => Self::Moon,
+            b'O' => Self::Cane,
+            b'o' => Self::Shield,
+            b'p' => Self::Megiddo,
+            b'P' => Self::Whip,
+            b'Q' => Self::Cannon,
+            b'r' => Self::Fire,
+            b'R' => Self::Vulcan,
+            b'S' => Self::Gun,
+            b't' => Self::Gravito,
+            b'T' => Self::Shot,
+            b'U' => Self::Scale,
             b'v' => Self::Musik,
             b'V' => Self::Sword,
-            b'|' => Self::Cross,
-            0x7F => Self::Triangle,
-            b'~' => Self::Square,
-            b'}' => Self::Circle,
+            b'W' => Self::Scalpel,
+            b'w' => Self::Water,
+            b'x' => Self::Air,
+            b'X' => Self::Dagger,
+            b'y' => Self::Lightning,
+            b'Y' => Self::Slicer,
             b'Z' => Self::Claw,
-            b'M' => Self::Star,
-            b'L' => Self::Sol,
-            b'k' => Self::Crown,
-            b'i' => Self::Helmet,
-            b'H' => Self::Fluid,
-            b'N' => Self::Moon,
-            b'h' => Self::Hat,
-            b'c' => Self::Color,
-            b'#' => Self::Portrait,
+            _ => Self::None,
+        }
+    }
+}
+
+#[repr(u16)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[serde(rename_all(deserialize = "lowercase"))]
+pub enum MTECode {
+    None,
+    Acid = 0x11a1,
+    Ager = 0x1374,
+    Amber = 0x129d,
+    Animation = 0x1021,
+    Anti = 0x13be,
+    Antidote = 0x1306,
+    Armel = 0x123c,
+    Armor = 0x126e,
+    Atomizer = 0x12e8,
+    BahaBulle = 0x102c,
+    Bandanna = 0x127c,
+    Beguiling = 0x12ca,
+    Black = 0x128d,
+    Blazing = 0x11bc,
+    Boomerang = 0x11f5,
+    Boots = 0x1235,
+    Cake = 0x12e3,
+    Cane = 0x11e6,
+    Cannon = 0x11dc,
+    Carbon = 0x121a,
+    Card = 0x12e1,
+    Ceramic = 0x124e,
+    Chain = 0x1265,
+    Check = 0x1026,
+    Chestplate = 0x1271,
+    Chiffon = 0x12f0,
+    CircumflexÔ = 0x0089, // French O-circumflex
+    Circumflexô = 0x0098, // French o-circumflex
+    Circumflexû = 0x009b, // French u-circumflex
+    Claw = 0x11ec,
+    Coat = 0x1276,
+    Coloring = 0x103b,
+    ColoringFinish = 0x1045,
+    Commercial = 0x1036,
+    Coordinator = 0x1031,
+    Covert = 0x12cf,
+    Crescent = 0x122b,
+    Crown = 0x122f,
+    Crystal = 0x121d,
+    Dagger = 0x11cb,
+    Deco = 0x1065,
+    DesignAdvisor = 0x105e,
+    Developers = 0x101a,
+    Difluid = 0x12bf,
+    Dimate = 0x12af,
+    Drunk = 0x133f,
+    DWand = 0x13e6,
+    EngLoc2015 = 0x106c,
+    Espadrilles = 0x1201,
+    ExecAdvisor = 0x1077,
+    ExecProd = 0x107f,
+    Falser = 0x13b0,
+    Feuer = 0x13ab,
+    Fiberglass = 0x1215,
+    Fibrilla = 0x124b,
+    Field = 0x1245,
+    Flame = 0x125c,
+    Fruit = 0x12f3,
+    Gale = 0x12a4,
+    GameProd = 0x1087,
+    GameProgram = 0x1090,
+    GameSound = 0x1096,
+    Gear = 0x1288,
+    Genera = 0x1350,
+    Gifeuer = 0x13a8,
+    Gigadge = 0x1365,
+    Giglanz = 0x137e,
+    Gigravito = 0x138a,
+    Girester = 0x13d6,
+    Gisagadge = 0x1358,
+    Gisarester = 0x13c9,
+    Gisawater = 0x139b,
+    Gisazonde = 0x1392,
+    Giwater = 0x13a0,
+    Gizonde = 0x1397,
+    Glanz = 0x1382,
+    GraphicMod = 0x10a9,
+    Graphics = 0x109c,
+    GraphicsSupport = 0x10b3,
+    Gravito = 0x138e,
+    Guard = 0x128a,
+    Gun = 0x11d7,
+    Harnisch = 0x1247,
+    Hat = 0x127a,
+    Heilsam = 0x1294,
+    Helmet = 0x1284,
+    Hesitant = 0x12d6,
+    Hiei = 0x10ba,
+    Hinaus = 0x13b3,
+    Hrothgar = 0x10bc,
+    Ice = 0x11b4,
+    Icons = 0x10c2,
+    JapanArt = 0x10c5,
+    Jewel = 0x1228,
+    Key = 0x12ee,
+    KeyAnimation = 0x10f4,
+    Knife = 0x11c8,
+    Konter = 0x136d,
+    Kyence = 0x10fb,
+    Laconian = 0x1258,
+    LargeIndent = 0x093c,
+    Laser = 0x1252,
+    Leather = 0x1207,
+    Lightning = 0x11b6,
+    Long = 0x1298,
+    Luminous = 0x120e,
+    Lyan = 0x10ff,
+    MainCharDesign = 0x1101,
+    Mantle = 0x1242,
+    Marketing = 0x110d,
+    Maruera = 0x12c6,
+    MidIndent = 0x0928,
+    Mirror = 0x1212,
+    Mitsuaki = 0x1112,
+    Monofluid = 0x12ba,
+    Monomate = 0x12aa,
+    MontBlanc = 0x12f5,
+    Moon = 0x12de,
+    Nafeuer = 0x13a4,
+    Nagadge = 0x1361,
+    Naglanz = 0x1379,
+    Nagravito = 0x1385,
+    NameEnemy = 0x111b,
+    Napalm = 0x11a3,
+    Narester = 0x13d2,
+    Nasacra = 0x13c0,
+    Nasagadge = 0x1353,
+    Nasarester = 0x1336,
+    NaulaStyle = 0x12fa,
+    Needle = 0x11f2,
+    Nei = 0x1268,
+    Ocarina = 0x12c2,
+    Original = 0x1126,
+    Package = 0x112f,
+    Packaging = 0x1134,
+    Patcher = 0x1139,
+    Plasma = 0x1262,
+    Players = 0x1052,
+    Producer = 0x113f,
+    Production = 0x1143,
+    ProgNAssembly = 0x1148,
+    Prozedun = 0x1370,
+    PscaveRomhack = 0x10db,
+    Publicity = 0x115f,
+    PublicRel = 0x1158,
+    Pulse = 0x11ad,
+    Rainbow = 0x12a6,
+    Reco = 0x1013,
+    Reverser = 0x13ba,
+    Ribbon = 0x1232,
+    Ring = 0x12ec,
+    Ruckkehr = 0x13b6,
+    RudolfoCue = 0x1181,
+    Saber = 0x11fa,
+    Sacra = 0x13c4,
+    Sagadge = 0x135d,
+    Sagenera = 0x134c,
+    SalesSupport = 0x1163,
+    Sarester = 0x13ce,
+    Saschneller = 0x13da,
+    Saschutz = 0x1342,
+    Savolt = 0x1349,
+    Scale = 0x11e9,
+    Scalpel = 0x11ce,
+    ScenGraphics = 0x1169,
+    ScenProd = 0x1171,
+    Schneller = 0x1290,
+    Schutz = 0x1346,
+    SegaWow = 0x1001,
+    Seizures = 0x1369,
+    Shield = 0x123f,
+    Shinparo = 0x133b,
+    Shoes = 0x129a,
+    Shortcake = 0x1301,
+    Shot = 0x11d5,
+    Shotgun = 0x11ee,
+    Silent = 0x126b,
+    Silver = 0x1255,
+    Sleeve = 0x1239,
+    Slicer = 0x11e0,
+    SmallIndent = 0x0914,
+    Snow = 0x11fd,
+    Sol = 0x12da,
+    Sonic = 0x11a7,
+    SonicTeam = 0x1007,
+    SpecialThanks = 0x117a,
+    Star = 0x12dc,
+    Steel = 0x11c5,
+    Sword = 0x11d1,
+    Titanium = 0x11b0,
+    Tranquil = 0x12a0,
+    Translation = 0x1190,
+    Traveling = 0x12d2,
+    Trimate = 0x12b6,
+    Tryphon = 0x1195,
+    Vampir = 0x1376,
+    Variable = 0x00ff,
+    Variant1 = 0x0606,
+    Variant2 = 0x060a,
+    Variant3 = 0x0806,
+    Variant4 = 0x0808,
+    Variant5 = 0x0908,
+    Variant6 = 0x0909,
+    Variant7 = 0x090c,
+    Variant8 = 0x0923,
+    Variant9 = 0x0a09,
+    Variant10 = 0x0a0a,
+    Variant11 = 0x0c0a,
+    Variant12 = 0x1315,
+    Variant13 = 0x131a,
+    Variant14 = 0x1310,
+    Variant15 = 0x4240,
+    Variant16 = 0x438e,
+    Vest = 0x1278,
+    Vulcan = 0x11d9,
+    Wave = 0x11aa,
+    Whip = 0x11e3,
+    White = 0x1225,
+    Windblade = 0x11c0,
+    XLIndent = 0x0964,
+    Yasunori = 0x1199,
+    Zirconium = 0x1220,
+}
+
+impl Display for MTECode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::None => unreachable!(),
+            Self::Acid => write!(f, "<Acid>"),
+            Self::Ager => write!(f, "<Ager>"),
+            Self::Amber => write!(f, "<Amber>"),
+            Self::Animation => write!(f, "<Animation>"),
+            Self::Anti => write!(f, "<Anti>"),
+            Self::Antidote => write!(f, "<Antidote>"),
+            Self::Armel => write!(f, "<Armel>"),
+            Self::Armor => write!(f, "<Armor>"),
+            Self::Atomizer => write!(f, "<Atomizer>"),
+            Self::BahaBulle => write!(f, "<BahaBulle>"),
+            Self::Bandanna => write!(f, "<Bandanna>"),
+            Self::Beguiling => write!(f, "<Beguiling>"),
+            Self::Black => write!(f, "<Black>"),
+            Self::Blazing => write!(f, "<Blazing>"),
+            Self::Boomerang => write!(f, "<Boomerang>"),
+            Self::Boots => write!(f, "<Boots>"),
+            Self::Cake => write!(f, "<Cake>"),
+            Self::Cane => write!(f, "<Cane>"),
+            Self::Cannon => write!(f, "<Cannon>"),
+            Self::Carbon => write!(f, "<Carbon>"),
+            Self::Card => write!(f, "<Card>"),
+            Self::Ceramic => write!(f, "<Ceramic>"),
+            Self::Chain => write!(f, "<Chain>"),
+            Self::Check => write!(f, "<Check>"),
+            Self::Chestplate => write!(f, "<Chestplate>"),
+            Self::Chiffon => write!(f, "<Chiffon>"),
+            Self::Circumflexô => write!(f, "<ô>"),
+            Self::CircumflexÔ => write!(f, "<uÔ>"),
+            Self::Circumflexû => write!(f, "<û>"),
+            Self::Claw => write!(f, "<Claw>"),
+            Self::Coat => write!(f, "<Coat>"),
+            Self::Coloring => write!(f, "<Coloring>"),
+            Self::ColoringFinish => write!(f, "<ColoringFinish>"),
+            Self::Commercial => write!(f, "<Commercial>"),
+            Self::Coordinator => write!(f, "<Coordinator>"),
+            Self::Covert => write!(f, "<Covert>"),
+            Self::Crescent => write!(f, "<Crescent>"),
+            Self::Crown => write!(f, "<Crown>"),
+            Self::Crystal => write!(f, "<Crystal>"),
+            Self::Dagger => write!(f, "<Dagger>"),
+            Self::Deco => write!(f, "<Deco>"),
+            Self::DesignAdvisor => write!(f, "<DesignAdvisor>"),
+            Self::Developers => write!(f, "<Developers>"),
+            Self::Difluid => write!(f, "<Difluid>"),
+            Self::Dimate => write!(f, "<Dimate>"),
+            Self::Drunk => write!(f, "<Drunk>"),
+            Self::DWand => write!(f, "<DWand>"),
+            Self::EngLoc2015 => write!(f, "<EngLoc2015>"),
+            Self::Espadrilles => write!(f, "<Espadrilles>"),
+            Self::ExecAdvisor => write!(f, "<ExecAdvisor>"),
+            Self::ExecProd => write!(f, "<ExecProd>"),
+            Self::Falser => write!(f, "<Falser>"),
+            Self::Feuer => write!(f, "<Feuer>"),
+            Self::Fiberglass => write!(f, "<Fiberglass>"),
+            Self::Fibrilla => write!(f, "<Fibrilla>"),
+            Self::Field => write!(f, "<Field>"),
+            Self::Flame => write!(f, "<Flame>"),
+            Self::Fruit => write!(f, "<Fruit>"),
+            Self::Gale => write!(f, "<Gale>"),
+            Self::GameProd => write!(f, "<GameProd>"),
+            Self::GameProgram => write!(f, "<GameProgram>"),
+            Self::GameSound => write!(f, "<GameSound>"),
+            Self::Gear => write!(f, "<Gear>"),
+            Self::Genera => write!(f, "<Genera>"),
+            Self::Gifeuer => write!(f, "<Gifeuer>"),
+            Self::Gigadge => write!(f, "<Gigadge>"),
+            Self::Giglanz => write!(f, "<Giglanz>"),
+            Self::Gigravito => write!(f, "<Gigravito>"),
+            Self::Girester => write!(f, "<Girester>"),
+            Self::Gisagadge => write!(f, "<Gisagadge>"),
+            Self::Gisarester => write!(f, "<Gisarester>"),
+            Self::Gisawater => write!(f, "<Gisawater>"),
+            Self::Gisazonde => write!(f, "<Gisazonde>"),
+            Self::Giwater => write!(f, "<Giwater>"),
+            Self::Gizonde => write!(f, "<Gizonde>"),
+            Self::Glanz => write!(f, "<Glanz>"),
+            Self::GraphicMod => write!(f, "<GraphicMod>"),
+            Self::Graphics => write!(f, "<Graphics>"),
+            Self::GraphicsSupport => write!(f, "<GraphicsSupport>"),
+            Self::Gravito => write!(f, "<Gravito>"),
+            Self::Guard => write!(f, "<Guard>"),
+            Self::Gun => write!(f, "<Gun>"),
+            Self::Harnisch => write!(f, "<Harnisch>"),
+            Self::Hat => write!(f, "<Hat>"),
+            Self::Heilsam => write!(f, "<Heilsam>"),
+            Self::Helmet => write!(f, "<Helmet>"),
+            Self::Hesitant => write!(f, "<Hesitant>"),
+            Self::Hiei => write!(f, "<Hiei>"),
+            Self::Hinaus => write!(f, "<Hinaus>"),
+            Self::Hrothgar => write!(f, "<Hrothgar>"),
+            Self::Ice => write!(f, "<Ice>"),
+            Self::Icons => write!(f, "<Icons>"),
+            Self::JapanArt => write!(f, "<JapanArt>"),
+            Self::Jewel => write!(f, "<Jewel>"),
+            Self::Key => write!(f, "<Key>"),
+            Self::KeyAnimation => write!(f, "<KeyAnimation>"),
+            Self::Knife => write!(f, "<Knife>"),
+            Self::Konter => write!(f, "<Konter>"),
+            Self::Kyence => write!(f, "<Kyence>"),
+            Self::Laconian => write!(f, "<Laconian>"),
+            Self::LargeIndent => write!(f, "<LargeIndent>"),
+            Self::Laser => write!(f, "<Laser>"),
+            Self::Leather => write!(f, "<Leather>"),
+            Self::Lightning => write!(f, "<Lightning>"),
+            Self::Long => write!(f, "<Long>"),
+            Self::Luminous => write!(f, "<Luminous>"),
+            Self::Lyan => write!(f, "<Lyan>"),
+            Self::MainCharDesign => write!(f, "<MainCharDesign>"),
+            Self::Mantle => write!(f, "<Mantle>"),
+            Self::Marketing => write!(f, "<Marketing>"),
+            Self::Maruera => write!(f, "<Maruera>"),
+            Self::MidIndent => write!(f, "<MidIndent>"),
+            Self::Mirror => write!(f, "<Mirror>"),
+            Self::Mitsuaki => write!(f, "<Mitsuaki>"),
+            Self::Monofluid => write!(f, "<Monofluid>"),
+            Self::Monomate => write!(f, "<Monomate>"),
+            Self::MontBlanc => write!(f, "<MontBlanc>"),
+            Self::Moon => write!(f, "<Moon>"),
+            Self::Nafeuer => write!(f, "<Nafeuer>"),
+            Self::Nagadge => write!(f, "<Nagadge>"),
+            Self::Naglanz => write!(f, "<Naglanz>"),
+            Self::Nagravito => write!(f, "<Nagravito>"),
+            Self::NameEnemy => write!(f, "<NameEnemy>"),
+            Self::Napalm => write!(f, "<Napalm>"),
+            Self::Narester => write!(f, "<Narester>"),
+            Self::Nasacra => write!(f, "<Nasacra>"),
+            Self::Nasagadge => write!(f, "<Nasagadge>"),
+            Self::Nasarester => write!(f, "<Nasarester>"),
+            Self::NaulaStyle => write!(f, "<NaulaStyle>"),
+            Self::Needle => write!(f, "<Needle>"),
+            Self::Nei => write!(f, "<Nei>"),
+            Self::Ocarina => write!(f, "<Ocarina>"),
+            Self::Original => write!(f, "<Original>"),
+            Self::Package => write!(f, "<Package>"),
+            Self::Packaging => write!(f, "<Packaging>"),
+            Self::Patcher => write!(f, "<Patcher>"),
+            Self::Plasma => write!(f, "<Plasma>"),
+            Self::Players => write!(f, "<Players>"),
+            Self::Producer => write!(f, "<Producer>"),
+            Self::Production => write!(f, "<Production>"),
+            Self::ProgNAssembly => write!(f, "<ProgNAssembly>"),
+            Self::Prozedun => write!(f, "<Prozedun>"),
+            Self::PscaveRomhack => write!(f, "<PscaveRomhack>"),
+            Self::Publicity => write!(f, "<Publicity>"),
+            Self::PublicRel => write!(f, "<PublicRel>"),
+            Self::Pulse => write!(f, "<Pulse>"),
+            Self::Rainbow => write!(f, "<Rainbow>"),
+            Self::Reco => write!(f, "<Reco>"),
+            Self::Reverser => write!(f, "<Reverser>"),
+            Self::Ribbon => write!(f, "<Ribbon>"),
+            Self::Ring => write!(f, "<Ring>"),
+            Self::Ruckkehr => write!(f, "<Ruckkehr>"),
+            Self::RudolfoCue => write!(f, "<RudolfoCue>"),
+            Self::Saber => write!(f, "<Saber>"),
+            Self::Sacra => write!(f, "<Sacra>"),
+            Self::Sagadge => write!(f, "<Sagadge>"),
+            Self::Sagenera => write!(f, "<Sagenera>"),
+            Self::SalesSupport => write!(f, "<SalesSupport>"),
+            Self::Sarester => write!(f, "<Sarester>"),
+            Self::Saschneller => write!(f, "<Saschneller>"),
+            Self::Saschutz => write!(f, "<Saschutz>"),
+            Self::Savolt => write!(f, "<Savolt>"),
+            Self::Scale => write!(f, "<Scale>"),
+            Self::Scalpel => write!(f, "<Scalpel>"),
+            Self::ScenGraphics => write!(f, "<ScenGraphics>"),
+            Self::ScenProd => write!(f, "<ScenProd>"),
+            Self::Schneller => write!(f, "<Schneller>"),
+            Self::Schutz => write!(f, "<Schutz>"),
+            Self::SegaWow => write!(f, "<SegaWow>"),
+            Self::Seizures => write!(f, "<Seizures>"),
+            Self::Shield => write!(f, "<Shield>"),
+            Self::Shinparo => write!(f, "<Shinparo>"),
+            Self::Shoes => write!(f, "<Shoes>"),
+            Self::Shortcake => write!(f, "<Shortcake>"),
+            Self::Shot => write!(f, "<Shot>"),
+            Self::Shotgun => write!(f, "<Shotgun>"),
+            Self::Silent => write!(f, "<Silent>"),
+            Self::Silver => write!(f, "<Silver>"),
+            Self::Sleeve => write!(f, "<Sleeve>"),
+            Self::Slicer => write!(f, "<Slicer>"),
+            Self::SmallIndent => write!(f, "<SmallIndent>"),
+            Self::Snow => write!(f, "<Snow>"),
+            Self::Sol => write!(f, "<Sol>"),
+            Self::Sonic => write!(f, "<Sonic>"),
+            Self::SonicTeam => write!(f, "<SonicTeam>"),
+            Self::SpecialThanks => write!(f, "<SpecialThanks>"),
+            Self::Star => write!(f, "<Star>"),
+            Self::Steel => write!(f, "<Steel>"),
+            Self::Sword => write!(f, "<Sword>"),
+            Self::Titanium => write!(f, "<Titanium>"),
+            Self::Tranquil => write!(f, "<Tranquil>"),
+            Self::Translation => write!(f, "<Translation>"),
+            Self::Traveling => write!(f, "<Traveling>"),
+            Self::Trimate => write!(f, "<Trimate>"),
+            Self::Tryphon => write!(f, "<Tryphon>"),
+            Self::Vampir => write!(f, "<Vampir>"),
+            Self::Variable => write!(f, "<Variable>"),
+            Self::Variant1 => write!(f, "<Variant1>"),
+            Self::Variant2 => write!(f, "<Variant2>"),
+            Self::Variant3 => write!(f, "<Variant3>"),
+            Self::Variant4 => write!(f, "<Variant4>"),
+            Self::Variant5 => write!(f, "<Variant5>"),
+            Self::Variant6 => write!(f, "<Variant6>"),
+            Self::Variant7 => write!(f, "<Variant7>"),
+            Self::Variant8 => write!(f, "<Variant8>"),
+            Self::Variant9 => write!(f, "<Variant9>"),
+            Self::Variant10 => write!(f, "<Variant10>"),
+            Self::Variant11 => write!(f, "<Variant11>"),
+            Self::Variant12 => write!(f, "<Variant12>"),
+            Self::Variant13 => write!(f, "<Variant13>"),
+            Self::Variant14 => write!(f, "<Variant14>"),
+            Self::Variant15 => write!(f, "<Variant15>"),
+            Self::Variant16 => write!(f, "<Variant16>"),
+            Self::Vest => write!(f, "<Vest>"),
+            Self::Vulcan => write!(f, "<Vulcan>"),
+            Self::Wave => write!(f, "<Wave>"),
+            Self::Whip => write!(f, "<Whip>"),
+            Self::White => write!(f, "<White>"),
+            Self::Windblade => write!(f, "<Windblade>"),
+            Self::XLIndent => write!(f, "<XLIndent>"),
+            Self::Yasunori => write!(f, "<Yasunori>"),
+            Self::Zirconium => write!(f, "<Zirconium>"),
+        }
+    }
+}
+
+impl FromStr for MTECode {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "acid" => Ok(Self::Acid),
+            "ager" => Ok(Self::Ager),
+            "amber" => Ok(Self::Amber),
+            "animation" => Ok(Self::Animation),
+            "anti" => Ok(Self::Anti),
+            "antidote" => Ok(Self::Antidote),
+            "armel" => Ok(Self::Armel),
+            "armor" => Ok(Self::Armor),
+            "atomizer" => Ok(Self::Atomizer),
+            "bahabulle" => Ok(Self::BahaBulle),
+            "bandanna" => Ok(Self::Bandanna),
+            "beguiling" => Ok(Self::Beguiling),
+            "black" => Ok(Self::Black),
+            "blazing" => Ok(Self::Blazing),
+            "boomerang" => Ok(Self::Boomerang),
+            "boots" => Ok(Self::Boots),
+            "cake" => Ok(Self::Cake),
+            "cane" => Ok(Self::Cane),
+            "cannon" => Ok(Self::Cannon),
+            "carbon" => Ok(Self::Carbon),
+            "card" => Ok(Self::Card),
+            "ceramic" => Ok(Self::Ceramic),
+            "chain" => Ok(Self::Chain),
+            "check" => Ok(Self::Check),
+            "chestplate" => Ok(Self::Chestplate),
+            "chiffon" => Ok(Self::Chiffon),
+            "claw" => Ok(Self::Claw),
+            "coat" => Ok(Self::Coat),
+            "coloring" => Ok(Self::Coloring),
+            "coloringfinish" => Ok(Self::ColoringFinish),
+            "commercial" => Ok(Self::Commercial),
+            "coordinator" => Ok(Self::Coordinator),
+            "covert" => Ok(Self::Covert),
+            "crescent" => Ok(Self::Crescent),
+            "crown" => Ok(Self::Crown),
+            "crystal" => Ok(Self::Crystal),
+            "dagger" => Ok(Self::Dagger),
+            "deco" => Ok(Self::Deco),
+            "designadvisor" => Ok(Self::DesignAdvisor),
+            "developers" => Ok(Self::Developers),
+            "difluid" => Ok(Self::Difluid),
+            "dimate" => Ok(Self::Dimate),
+            "drunk" => Ok(Self::Drunk),
+            "dwand" => Ok(Self::DWand),
+            "engloc2015" => Ok(Self::EngLoc2015),
+            "espadrilles" => Ok(Self::Espadrilles),
+            "execadvisor" => Ok(Self::ExecAdvisor),
+            "execprod" => Ok(Self::ExecProd),
+            "falser" => Ok(Self::Falser),
+            "feuer" => Ok(Self::Feuer),
+            "fiberglass" => Ok(Self::Fiberglass),
+            "fibrilla" => Ok(Self::Fibrilla),
+            "field" => Ok(Self::Field),
+            "flame" => Ok(Self::Flame),
+            "fruit" => Ok(Self::Fruit),
+            "gale" => Ok(Self::Gale),
+            "gameprod" => Ok(Self::GameProd),
+            "gameprogram" => Ok(Self::GameProgram),
+            "gamesound" => Ok(Self::GameSound),
+            "gear" => Ok(Self::Gear),
+            "genera" => Ok(Self::Genera),
+            "gifeuer" => Ok(Self::Gifeuer),
+            "gigadge" => Ok(Self::Gigadge),
+            "giglanz" => Ok(Self::Giglanz),
+            "gigravito" => Ok(Self::Gigravito),
+            "girester" => Ok(Self::Girester),
+            "gisagadge" => Ok(Self::Gisagadge),
+            "gisarester" => Ok(Self::Gisarester),
+            "gisawater" => Ok(Self::Gisawater),
+            "gisazonde" => Ok(Self::Gisazonde),
+            "giwater" => Ok(Self::Giwater),
+            "gizonde" => Ok(Self::Gizonde),
+            "glanz" => Ok(Self::Glanz),
+            "graphicmod" => Ok(Self::GraphicMod),
+            "graphics" => Ok(Self::Graphics),
+            "graphicssupport" => Ok(Self::GraphicsSupport),
+            "gravito" => Ok(Self::Gravito),
+            "guard" => Ok(Self::Guard),
+            "gun" => Ok(Self::Gun),
+            "harnisch" => Ok(Self::Harnisch),
+            "hat" => Ok(Self::Hat),
+            "heilsam" => Ok(Self::Heilsam),
+            "helmet" => Ok(Self::Helmet),
+            "hesitant" => Ok(Self::Hesitant),
+            "hiei" => Ok(Self::Hiei),
+            "hinaus" => Ok(Self::Hinaus),
+            "hrothgar" => Ok(Self::Hrothgar),
+            "ice" => Ok(Self::Ice),
+            "icons" => Ok(Self::Icons),
+            "japanart" => Ok(Self::JapanArt),
+            "jewel" => Ok(Self::Jewel),
+            "key" => Ok(Self::Key),
+            "keyanimation" => Ok(Self::KeyAnimation),
+            "knife" => Ok(Self::Knife),
+            "konter" => Ok(Self::Konter),
+            "kyence" => Ok(Self::Kyence),
+            "laconian" => Ok(Self::Laconian),
+            "largeindent" => Ok(Self::LargeIndent),
+            "laser" => Ok(Self::Laser),
+            "leather" => Ok(Self::Leather),
+            "lightning" => Ok(Self::Lightning),
+            "long" => Ok(Self::Long),
+            "luminous" => Ok(Self::Luminous),
+            "lyan" => Ok(Self::Lyan),
+            "mainchardesign" => Ok(Self::MainCharDesign),
+            "mantle" => Ok(Self::Mantle),
+            "marketing" => Ok(Self::Marketing),
+            "maruera" => Ok(Self::Maruera),
+            "midindent" => Ok(Self::MidIndent),
+            "mirror" => Ok(Self::Mirror),
+            "mitsuaki" => Ok(Self::Mitsuaki),
+            "monofluid" => Ok(Self::Monofluid),
+            "monomate" => Ok(Self::Monomate),
+            "montblanc" => Ok(Self::MontBlanc),
+            "moon" => Ok(Self::Moon),
+            "nafeuer" => Ok(Self::Nafeuer),
+            "nagadge" => Ok(Self::Nagadge),
+            "naglanz" => Ok(Self::Naglanz),
+            "nagravito" => Ok(Self::Nagravito),
+            "nameenemy" => Ok(Self::NameEnemy),
+            "napalm" => Ok(Self::Napalm),
+            "narester" => Ok(Self::Narester),
+            "nasacra" => Ok(Self::Nasacra),
+            "nasagadge" => Ok(Self::Nasagadge),
+            "nasarester" => Ok(Self::Nasarester),
+            "naulastyle" => Ok(Self::NaulaStyle),
+            "needle" => Ok(Self::Needle),
+            "nei" => Ok(Self::Nei),
+            "ô" => Ok(Self::Circumflexô),
+            "uô" => Ok(Self::CircumflexÔ),
+            "ocarina" => Ok(Self::Ocarina),
+            "original" => Ok(Self::Original),
+            "package" => Ok(Self::Package),
+            "packaging" => Ok(Self::Packaging),
+            "patcher" => Ok(Self::Patcher),
+            "plasma" => Ok(Self::Plasma),
+            "players" => Ok(Self::Players),
+            "producer" => Ok(Self::Producer),
+            "production" => Ok(Self::Production),
+            "prognassembly" => Ok(Self::ProgNAssembly),
+            "prozedun" => Ok(Self::Prozedun),
+            "pscaveromhack" => Ok(Self::PscaveRomhack),
+            "publicity" => Ok(Self::Publicity),
+            "publicrel" => Ok(Self::PublicRel),
+            "pulse" => Ok(Self::Pulse),
+            "rainbow" => Ok(Self::Rainbow),
+            "reco" => Ok(Self::Reco),
+            "reverser" => Ok(Self::Reverser),
+            "ribbon" => Ok(Self::Ribbon),
+            "ring" => Ok(Self::Ring),
+            "ruckkehr" => Ok(Self::Ruckkehr),
+            "rudolfocue" => Ok(Self::RudolfoCue),
+            "saber" => Ok(Self::Saber),
+            "sacra" => Ok(Self::Sacra),
+            "sagadge" => Ok(Self::Sagadge),
+            "sagenera" => Ok(Self::Sagenera),
+            "salessupport" => Ok(Self::SalesSupport),
+            "sarester" => Ok(Self::Sarester),
+            "saschneller" => Ok(Self::Saschneller),
+            "saschutz" => Ok(Self::Saschutz),
+            "savolt" => Ok(Self::Savolt),
+            "scale" => Ok(Self::Scale),
+            "scalpel" => Ok(Self::Scalpel),
+            "scengraphics" => Ok(Self::ScenGraphics),
+            "scenprod" => Ok(Self::ScenProd),
+            "schneller" => Ok(Self::Schneller),
+            "schutz" => Ok(Self::Schutz),
+            "segawow" => Ok(Self::SegaWow),
+            "seizures" => Ok(Self::Seizures),
+            "shield" => Ok(Self::Shield),
+            "shinparo" => Ok(Self::Shinparo),
+            "shoes" => Ok(Self::Shoes),
+            "shortcake" => Ok(Self::Shortcake),
+            "shot" => Ok(Self::Shot),
+            "shotgun" => Ok(Self::Shotgun),
+            "silent" => Ok(Self::Silent),
+            "silver" => Ok(Self::Silver),
+            "sleeve" => Ok(Self::Sleeve),
+            "slicer" => Ok(Self::Slicer),
+            "smallindent" => Ok(Self::SmallIndent),
+            "snow" => Ok(Self::Snow),
+            "sol" => Ok(Self::Sol),
+            "sonic" => Ok(Self::Sonic),
+            "sonicteam" => Ok(Self::SonicTeam),
+            "specialthanks" => Ok(Self::SpecialThanks),
+            "star" => Ok(Self::Star),
+            "steel" => Ok(Self::Steel),
+            "sword" => Ok(Self::Sword),
+            "titanium" => Ok(Self::Titanium),
+            "tranquil" => Ok(Self::Tranquil),
+            "translation" => Ok(Self::Translation),
+            "traveling" => Ok(Self::Traveling),
+            "trimate" => Ok(Self::Trimate),
+            "tryphon" => Ok(Self::Tryphon),
+            "û" => Ok(Self::Circumflexû),
+            "vampir" => Ok(Self::Vampir),
+            "variable" => Ok(Self::Variable),
+            "variant1" => Ok(Self::Variant1),
+            "variant2" => Ok(Self::Variant2),
+            "variant3" => Ok(Self::Variant3),
+            "variant4" => Ok(Self::Variant4),
+            "variant5" => Ok(Self::Variant5),
+            "variant6" => Ok(Self::Variant6),
+            "variant7" => Ok(Self::Variant7),
+            "variant8" => Ok(Self::Variant8),
+            "variant9" => Ok(Self::Variant9),
+            "variant10" => Ok(Self::Variant10),
+            "variant11" => Ok(Self::Variant11),
+            "variant12" => Ok(Self::Variant12),
+            "variant13" => Ok(Self::Variant13),
+            "variant14" => Ok(Self::Variant14),
+            "variant15" => Ok(Self::Variant15),
+            "variant16" => Ok(Self::Variant16),
+            "vest" => Ok(Self::Vest),
+            "vulcan" => Ok(Self::Vulcan),
+            "wave" => Ok(Self::Wave),
+            "whip" => Ok(Self::Whip),
+            "white" => Ok(Self::White),
+            "windblade" => Ok(Self::Windblade),
+            "xlindent" => Ok(Self::XLIndent),
+            "yasunori" => Ok(Self::Yasunori),
+            "zirconium" => Ok(Self::Zirconium),
+            other => Err(format!("Invalid MTECode variant: <{other}>")),
+        }
+    }
+}
+
+impl From<u16> for MTECode {
+    fn from(value: u16) -> Self {
+        match value {
+            0x0089 => Self::CircumflexÔ,
+            0x0098 => Self::Circumflexô,
+            0x009b => Self::Circumflexû,
+            0x00ff => Self::Variable,
+            0x0606 => Self::Variant1,
+            0x060a => Self::Variant2,
+            0x0806 => Self::Variant3,
+            0x0808 => Self::Variant4,
+            0x0908 => Self::Variant5,
+            0x0909 => Self::Variant6,
+            0x090c => Self::Variant7,
+            0x0914 => Self::SmallIndent,
+            0x0923 => Self::Variant8,
+            0x0928 => Self::MidIndent,
+            0x093c => Self::LargeIndent,
+            0x0964 => Self::XLIndent,
+            0x0a09 => Self::Variant9,
+            0x0a0a => Self::Variant10,
+            0x0c0a => Self::Variant11,
+            0x1001 => Self::SegaWow,
+            0x1007 => Self::SonicTeam,
+            0x1013 => Self::Reco,
+            0x101a => Self::Developers,
+            0x1021 => Self::Animation,
+            0x1026 => Self::Check,
+            0x102c => Self::BahaBulle,
+            0x1031 => Self::Coordinator,
+            0x1036 => Self::Commercial,
+            0x103b => Self::Coloring,
+            0x1045 => Self::ColoringFinish,
+            0x1052 => Self::Players,
+            0x105e => Self::DesignAdvisor,
+            0x1065 => Self::Deco,
+            0x106c => Self::EngLoc2015,
+            0x1077 => Self::ExecAdvisor,
+            0x107f => Self::ExecProd,
+            0x1087 => Self::GameProd,
+            0x1090 => Self::GameProgram,
+            0x1096 => Self::GameSound,
+            0x109c => Self::Graphics,
+            0x10a9 => Self::GraphicMod,
+            0x10b3 => Self::GraphicsSupport,
+            0x10ba => Self::Hiei,
+            0x10bc => Self::Hrothgar,
+            0x10c2 => Self::Icons,
+            0x10c5 => Self::JapanArt,
+            0x10db => Self::PscaveRomhack,
+            0x10f4 => Self::KeyAnimation,
+            0x10fb => Self::Kyence,
+            0x10ff => Self::Lyan,
+            0x1101 => Self::MainCharDesign,
+            0x110d => Self::Marketing,
+            0x1112 => Self::Mitsuaki,
+            0x111b => Self::NameEnemy,
+            0x1126 => Self::Original,
+            0x112f => Self::Package,
+            0x1134 => Self::Packaging,
+            0x1139 => Self::Patcher,
+            0x113f => Self::Producer,
+            0x1143 => Self::Production,
+            0x1148 => Self::ProgNAssembly,
+            0x1158 => Self::PublicRel,
+            0x115f => Self::Publicity,
+            0x1163 => Self::SalesSupport,
+            0x1169 => Self::ScenGraphics,
+            0x1171 => Self::ScenProd,
+            0x117a => Self::SpecialThanks,
+            0x1181 => Self::RudolfoCue,
+            0x1190 => Self::Translation,
+            0x1195 => Self::Tryphon,
+            0x1199 => Self::Yasunori,
+            0x11a1 => Self::Acid,
+            0x11a3 => Self::Napalm,
+            0x11a7 => Self::Sonic,
+            0x11aa => Self::Wave,
+            0x11ad => Self::Pulse,
+            0x11b0 => Self::Titanium,
+            0x11b4 => Self::Ice,
+            0x11b6 => Self::Lightning,
+            0x11bc => Self::Blazing,
+            0x11c0 => Self::Windblade,
+            0x11c5 => Self::Steel,
+            0x11c8 => Self::Knife,
+            0x11cb => Self::Dagger,
+            0x11ce => Self::Scalpel,
+            0x11d1 => Self::Sword,
+            0x11d5 => Self::Shot,
+            0x11d7 => Self::Gun,
+            0x11d9 => Self::Vulcan,
+            0x11dc => Self::Cannon,
+            0x11e0 => Self::Slicer,
+            0x11e3 => Self::Whip,
+            0x11e6 => Self::Cane,
+            0x11e9 => Self::Scale,
+            0x11ec => Self::Claw,
+            0x11ee => Self::Shotgun,
+            0x11f2 => Self::Needle,
+            0x11f5 => Self::Boomerang,
+            0x11fa => Self::Saber,
+            0x11fd => Self::Snow,
+            0x1201 => Self::Espadrilles,
+            0x1207 => Self::Leather,
+            0x120e => Self::Luminous,
+            0x1212 => Self::Mirror,
+            0x1215 => Self::Fiberglass,
+            0x121a => Self::Carbon,
+            0x121d => Self::Crystal,
+            0x1220 => Self::Zirconium,
+            0x1225 => Self::White,
+            0x1228 => Self::Jewel,
+            0x122b => Self::Crescent,
+            0x122f => Self::Crown,
+            0x1232 => Self::Ribbon,
+            0x1235 => Self::Boots,
+            0x1239 => Self::Sleeve,
+            0x123c => Self::Armel,
+            0x123f => Self::Shield,
+            0x1242 => Self::Mantle,
+            0x1245 => Self::Field,
+            0x1247 => Self::Harnisch,
+            0x124b => Self::Fibrilla,
+            0x124e => Self::Ceramic,
+            0x1252 => Self::Laser,
+            0x1255 => Self::Silver,
+            0x1258 => Self::Laconian,
+            0x125c => Self::Flame,
+            0x1262 => Self::Plasma,
+            0x1265 => Self::Chain,
+            0x1268 => Self::Nei,
+            0x126b => Self::Silent,
+            0x126e => Self::Armor,
+            0x1271 => Self::Chestplate,
+            0x1276 => Self::Coat,
+            0x1278 => Self::Vest,
+            0x127a => Self::Hat,
+            0x127c => Self::Bandanna,
+            0x1284 => Self::Helmet,
+            0x1288 => Self::Gear,
+            0x128a => Self::Guard,
+            0x128d => Self::Black,
+            0x1290 => Self::Schneller,
+            0x1294 => Self::Heilsam,
+            0x1298 => Self::Long,
+            0x129a => Self::Shoes,
+            0x129d => Self::Amber,
+            0x12a0 => Self::Tranquil,
+            0x12a4 => Self::Gale,
+            0x12a6 => Self::Rainbow,
+            0x12aa => Self::Monomate,
+            0x12af => Self::Dimate,
+            0x12b6 => Self::Trimate,
+            0x12ba => Self::Monofluid,
+            0x12bf => Self::Difluid,
+            0x12c2 => Self::Ocarina,
+            0x12c6 => Self::Maruera,
+            0x12ca => Self::Beguiling,
+            0x12cf => Self::Covert,
+            0x12d2 => Self::Traveling,
+            0x12d6 => Self::Hesitant,
+            0x12da => Self::Sol,
+            0x12dc => Self::Star,
+            0x12de => Self::Moon,
+            0x12e1 => Self::Card,
+            0x12e3 => Self::Cake,
+            0x12e8 => Self::Atomizer,
+            0x12ec => Self::Ring,
+            0x12ee => Self::Key,
+            0x12f0 => Self::Chiffon,
+            0x12f3 => Self::Fruit,
+            0x12f5 => Self::MontBlanc,
+            0x12fa => Self::NaulaStyle,
+            0x1301 => Self::Shortcake,
+            0x1306 => Self::Antidote,
+            0x1310 => Self::Variant14,
+            0x1315 => Self::Variant12,
+            0x131a => Self::Variant13,
+            0x1336 => Self::Nasarester,
+            0x133b => Self::Shinparo,
+            0x133f => Self::Drunk,
+            0x1342 => Self::Saschutz,
+            0x1346 => Self::Schutz,
+            0x1349 => Self::Savolt,
+            0x134c => Self::Sagenera,
+            0x1350 => Self::Genera,
+            0x1353 => Self::Nasagadge,
+            0x1358 => Self::Gisagadge,
+            0x135d => Self::Sagadge,
+            0x1361 => Self::Nagadge,
+            0x1365 => Self::Gigadge,
+            0x1369 => Self::Seizures,
+            0x136d => Self::Konter,
+            0x1370 => Self::Prozedun,
+            0x1374 => Self::Ager,
+            0x1376 => Self::Vampir,
+            0x1379 => Self::Naglanz,
+            0x137e => Self::Giglanz,
+            0x1382 => Self::Glanz,
+            0x1385 => Self::Nagravito,
+            0x138a => Self::Gigravito,
+            0x138e => Self::Gravito,
+            0x1392 => Self::Gisazonde,
+            0x1397 => Self::Gizonde,
+            0x139b => Self::Gisawater,
+            0x13a0 => Self::Giwater,
+            0x13a4 => Self::Nafeuer,
+            0x13a8 => Self::Gifeuer,
+            0x13ab => Self::Feuer,
+            0x13b0 => Self::Falser,
+            0x13b3 => Self::Hinaus,
+            0x13b6 => Self::Ruckkehr,
+            0x13ba => Self::Reverser,
+            0x13be => Self::Anti,
+            0x13c0 => Self::Nasacra,
+            0x13c4 => Self::Sacra,
+            0x13c9 => Self::Gisarester,
+            0x13ce => Self::Sarester,
+            0x13d2 => Self::Narester,
+            0x13d6 => Self::Girester,
+            0x13da => Self::Saschneller,
+            0x13e6 => Self::DWand,
+            0x4240 => Self::Variant15,
+            0x438e => Self::Variant16,
             _ => Self::None,
         }
     }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-struct Portrait(String);
+pub struct Portrait(String);
 
 impl Display for Portrait {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -167,7 +1260,7 @@ impl Display for Portrait {
 
 #[repr(u8)]
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
-enum Color {
+pub enum Color {
     Blue = b'1',
     Red = b'2',
     Purple = b'3',
@@ -229,18 +1322,50 @@ impl From<u8> for Color {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-enum DialogItem {
+pub enum DialogItem {
     Color(Color),
     ControlCode(ControlCode),
+    MTECode(MTECode),
     Portrait(Portrait),
     String(String),
 }
 
 impl DialogItem {
+    fn byte_len(&self) -> usize {
+        match self {
+            Self::Color(_color) => mem::size_of::<Color>() + mem::size_of::<u8>(),
+            Self::ControlCode(_control_code) => mem::size_of::<ControlCode>(),
+            Self::MTECode(mc) => {
+                if *mc as u16 <= 0xff {
+                    mem::size_of::<u8>()
+                } else {
+                    mem::size_of::<MTECode>()
+                }
+            }
+            Self::Portrait(portrait) => mem::size_of::<u8>() + portrait.0.len(),
+            Self::String(string) => {
+                let mut size = 0;
+                for g in string.graphemes(true) {
+                    size += utf8_to_ps2(g).unwrap().len();
+                }
+                size
+            }
+        }
+    }
+
     fn into_bytes(self) -> Vec<u8> {
         match self {
-            Self::ControlCode(cc) => vec![cc as u8],
             Self::Color(color) => vec![ControlCode::Color as u8, color as u8],
+            Self::ControlCode(ControlCode::Fibrillae) => vec![b'c'],
+            Self::ControlCode(cc) => vec![cc as u8],
+            Self::MTECode(mc) => {
+                let mte = (mc as u16).to_be_bytes();
+                if mc as u16 <= 0xff {
+                    vec![mte[1]]
+                } else {
+                    vec![mte[0], mte[1]]
+                }
+            }
             Self::Portrait(portrait) => {
                 [vec![ControlCode::Portrait as u8], portrait.0.into_bytes()].concat()
             }
@@ -260,6 +1385,7 @@ impl Display for DialogItem {
         match self {
             Self::ControlCode(control_code) => write!(f, "{control_code}"),
             Self::Color(color) => write!(f, "{color}"),
+            Self::MTECode(mc) => write!(f, "{mc}"),
             Self::Portrait(portrait) => write!(f, "{portrait}"),
             Self::String(string) => write!(f, "{string}"),
         }
@@ -268,14 +1394,65 @@ impl Display for DialogItem {
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct DialogString {
-    #[serde(default, skip_serializing_if = "is_false")]
-    padded: bool,
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub padding: u8,
     #[serde(
         deserialize_with = "deserialize_dialog_items",
         serialize_with = "serialize_dialog_items"
     )]
-    text: Vec<DialogItem>,
+    pub text: Vec<DialogItem>,
 }
+
+impl Display for DialogString {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for item in &self.text {
+            write!(f, "{item}")?;
+        }
+        Ok(())
+    }
+}
+
+impl DialogString {
+    pub fn byte_len(&self) -> usize {
+        let mut size = self.text.iter().fold(0, |acc, s| acc + s.byte_len());
+        if self.padding == 1 {
+            size += 1;
+        } else if self.padding > 1 {
+            size += 1;
+            while !size.is_multiple_of(self.padding as usize) {
+                size += 1;
+            }
+        }
+        size
+    }
+
+    pub fn into_bytes(self, est_offset: Option<usize>) -> Vec<u8> {
+        // Pass a value into offset to calculate padding where needed
+        // Or pass None to ignore padding, even if specified
+        let mut string_bytes = Vec::with_capacity(255);
+        let Self { text, padding } = self;
+        for item in text {
+            string_bytes.extend(item.into_bytes());
+        }
+        if padding == 1 {
+            string_bytes.push(0);
+        } else if padding > 1 {
+            let eo = est_offset.unwrap_or_default();
+            string_bytes.push(0);
+            while !(eo + string_bytes.len()).is_multiple_of(self.padding as usize) {
+                string_bytes.push(0);
+            }
+        }
+        string_bytes.shrink_to_fit();
+        string_bytes
+    }
+
+    pub const fn set_padding(&mut self, size: u8) {
+        self.padding = size;
+    }
+}
+
+pub type Archy = Arc<RwLock<Vec<u8>>>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum Data {
@@ -288,7 +1465,7 @@ pub enum Data {
     Ptr(Pointer),
     Ret,
     #[serde(serialize_with = "serialize_rc_empty")]
-    String(Rc<RefCell<Vec<u8>>>),
+    String(Archy),
     TxtPtr(Pointer),
     #[serde(serialize_with = "serialize_hex", deserialize_with = "deserialize_hex")]
     Unmanaged(Vec<u8>),
@@ -338,7 +1515,7 @@ impl Data {
                 bytes.extend(pointer.to_le_bytes());
                 bytes
             }
-            Self::String(string) => string.borrow().clone(),
+            Self::String(string) => mem::take(&mut *string.write().unwrap()),
             Self::Cop(op, c, d, pointer) => [[op, 0x00, c, d], pointer.to_le_bytes()].concat(),
             Self::Cop2(op, c, field, pointer) => [
                 [op, 0x00, c, 0x00],
@@ -360,7 +1537,7 @@ impl Data {
             }
             Self::Multi(_op, pointer, values) => 4 + (values.len() * 4) + size_of_val(pointer),
             Self::TxtPtr(pointer) => 4 + size_of_val(pointer),
-            Self::String(string) => string.borrow().len(),
+            Self::String(string) => string.read().unwrap().len(),
             Self::Cop(_op, _c, _d, pointer) => 4 + size_of_val(pointer),
             Self::Cop2(_op, _c, field, pointer) => 4 + size_of_val(field) + size_of_val(pointer),
             Self::Ptr(pointer) => size_of_val(pointer),
@@ -412,7 +1589,7 @@ impl Display for Data {
                 write!(f, "Text: -> ({pointer:04x})")?;
             }
             Self::String(string) => {
-                write!(f, "String data: (size: {:4})", string.borrow().len())?;
+                write!(f, "String data: (size: {:4})", string.read().unwrap().len())?;
             }
             Self::Cop(op, c, d, pointer) => {
                 write!(f, "{} {c:02x}{d:02x} -> ({pointer:04x})", op_to_str(*op))?;
@@ -573,9 +1750,11 @@ impl DataItems {
             data_set.push(data);
         }
 
-        for (symbol, data_items) in &ordered_data {
-            for item in data_items {
-                debug!("Symbol: {symbol:04x}, Data: {item}");
+        if log_enabled!(Level::Debug) {
+            for (symbol, data_items) in &ordered_data {
+                for item in data_items {
+                    debug!("Symbol: {symbol:04x}, Data: {item}");
+                }
             }
         }
 
@@ -616,8 +1795,11 @@ pub struct IndexMapWrapper<T: Serialize + DeserializeOwned>(
 
 #[derive(Serialize, Deserialize)]
 enum BytesOrPointer {
+    #[serde(alias = "bytes")]
     Bytes(Vec<u8>),
+    #[serde(alias = "padbytes", alias = "pad_bytes")]
     PadBytes,
+    #[serde(alias = "pointer")]
     Pointer(Pointer),
 }
 
@@ -685,144 +1867,50 @@ fn parse_dialog(input: &str) -> Result<Vec<DialogItem>, String> {
                 else if let Ok(cc) = ControlCode::from_str(&inner) {
                     out.push(DialogItem::ControlCode(cc));
                 } else {
-                    return Err(format!("Unknown tag: {inner}"));
+                    return Err(format!("Unknown square bracket tag: {inner}"));
                 }
             }
 
             // Skip past ']'
             i = closing + 1;
+        } else if graphemes[i] == "<" {
+            // Offset just after the opening angle bracket
+            let start = i + 1;
+            // Offset just before the closing angle bracket
+            let closing = graphemes[start..]
+                .iter()
+                .position(|g| *g == ">")
+                .map(|p| start + p)
+                .ok_or_else(|| "Unclosed '<'".to_owned())?;
+            // Concatonate the tag contents into a string
+            let mut inner = graphemes[start..closing].concat();
+            // Throw an error if the tag is empty
+            if inner.is_empty() {
+                return Err("Empty <> block".to_owned());
+            }
+            inner = inner.to_lowercase();
+            if let Ok(mc) = MTECode::from_str(&inner) {
+                out.push(DialogItem::MTECode(mc));
+            } else {
+                return Err(format!("Unknown angle bracket tag: {inner}"));
+            }
+            // Skip past '>'
+            i = closing + 1;
         } else {
             // Read the text until we get to the next tag opener
             let start = i;
-            while i < graphemes.len() && graphemes[i] != "[" {
+            while i < graphemes.len() && !["[", "<"].contains(&graphemes[i]) {
                 i += 1;
             }
-
-            let text: String = graphemes[start..i].iter().copied().collect();
-
-            // Don't push this text item unless it actually contains text
-            if !text.is_empty() {
+            // If we get any text at all, add it
+            if i > start {
+                let text: String = graphemes[start..i].iter().copied().collect();
                 out.push(DialogItem::String(text));
             }
         }
     }
 
     Ok(out)
-}
-
-fn serialize_hex<S>(x: &[u8], s: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    s.serialize_str(&encode_hex(x))
-}
-
-fn deserialize_hex<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    struct HexVisitor;
-
-    impl Visitor<'_> for HexVisitor {
-        type Value = Vec<u8>;
-
-        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-            formatter.write_str("hexadecimal string to bytes")
-        }
-
-        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-        where
-            E: Error,
-        {
-            decode_hex(v).map_err(de::Error::custom)
-        }
-    }
-
-    deserializer.deserialize_str(HexVisitor)
-}
-
-fn serialize_rc_empty<S>(_: &Rc<RefCell<Vec<u8>>>, s: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    s.serialize_seq(Some(0))?.end()
-}
-
-#[expect(clippy::trivially_copy_pass_by_ref, reason = "required for trait impl")]
-fn serialize_u32_hex<S>(x: &u32, s: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    s.serialize_str(format!("{x:04x}").as_str())
-}
-
-fn deserialize_u32_hex<'de, D>(deserializer: D) -> Result<u32, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    struct U32visitor;
-
-    impl Visitor<'_> for U32visitor {
-        type Value = u32;
-
-        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-            formatter.write_str("a two byte hex string")
-        }
-
-        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-        where
-            E: Error,
-        {
-            let mut bytes = decode_hex(v).map_err(de::Error::custom)?;
-            let fourth = bytes.pop().unwrap_or_default();
-            let third = bytes.pop().unwrap_or_default();
-            let second = bytes.pop().unwrap_or_default();
-            let first = bytes.pop().unwrap_or_default();
-            Ok(u32::from_be_bytes([first, second, third, fourth]))
-        }
-    }
-
-    deserializer.deserialize_str(U32visitor)
-}
-
-pub fn deserialize_indexmap<'de, D, T>(d: D) -> Result<IndexMap<u32, T>, D::Error>
-where
-    D: Deserializer<'de>,
-    T: Deserialize<'de>,
-{
-    #[derive(Deserialize, Hash, Eq, PartialEq, Ord, PartialOrd)]
-    struct Wrapper(#[serde(deserialize_with = "deserialize_u32_hex")] u32);
-
-    let dict: IndexMap<Wrapper, T> = Deserialize::deserialize(d)?;
-    Ok(dict.into_iter().map(|(Wrapper(k), v)| (k, v)).collect())
-}
-
-pub fn serialize_indexmap<S, T>(s: &IndexMap<u32, T>, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-    T: Serialize,
-{
-    #[derive(Serialize)]
-    struct Wrapper<'a>(#[serde(serialize_with = "serialize_u32_hex")] &'a u32);
-
-    let map = s.iter().map(|(k, v)| (Wrapper(k), v));
-    serializer.collect_map(map)
-}
-
-pub fn save_dialog_strings(
-    path: &PathBuf,
-    dialog: &IndexMapWrapper<DialogString>,
-) -> Result<(), io::Error> {
-    let strings = toml::to_string(&dialog).unwrap();
-
-    let file = OpenOptions::new()
-        .create(true)
-        .truncate(true)
-        .write(true)
-        .open(path)?;
-    let mut bw = BufWriter::new(file);
-    bw.write_all(strings.as_bytes())?;
-    Ok(())
 }
 
 // pub(crate) fn save_event_data(
@@ -855,10 +1943,6 @@ pub fn rebuild_event<P: AsRef<Path>>(
     dialog_file_path: P,
 ) -> Result<Vec<u8>, io::Error> {
     let ordered_data = serde_json::from_slice::<IndexMapWrapper<Vec<Data>>>(data)?.0;
-    #[expect(
-        clippy::if_then_some_else_none,
-        reason = "Closure would require unwrapping"
-    )]
     let dialog_items = if dialog_file_path.as_ref().exists() {
         Some(load_dialog_strings(dialog_file_path.as_ref())?)
     } else {
@@ -885,15 +1969,16 @@ pub fn load_dialog_strings<P: AsRef<Path>>(path: P) -> Result<OrderedDialog, io:
         .0)
 }
 
-#[expect(
-    clippy::trivially_copy_pass_by_ref,
-    reason = "satisfies trait requirement"
-)]
-fn is_false(val: &bool) -> bool {
-    !val
+pub fn load_exec_struct_patch<P: AsRef<Path>>(path: P) -> Result<ExecStructures, io::Error> {
+    let file = OpenOptions::new().read(true).open(path)?;
+    let mut string =
+        String::with_capacity(usize::try_from(file.metadata().unwrap().len()).unwrap());
+    let mut br = BufReader::new(file);
+    br.read_to_string(&mut string)?;
+    Ok(toml::from_str(&string).unwrap())
 }
 
-fn serialize_dialog_items<S>(x: &Vec<DialogItem>, s: S) -> Result<S::Ok, S::Error>
+pub fn serialize_dialog_items<S>(x: &Vec<DialogItem>, s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
@@ -905,7 +1990,7 @@ where
     s.serialize_str(string.as_str())
 }
 
-fn deserialize_dialog_items<'de, D>(deserializer: D) -> Result<Vec<DialogItem>, D::Error>
+pub fn deserialize_dialog_items<'de, D>(deserializer: D) -> Result<Vec<DialogItem>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -915,7 +2000,9 @@ where
         type Value = Vec<DialogItem>;
 
         fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-            formatter.write_str("a string mixed with [Tags] and Japanese or English UTF8 text")
+            formatter.write_str(
+                "a string mixed with any or all of [Tags], <Tags>, Japanese and English UTF8 text",
+            )
         }
 
         fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>

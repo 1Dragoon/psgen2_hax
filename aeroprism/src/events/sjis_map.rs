@@ -15,7 +15,10 @@
 // #[expect(clippy::indexing_slicing, reason = "Pre-validated")]
 // #[expect(clippy::missing_asserts_for_indexing, reason = "not necessary")]
 // pub fn sjis_gen() {
-//     const CONV: &str = include_str!("../../sjis_utf8.txt");
+//     const CONV: &str = concat!(
+//         include_str!("../../sjis_utf8.txt"),
+//         // include_str!("../../mte_glyphs.txt")
+//     );
 //     let mut starterbytes = BTreeSet::new();
 //     let mut doublechars = BTreeMap::new();
 //     let mut singletonchars = BTreeMap::new();
@@ -54,6 +57,9 @@
 //         } else if let Ok(mut byte) = u8::from_str_radix(hex1, 16)
 //             && (0x20..=0x7E).contains(&byte)
 //         {
+//             // starterbytes.insert(hex1_byte);
+//             // singletonchars.insert(hex1_byte, jap);
+//             // reverse_lookup.insert(jap, Box::new([hex1_byte]));
 //             // Convert to PS2 english equivalents. I call it "engrish" because it's very nonstandard.
 //             byte |= 0x80;
 //             ps2_engrishchars.insert(byte, jap);

@@ -1,0 +1,89 @@
+import unicodedata
+import regex
+
+# Exclude samey things
+EXCLUDE_WORDS = {"CLOCK", "INFORMATION", "POINT", "HAND", "SIGN",
+                 "MARK", "SQUARE", "SQUARED", "EMOJI", "ARROWS",
+                 "INPUT", "SYMBOL", "CIRCLE", "CIRCLED", "FACE WITH",
+                 "PREGNANT MAN", "PREGNANT PERSON", "CHART", "PAGE", "LOWER",
+                 "LEFT", "RIGHT"}
+
+def is_valid(cp: int) -> bool:
+    if cp < 0 or cp > 0x10FFFF:
+        return False
+
+    ch = chr(cp)
+
+    # Must be Extended Pictographic
+    if not regex.match(r"\p{Extended_Pictographic}", ch):
+        return False
+
+    # Remove glyph ranges that are too samey
+    # if 0x1F7E0 <= cp <= 0x1F7FF:
+    #     return False
+    # if 0x1F6E0 <= cp <= 0x1F6E9:
+    #     return False
+    # if 0x1F6CB <= cp <= 0x1F6CF:
+    #     return False
+    # if 0x1F396 <= cp <= 0x1F39F:
+    #     return False
+    # if 0x1F321 <= cp <= 0x1F32B:
+    #     return False
+    # if 0x1F56F <= cp <= 0x1F5FA:
+    #     return False
+    # if 0x1F3D4 <= cp <= 0x1F3DF:
+    #     return False
+    # if 0x023F8 <= cp <= 0x02611:
+    #     return False
+    # if 0x02626 <= cp <= 0x02692:
+    #     return False
+    # if 0x02694 <= cp <= 0x026B1:
+    #     return False
+    # if 0x0270F <= cp <= 0x02721:
+    #     return False
+    # if 0x02733 <= cp <= 0x02764:
+    #     return False
+
+    # Remove unwanted keywords in Unicode name
+    try:
+        name = unicodedata.name(ch)
+    except ValueError:
+        return False
+
+    if any(word in name for word in EXCLUDE_WORDS):
+        return False
+    if name.startswith("FACE"):
+        return False
+
+    return True
+
+glyphs: list[str] = []
+codepoint = 0
+
+while codepoint <= 0x10FFFF:
+    if is_valid(codepoint):
+        glyphs.append(chr(codepoint))
+    codepoint += 1
+
+text = []
+nibbles = [0x09, 0x10, 0x11, 0x12, 0x13]
+for nibble in nibbles:
+    text.append(f" \t0x{format(nibble, "02x")}\t# <doublebytes>")
+
+nibble = -1
+i = 0
+for glyph in glyphs:
+    if i % 256 == 0:
+        nibble += 1
+        i += 1
+    if nibble > 4:
+        break
+    hex1 = nibbles[nibble]
+    hex2 = i % 256
+    name = unicodedata.name(glyph)
+    i += 1
+
+    text.append(f"{glyph}\t0x{format(hex1, "02x")}{format(hex2, "02x")}\tU+{ord(glyph):04X}\t# {name}")
+with open("mte_glyphs.txt", "w", encoding="utf-8") as f:
+    for item in text:
+        f.write(item + "\n")
