@@ -190,13 +190,13 @@ pub struct ItemInfo {
     pub enchantment: Box<[Enchant]>,
     #[serde(default, skip_serializing_if = "is_default")]
     pub important: bool, // Indicates whether items are allowed to be sold, discarded, etc.
-    // #[serde(
-    //     default,
-    //     serialize_with = "serialize_u32_hex",
-    //     deserialize_with = "deserialize_u32_hex",
-    //     skip_serializing_if = "is_default"
-    // )]
-    // attributes: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    pub attributes: u32,
     #[serde(default, skip_serializing_if = "is_default")]
     pub attack: i16,
     #[serde(default, skip_serializing_if = "is_default")]
@@ -299,7 +299,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             unknown_5,
             enchantment,
             important,
-            // attributes: u32::from_le_bytes(attributes),
+            attributes: u32::from_le_bytes(attributes),
             can_equip: Character::from_byte(character_equip_byte),
             attack,
             defense,

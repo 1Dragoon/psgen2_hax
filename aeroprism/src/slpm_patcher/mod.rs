@@ -499,6 +499,7 @@ pub async fn parse_exec<P: AsRef<Path> + Send + Sync>(
         // If we're not debugging, then leave the vma offset blank in the output config so that it's less noisy
         if !log_enabled!(Level::Debug) {
             item.name_vma_pointer = 0;
+            item.attributes = 0;
         }
     }
     for item in exec_structures.items.values_mut() {
@@ -508,6 +509,7 @@ pub async fn parse_exec<P: AsRef<Path> + Send + Sync>(
         item.relative_name_pointer = rnp;
         if !log_enabled!(Level::Debug) {
             item.name_vma_pointer = 0;
+            item.attributes = 0;
         }
     }
     for item in exec_structures.enemies.values_mut() {
@@ -517,6 +519,7 @@ pub async fn parse_exec<P: AsRef<Path> + Send + Sync>(
         item.relative_name_pointer = rnp;
         if !log_enabled!(Level::Debug) {
             item.name_vma_pointer = 0;
+            item.attributes = 0;
         }
     }
     for item in exec_structures.mapnames.values_mut() {

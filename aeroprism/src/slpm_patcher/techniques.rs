@@ -275,13 +275,13 @@ pub struct Technique {
     pub text: DialogString,
     #[serde(flatten)]
     pub relative_name_pointer: RelativePointerInfo,
-    // #[serde(
-    //     default,
-    //     serialize_with = "serialize_u32_hex",
-    //     deserialize_with = "deserialize_u32_hex",
-    //     skip_serializing_if = "is_default"
-    // )]
-    // attributes: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    pub attributes: u32,
     #[serde(default, skip_serializing_if = "is_default")]
     pub elemental: Box<[SpellElemental]>,
     #[serde(default, skip_serializing_if = "is_default")]
@@ -417,7 +417,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
 
         let usable_out_of_combat = attr_d & 0x80 == 0x80;
         let cannot_be_used_in_combat = attr_d & 0x40 == 0x40;
-        // let attributes = u32::from_be_bytes(attributes);
+        let attributes_u32 = u32::from_be_bytes(attributes);
         let side_effect = SideEffect::from_u32(u32::from_be_bytes(fields.pop().unwrap()));
         let tp_cost = u32::from_le_bytes(fields.pop().unwrap());
         let target = Targetable::try_from(i32::from_le_bytes(fields.pop().unwrap())).unwrap();
@@ -443,7 +443,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             attr_c,
             usable_out_of_combat,
             cannot_be_used_in_combat,
-            // attributes,
+            attributes: attributes_u32,
             side_effect,
             tp_cost,
             target,

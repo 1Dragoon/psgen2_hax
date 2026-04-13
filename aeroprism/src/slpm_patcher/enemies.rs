@@ -209,8 +209,15 @@ pub struct EnemyInfo {
     pub text: DialogString,
     #[serde(flatten)]
     pub relative_name_pointer: RelativePointerInfo,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    pub attributes: u32,
     #[serde(flatten)]
-    pub attributes: EnemyAttributes,
+    pub unpacked_attributes: EnemyAttributes,
     pub health: u32, // Third field
     pub attack: u32, // Fourth field
     #[serde(default, skip_serializing_if = "is_default")]
@@ -352,12 +359,15 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let name_vma_pointer = u32::from_le_bytes(pointer_bytes);
         pointers.push(name_vma_pointer);
 
+        let attributes = field_vec.pop().unwrap();
+
         let enemy = EnemyInfo {
             name: Vec::new(),
             name_vma_pointer,
             text: DialogString::default(),
             relative_name_pointer: RelativePointerInfo::default(),
-            attributes: EnemyAttributes::from(field_vec.pop().unwrap()),
+            attributes: u32::from_be_bytes(attributes),
+            unpacked_attributes: EnemyAttributes::from(attributes),
             health: u32::from_le_bytes(field_vec.pop().unwrap()),
             attack: u32::from_le_bytes(field_vec.pop().unwrap()),
             defense: u32::from_le_bytes(field_vec.pop().unwrap()),
@@ -449,7 +459,7 @@ pub async fn patch(
             .write_all(&enemy_info.name_vma_pointer.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&u32::from(&enemy_info.attributes).to_be_bytes())
+            .write_all(&u32::from(&enemy_info.unpacked_attributes).to_be_bytes())
             .await?;
         exec_writer
             .write_all(&enemy_info.health.to_le_bytes())
