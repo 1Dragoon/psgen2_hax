@@ -44,6 +44,63 @@ pub struct EnemyAttributes {
     graphic_effect: Box<[GraphicEffect]>, // Fourth byte of attribute field. First nibble: Whether and how large the enemy casts a shadow. Second nibble: Controls whether the enemy animation hovers, flies, or neither.
 }
 
+#[repr(u32)]
+#[derive(EnumIter, Serialize, Deserialize, Copy, Clone, Eq, PartialEq)]
+pub enum AttackEffect {
+    UnknownA = 0x0000_0001,
+    UnknownB = 0x0000_0002,
+    UnknownC = 0x0000_0004,
+    UnknownD = 0x0000_0008,
+    UnknownE = 0x0000_0010,
+    UnknownF = 0x0000_0020,
+    UnknownG = 0x0000_0040,
+    UnknownH = 0x0000_0080,
+    UnknownI = 0x0000_0100,
+    UnknownJ = 0x0000_0200,
+    UnknownK = 0x0000_0400,
+    UnknownL = 0x0000_0800,
+    UnknownM = 0x0000_1000,
+    UnknownN = 0x0000_2000,
+    UnknownO = 0x0000_4000,
+    UnknownP = 0x0000_8000,
+    UnknownQ = 0x0001_0000,
+    UnknownR = 0x0002_0000,
+    UnknownS = 0x0004_0000,
+    UnknownT = 0x0008_0000,
+    UnknownU = 0x0010_0000,
+    UnknownV = 0x0020_0000,
+    UnknownW = 0x0040_0000,
+    UnknownX = 0x0080_0000,
+    UnknownY = 0x0100_0000,
+    Unknown1 = 0x0200_0000,
+    Unknown2 = 0x0400_0000,
+    Unknown3 = 0x0800_0000,
+    Unknown4 = 0x1000_0000,
+    Unknown5 = 0x2000_0000,
+    Unknown6 = 0x4000_0000,
+    Unknown7 = 0x8000_0000,
+}
+
+impl AttackEffect {
+    pub fn from_u32(byte: u32) -> Box<[Self]> {
+        let mut variants = Vec::with_capacity(8);
+        for variant in Self::iter() {
+            if byte & variant as u32 == variant as u32 {
+                variants.push(variant);
+            }
+        }
+        variants.into_boxed_slice()
+    }
+
+    // fn to_u32(value: &[Self]) -> u32 {
+    //     let mut byte = 0;
+    //     for variant in value.iter().copied() {
+    //         byte |= variant as u32;
+    //     }
+    //     byte
+    // }
+}
+
 #[repr(u8)]
 #[derive(EnumIter, Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq, Default)]
 enum GraphicEffect {
@@ -260,12 +317,15 @@ pub struct EnemyInfo {
     #[serde(default, skip_serializing_if = "is_default")]
     pub unknown_23: i32,
     #[serde(
+        alias = "unknown_24",
         default,
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex",
         skip_serializing_if = "is_default"
     )]
-    pub unknown_24: u32,
+    pub unknown_attributes_a: u32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub attr_a_bits: Box<[AttackEffect]>,
     #[serde(default, skip_serializing_if = "is_default")]
     pub unknown_25: i32,
     #[serde(default, skip_serializing_if = "is_default")]
@@ -273,12 +333,15 @@ pub struct EnemyInfo {
     #[serde(default, skip_serializing_if = "is_default")]
     pub unknown_27: i32,
     #[serde(
+        alias = "unknown_28",
         default,
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex",
         skip_serializing_if = "is_default"
     )]
-    pub unknown_28: u32,
+    pub unknown_attributes_b: u32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub attr_b_bits: Box<[AttackEffect]>,
     #[serde(default, skip_serializing_if = "is_default")]
     pub unknown_29: i32,
     #[serde(default, skip_serializing_if = "is_default")]
@@ -286,12 +349,15 @@ pub struct EnemyInfo {
     #[serde(default, skip_serializing_if = "is_default")]
     pub unknown_31: i32,
     #[serde(
+        alias = "unknown_32",
         default,
         serialize_with = "serialize_u32_hex",
         deserialize_with = "deserialize_u32_hex",
         skip_serializing_if = "is_default"
     )]
-    pub unknown_32: u32,
+    pub unknown_attributes_c: u32,
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub attr_c_bits: Box<[AttackEffect]>,
     #[serde(default, skip_serializing_if = "is_default")]
     pub unknown_33: i32,
     #[serde(default, skip_serializing_if = "is_default")]
@@ -361,7 +427,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
 
         let attributes = field_vec.pop().unwrap();
 
-        let enemy = EnemyInfo {
+        let mut enemy = EnemyInfo {
             name: Vec::new(),
             name_vma_pointer,
             text: DialogString::default(),
@@ -389,21 +455,27 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             unknown_21: i32::from_le_bytes(field_vec.pop().unwrap()),
             unknown_22: i32::from_le_bytes(field_vec.pop().unwrap()),
             unknown_23: i32::from_le_bytes(field_vec.pop().unwrap()),
-            unknown_24: u32::from_le_bytes(field_vec.pop().unwrap()),
+            unknown_attributes_a: u32::from_be_bytes(field_vec.pop().unwrap()),
+            attr_a_bits: Box::default(),
             unknown_25: i32::from_le_bytes(field_vec.pop().unwrap()),
             unknown_26: i32::from_le_bytes(field_vec.pop().unwrap()),
             unknown_27: i32::from_le_bytes(field_vec.pop().unwrap()),
-            unknown_28: u32::from_le_bytes(field_vec.pop().unwrap()),
+            unknown_attributes_b: u32::from_be_bytes(field_vec.pop().unwrap()),
+            attr_b_bits: Box::default(),
             unknown_29: i32::from_le_bytes(field_vec.pop().unwrap()),
             unknown_30: i32::from_le_bytes(field_vec.pop().unwrap()),
             unknown_31: i32::from_le_bytes(field_vec.pop().unwrap()),
-            unknown_32: u32::from_le_bytes(field_vec.pop().unwrap()),
+            unknown_attributes_c: u32::from_be_bytes(field_vec.pop().unwrap()),
+            attr_c_bits: Box::default(),
             unknown_33: i32::from_le_bytes(field_vec.pop().unwrap()),
             unknown_34: i32::from_le_bytes(field_vec.pop().unwrap()),
             unknown_35: i32::from_le_bytes(field_vec.pop().unwrap()),
             unknown_36: u32::from_le_bytes(field_vec.pop().unwrap()),
             unknown_37: i32::from_le_bytes(field_vec.pop().unwrap()),
         };
+        enemy.attr_a_bits = AttackEffect::from_u32(enemy.unknown_attributes_a);
+        enemy.attr_b_bits = AttackEffect::from_u32(enemy.unknown_attributes_b);
+        enemy.attr_c_bits = AttackEffect::from_u32(enemy.unknown_attributes_c);
         enemies.insert(Hexu32(u32::try_from(enemy_no).unwrap()), enemy);
     }
     // use crate::slpm_patcher::Hexu32;
@@ -525,7 +597,7 @@ pub async fn patch(
             .write_all(&enemy_info.unknown_23.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&enemy_info.unknown_24.to_le_bytes())
+            .write_all(&enemy_info.unknown_attributes_a.to_le_bytes())
             .await?;
         exec_writer
             .write_all(&enemy_info.unknown_25.to_le_bytes())
@@ -537,7 +609,7 @@ pub async fn patch(
             .write_all(&enemy_info.unknown_27.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&enemy_info.unknown_28.to_le_bytes())
+            .write_all(&enemy_info.unknown_attributes_b.to_le_bytes())
             .await?;
         exec_writer
             .write_all(&enemy_info.unknown_29.to_le_bytes())
@@ -549,7 +621,7 @@ pub async fn patch(
             .write_all(&enemy_info.unknown_31.to_le_bytes())
             .await?;
         exec_writer
-            .write_all(&enemy_info.unknown_32.to_le_bytes())
+            .write_all(&enemy_info.unknown_attributes_c.to_le_bytes())
             .await?;
         exec_writer
             .write_all(&enemy_info.unknown_33.to_le_bytes())

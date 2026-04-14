@@ -445,6 +445,7 @@ pub enum MTECode {
     Marketing = 0x110d,
     Maruera = 0x12c6,
     MidIndent = 0x0928,
+    MinisculeÄ = 0x0082, // German miniscule Ä
     Mirror = 0x1212,
     Mitsuaki = 0x1112,
     Monofluid = 0x12ba,
@@ -673,6 +674,7 @@ impl Display for MTECode {
             Self::Marketing => write!(f, "<Marketing>"),
             Self::Maruera => write!(f, "<Maruera>"),
             Self::MidIndent => write!(f, "<MidIndent>"),
+            Self::MinisculeÄ => write!(f, "<uÄ>"),
             Self::Mirror => write!(f, "<Mirror>"),
             Self::Mitsuaki => write!(f, "<Mitsuaki>"),
             Self::Monofluid => write!(f, "<Monofluid>"),
@@ -922,6 +924,7 @@ impl FromStr for MTECode {
             "nei" => Ok(Self::Nei),
             "ô" => Ok(Self::Circumflexô),
             "uô" => Ok(Self::CircumflexÔ),
+            "uä" => Ok(Self::MinisculeÄ),
             "ocarina" => Ok(Self::Ocarina),
             "original" => Ok(Self::Original),
             "package" => Ok(Self::Package),
@@ -1022,6 +1025,7 @@ impl FromStr for MTECode {
 impl From<u16> for MTECode {
     fn from(value: u16) -> Self {
         match value {
+            0x0082 => Self::MinisculeÄ,
             0x0089 => Self::CircumflexÔ,
             0x0098 => Self::Circumflexô,
             0x009b => Self::Circumflexû,

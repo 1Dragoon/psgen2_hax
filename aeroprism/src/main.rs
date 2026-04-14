@@ -35,6 +35,7 @@
 #![allow(clippy::integer_division, reason = "will fix these later")]
 #![allow(clippy::single_call_fn, reason = "will fix these later")]
 mod dat_codec;
+mod sdat_codec;
 mod events;
 mod helpers;
 mod lz77_le;

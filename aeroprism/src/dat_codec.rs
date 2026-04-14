@@ -1,9 +1,5 @@
 use crate::{
-    events::{IndexMapWrapper, codec::parse_events, rebuild_event},
-    helpers::hex_edit_encode,
-    lz77_le::{compress_lz77_le, decompress},
-    save_binary_file,
-    sggg_codec::{convert_to_png, png_to_sggg},
+    events::{IndexMapWrapper, codec::parse_events, rebuild_event}, helpers::hex_edit_encode, lz77_le::{compress_lz77_le, decompress}, save_binary_file, sggg_codec::{convert_to_png, png_to_sggg}
 };
 use alloc::{collections::BTreeMap, sync::Arc};
 use core::time::Duration;
@@ -66,7 +62,7 @@ pub async fn unpack_dat<T: AsyncBufReadExt + Unpin + Sync + Send, P: AsRef<Path>
     dat_name: &OsStr,
     dat_size: usize,
     out_dir: Arc<P>,
-    copy_images: bool,
+    copy_images_only: bool,
 ) -> Result<(), io::Error> {
     // DAT consists of a collection of 2048-byte blocks, akin to a filesystem, but not quite. Block zero is the header.
     let total_blocks = dat_size / DAT_BLOCK_SIZE;
@@ -118,7 +114,7 @@ pub async fn unpack_dat<T: AsyncBufReadExt + Unpin + Sync + Send, P: AsRef<Path>
 
         let mut extensions = Vec::with_capacity(3);
 
-        if copy_images && data.iter().skip(10).take(4).copied().collect::<Vec<_>>() == b"SGGG" {
+        if copy_images_only && data.iter().skip(10).take(4).copied().collect::<Vec<_>>() == b"SGGG" {
             // Just store the data file. No need to do anything else.
         } else {
             // Decompress the data payload first if necessary
@@ -127,6 +123,12 @@ pub async fn unpack_dat<T: AsyncBufReadExt + Unpin + Sync + Send, P: AsRef<Path>
                 data = decompress(dat_name, file_number, data)?;
                 extensions.push("lz77");
             }
+
+            // #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
+            // if data[0..4] == [0x00, 0x04, 0x00, 0x00] {
+            //     data = read_sdat(data)?;
+            //     extensions.push("sDAT");
+            // }
 
             // SGGG files are a custom image format. We convert those to PNG.
             #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]

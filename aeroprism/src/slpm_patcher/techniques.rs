@@ -234,7 +234,7 @@ pub enum SideEffect {
 }
 
 impl SideEffect {
-    fn from_u32(byte: u32) -> Box<[Self]> {
+    pub fn from_u32(byte: u32) -> Box<[Self]> {
         let mut variants = Vec::with_capacity(8);
         for variant in Self::iter() {
             if byte & variant as u32 == variant as u32 {
@@ -282,6 +282,13 @@ pub struct Technique {
         skip_serializing_if = "is_default"
     )]
     pub attributes: u32,
+    #[serde(
+        default,
+        serialize_with = "serialize_u32_hex",
+        deserialize_with = "deserialize_u32_hex",
+        skip_serializing_if = "is_default"
+    )]
+    pub side_effect_bits: u32,
     #[serde(default, skip_serializing_if = "is_default")]
     pub elemental: Box<[SpellElemental]>,
     #[serde(default, skip_serializing_if = "is_default")]
@@ -418,7 +425,8 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
         let usable_out_of_combat = attr_d & 0x80 == 0x80;
         let cannot_be_used_in_combat = attr_d & 0x40 == 0x40;
         let attributes_u32 = u32::from_be_bytes(attributes);
-        let side_effect = SideEffect::from_u32(u32::from_be_bytes(fields.pop().unwrap()));
+        let side_effect_bits = u32::from_be_bytes(fields.pop().unwrap());
+        let side_effect = SideEffect::from_u32(side_effect_bits);
         let tp_cost = u32::from_le_bytes(fields.pop().unwrap());
         let target = Targetable::try_from(i32::from_le_bytes(fields.pop().unwrap())).unwrap();
         let power = i32::from_le_bytes(fields.pop().unwrap());
@@ -435,6 +443,7 @@ pub async fn parse<R: AsyncBufRead + AsyncSeek + Unpin>(
             name: Vec::new(),
             text: DialogString::default(),
             name_vma_pointer,
+            side_effect_bits,
             relative_name_pointer: RelativePointerInfo::default(),
             elemental,
             vulnerable,

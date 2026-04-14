@@ -1,4 +1,3 @@
-#![expect(clippy::single_call_fn, reason = "readability")]
 use crate::helpers::encode_hex;
 use byteorder::ReadBytesExt;
 use log::{Level, error, log_enabled, trace, warn};

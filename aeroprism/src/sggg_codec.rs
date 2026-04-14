@@ -4,8 +4,7 @@ use byteorder::ReadBytesExt;
 use log::{info, warn};
 use png::{BitDepth, ColorType, Compression, InterlaceInfo};
 use std::{
-    collections::HashSet,
-    io::{self, BufRead, Cursor, Seek, Write},
+    collections::HashSet, io::{self, BufRead, Cursor, Seek, Write}
 };
 
 const CHANNELS_PER_COLOR: usize = 4; // Each palette color is 32-bits AGBR little endian, which translates to RGBA in big endian. Rust, at a high level, operates as big endian, even though it compiles to native endian.
@@ -64,8 +63,42 @@ pub fn sggg_to_png<R: BufRead + Seek, W: Write>(
 
     png_encoder.set_color(color_type);
     png_encoder.set_depth(BitDepth::Eight);
-    png_encoder.set_compression(Compression::Fast);
+    png_encoder.set_compression(Compression::NoCompression);
     let pngpixels = sggg_pixels_to_png(reader, width, height)?;
+
+    // // Save the pixel data for analysis
+    // if color_type == ColorType::Grayscale {
+    //     let pix = pngpixels.clone();
+    //     let mut unique_values = std::collections::BTreeMap::new();
+    //     for pixel in &pix {
+    //         *unique_values.entry(*pixel).or_insert(0) += 1;
+    //     }
+    //     // for (num, pixel) in pix.iter().enumerate() {
+    //     //     if num % 512 == 0 {
+    //     //         println!()
+    //     //     }
+    //     //     if 
+    //     // }
+    //     let mut total = 0;
+    //     println!("Unique grayscale indices: {unique_values:?}\npalette values: {unique_colors:?}");
+    //     for (color, count) in unique_values {
+    //         println!("0b{color:08b} 0x{color:02x} {count}");
+    //         total += count
+    //     }
+    //     println!("{total}");
+    //     tokio::task::block_in_place(|| {
+    //         let handle = tokio::runtime::Handle::current();
+    //         handle.block_on(async {
+    //             println!("Saving the file");
+    //             crate::helpers::save_binary_file(
+    //                 &std::path::PathBuf::from("c:/users/jjd/code/greyscale_pixels.bin"),
+    //                 &pix,
+    //             )
+    //             .await
+    //             .unwrap();
+    //         });
+    //     });
+    // }
 
     // If the 4th field in the header is nonzero, let's store it in the PNG for later reconstitution
     if u32::from_le_bytes(unknown_data) > 0 {
