@@ -134,9 +134,11 @@ pub async fn unpack_dat<T: AsyncBufReadExt + Unpin + Sync + Send, P: AsRef<Path>
             #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
             if data[0..4] == *b"SGGG" {
                 extensions.push("png");
-                data = convert_to_png(data).unwrap();
-            } else if dat_name.to_string_lossy().contains("EVENT") {
-                // Only in the case of the event DAT file, we just assume non-SGGG are all event data.
+                convert_to_png(save_path.clone(), stem_name, extensions, data).await?;
+                continue;
+            }
+            // Only in the case of the event DAT file, we just assume non-SGGG are all event data.
+            if dat_name.to_string_lossy().contains("EVENT") {
                 if log_enabled!(Level::Debug) {
                     debug!(
                         "\nEvent file: {file_number}, Size: {} ({:04x})",

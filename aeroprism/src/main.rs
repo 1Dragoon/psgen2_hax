@@ -280,7 +280,7 @@ async fn unpack(in_path: PathBuf, out_dir: PathBuf, copy_images: bool) -> Result
     }
     #[expect(clippy::float_arithmetic, reason = "it's only for display")]
     let time = f64::from(u32::try_from(now.elapsed().as_millis()).unwrap()) / 1_000f64;
-    info!("Completed in {time} sec",);
+    info!("Completed in {time} sec");
     Ok(())
 }
 
