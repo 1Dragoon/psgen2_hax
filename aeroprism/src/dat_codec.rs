@@ -83,6 +83,7 @@ pub async fn unpack_dat<T: AsyncBufReadExt + Unpin + Sync + Send, P: AsRef<Path>
 
     // Create the directory if we haven't already
     let save_path = PathBuf::with_capacity(128).join(&*out_dir).join(dat_name);
+    println!("Creating directory {}", save_path.to_string_lossy());
     match create_dir_all(&save_path).await {
         Ok(()) => (),
         Err(err) => match err.kind() {
@@ -116,24 +117,31 @@ pub async fn unpack_dat<T: AsyncBufReadExt + Unpin + Sync + Send, P: AsRef<Path>
         if no_unpack_images && data.iter().skip(10).take(4).copied().collect::<Vec<_>>() == b"SGGG" {
             // Just store the data file. No need to do anything else.
         } else {
-            unpack_data(dat_name, &save_path, file_number, &stem_name, data, extensions).await?;
+            unpack_data(dat_name, &save_path, file_number, &stem_name, data, extensions, false).await?;
             file_number += 1;
         }
     }
     Ok(())
 }
 
-async fn unpack_data(dat_name: &OsStr, save_path: &Path, file_number: usize, stem_name: &str, mut data: Vec<u8>, mut extensions: Vec<&str>) -> Result<(), io::Error> {
+async fn unpack_data(directory_name: &OsStr, save_path: &Path, file_number: usize, stem_name: &str, mut data: Vec<u8>, mut extensions: Vec<&str>, nested: bool) -> Result<(), io::Error> {
     #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
-    if data[0..2] == *b"CM" {
-        data = decompress(dat_name, file_number, data)?;
-        extensions.push("lz77");
+    if data[0..2] == *b"CM" /*&& data[0..3] != *b"CMP"*/ {
+        match decompress(directory_name, file_number, &data) {
+            Ok(decompressed_data) => {
+                extensions.push("lz77");
+                data = decompressed_data;
+            },
+            Err(err) => {
+                warn!("Failed to decompress file with CM magic in {}, reason: {err}. Saving without decompressing.", directory_name.to_string_lossy());
+            }
+        }
     }
     #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
     if data[0..4] == *b"SGGG" {
         extensions.push("png");
         convert_to_png(save_path, stem_name, &extensions, &data).await?;
-    } else if dat_name.to_string_lossy().contains("EVENT") {
+    } else if directory_name.to_string_lossy().contains("EVENT") {
         if log_enabled!(Level::Debug) {
             debug!(
                 "\nEvent file: {file_number}, Size: {} ({:04x})",
@@ -167,21 +175,24 @@ async fn unpack_data(dat_name: &OsStr, save_path: &Path, file_number: usize, ste
         let leaf_name = format!("{stem_name}.{}", extensions.join("."));
         let main_save_path = save_path.join(leaf_name);
         save_binary_file(&main_save_path, &data).await?;
-    } else if let Some((first_chunk, nested_data)) = read_sdat(&data, file_number, &format!("{}/{stem_name}.{}", dat_name.to_string_lossy(), extensions.join(".")))? {
+    } else if let Some((first_chunk, nested_data)) = read_sdat(&data, file_number, &format!("{}/{stem_name}.{}", directory_name.to_string_lossy(), extensions.join(".")))? {
         extensions.push("sDAT");
         let leaf_name = format!("{stem_name}.{}", extensions.join("."));
         // Create the nested directory if we haven't already
-        let nested_save_path = PathBuf::with_capacity(128).join(dat_name).join(&leaf_name);
+        let nested_save_path = PathBuf::with_capacity(128).join(save_path).join(&leaf_name);
+        println!("Creating directory {}", nested_save_path.to_string_lossy());
         match create_dir_all(&nested_save_path).await {
             Ok(()) => (),
             Err(err) => match err.kind() {
-                ErrorKind::AlreadyExists => (),
+                ErrorKind::AlreadyExists => {
+                    println!("Directory {} already exists.", nested_save_path.to_string_lossy())
+                },
                 _ => return Err(err),
             },
         }
         for (nested_file_number, data) in nested_data.into_iter().enumerate() {
             let nested_extensions = Vec::with_capacity(5);
-            Box::pin(unpack_data(&OsString::from(&leaf_name), &nested_save_path, nested_file_number, stem_name, data, nested_extensions)).await?;
+            Box::pin(unpack_data(&OsString::from(&leaf_name), &nested_save_path, nested_file_number, stem_name, data, nested_extensions, true)).await?;
         }
     } else {
         let leaf_name = format!("{stem_name}.{}", extensions.join("."));

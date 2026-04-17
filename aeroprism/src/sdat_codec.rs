@@ -32,7 +32,7 @@ pub fn read_sdat(
     let mut field = [0xFFu8; 4]; // Initialize a non-zero value to start the read loop
     let mut boundary_indicators = Vec::with_capacity(40);
     let mut header_type = HeaderType::Offsets;
-    let mut offset_est = 0;
+    let mut last_field = 0;
     while field != [0u8; 4] {
         blob_reader.read_exact(&mut field)?;
         let field_value = usize::try_from(u32::from_le_bytes(field)).unwrap();
@@ -40,14 +40,14 @@ pub fn read_sdat(
         if field_value > data.len() {
             return Ok(None);
         }
-        if field_value < offset_est {
-            header_type = HeaderType::Sizes;
-        }
-        offset_est += field_value;
         // A null value terminates the header
         if field_value != 0 {
+            if field_value < last_field {
+                header_type = HeaderType::Sizes;
+            }
             boundary_indicators.push(field_value);
         }
+        last_field = field_value;
     }
     // There are two types of these files:
     // - One type has a header that indicates the offset of each chunk
@@ -66,7 +66,7 @@ pub fn read_sdat(
     let first_chunk = if boundary_indicators.is_empty() {
         return Ok(None);
     } else {
-        boundary_indicators[0]
+        boundary_indicators.remove(0)
     };
     let total_objects = boundary_indicators.len();
     let mut data_objects = Vec::with_capacity(total_objects);
@@ -79,16 +79,21 @@ pub fn read_sdat(
             info!("Extracting {total_objects} sub objects from {base_file}...");
             println!("{base_file} chunk sizes are: {boundary_indicators:?}");
             let mut boundary_indicator_iter = boundary_indicators.into_iter().peekable();
-            while let Some(boundary_indicator) = boundary_indicator_iter.next() {
+            while let Some(next_boundary) = boundary_indicator_iter.next() {
                 let current_position = usize::try_from(blob_reader.stream_position()?).unwrap();
-                let read_bytes = boundary_indicator_iter
-                    .peek()
-                    .copied()
-                    .unwrap_or(data.len());
+                // let next_boundary = boundary_indicator_iter
+                //     .peek()
+                //     .copied()
+                //     .unwrap_or(data.len());
+                let read_bytes = next_boundary - current_position;
+                if read_bytes == 0 {
+                    break;
+                }
                 println!(
-                    "Reading from {current_position} to {read_bytes} in {base_file} of size {}",
+                    "Reading from {current_position} to {next_boundary} ({read_bytes} bytes) in {base_file} of size {}",
                     data.len()
                 );
+                std::io::Write::flush(&mut std::io::stdout()).unwrap();
                 let mut data_object = vec![0; read_bytes];
                 blob_reader
                     .read_exact(&mut data_object)
@@ -96,9 +101,10 @@ pub fn read_sdat(
                     .unwrap();
                 data_objects.push(data_object);
             }
+            println!("Finished {base_file}");
             Ok(Some((first_chunk, data_objects)))
         } else {
-            println!("{base_file} is size header type -- not implemented yet");
+            // println!("{base_file} is size header type -- not implemented yet");
             Ok(None)
         }
     } else {
