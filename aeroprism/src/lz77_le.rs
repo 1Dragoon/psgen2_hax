@@ -260,7 +260,7 @@ pub fn compress_lz77_le(decompressed_data: &[u8]) -> Vec<u8> {
     lz77_le_container
 }
 
-pub fn decompress(dat_name: &OsStr, file_number: i32, data: Vec<u8>) -> Result<Vec<u8>, io::Error> {
+pub fn decompress(dat_name: &OsStr, file_number: usize, data: Vec<u8>) -> Result<Vec<u8>, io::Error> {
     let mut blob_reader = Cursor::new(data);
     let (mut decompressed_data, expected_size) = deco_lz77_le(&mut blob_reader)?;
     if decompressed_data.len() != expected_size {

@@ -287,7 +287,7 @@ async fn unpack(in_path: PathBuf, out_dir: PathBuf, copy_images: bool) -> Result
 #[inline]
 async fn read_dir_entry<P: AsRef<Path> + Send + Sync>(
     out_dir: Arc<P>,
-    copy_images: bool,
+    no_unpack_images: bool,
     dir_entry: fs::DirEntry,
 ) -> Result<(), io::Error> {
     let path = dir_entry.path();
@@ -316,7 +316,7 @@ async fn read_dir_entry<P: AsRef<Path> + Send + Sync>(
             dir_entry.file_name().as_os_str(),
             dat_file_size,
             out_dir,
-            copy_images,
+            no_unpack_images,
         )
         .await?;
         return Ok(());

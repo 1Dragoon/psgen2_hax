@@ -1,15 +1,16 @@
 #![expect(clippy::single_call_fn, reason = "readability")]
 use crate::helpers::{decode_hex, encode_hex, save_binary_file};
 use byteorder::ReadBytesExt;
+use itertools::Itertools;
 use log::{info, warn};
 use png::{BitDepth, ColorType, Compression, InterlaceInfo};
 use std::{
     collections::HashSet,
     io::{self, BufRead, Cursor, Seek},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
-const CHANNELS_PER_COLOR: usize = 4; // Each palette color is 32-bits AGBR little endian, which translates to RGBA in big endian. Rust, at a high level, operates as big endian, even though it compiles to native endian.
+const CHANNELS_PER_COLOR: usize = 4; // Each palette color is 32-bits AGBR little endian, which translates to RGBA in big endian.
 // Each palette color is represented by one byte, and it's in this order
 const RED_CHANNEL: usize = 0; // Red channel number
 const GREEN_CHANNEL: usize = 1; // Green channel number
@@ -19,13 +20,19 @@ const PALETTE_COLOR_COUNT: usize = 256; // The palette contains 256 color entrie
 const SGGG_HEADER_SIZE: usize = 16;
 
 enum ImageData {
-    Font(Box<[Box<[u8]>]>),
+    Font([Box<[u8]>; 4]),
     Sprites(Box<[Box<[u8]>]>, Box<[u8]>),
 }
 
 struct SegagagaMetadata {
     alpha_bits: [u8; 256],
     color_type: ColorType,
+    height: u32,
+    unknown_data: u32,
+    width: u32,
+}
+
+struct PngMetadata {
     height: u32,
     unknown_data: u32,
     width: u32,
@@ -52,6 +59,251 @@ pub fn sggg_to_png<R: BufRead + Seek>(
     }
     png_images.shrink_to_fit();
     Ok(png_images)
+}
+
+#[inline]
+fn decode_sggg<R: BufRead + Seek>(
+    reader: &mut R,
+) -> Result<(SegagagaMetadata, ImageData), io::Error> {
+    let (width, height, unknown_data) = parse_sggg_header(reader)?;
+    let sggg_palette = read_sggg_palette(reader)?;
+    let mut unique_colors = HashSet::with_capacity(256);
+    for color in &sggg_palette {
+        unique_colors.insert([
+            color[RED_CHANNEL],
+            color[GREEN_CHANNEL],
+            color[BLUE_CHANNEL],
+        ]);
+    }
+    let color_type = if unique_colors.len() == 1 {
+        ColorType::Grayscale
+    } else {
+        ColorType::Indexed
+    };
+
+    // Generate an alpha palette that has a first element as zero, followed by fully opaque 0xFF for everything else.
+    let mut alpha_bits = [0xFF; PALETTE_COLOR_COUNT];
+    alpha_bits[0] = 0;
+    let pixels = flatten_sggg_scanlines(reader, width, height)?;
+
+    let image_data = if color_type == ColorType::Grayscale {
+        // This is the font file. The pixel map is really three (up to four) 2-bpp images encoded into a single image by superimposing them.
+        ImageData::Font(split_font_planes(&pixels))
+    } else {
+        let mut palettes = Vec::with_capacity(4);
+        palettes.push(palette_sggg_to_rgb(sggg_palette));
+        // Gather additional palettes, if present
+        while let Ok(additional_sggg_palette) = read_sggg_palette(reader) {
+            let png_palette = palette_sggg_to_rgb(additional_sggg_palette);
+            palettes.push(png_palette);
+        }
+        palettes.shrink_to_fit();
+        ImageData::Sprites(palettes.into_boxed_slice(), pixels)
+    };
+
+    let sggg = SegagagaMetadata {
+        alpha_bits,
+        color_type,
+        height,
+        unknown_data,
+        width,
+    };
+
+    Ok((sggg, image_data))
+}
+
+#[inline]
+fn encode_sggg(image_data: ImageData, png_data: &PngMetadata) -> Vec<u8> {
+    let mut sggg = Vec::with_capacity(
+        SGGG_HEADER_SIZE
+            + (PALETTE_COLOR_COUNT * CHANNELS_PER_COLOR)
+            + (png_data.width * png_data.height) as usize,
+    );
+
+    // First build the header
+    sggg.extend(*b"SGGG");
+    sggg.extend([1, 0, 0, 0]);
+    let width_u16: u16 = png_data.width.try_into().unwrap();
+    let height_u16: u16 = png_data.height.try_into().unwrap();
+    sggg.extend(width_u16.to_le_bytes());
+    sggg.extend(height_u16.to_le_bytes());
+    // Now for that unknown fourth field...
+    sggg.extend(png_data.unknown_data.to_le_bytes());
+
+    match image_data {
+        ImageData::Font(pixel_planes) => {
+            sggg.extend(generate_font_palette());
+            sggg.extend(superimpose_font_planes(&pixel_planes));
+        }
+        ImageData::Sprites(palettes, pixels) => {
+            let mut palette_iter = palettes.into_iter();
+            let main_palette = palette_iter.next().unwrap();
+            // Add the main palette
+            sggg.extend(palette_rgb_to_sggg(&main_palette));
+
+            // Add the pixels, splitting from widths higher than 512 if necessary
+            let width_usize = usize::try_from(png_data.width).unwrap();
+            let height_usize = usize::try_from(png_data.height).unwrap();
+            if width_usize > 512 {
+                let lines = pixels.into_vec().into_iter().chunks(width_usize);
+                let mut base_lines = Vec::with_capacity(height_usize);
+                let mut extended_lines = Vec::with_capacity(height_usize);
+                for line in &lines {
+                    let mut line_vec = line.into_iter().collect::<Vec<_>>();
+                    base_lines.extend(line_vec.drain(0..512));
+                    extended_lines.extend(line_vec);
+                }
+                sggg.extend(base_lines);
+                sggg.extend(extended_lines);
+            } else {
+                sggg.extend(pixels);
+            }
+
+            // Add the extra palettes, if present
+            for palette in palette_iter {
+                sggg.extend(palette_rgb_to_sggg(&palette));
+            }
+        }
+    }
+    sggg
+}
+
+#[inline]
+fn decode_png<R: BufRead + Seek>(reader: &mut R) -> Result<(ImageData, PngMetadata), String> {
+    let mut png_reader = png::Decoder::new(reader)
+        .read_info()
+        .map_err(|e| format!("Error reading PNG info: {e}"))?;
+    let info = png_reader.info();
+    match info.bit_depth {
+        BitDepth::Eight | BitDepth::Two => {
+            // esta bien
+        }
+        other => {
+            return Err(format!(
+                "PNG must be either 8-bit or 2-bit color depth. Got {other:?}"
+            ));
+        }
+    }
+    let width = info.width;
+    if width > 1024 {
+        warn!(
+            "Pixel widths greater than 1024 are not supported. It's unknown how SGGG stores widths greater than this. Anything we do is just a guess."
+        );
+    }
+    let height = info.height;
+    let mut unknown_field = [0; 4];
+    let mut from_png_palette_hash = [0; 128];
+    for ttxt_chunk in &info.uncompressed_latin1_text {
+        match ttxt_chunk.keyword.as_str() {
+            "Header4" => {
+                let bytes = decode_hex(&ttxt_chunk.text)
+                    .map_err(|e| format!("Error decoding Header4 hex value: {e}"))?;
+                if bytes.len() > 4 {
+                    return Err(format!(
+                        "Header4 value is too long! Contents: {}",
+                        ttxt_chunk.text
+                    ));
+                }
+                #[expect(clippy::indexing_slicing, reason = "the range is checked already")]
+                for (i, byte) in bytes.into_iter().enumerate() {
+                    unknown_field[i] = byte;
+                }
+            }
+            "PaletteMeowhash" => {
+                let bytes = decode_hex(&ttxt_chunk.text)
+                    .map_err(|e| format!("Error decoding PaletteMeowhash hex value: {e}"))?;
+                if bytes.len() > 128 {
+                    return Err(format!(
+                        "PaletteMeowhash value is too long! Contents: {}",
+                        ttxt_chunk.text
+                    ));
+                }
+                #[expect(clippy::indexing_slicing, reason = "the range is checked already")]
+                for (i, byte) in bytes.into_iter().enumerate() {
+                    from_png_palette_hash[i] = byte;
+                }
+            }
+            _ => {
+                // no action needed
+            }
+        }
+    }
+    let mut ztext_data = Vec::with_capacity(info.compressed_latin1_text.len());
+    for txt in &info.compressed_latin1_text {
+        ztext_data.push((txt.keyword.clone(), txt.get_text().unwrap()));
+    }
+    let color_type = info.color_type;
+    let mut row_num = 0;
+    let pixel_row = &mut vec![0; width.try_into().unwrap()];
+    let mut pixels = Vec::with_capacity(usize::try_from(width * height * 3).unwrap());
+    while let Some(interlace_info) = png_reader
+        .read_row(pixel_row)
+        .map_err(|e| format!("Error reading PNG row {row_num}: {e}"))?
+    {
+        #[expect(
+            clippy::match_wildcard_for_single_variants,
+            reason = "blanket check for interlacing, no intention of ever adding support for it"
+        )]
+        match interlace_info {
+            InterlaceInfo::Null(_) => {
+                // esta bien
+            }
+            _ => {
+                warn!(
+                    "Interlacing detected on PNG row {row_num}. This isn't supported and may cause anomalous behavior."
+                );
+            }
+        }
+        pixels.extend(pixel_row.iter());
+        row_num += 1;
+    }
+    let image_data = match color_type {
+        ColorType::Grayscale => ImageData::Font([
+            pixels.into_boxed_slice(),
+            Box::new([]),
+            Box::new([]),
+            Box::new([]),
+        ]),
+        ColorType::Indexed => {
+            let mut palettes = Vec::with_capacity(ztext_data.len() + 1);
+            let palette = png_reader.info().palette.as_deref().ok_or_else(|| "Indexed PNG is missing its PLTE (palette) chunk. That breaks the spec and we can't rebuild the SGGG palette without it.".to_owned())?.to_vec();
+            // Check if the palette hash is set
+            if from_png_palette_hash.iter().all(|b| *b == 0) {
+                info!("Palette hash wasn't stored; can't verify whether the palette is untouched.");
+            } else {
+                let palette_hash = meowhash::MeowHasher::hash(&palette);
+                let stored_hash = meowhash::MeowHash::from_bytes(from_png_palette_hash);
+                if palette_hash != stored_hash {
+                    warn!(
+                        "Palette hash mismatch from the original SGGG. This may cause anomalous behavior. Please ensure your image editor preserves the original palette."
+                    );
+                }
+            }
+            palettes.push(palette.into_boxed_slice());
+            ztext_data.sort_unstable_by(|(key_a, _), (key_b, _)| key_a.cmp(key_b));
+            for (k, v) in ztext_data {
+                if k.starts_with("AltPalette") {
+                    let alt_palette = decode_hex(&v).unwrap();
+                    // let mut sggg_palette = palette_rgb_to_sggg(&alt_palette);
+                    palettes.push(alt_palette.into_boxed_slice());
+                }
+            }
+
+            ImageData::Sprites(palettes.into_boxed_slice(), pixels.into_boxed_slice())
+            // palette_rgb_to_sggg(plte_data)
+        }
+        other => {
+            return Err(format!(
+                "Color type must be either grayscale (type 0) or indexed (type 3, aka paletted). Got: {other:?}"
+            ));
+        }
+    };
+    let png_data = PngMetadata {
+        height,
+        unknown_data: u32::from_le_bytes(unknown_field),
+        width,
+    };
+    Ok((image_data, png_data))
 }
 
 #[inline]
@@ -95,66 +347,33 @@ fn encode_png(
 }
 
 #[inline]
-fn decode_sggg<R: BufRead + Seek>(
-    reader: &mut R,
-) -> Result<(SegagagaMetadata, ImageData), io::Error> {
-    let (width, height, unknown_data) = parse_sggg_header(reader)?;
-    let sggg_palette = read_sggg_palette(reader)?;
-    let mut unique_colors = HashSet::with_capacity(256);
-    for color in &sggg_palette {
-        unique_colors.insert([
-            color[RED_CHANNEL],
-            color[GREEN_CHANNEL],
-            color[BLUE_CHANNEL],
-        ]);
+fn superimpose_font_planes(pixel_planes: &[Box<[u8]>; 4]) -> Vec<u8> {
+    let [image_a, image_b, image_c, image_d] = pixel_planes;
+    let array_size = image_a.len();
+    let mut pixels = Vec::with_capacity(array_size);
+    let mask = 0x03;
+    #[expect(clippy::indexing_slicing, reason = "more concise to copy bits")]
+    for i in 0..image_a.len() {
+        let mut byte = 0u8;
+        byte |= image_a[i] & mask;
+        byte |= (image_b[i] << 2) & (mask << 2);
+        byte |= (image_c[i] << 4) & (mask << 4);
+        byte |= (image_d[i] << 6) & (mask << 6);
+        pixels.push(byte);
     }
-    let color_type = if unique_colors.len() == 1 {
-        ColorType::Grayscale
-    } else {
-        ColorType::Indexed
-    };
-
-    // Generate an alpha palette that has a first element as zero, followed by fully opaque 0xFF for everything else.
-    let mut alpha_bits = [0xFF; PALETTE_COLOR_COUNT];
-    alpha_bits[0] = 0;
-    let pixels = flatten_sggg_scanlines(reader, width, height)?;
-
-    let image_data = if color_type == ColorType::Grayscale {
-        // This is the font file. The pixel map is really three (up to four) 2-bpp images encoded into a single image by superimposing them.
-        ImageData::Font(split_font_planes(&pixels))
-    } else {
-        let mut palettes = Vec::with_capacity(4);
-        palettes.push(sggg_palette_to_png(sggg_palette));
-        // Gather additional palettes, if present
-        while let Ok(additional_sggg_palette) = read_sggg_palette(reader) {
-            let png_palette = sggg_palette_to_png(additional_sggg_palette);
-            palettes.push(png_palette);
-        }
-        palettes.shrink_to_fit();
-        ImageData::Sprites(palettes.into_boxed_slice(), pixels)
-    };
-
-    let sggg = SegagagaMetadata {
-        alpha_bits,
-        color_type,
-        height,
-        unknown_data,
-        width,
-    };
-
-    Ok((sggg, image_data))
+    pixels
 }
 
-fn split_font_planes(pixels: &[u8]) -> Box<[Box<[u8]>]> {
+fn split_font_planes(pixels: &[u8]) -> [Box<[u8]>; 4] {
     let mut image_a = Vec::with_capacity(pixels.len() / 3);
     let mut image_b = Vec::with_capacity(pixels.len() / 3);
     let mut image_c = Vec::with_capacity(pixels.len() / 3);
-    // let mut image_d = Vec::with_capacity(pixels.len() / 3);
+    let mut image_d = Vec::with_capacity(pixels.len() / 3);
     for bytes in pixels.chunks(4) {
         let mut a = 0u8;
         let mut b = 0u8;
         let mut c = 0u8;
-        // let mut d = 0u8;
+        let mut d = 0u8;
         let mask = 0b0000_0011;
         for byte in bytes {
             a <<= 2;
@@ -171,179 +390,37 @@ fn split_font_planes(pixels: &[u8]) -> Box<[Box<[u8]>]> {
             c |= (byte >> 4) & mask;
         }
         image_c.push(c);
-        // for byte in bytes {
-        //     d <<= 2;
-        //     d |= (byte >> 4) & mask;
-        // }
-        // image_d.push(d);
+        for byte in bytes {
+            d <<= 2;
+            d |= (byte >> 6) & mask;
+        }
+        image_d.push(d);
     }
-    Box::new([
+    [
         image_a.into_boxed_slice(),
         image_b.into_boxed_slice(),
         image_c.into_boxed_slice(),
-        // image_d.into_boxed_slice(),
-    ])
+        image_d.into_boxed_slice(),
+    ]
 }
 
 #[inline]
 pub fn png_to_sggg<R: BufRead + Seek>(reader: &mut R) -> Result<Vec<u8>, String> {
-    let mut png_reader = png::Decoder::new(reader)
-        .read_info()
-        .map_err(|e| format!("Error reading PNG info: {e}"))?;
-    let info = png_reader.info();
-    match info.bit_depth {
-        BitDepth::Eight | BitDepth::Two => {
-            // esta bien
-        }
-        other => return Err(format!("PNG must be either 8-bit or 2-bit color depth. Got {other:?}")),
-    }
-
-    let mut palette = Vec::with_capacity(PALETTE_COLOR_COUNT);
-    match info.color_type {
-        ColorType::Grayscale => {
-            [0x00, 0x3a, 0x5f, 0x7f]
-                .iter()
-                .cycle()
-                .take(PALETTE_COLOR_COUNT)
-                .for_each(|alpha_byte| palette.push([0xFF, 0xFF, 0xFF, *alpha_byte]));
-        }
-        ColorType::Indexed => {
-            let plte_data = info.palette.as_deref().ok_or_else(|| "Indexed PNG is missing its PLTE (palette) chunk. That breaks the spec and we can't rebuild the SGGG palette without it.".to_owned())?;
-            png_palette_to_sggg(plte_data, &mut palette);
-        }
-        other => {
-            return Err(format!(
-                "Color type must be either grayscale (type 0) or indexed (type 3, aka paletted). Got: {other:?}"
-            ));
-        }
-    }
-
-    let mut unknown_field = [0; 4];
-    let mut from_png_palette_hash = [0; 128];
-    for ttxt_chunk in &info.uncompressed_latin1_text {
-        match ttxt_chunk.keyword.as_str() {
-            "Header4" => {
-                let bytes = decode_hex(&ttxt_chunk.text)
-                    .map_err(|e| format!("Error decoding Header4 hex value: {e}"))?;
-                if bytes.len() > 4 {
-                    return Err(format!(
-                        "Header4 value is too long! Contents: {}",
-                        ttxt_chunk.text
-                    ));
-                }
-                #[expect(clippy::indexing_slicing, reason = "the range is checked already")]
-                for (i, byte) in bytes.into_iter().enumerate() {
-                    unknown_field[i] = byte;
-                }
-            }
-            "PaletteMeowhash" => {
-                let bytes = decode_hex(&ttxt_chunk.text)
-                    .map_err(|e| format!("Error decoding PaletteMeowhash hex value: {e}"))?;
-                if bytes.len() > 128 {
-                    return Err(format!(
-                        "PaletteMeowhash value is too long! Contents: {}",
-                        ttxt_chunk.text
-                    ));
-                }
-                #[expect(clippy::indexing_slicing, reason = "the range is checked already")]
-                for (i, byte) in bytes.into_iter().enumerate() {
-                    from_png_palette_hash[i] = byte;
-                }
-            }
-            _ => {
-                // no action needed
-            }
-        }
-    }
-
-    let mut ztext_data = Vec::with_capacity(info.compressed_latin1_text.len());
-    for txt in &info.compressed_latin1_text {
-        ztext_data.push((txt.keyword.clone(), txt.get_text().unwrap()));
-    }
-    let mut alternative_palettes = Vec::with_capacity(ztext_data.len());
-    ztext_data.sort_unstable_by(|(key_a, _), (key_b, _)| key_a.cmp(key_b));
-    for (k, v) in ztext_data {
-        if k.starts_with("AltPalette") {
-            let alt_palette = decode_hex(&v).unwrap();
-            let mut sggg_palette = Vec::with_capacity(PALETTE_COLOR_COUNT);
-            png_palette_to_sggg(&alt_palette, &mut sggg_palette);
-            alternative_palettes.push(sggg_palette);
-        }
-    }
-
-    // Check if the palette hash is set
-    if from_png_palette_hash.iter().all(|b| *b == 0) {
-        info!("Palette hash wasn't stored; can't verify whether the palette is untouched.");
-    } else {
-        let palette_hash = meowhash::MeowHasher::hash(palette.as_flattened());
-        let stored_hash = meowhash::MeowHash::from_bytes(from_png_palette_hash);
-        if palette_hash != stored_hash {
-            warn!(
-                "Palette hash mismatch from the original SGGG. This may cause anomalous behavior. Please ensure your image editor preserves the original palette."
-            );
-        }
-    }
-
-    let width = info.width;
-    if width > 1024 {
-        warn!(
-            "Pixel widths greater than 1024 are not supported. It's unknown how SGGG stores widths greater than this. Anything we do is just a guess."
-        );
-    }
-    let height = info.height;
-
-    let mut row_num = 0;
-    let pixel_row = &mut vec![0; width.try_into().unwrap()];
-    let mut sggg_pixels: Vec<u8> = Vec::with_capacity((width * height) as usize);
-    let mut sggg_pixels_extended: Vec<u8> = Vec::with_capacity((width * height) as usize);
-    while let Some(interlace_info) = png_reader
-        .read_row(pixel_row)
-        .map_err(|e| format!("Error reading PNG row {row_num}: {e}"))?
-    {
-        #[expect(
-            clippy::match_wildcard_for_single_variants,
-            reason = "blanket check for interlacing, no intention of ever adding support for it"
-        )]
-        match interlace_info {
-            InterlaceInfo::Null(_) => {
-                // esta bien
-            }
-            _ => {
-                warn!(
-                    "Interlacing detected on PNG row {row_num}. This isn't supported and may cause anomalous behavior."
-                );
-            }
-        }
-        sggg_pixels.extend(pixel_row.iter().take(512));
-        sggg_pixels_extended.extend(pixel_row.iter().skip(512));
-
-        row_num += 1;
-    }
+    let (image_data, png_data) = decode_png(reader)?;
 
     // Now to build the SGGG file
-    let mut sggg = Vec::with_capacity(
-        SGGG_HEADER_SIZE + (PALETTE_COLOR_COUNT * CHANNELS_PER_COLOR) + (width * height) as usize,
-    );
-
-    // First build the header
-    sggg.extend(*b"SGGG");
-    sggg.extend([1, 0, 0, 0]);
-    let width_u16: u16 = width.try_into().unwrap();
-    let height_u16: u16 = height.try_into().unwrap();
-    sggg.extend(width_u16.to_le_bytes());
-    sggg.extend(height_u16.to_le_bytes());
-    // Now for that unknown fourth field...
-    sggg.extend(unknown_field);
-
-    // Now for the palette and pixel data
-    sggg.extend(palette.into_iter().flatten());
-    sggg.extend(sggg_pixels);
-    sggg.extend(sggg_pixels_extended);
-    for alt_palette in alternative_palettes {
-        sggg.extend(alt_palette.as_flattened());
-    }
-
+    let sggg = encode_sggg(image_data, &png_data);
     Ok(sggg)
+}
+
+#[inline]
+fn generate_font_palette() -> Vec<u8> {
+    [0x00, 0x3a, 0x5f, 0x7f]
+        .iter()
+        .cycle()
+        .take(PALETTE_COLOR_COUNT)
+        .flat_map(|alpha_byte| [0xFF, 0xFF, 0xFF, *alpha_byte])
+        .collect::<Vec<_>>()
 }
 
 #[inline]
@@ -412,11 +489,15 @@ fn flatten_sggg_scanlines<R: BufRead + Seek>(
             }
         }
     }
-    Ok(pixel_rows.into_iter().flatten().collect::<Vec<_>>().into_boxed_slice())
+    Ok(pixel_rows
+        .into_iter()
+        .flatten()
+        .collect::<Vec<_>>()
+        .into_boxed_slice())
 }
 
 #[inline]
-fn sggg_palette_to_png(mut palette: Vec<[u8; 4]>) -> Box<[u8]> {
+fn palette_sggg_to_rgb(mut palette: Vec<[u8; 4]>) -> Box<[u8]> {
     // Prepare an SGGG palette for use in a PNG
     twiddle_palette(&mut palette);
     palette
@@ -428,14 +509,16 @@ fn sggg_palette_to_png(mut palette: Vec<[u8; 4]>) -> Box<[u8]> {
                 color[BLUE_CHANNEL],
             ]
         })
-        .collect::<Vec<_>>().into_boxed_slice()
+        .collect::<Vec<_>>()
+        .into_boxed_slice()
 }
 
 #[inline]
 #[expect(clippy::indexing_slicing, reason = "Readability")]
-fn png_palette_to_sggg(plte_data: &[u8], palette: &mut Vec<[u8; 4]>) {
-    plte_data.chunks_exact(3).for_each(|chunk| {
-        palette.push([
+fn palette_rgb_to_sggg(rgb_palette: &[u8]) -> Vec<u8> {
+    let mut sggg_palette = Vec::with_capacity(PALETTE_COLOR_COUNT);
+    rgb_palette.chunks_exact(3).for_each(|chunk| {
+        sggg_palette.push([
             chunk[RED_CHANNEL],
             chunk[GREEN_CHANNEL],
             chunk[BLUE_CHANNEL],
@@ -443,9 +526,10 @@ fn png_palette_to_sggg(plte_data: &[u8], palette: &mut Vec<[u8; 4]>) {
         ]);
     });
     // Set the first pixel to have fully transparent alpha
-    palette[0][ALPHA_CHANNEL] = 0;
+    sggg_palette[0][ALPHA_CHANNEL] = 0;
     // Restore the expected SGGG palette color order
-    twiddle_palette(palette);
+    twiddle_palette(&mut sggg_palette);
+    sggg_palette.into_flattened()
 }
 
 #[inline]
@@ -486,10 +570,10 @@ fn twiddle_palette(palette: &mut Vec<[u8; 4]>) {
 
 #[inline]
 pub async fn convert_to_png(
-    save_path: PathBuf,
-    stem_name: String,
-    extensions: Vec<&str>,
-    data: Vec<u8>,
+    save_path: &Path,
+    stem_name: &str,
+    extensions: &Vec<&str>,
+    data: &Vec<u8>,
 ) -> Result<(), io::Error> {
     // Reference? https://en.wikipedia.org/wiki/Segagaga
     // This file format seems most appropriate as a png rather than bmp.

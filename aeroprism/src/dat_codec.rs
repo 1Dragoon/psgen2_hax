@@ -1,5 +1,5 @@
 use crate::{
-    events::{IndexMapWrapper, codec::parse_events, rebuild_event}, helpers::hex_edit_encode, lz77_le::{compress_lz77_le, decompress}, save_binary_file, sggg_codec::{convert_to_png, png_to_sggg}
+    events::{IndexMapWrapper, codec::parse_events, rebuild_event}, helpers::hex_edit_encode, lz77_le::{compress_lz77_le, decompress}, save_binary_file, sdat_codec::read_sdat, sggg_codec::{convert_to_png, png_to_sggg}
 };
 use alloc::{collections::BTreeMap, sync::Arc};
 use core::time::Duration;
@@ -62,7 +62,7 @@ pub async fn unpack_dat<T: AsyncBufReadExt + Unpin + Sync + Send, P: AsRef<Path>
     dat_name: &OsStr,
     dat_size: usize,
     out_dir: Arc<P>,
-    copy_images_only: bool,
+    no_unpack_images: bool,
 ) -> Result<(), io::Error> {
     // DAT consists of a collection of 2048-byte blocks, akin to a filesystem, but not quite. Block zero is the header.
     let total_blocks = dat_size / DAT_BLOCK_SIZE;
@@ -112,71 +112,81 @@ pub async fn unpack_dat<T: AsyncBufReadExt + Unpin + Sync + Send, P: AsRef<Path>
         };
         dat_reader.read_exact(&mut data).await?;
 
-        let mut extensions = Vec::with_capacity(3);
-
-        if copy_images_only && data.iter().skip(10).take(4).copied().collect::<Vec<_>>() == b"SGGG" {
+        let extensions = Vec::with_capacity(5);
+        if no_unpack_images && data.iter().skip(10).take(4).copied().collect::<Vec<_>>() == b"SGGG" {
             // Just store the data file. No need to do anything else.
         } else {
-            // Decompress the data payload first if necessary
-            #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
-            if data[0..2] == *b"CM" {
-                data = decompress(dat_name, file_number, data)?;
-                extensions.push("lz77");
-            }
+            unpack_data(dat_name, &save_path, file_number, &stem_name, data, extensions).await?;
+            file_number += 1;
+        }
+    }
+    Ok(())
+}
 
-            // #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
-            // if data[0..4] == [0x00, 0x04, 0x00, 0x00] {
-            //     data = read_sdat(data)?;
-            //     extensions.push("sDAT");
-            // }
+async fn unpack_data(dat_name: &OsStr, save_path: &Path, file_number: usize, stem_name: &str, mut data: Vec<u8>, mut extensions: Vec<&str>) -> Result<(), io::Error> {
+    #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
+    if data[0..2] == *b"CM" {
+        data = decompress(dat_name, file_number, data)?;
+        extensions.push("lz77");
+    }
+    #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
+    if data[0..4] == *b"SGGG" {
+        extensions.push("png");
+        convert_to_png(save_path, stem_name, &extensions, &data).await?;
+    } else if dat_name.to_string_lossy().contains("EVENT") {
+        if log_enabled!(Level::Debug) {
+            debug!(
+                "\nEvent file: {file_number}, Size: {} ({:04x})",
+                data.len(),
+                data.len()
+            );
+        }
+        let mut event_reader = Cursor::new(&data);
+        let (ordered_data, dialog_items) =
+            parse_events(&mut event_reader, u32::try_from(data.len()).unwrap())?;
 
-            // SGGG files are a custom image format. We convert those to PNG.
-            #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
-            if data[0..4] == *b"SGGG" {
-                extensions.push("png");
-                convert_to_png(save_path.clone(), stem_name, extensions, data).await?;
-                continue;
-            }
-            // Only in the case of the event DAT file, we just assume non-SGGG are all event data.
-            if dat_name.to_string_lossy().contains("EVENT") {
-                if log_enabled!(Level::Debug) {
-                    debug!(
-                        "\nEvent file: {file_number}, Size: {} ({:04x})",
-                        data.len(),
-                        data.len()
-                    );
-                }
-                let mut event_reader = Cursor::new(&data);
-                let (ordered_data, dialog_items) =
-                    parse_events(&mut event_reader, u32::try_from(data.len()).unwrap())?;
-
-                let dialog_file = save_path.clone().join(format!(
-                    "{stem_name}.{}.eventdialog.toml",
-                    extensions.join(".")
-                ));
-                // Save the event dialog separately, and only if it has any data
-                if !dialog_items.is_empty() {
-                    save_binary_file(
-                        &dialog_file,
-                        toml::to_string(&IndexMapWrapper(dialog_items))
-                            .unwrap()
-                            .as_bytes(),
-                    )
-                    .await?;
-                }
-
-                let events = IndexMapWrapper(ordered_data);
-                extensions.push("eventdata");
-                extensions.push("json");
-                data = serde_json::to_string(&events).unwrap().into_bytes();
-            }
+        let dialog_file = save_path.join(format!(
+            "{stem_name}.{}.eventdialog.toml",
+            extensions.join(".")
+        ));
+        // Save the event dialog separately, and only if it has any data
+        if !dialog_items.is_empty() {
+            save_binary_file(
+                &dialog_file,
+                toml::to_string(&IndexMapWrapper(dialog_items))
+                    .unwrap()
+                    .as_bytes(),
+            )
+            .await?;
         }
 
+        let events = IndexMapWrapper(ordered_data);
+        extensions.push("eventdata");
+        extensions.push("json");
+        data = serde_json::to_string(&events).unwrap().into_bytes();
         let leaf_name = format!("{stem_name}.{}", extensions.join("."));
-        let main_save_path = save_path.clone().join(leaf_name);
-
+        let main_save_path = save_path.join(leaf_name);
         save_binary_file(&main_save_path, &data).await?;
-        file_number += 1;
+    } else if let Some((first_chunk, nested_data)) = read_sdat(&data, file_number, &format!("{}/{stem_name}.{}", dat_name.to_string_lossy(), extensions.join(".")))? {
+        extensions.push("sDAT");
+        let leaf_name = format!("{stem_name}.{}", extensions.join("."));
+        // Create the nested directory if we haven't already
+        let nested_save_path = PathBuf::with_capacity(128).join(dat_name).join(&leaf_name);
+        match create_dir_all(&nested_save_path).await {
+            Ok(()) => (),
+            Err(err) => match err.kind() {
+                ErrorKind::AlreadyExists => (),
+                _ => return Err(err),
+            },
+        }
+        for (nested_file_number, data) in nested_data.into_iter().enumerate() {
+            let nested_extensions = Vec::with_capacity(5);
+            Box::pin(unpack_data(&OsString::from(&leaf_name), &nested_save_path, nested_file_number, stem_name, data, nested_extensions)).await?;
+        }
+    } else {
+        let leaf_name = format!("{stem_name}.{}", extensions.join("."));
+        let main_save_path = save_path.join(leaf_name);
+        save_binary_file(&main_save_path, &data).await?;
     }
     Ok(())
 }
