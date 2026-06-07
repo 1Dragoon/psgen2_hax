@@ -20,14 +20,12 @@ enum HeaderType {
     Sizes,
 }
 
-pub fn read_sdat(
+#[allow(clippy::panic_in_result_fn)]
+pub fn read_subdat(
     data: &[u8],
     file_number: usize,
     base_file: &str,
 ) -> Result<Option<(usize, Vec<Vec<u8>>)>, io::Error> {
-    if file_number == 310 {
-        println!("310 begins here...");
-    }
     let mut blob_reader = Cursor::new(data);
     let mut field = [0xFFu8; 4]; // Initialize a non-zero value to start the read loop
     let mut boundary_indicators = Vec::with_capacity(40);
@@ -66,34 +64,32 @@ pub fn read_sdat(
     let first_chunk = if boundary_indicators.is_empty() {
         return Ok(None);
     } else {
-        boundary_indicators.remove(0)
+        boundary_indicators[0]
     };
     let total_objects = boundary_indicators.len();
     let mut data_objects = Vec::with_capacity(total_objects);
     let current_position = usize::try_from(blob_reader.stream_position()?).unwrap();
-    if file_number == 310 {
-        println!("Current position {current_position:08x}, first_chunk {first_chunk:08x}")
-    }
+    debug!("Current position {current_position:08x}, first_chunk {first_chunk:08x}");
     if current_position.is_multiple_of(0x10) && current_position == first_chunk {
         if matches!(header_type, HeaderType::Offsets) {
             info!("Extracting {total_objects} sub objects from {base_file}...");
-            println!("{base_file} chunk sizes are: {boundary_indicators:?}");
+            debug!("{base_file} chunk sizes are: {boundary_indicators:?}");
             let mut boundary_indicator_iter = boundary_indicators.into_iter().peekable();
-            while let Some(next_boundary) = boundary_indicator_iter.next() {
+            while let Some(current_boundary) = boundary_indicator_iter.next() {
                 let current_position = usize::try_from(blob_reader.stream_position()?).unwrap();
-                // let next_boundary = boundary_indicator_iter
-                //     .peek()
-                //     .copied()
-                //     .unwrap_or(data.len());
+                assert_eq!(current_boundary, current_position);
+                let next_boundary = boundary_indicator_iter
+                    .peek()
+                    .copied()
+                    .unwrap_or(data.len());
                 let read_bytes = next_boundary - current_position;
                 if read_bytes == 0 {
                     break;
                 }
-                println!(
+                debug!(
                     "Reading from {current_position} to {next_boundary} ({read_bytes} bytes) in {base_file} of size {}",
                     data.len()
                 );
-                std::io::Write::flush(&mut std::io::stdout()).unwrap();
                 let mut data_object = vec![0; read_bytes];
                 blob_reader
                     .read_exact(&mut data_object)
@@ -101,11 +97,32 @@ pub fn read_sdat(
                     .unwrap();
                 data_objects.push(data_object);
             }
-            println!("Finished {base_file}");
+            debug!("Finished nested {base_file}");
             Ok(Some((first_chunk, data_objects)))
         } else {
-            // println!("{base_file} is size header type -- not implemented yet");
-            Ok(None)
+            info!("Extracting {total_objects} sub objects from {base_file}...");
+            println!("{base_file} chunk sizes are: {boundary_indicators:?}");
+            let mut boundary_indicator_iter = boundary_indicators.into_iter().peekable();
+            while let Some(current_size) = boundary_indicator_iter.next() {
+                let current_position = usize::try_from(blob_reader.stream_position()?).unwrap();
+                let next_size = boundary_indicator_iter
+                    .peek()
+                    .copied()
+                    .unwrap_or(data.len()-current_position);
+                let next_offset = next_size + current_position;
+                println!(
+                    "Reading from {current_position} to {next_offset} ({next_size} bytes) in {base_file} of size {}",
+                    data.len()
+                );
+                let mut data_object = vec![0; next_size];
+                blob_reader
+                    .read_exact(&mut data_object)
+                    .map_err(|err| format!("{err} in {base_file} while reading {next_size} bytes"))
+                    .unwrap();
+                data_objects.push(data_object);
+            }
+            debug!("Finished nested {base_file}");
+            Ok(Some((first_chunk, data_objects)))
         }
     } else {
         Ok(None)

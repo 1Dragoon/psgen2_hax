@@ -39,7 +39,7 @@ pub fn deco_lz77_le<T: BufRead>(reader: &mut T) -> Result<(Vec<u8>, usize), io::
     trace!(
         "Compressed data size: {compressed_size}, expected decompressed size: {expected_decompressed_size}"
     );
-    reader.read_exact(&mut compressed_data)?;
+    reader.read_exact(&mut compressed_data).unwrap();
     let mut decompressed_data = Vec::with_capacity(expected_decompressed_size);
     let mut compressed_data_iter = compressed_data.into_iter();
     let mut mask = 0x01;
@@ -108,7 +108,15 @@ pub fn deco_lz77_le<T: BufRead>(reader: &mut T) -> Result<(Vec<u8>, usize), io::
         mask <<= 1;
         // When we have shifted all the way left, move on to the next flag byte
         if mask == 0 {
-            flag = reader.read_u8()?;
+            flag = reader.read_u8().or_else(|err| {
+                if matches!(err.kind(), io::ErrorKind::UnexpectedEof) {
+                    // Unexpected EOF is ok here -- it just means there are no more flags, which means we're simply done decompressing
+                    Ok(u8::default())
+                } else {
+                    // Other errors? Probably not good.
+                    Err(err)
+                }
+            })?;
             mask = 1;
         }
 

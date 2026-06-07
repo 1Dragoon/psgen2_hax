@@ -574,6 +574,7 @@ pub async fn convert_to_png(
     stem_name: &str,
     extensions: &Vec<&str>,
     data: &Vec<u8>,
+    nested: bool,
 ) -> Result<(), io::Error> {
     // Reference? https://en.wikipedia.org/wiki/Segagaga
     // This file format seems most appropriate as a png rather than bmp.
@@ -586,11 +587,17 @@ pub async fn convert_to_png(
         let png_file = png_files.pop().unwrap();
         let leaf_name = format!("{stem_name}.{}", extensions.join("."));
         let main_save_path = save_path.join(leaf_name);
+        if nested {
+            println!("Saving {}", main_save_path.to_string_lossy())
+        }
         save_binary_file(&main_save_path, &png_file).await?;
     } else {
         for (i, png_file) in png_files.into_iter().enumerate() {
             let leaf_name = format!("{stem_name}-{}.{}", i + 1, extensions.join("."));
             let main_save_path = save_path.join(leaf_name);
+            if nested {
+                println!("Saving {}", main_save_path.to_string_lossy())
+            }
             save_binary_file(&main_save_path, &png_file).await?;
         }
     }

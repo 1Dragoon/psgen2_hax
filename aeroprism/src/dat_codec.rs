@@ -1,5 +1,5 @@
 use crate::{
-    events::{IndexMapWrapper, codec::parse_events, rebuild_event}, helpers::hex_edit_encode, lz77_le::{compress_lz77_le, decompress}, save_binary_file, sdat_codec::read_sdat, sggg_codec::{convert_to_png, png_to_sggg}
+    events::{IndexMapWrapper, codec::parse_events, rebuild_event}, helpers::hex_edit_encode, lz77_le::{compress_lz77_le, decompress}, save_binary_file, sdat_codec::read_subdat, sggg_codec::{convert_to_png, png_to_sggg}
 };
 use alloc::{collections::BTreeMap, sync::Arc};
 use core::time::Duration;
@@ -133,14 +133,15 @@ async fn unpack_data(directory_name: &OsStr, save_path: &Path, file_number: usiz
                 data = decompressed_data;
             },
             Err(err) => {
-                warn!("Failed to decompress file with CM magic in {}, reason: {err}. Saving without decompressing.", directory_name.to_string_lossy());
+                warn!("Failed to decompress file {stem_name} with CM magic in {}, reason: {err}. Saving without decompressing.", save_path.to_string_lossy());
             }
         }
     }
     #[expect(clippy::indexing_slicing, reason = "more concise way to check magic")]
     if data[0..4] == *b"SGGG" {
         extensions.push("png");
-        convert_to_png(save_path, stem_name, &extensions, &data).await?;
+        convert_to_png(save_path, stem_name, &extensions, &data, nested).await?;
+        Ok(())
     } else if directory_name.to_string_lossy().contains("EVENT") {
         if log_enabled!(Level::Debug) {
             debug!(
@@ -175,7 +176,11 @@ async fn unpack_data(directory_name: &OsStr, save_path: &Path, file_number: usiz
         let leaf_name = format!("{stem_name}.{}", extensions.join("."));
         let main_save_path = save_path.join(leaf_name);
         save_binary_file(&main_save_path, &data).await?;
-    } else if let Some((first_chunk, nested_data)) = read_sdat(&data, file_number, &format!("{}/{stem_name}.{}", directory_name.to_string_lossy(), extensions.join(".")))? {
+        Ok(())
+    } else if let Some((first_chunk, nested_objects)) = read_subdat(&data, file_number, &format!("{}/{stem_name}.{}", directory_name.to_string_lossy(), extensions.join(".")))? {
+        let leaf_name = format!("{stem_name}.{}", extensions.join("."));
+        let main_save_path = save_path.join(leaf_name);
+        save_binary_file(&main_save_path, &data).await?;
         extensions.push("sDAT");
         let leaf_name = format!("{stem_name}.{}", extensions.join("."));
         // Create the nested directory if we haven't already
@@ -185,21 +190,23 @@ async fn unpack_data(directory_name: &OsStr, save_path: &Path, file_number: usiz
             Ok(()) => (),
             Err(err) => match err.kind() {
                 ErrorKind::AlreadyExists => {
-                    println!("Directory {} already exists.", nested_save_path.to_string_lossy())
+                    println!("Directory {} already exists.", nested_save_path.to_string_lossy());
                 },
                 _ => return Err(err),
             },
         }
-        for (nested_file_number, data) in nested_data.into_iter().enumerate() {
+        for (nested_file_number, nested_data) in nested_objects.into_iter().enumerate() {
+            let nested_stem_name = format!("{nested_file_number:04}");
             let nested_extensions = Vec::with_capacity(5);
-            Box::pin(unpack_data(&OsString::from(&leaf_name), &nested_save_path, nested_file_number, stem_name, data, nested_extensions, true)).await?;
+            Box::pin(unpack_data(&OsString::from(&leaf_name), &nested_save_path, nested_file_number, &nested_stem_name, nested_data, nested_extensions, true)).await?;
         }
+        Ok(())
     } else {
         let leaf_name = format!("{stem_name}.{}", extensions.join("."));
         let main_save_path = save_path.join(leaf_name);
         save_binary_file(&main_save_path, &data).await?;
+        Ok(())
     }
-    Ok(())
 }
 
 // Packages each DAT component asset file concurently and in parallel
@@ -363,7 +370,6 @@ pub async fn pack_dat(path: &PathBuf, dest: &PathBuf) -> Result<(), io::Error> {
             dat_volume.extend(vec![0u8; next_boundary]);
         }
     }
-    info!("Saving DAT to {}", dest.to_string_lossy());
     save_binary_file(dest, &dat_volume).await?;
     Ok(())
 }
